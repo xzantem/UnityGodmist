@@ -57,13 +57,72 @@ namespace Godmist.Systems.Combat
                 if(e.EffectId=="paladin.blessing" && PassiveEffectLifecycleSystem.IsActive(e))
                     e.SetStateValue(PassiveEffectRuntimeStateValue.Integer("grace",Math.Min(6,(e.GetStateValue("grace")?.IntegerValue??0)+1)));
         }
-        public static float CalculateHealing(BattleUnit source,SkillData skill,SkillEffectData effect)
+        public static float CalculateHealing(BattleUnit source,SkillData skill,SkillEffectData effect, bool? singleTarget = null,CombatValueExplanation explanation=null)
         {
+            explanation?.Add("healing_attack",Average(source));
+            explanation?.Add("tree.paladin.priest",1+.01f*Points(source.Character,Priest));
+            explanation?.Add("healing_coefficient",effect.DamageMultiplier);
             var amount=Average(source)*(1+.01f*Points(source.Character,Priest))*effect.DamageMultiplier;
-            if(skill.SkillId is "skill.paladin.heal" or "skill.paladin.group_heal")amount*=1+.15f*P(source,"healing_power");
-            if(skill.SkillId=="skill.paladin.heal")amount*=1+.15f*P(source,"healer_focus");
+            if(skill.SkillId is "skill.paladin.heal" or "skill.paladin.group_heal")
+            {
+                amount*=1+.15f*P(source,"healing_power");
+                if(P(source,"healing_power")>0)explanation?.Add("node.paladin.priest.healing_power",1+.15f*P(source,"healing_power"));
+            }
+            if(singleTarget ?? skill.SkillId=="skill.paladin.heal")
+            {
+                amount*=SingleTargetHealingMultiplier(source);
+                if(P(source,"healer_focus")>0)explanation?.Add("node.paladin.priest.healer_focus",SingleTargetHealingMultiplier(source));
+            }
+            else if(P(source,"healer_focus")>0)explanation?.Add("node.paladin.priest.healer_focus","Nie uwzględniono — wiele celów");
+            explanation?.Add("healing_power",amount);
             return amount;
         }
+        public static float SingleTargetHealingMultiplier(BattleUnit source) => 1 + .15f * P(source,"healer_focus");
+
+        public static bool IsSingleHealingTarget(SkillData skill,
+            IReadOnlyDictionary<int,IReadOnlyList<BattleUnit>> targets)
+        {
+            if (skill == null || targets == null) return skill?.SkillId == "skill.paladin.heal";
+            return skill.Effects.Where(e => e != null && e.EffectType is EffectType.PaladinHeal
+                    or EffectType.Heal or EffectType.HealPercent or EffectType.HealMissingHealthPercent)
+                .Where(e => targets.ContainsKey(e.TargetModeIndex)).SelectMany(e => targets[e.TargetModeIndex])
+                .Where(u => u?.Character != null && u.Character.LifeState != CharacterLifeState.Dead)
+                .Distinct().Take(2).Count() == 1;
+        }
+
+        public static bool IsSingleHealingPreview(CombatSession session,BattleUnit source,BattleUnit target,SkillData skill)
+        {
+            var modes=skill?.Effects?.Where(e=>e.EffectType is EffectType.PaladinHeal or EffectType.Heal or EffectType.HealPercent or EffectType.HealMissingHealthPercent).Select(e=>e.TargetModeIndex).Distinct().ToArray();
+            if(modes==null || modes.Length==0 || skill.TargetModes==null || modes.Any(i=>i<0||i>=skill.TargetModes.Count))return false;
+            if(modes.All(i=>skill.TargetModes[i].TargetType==TargetType.Single))return true;
+            if(session==null)return false;
+            var targeting=new CombatTargetingService();
+            return IsSingleHealingTarget(skill,modes.ToDictionary(i=>i,i=>(IReadOnlyList<BattleUnit>)targeting.GetTargets(session,source,skill.TargetModes[i],target?.Position)));
+        }
+
+        // Only direct healing from an activated skill. Auras, periodic ticks and
+        // secondary returns call recovery without this hook and cannot recurse.
+        public static void CompleteDirectSkillHealing(CombatSession session,BattleUnit source,
+            BattleUnit target,bool single,int actualHealing)
+        {
+            if (!single || actualHealing <= 0 || P(source,"encouragement") == 0) return;
+            var advance=.2f*CombatTurnSystem.CalculateBaseActionValue(target);
+            // Active participants reset AV at turn end; retain this advance in
+            // the existing deferred pool so direct self-healing is not lost.
+            if(session?.ActiveUnit==target)target.PendingEquipmentActionValueReduction+=advance;
+            else target.CurrentActionValue=Mathf.Max(0,target.CurrentActionValue-advance);
+            CombatTurnSystem.ReorderParticipants(session);
+        }
+
+        public static (int Minimum,int Maximum) HealingPowerRange(BattleUnit source,SkillData skill,SkillEffectData effect,bool? single=null)
+        {
+            var amount=CalculateHealing(source,skill,effect,single);
+            return (Mathf.RoundToInt(amount*(1-HealingVariation)),Mathf.RoundToInt(amount*(1+HealingVariation)));
+        }
+        public static float LifeStealCoefficient(BattleUnit source,float coefficient,bool single)
+            => coefficient*(single?SingleTargetHealingMultiplier(source):1);
+        public static float BlessingStrength(BattleUnit source) => .1f+.05f*P(source,"strong_blessing");
+
         public const float HealingVariation = 1f / 6f;
         public static int CalculateRegenerationUpfront(BattleUnit source,BattleUnit target,bool critical=false)
         {
@@ -72,19 +131,19 @@ namespace Godmist.Systems.Combat
             var front=P(source,"haste") switch{1=>.15f,2=>.25f,3=>.4f,_=>0};
             return Mathf.FloorToInt(total*front);
         }
-        public static bool Execute(CombatSession session,BattleUnit source,BattleUnit target,SkillData skill,SkillEffectData effect,CombatRecoverySystem recovery)
+        public static bool Execute(CombatSession session,BattleUnit source,BattleUnit target,SkillData skill,SkillEffectData effect,CombatRecoverySystem recovery, bool? singleTarget = null)
         {
             switch(effect.EffectType)
             {
                 case EffectType.PaladinHeal:
-                    var single=skill.SkillId=="skill.paladin.heal";
-                    if(single)target.PaladinState.HealingDiscount=false;
-                    var amount=CalculateHealing(source,skill,effect)*UnityEngine.Random.Range(1-HealingVariation,1+HealingVariation);
+                    var single=singleTarget ?? skill.SkillId=="skill.paladin.heal";
+                    if(skill.SkillId=="skill.paladin.heal")target.PaladinState.HealingDiscount=false;
+                    var amount=CalculateHealing(source,skill,effect,single)*UnityEngine.Random.Range(1-HealingVariation,1+HealingVariation);
                     var critical=UnityEngine.Random.value<HealingCritChance(source,single || session.Units.Count(u=>Alive(u)&&u.IsPlayerSide==source.IsPlayerSide)==1);
                     if(critical)amount*=Mathf.Max(1,source.Character.Stats.CritDamage.GetValue());
-                    HealAndShare(source,target,Mathf.RoundToInt(amount),recovery,isCritical:critical);
+                    var actualHealing = HealAndShare(source,target,Mathf.RoundToInt(amount),recovery,isCritical:critical);
+                    CompleteDirectSkillHealing(session,source,target,single,actualHealing);
                     if(critical && P(source,"anointed_warrior")>0)WarriorCombatSystem.Variable(source,target,GameplayVariableType.DamageDealtPercent,.1f*P(source,"anointed_warrior"),2,"paladin.anointed","Namaszczony Wojownik");
-                    if(single && P(source,"encouragement")>0){target.CurrentActionValue=Mathf.Max(0,target.CurrentActionValue-.2f*CombatTurnSystem.CalculateBaseActionValue(target));CombatTurnSystem.ReorderParticipants(session);}
                     if(skill.SkillId=="skill.paladin.group_heal")
                     {
                         var bonus=P(source,"universal_grace") switch{1=>.02f,2=>.05f,3=>.1f,_=>0};
@@ -114,7 +173,7 @@ namespace Godmist.Systems.Combat
                     return true;
                 case EffectType.PaladinBlessing:
                     var blessing=Timed(source,"paladin.blessing","Błogosławieństwo",4);
-                    var strength=.1f+.05f*P(source,"strong_blessing");
+                    var strength=BlessingStrength(source);
                     blessing.SetPayload(new VariableModifiersPayload{Modifiers=new(){new GameplayVariableModifier{VariableType=GameplayVariableType.DamageDealtPercent,Value=strength},new GameplayVariableModifier{VariableType=GameplayVariableType.DamageReceivedPercent,Value=-strength}}});
                     new PassiveEffectLifecycleSystem().TryApplyTimedEffect(target.Character,blessing,PassiveEffectStackingMode.ReplaceDurationAndValues,out var appliedBlessing);
                     appliedBlessing.SetStateValue(PassiveEffectRuntimeStateValue.Integer("grace",0));
@@ -122,11 +181,12 @@ namespace Godmist.Systems.Combat
             }
             return false;
         }
-        static void HealAndShare(BattleUnit source,BattleUnit target,int amount,CombatRecoverySystem recovery,
+        static int HealAndShare(BattleUnit source,BattleUnit target,int amount,CombatRecoverySystem recovery,
             CombatTargetVfxKind? targetVfx = null, bool isCritical = false)
         {
             var actual=recovery.Heal(target,amount,targetVfx:targetVfx,isCritical:isCritical);
             recovery.Heal(source,Mathf.FloorToInt(actual*.01f*Points(source.Character,Priest)),targetVfx:targetVfx);
+            return actual;
         }
         static void ApplyStats(BattleUnit source,BattleUnit target,string id,int turns,float defense,int dodge)
         {
@@ -150,7 +210,7 @@ namespace Godmist.Systems.Combat
                     foreach(var obj in session.SummonedObjects)
                         if(session.Units.Any(u=>u.Character.CharacterId==obj.CreatorCharacterId&&u.IsPlayerSide==unit.IsPlayerSide)&&Distance(at,obj.Position)<=1&&anchors.Add(obj.Position))queue.Enqueue(obj.Position);
             }
-            foreach(var ally in reached.Where(a=>a!=unit))HealAndShare(unit,ally,Mathf.RoundToInt(Average(unit)*(1+.01f*Points(unit.Character,Priest))*(rank==1?.07f:.15f)),recovery);
+            foreach(var ally in reached.Where(a=>a!=unit))HealAndShare(unit,ally,HeroTalentEffectValues.HealingAura(unit,rank),recovery);
         }
         public static void BeforeTurnEnd(CombatSession session,BattleUnit unit,CombatRecoverySystem recovery)
         {

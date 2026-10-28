@@ -73,7 +73,7 @@ namespace Godmist.Tests.EditMode
         [TestCase(CharacterStatType.CritChance, StatModifierOperation.Percent, .1f, "Szansa krytyczna: +10%")]
         [TestCase(CharacterStatType.Dodge, StatModifierOperation.FlatAbsolute, 4f, "Unik: +4")]
         [TestCase(CharacterStatType.Dodge, StatModifierOperation.Percent, .2f, "Unik: +20%")]
-        [TestCase(CharacterStatType.PhysicalDefensePenetration, StatModifierOperation.FlatAbsolute, .15f, "Penetracja fizyczna: +15%")]
+        [TestCase(CharacterStatType.PhysicalDefensePenetration, StatModifierOperation.FlatAbsolute, .15f, "Penetracja fizyczna: +15 pp")]
         public void UnitsRespectModifierOperations(CharacterStatType stat, StatModifierOperation operation, float value, string expected)
             => Assert.That(UIWorkspaceTooltipView.FormatStatusStatModifier(stat, operation, value), Is.EqualTo(expected));
 

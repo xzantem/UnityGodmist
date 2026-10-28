@@ -58,9 +58,9 @@ namespace Godmist.Systems.Combat
                 report.AddError("Display Name is required.");
             }
 
-            if (skill.SkillAccuracy < 0f || skill.SkillAccuracy > 100f)
+            if (skill.SkillAccuracy < 0f || float.IsNaN(skill.SkillAccuracy) || float.IsInfinity(skill.SkillAccuracy))
             {
-                report.AddError("Skill Accuracy must be between 0 and 100.");
+                report.AddError("Skill Accuracy must be a finite non-negative value.");
             }
 
             if (skill.ActionCost < 0 || skill.ActionCost > 100)

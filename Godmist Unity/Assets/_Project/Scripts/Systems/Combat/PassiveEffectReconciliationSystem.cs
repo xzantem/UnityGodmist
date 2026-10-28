@@ -33,11 +33,23 @@ namespace Godmist.Systems.Combat
                 AddSocketedGaldurytes(character, item);
             }
 
-            foreach (var tree in character.ClassData?.SkillTrees
-                         ?? new List<SkillTreeDefinition>())
-            {
+            AddSkillTreeEffects(character);
+        }
+
+        // Preview rebuilds only tree-derived effects. Equipment and active runtime
+        // payloads can be read as-is without recalculating or mutating owned items.
+        public void ReconcileSkillTrees(CharacterInstance character)
+        {
+            character.PassiveEffects.RemoveAll(effect => effect.Sources?.Exists(source =>
+                source?.SourceType == PassiveEffectSourceType.SkillTree
+                && source.SourceId.StartsWith(ManagedSkillTreeSourcePrefix,StringComparison.Ordinal)) == true);
+            AddSkillTreeEffects(character);
+        }
+
+        private static void AddSkillTreeEffects(CharacterInstance character)
+        {
+            foreach (var tree in character.ClassData?.SkillTrees ?? new List<SkillTreeDefinition>())
                 AddSkillTreePassives(character, tree);
-            }
         }
 
         public static bool IsManaged(PassiveEffectRuntime effect)

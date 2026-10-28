@@ -30,7 +30,7 @@ namespace Godmist.Systems.Characters
             return type == CharacterStatType.MaxHealth ? Mathf.Max(1f, value) : Mathf.Max(0f, value);
         }
 
-        public void Refresh(CharacterInstance character)
+        public void Refresh(CharacterInstance character, bool treePreview = false)
         {
             if (character?.Stats == null) return;
 
@@ -41,7 +41,8 @@ namespace Godmist.Systems.Characters
                 foreach(var id in character.ActiveSkillLoadout.ActiveSkillIds)
                     if(!known.Contains(id))character.ActiveSkillLoadout.TryRemoveSkill(id);
             }
-            new PassiveEffectReconciliationSystem().Reconcile(character);
+            if (treePreview) new PassiveEffectReconciliationSystem().ReconcileSkillTrees(character);
+            else new PassiveEffectReconciliationSystem().Reconcile(character);
             var accumulators = new Dictionary<CharacterStatType, StatModifierAccumulator>();
 
             ApplyPassiveEffectModifiers(character.PassiveEffects, accumulators);

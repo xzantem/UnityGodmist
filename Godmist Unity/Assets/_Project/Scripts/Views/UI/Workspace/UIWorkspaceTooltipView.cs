@@ -29,7 +29,7 @@ namespace Godmist.Views.UI.Workspace
     /// Glossary links stay inside this view so combat and workspace surfaces do not
     /// maintain separate tooltip systems.
     /// </summary>
-    public sealed class UIWorkspaceTooltipView : MonoBehaviour
+    public sealed partial class UIWorkspaceTooltipView : MonoBehaviour
     {
         private static UIWorkspaceTooltipView activeInstance;
         public static UIWorkspaceTooltipView ActiveInstance
@@ -117,7 +117,7 @@ namespace Godmist.Views.UI.Workspace
         private RectTransform tooltipFooter;
         private TextMeshProUGUI tooltipFooterShortcut;
         private UIWorkspaceTooltipLockGlyph tooltipFooterLockGlyph;
-        private TextAlignmentOptions defaultTitleAlignment;
+        private TextAlignmentOptions defaultTitleAlignment = TextAlignmentOptions.TopLeft;
         private NpcLoyaltyProgressionView npcLoyaltyProgression;
         private float defaultTooltipWidth;
         private Vector2 placementScreenPosition;
@@ -143,9 +143,7 @@ namespace Godmist.Views.UI.Workspace
             // tooltip layer above them in every scene, including DungeonSandbox.
             transform.parent?.SetAsLastSibling();
             defaultTooltipWidth = tooltipRect != null ? tooltipRect.rect.width : 0f;
-            defaultTitleAlignment = titleText != null
-                ? titleText.alignment
-                : TextAlignmentOptions.TopLeft;
+            defaultTitleAlignment = TextAlignmentOptions.TopLeft;
             EnsureCanvasGroup();
             ConfigureTextLayout(titleText);
             ConfigureTextLayout(bodyText);
@@ -207,6 +205,12 @@ namespace Godmist.Views.UI.Workspace
             // Keep the icon centered against the complete title block instead of
             // pinning it to the first line of a wrapped title.
             headerLayout.childAlignment = TextAnchor.MiddleLeft;
+            if(titleText != null)
+            {
+                titleText.alignment = TextAlignmentOptions.TopLeft;
+                var titleLayout=titleText.GetComponent<LayoutElement>();
+                if(titleLayout != null) { titleLayout.minWidth=0; titleLayout.flexibleWidth=1; }
+            }
         }
 
         private void OnDestroy()
@@ -1456,6 +1460,10 @@ namespace Godmist.Views.UI.Workspace
             EnsureTooltipFooter();
             Canvas.ForceUpdateCanvases();
             var contentRect = bodyText?.rectTransform.parent as RectTransform;
+            // Percentage column positions need the available panel width, rather
+            // than TMP's preferred width for the labels alone.
+            var contentLayout = contentRect?.GetComponent<VerticalLayoutGroup>();
+            if (contentLayout != null) contentLayout.childForceExpandWidth = true;
             if (contentRect != null) LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
             bodyText?.ForceMeshUpdate();
             metaText?.ForceMeshUpdate();
@@ -1898,6 +1906,7 @@ namespace Godmist.Views.UI.Workspace
             string id,
             out CombatTooltipGlossary.Entry result)
         {
+            if (!string.IsNullOrEmpty(id) && GetRootTooltip().calculationEntries.TryGetValue(id,out result)) return true;
             if (TryGetGalduryteEffectEntry(id, out result)) return true;
             if (glossary != null && glossary.TryGet(id, out result)) return true;
             if (glossary == null && CombatTooltipGlossaryFallback.TryGet(id, out result)) return true;
@@ -2178,7 +2187,9 @@ namespace Godmist.Views.UI.Workspace
             var result = new StringBuilder();
             var targeting = new StringBuilder();
             AppendSkillTargetingSummary(targeting, skill, caster);
-            if (targeting.Length > 0) result.Append(FormatSkillTargetingSummary(targeting)).Append("\n\n");
+            if (targeting.Length > 0) result.Append(FormatSkillTargetingSummary(new StringBuilder(GeometryValues(targeting.ToString(),skill,caster)))).Append("\n\n");
+            result.Append(AccuracyHeader(skill,caster));
+            if(skill.IsToggle)result.Append("<size=85%>Włączana/wyłączana</size>\n\n");
             result.Append("<b>Efekty</b>\n");
             foreach (var description in BuildSkillMechanics(skill, caster))
                 result.Append("• ").Append(description).Append('\n');
@@ -2197,13 +2208,20 @@ namespace Godmist.Views.UI.Workspace
         private IEnumerable<string> BuildSkillMechanics(SkillData skill, BattleUnit caster)
         {
             var effects = skill.Effects ?? Array.Empty<SkillEffectData>();
+            if (skill.SkillId == WarriorCombatSystem.DeathWish)
+            {
+                var value=effects.FirstOrDefault(e=>e.EffectType==EffectType.ModifyVar);
+                value=PassiveEffectCombatExecutionSystem.ResolveEffect(caster,skill,value);
+                yield return $"Zadawane obrażenia: +{LinkEffectParameter(skill,caster,value,"modifier",FormatPercent(value?.ModifierValue ?? .5f))}. Otrzymywane obrażenia: +{LinkEffectParameter(skill,caster,PassiveEffectCombatExecutionSystem.ResolveEffect(caster,skill,effects.Last(e=>e.EffectType==EffectType.ModifyVar)),"modifier",FormatPercent(value?.ModifierValue ?? .5f))}. Śmiertelne trafienie pozostawia {BaseValue("1","Pragnienie Śmierci — pozostawione zdrowie")} HP. Wygasa przy braku furii na podtrzymanie.";
+                yield break;
+            }
             if (!CanUseGeneratedSkillSummary(skill) && !string.IsNullOrWhiteSpace(skill.TooltipDescription))
             {
                 yield return UiTerms.Present(skill.TooltipDescription.Trim(), SkillResource(skill, caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None));
             }
             // These object behaviours are implemented by dedicated systems, not
             // CreateObject's generic payload. Keep their complete rule exactly once.
-            else if (skill.SkillId is "skill.paladin.judgement_field" or "skill.enemy.catacombs.dead_king_vengeance"
+            else if (skill.SkillId is "skill.enemy.catacombs.dead_king_vengeance"
                 or Godmist.Systems.Combat.SkeletonSlayerBossSystem.DefenseId
                 or Godmist.Systems.Combat.SkeletonSlayerBossSystem.HammerId
                 or Godmist.Systems.Combat.SkeletonSlayerBossSystem.TaskId
@@ -2217,56 +2235,35 @@ namespace Godmist.Views.UI.Workspace
                 var descriptions = effects.Where(effect => effect != null).Select(effect => DescribeEffect(skill, caster,
                     caster?.Character == null ? effect : PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, effect), !commonTarget));
                 foreach (var group in descriptions.Where(text => !string.IsNullOrWhiteSpace(text)).GroupBy(text => text))
-                    yield return group.Count() > 1 ? $"{group.Count()} × {group.Key}" : group.Key;
+                    yield return group.Count() > 1 ? $"{BaseValue(group.Count().ToString(),"Liczba powtórzeń efektu")} × {group.Key}" : group.Key;
             }
             if (skill.GuaranteedCritical) yield return "Trafienie jest zawsze krytyczne.";
             if (!Mathf.Approximately(skill.PointBlankDamageMultiplier, 1f))
-                yield return $"W zwarciu: {FormatPercent(skill.PointBlankDamageMultiplier)} obrażeń.";
+                yield return $"W zwarciu zadaje {BaseValue(FormatPercent(skill.PointBlankDamageMultiplier),"Modyfikator obrażeń w zwarciu")} obrażeń.";
             if (!string.IsNullOrWhiteSpace(skill.RequiredCasterStatusId))
                 yield return $"Warunek użycia: rzucający ma {GetStatusDisplayName(skill.RequiredCasterStatusId)}.";
-            if (skill.CanRecoverKnives) yield return $"Wskazany własny sztylet wraca do ekwipunku bez losowania. Udany odzysk daje +{ScoutCombatSystem.KnifeRecoveryMomentum} impetu, raz za odzysk niezależnie od liczby sztyletów.";
+            if (skill.CanRecoverKnives) yield return $"Odzyskuje wskazany własny sztylet i przywraca {BaseValue(ScoutCombatSystem.KnifeRecoveryMomentum.ToString(),"Impet za odzysk sztyletu")} impetu.";
             var special = skill.SkillId switch
             {
-                "skill.scout.ricochet" => "Każdy kolejny cel zwiększa szansę na trafienie krytyczne o 10 punktów procentowych.",
-                MageTiringSpellSystem.SkillId => MageTiringSpellSystem.HitDescription,
-                "skill.warrior.death_wish" => "Śmiertelne trafienie pozostawia 1 HP. Efekt wygasa przy braku zasobu na utrzymanie.",
-                WarriorDischargeRules.SkillId => "Zużywa do 100 furii (minimum 20). Obrażenia: 100% ataku +1% za każdy wydany punkt, do 200%.",
-                "skill.warrior.shout" => "Zużywa całą aktualną wściekłość. Wydanie co najmniej 50 PW wydłuża ogłuszenie do 2 tur.",
+                "skill.scout.ricochet" => DescribeRicochetCritical(skill,caster),
+                MageTiringSpellSystem.SkillId => TiringValues(),
+                WarriorDischargeRules.SkillId => $"Każdy wydany punkt furii zwiększa obrażenia o {DischargeValue(caster)}." + ((caster?.Character?.ResourcePool?.CurrentValue ?? 20)<20?$" Podgląd przy {BaseValue("20","Minimalna furia dla Wyładowania")} furii; za mało furii.":""),
                 _ => string.Empty
             };
-            if (!string.IsNullOrEmpty(special)) yield return UiTerms.Present(special, SkillResource(skill, caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None));
+            if (!string.IsNullOrEmpty(special)) yield return special;
             if (skill.SkillId == WarriorDischargeRules.SkillId && caster != null)
             {
                 var refund = Mathf.Clamp(WarriorCombatSystem.B(caster, "wounding"), 0, 2) * .25f;
                 var ignore = Mathf.Clamp(WarriorCombatSystem.B(caster, "larger_wound"), 0, 2) * .2f;
-                if (refund > 0) yield return $"Zabicie celu: zwrot {FormatPercent(refund)} zużytej furii.";
-                if (ignore > 0) yield return $"Ignoruje {FormatPercent(ignore)} obrony fizycznej; {FormatPercent(ignore * 2)} przy zużyciu co najmniej 50 furii.";
+                if (refund > 0) yield return $"Zabicie celu: zwrot {TalentPercent(caster,"Zwrot furii po zabiciu",0,refund,"node.warrior.brawler.wounding")} zużytej furii.";
+                if (ignore > 0) yield return $"Ignoruje {TalentPercent(caster,"Ignorowanie obrony fizycznej",0,ignore,"node.warrior.brawler.larger_wound")} obrony fizycznej; {BaseValue(FormatPercent(ignore*2),"Ignorowanie obrony od progu furii")} przy zużyciu co najmniej {BaseValue("50","Próg furii — ignorowanie obrony")} furii.";
             }
         }
 
         public static string BuildLoadoutSkillCost(SkillData skill, CharacterInstance character)
         {
             if (skill == null) return string.Empty;
-            var caster = character == null ? null : new BattleUnit { Character = character };
-            var result = new StringBuilder($"Koszt: {skill.ActionCost}% AP");
-            var resource = PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill);
-            if (skill.SkillId == WarriorDischargeRules.SkillId) result.Append("  •  Furia: 20–100");
-            else if (resource > 0) result.Append($"  •  {CombatResourceColors.ResourceName(skill.ResourceType)}: {resource}");
-            if (skill.CanRecoverKnives) result.Append("\n" + BuildKnifeRecoveryCost(skill, caster));
-            if (skill.KnifeCost > 0)
-            {
-                result.Append($"\nSztylety: {skill.KnifeCost}");
-                if (skill.FreeKnivesInMelee) result.Append(" na dystans • W zwarciu: bez zużycia");
-            }
-            if (skill.IsToggle)
-            {
-                var flat = Mathf.Max(0, skill.ToggleUpkeepFlatResourceCost);
-                var percent = Mathf.Clamp01(skill.ToggleUpkeepMaxResourcePercent) * 100f;
-                result.Append("\nUtrzymanie: ");
-                result.Append(flat > 0 && percent > 0 ? $"max({flat}, {percent:0.#}% maks.)"
-                    : percent > 0 ? $"{percent:0.#}% maks." : flat.ToString());
-            }
-            return UiTerms.Present(result.ToString());
+            return UiTerms.Present(BuildSkillMeta(skill,0,character==null?null:new BattleUnit {Character=character}));
         }
 
         private string BuildSkillDescription(SkillData skill, BattleUnit caster)
@@ -2281,10 +2278,12 @@ namespace Godmist.Views.UI.Workspace
                 AppendSkillTargetingSummary(targeting, skill, caster);
             }
 
+            generated.Append(AccuracyHeader(skill,caster));
+            if(skill.IsToggle)generated.Append("<size=85%>Włączana/wyłączana</size>\n\n");
             foreach (var description in BuildSkillMechanics(skill, caster)) Append(generated, description);
 
             return UiTerms.Present(targeting.Length > 0
-                ? FormatSkillTargetingSummary(targeting) + "\n\n" + generated
+                ? FormatSkillTargetingSummary(new StringBuilder(GeometryValues(targeting.ToString(),skill,caster))) + "\n\n" + generated
                 : generated.ToString());
         }
 
@@ -2324,34 +2323,38 @@ namespace Godmist.Views.UI.Workspace
 
         private static string BuildSkillMeta(SkillData skill, int actionCost, BattleUnit caster)
         {
-            var result = caster != null ? $"Koszt: {Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} AP" : $"Koszt: {skill.ActionCost}% AP";
-            var resourceCost = PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill);
-            if (resourceCost > 0) result += $"  •  {CombatResourceColors.ResourceName(skill.ResourceType)}: {resourceCost}";
-            if (skill.CanRecoverKnives) result += "\n" + BuildKnifeRecoveryCost(skill, caster);
-            if (skill.KnifeCost > 0)
+            string Link(string value,string title,string body)=>ActiveInstance!=null?ActiveInstance.LinkCalculation(value,title,body):value;
+            var percentage=skill.ActionCost*UniqueEquipmentCombatRules.OrderCostMultiplier(caster,skill);
+            var cost=caster?.MaxActionPoints>0?Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)+" PA":percentage.ToString("0.##",UiTerms.PolishCulture)+"% PA";
+            var result="Koszt: "+Link(cost,"Koszt PA",ActionCostDetails(skill,caster,cost,false));
+            var resourceTrace=new CombatValueExplanation();
+            var resourceCost=PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill,explanation:resourceTrace);
+            if(skill.SkillId==WarriorDischargeRules.SkillId)
+                result+="  •  Furia: "+Link("20–100","Koszt furii",Row("Aktualna furia",(caster?.Character?.ResourcePool?.CurrentValue??0).ToString())+Row("Minimalna furia",WarriorDischargeRules.MinimumRage.ToString())+Row("Maksymalna furia",WarriorDischargeRules.MaximumRage.ToString())+Row("Koszt końcowy",resourceCost.ToString()));
+            else if(skill.SkillId=="skill.warrior.shout")result+="  •  Furia: "+Link("100%","Koszt furii",Row("Udział aktualnej furii","100%")+Row("Koszt końcowy",resourceCost.ToString()));
+            else if(resourceCost>0)result+=$"  •  {CombatResourceColors.ResourceName(SkillResource(skill,caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None))}: "+Link(resourceCost.ToString(),"Koszt "+UiTerms.Resource(SkillResource(skill,caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None),genitive:true),ResourceCostDetails(skill,caster,resourceTrace));
+            if(skill.CanRecoverKnives)result+="\n"+BuildKnifeRecoveryCost(skill,caster);
+            if(skill.KnifeCost>0)
             {
-                result += $"  •  SZTYLETY {skill.KnifeCost}";
-                if (skill.FreeKnivesInMelee) result += " na dystans • W zwarciu: bez zużycia";
+                result+="\nSztylety: "+Link(skill.KnifeCost.ToString(),"Zużycie sztyletów",Row("Bazowe zużycie",skill.KnifeCost.ToString())+(skill.FreeKnivesInMelee?Row("Zużycie w zwarciu","0"):"")+(.01f*ScoutCombatSystem.Points(caster,ScoutCombatSystem.BladeTree)>0?Row("Szansa zachowania sztyletów",FormatPercent(.01f*ScoutCombatSystem.Points(caster,ScoutCombatSystem.BladeTree))):""));
+                if(skill.FreeKnivesInMelee)result+=" na dystans • W zwarciu: bez zużycia";
             }
-            if (!skill.IsToggle) return result;
-
-            var flatCost = Mathf.Max(0, skill.ToggleUpkeepFlatResourceCost);
-            var percent = Mathf.Clamp01(skill.ToggleUpkeepMaxResourcePercent);
-            if (flatCost <= 0 && percent <= 0f) return result + "  •  UTRZYMANIE 0";
-            if (flatCost <= 0) return result + $"  •  UTRZYMANIE {percent * 100f:0.#}% maks.";
-            if (percent <= 0f) return result + $"  •  UTRZYMANIE {flatCost}";
-
-            return result
-                + $"  •  UTRZYMANIE max({flatCost}, {percent * 100f:0.#}% maks.)";
+            var upkeep=ToggleSkillUpkeepCalculator.Calculate(skill,caster?.Character?.ResourcePool);
+            if(skill.IsToggle && upkeep>0)
+                result+="\nPodtrzymanie: "+Link(upkeep.ToString(),"Podtrzymanie",Row("Koszt stały",skill.ToggleUpkeepFlatResourceCost.ToString())
+                    +Row("Udział maksymalnego zasobu",FormatPercent(skill.ToggleUpkeepMaxResourcePercent))+Row(UiTerms.Stat(CharacterStatType.MaxResource,caster?.Character?.ResourcePool?.ResourceType??ResourceType.None),(caster?.Character?.ResourcePool?.MaxValue??0).ToString())+Row("Koszt końcowy",upkeep.ToString()))
+                    +" "+UiTerms.Resource(SkillResource(skill,caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None),genitive:true)+" na turę";
+            return result;
         }
 
         private static string BuildKnifeRecoveryCost(SkillData skill, BattleUnit caster)
         {
-            var ap = caster?.MaxActionPoints > 0
-                ? Godmist.Runtime.Combat.ActionPointUnits.Format(CombatActionCostCalculator.CalculateSkillCost(caster, skill, true)) + " AP"
-                : ScoutCombatSystem.KnifeRecoveryCost(caster, skill, skill.ActionCost, true) + "% AP";
-            var resource = PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, true);
-            return $"Odzysk sztyletu: {ap}  •  {CombatResourceColors.ResourceName(skill.ResourceType)}: {resource}";
+            string Link(string value,string title,string body)=>ActiveInstance!=null?ActiveInstance.LinkCalculation(value,title,body):value;
+            var ap=caster?.MaxActionPoints>0?Godmist.Runtime.Combat.ActionPointUnits.Format(CombatActionCostCalculator.CalculateSkillCost(caster,skill,true))+" PA"
+                :ScoutCombatSystem.KnifeRecoveryCost(caster,skill,skill.ActionCost,true)+"% PA";
+            var trace=new CombatValueExplanation();var resource=PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill,true,trace);
+            return "Odzysk sztyletu: "+Link(ap,"Koszt PA — odzysk sztyletu",ActionCostDetails(skill,caster,ap,true))+"  •  "+CombatResourceColors.ResourceName(skill.ResourceType)+": "
+                +Link(resource.ToString(),"Koszt zasobu — odzysk sztyletu",ResourceCostDetails(skill,caster,trace,true));
         }
 
         public Sprite GetStatusIcon(CombatStatusPresentation presentation)
@@ -2440,6 +2443,8 @@ namespace Godmist.Views.UI.Workspace
             SkillEffectData effect,
             bool includeTarget = true)
         {
+            var reviewed=DescribeReviewedEffect(skill,caster,effect);
+            if(reviewed!=null)return includeTarget?reviewed+" Cel: "+GeometryValues(GetEffectTargetDescription(skill,effect.TargetModeIndex,caster),skill,caster)+".":reviewed;
             var description = effect.EffectType switch
             {
                 EffectType.PaladinHeal => $"Przywraca {FormatPercent(effect.DamageMultiplier*(1-PaladinCombatSystem.HealingVariation))}–{FormatPercent(effect.DamageMultiplier*(1+PaladinCombatSystem.HealingVariation))} siły leczenia (średniego ataku), z premiami Kapłana.",
@@ -2748,7 +2753,7 @@ namespace Godmist.Views.UI.Workspace
             var value = isPercent
                 ? FormatSignedStatValue(stat, amount, true)
                 : FormatSignedStatValue(stat, amount, false);
-            if (stat == CharacterStatType.CritChance && operation != StatModifierOperation.Percent && operation != StatModifierOperation.Maximum)
+            if (IsFractionalStat(stat) && operation != StatModifierOperation.Percent && operation != StatModifierOperation.Maximum)
                 value = (amount * 100f).ToString("+0.##;-0.##;0", UiTerms.PolishCulture) + " " + UiTerms.PercentagePoints;
             else if (IsFractionalStat(stat) && operation == StatModifierOperation.FlatAbsolute)
                 value = FormatSignedPercent(amount);
@@ -2944,9 +2949,17 @@ namespace Godmist.Views.UI.Workspace
             if (mode == null) return string.Empty;
 
             var group = GetTargetingDisplayName(mode.TargetingType);
+            var recipients=mode.TargetingType switch{TargetingType.Enemies=>"wrogowie",TargetingType.Allies=>"sojusznicy",_=>"jednostki"};
+            if(skill?.SkillId=="skill.paladin.judgement_field")
+            {
+                var extent=2+PaladinCombatSystem.C(caster,"field_range");
+                return $"kwadrat {2*extent+1}×{2*extent+1} wokół wskazanego pola, bez środka; wrogowie w linii wzroku";
+            }
             if (mode.AbsoluteRange?.Shape == RangeShape.ThreeRays)
-                return $"trzy promienie: prosto i dwa ukośne, obejmujące {group}";
-            if(mode.AbsoluteRange?.Shape==RangeShape.Cone)return $"stożek przed rzucającym, obejmujący {group}";
+                return $"trzy promienie: jeden prosty i dwa ukośne; {recipients}";
+            if(mode.AbsoluteRange?.Shape==RangeShape.Cone)return $"stożek przed rzucającym do {FormatDistance(mode.AbsoluteRange.MaxRange)}; {recipients}";
+            if(mode.TargetType is TargetType.AreaAroundCaster or TargetType.Line)
+                return DescribeShape(mode.AbsoluteRange)+$" od rzucającego; {recipients}";
             return mode.TargetType switch
             {
                 TargetType.Caster => "użytkownik umiejętności",
@@ -2955,7 +2968,7 @@ namespace Godmist.Views.UI.Workspace
                 TargetType.AreaAroundCaster =>
                     $"obszar wokół rzucającego, obejmujący {group}",
                 TargetType.AreaAroundTile =>
-                    DescribeAreaTarget(mode, group),
+                    DescribeAreaTarget(mode, recipients),
                 TargetType.Line => mode.AbsoluteRange?.Shape == RangeShape.ThreeRays
                     ? $"trzy promienie: prosto i dwa ukośne, obejmujące {group}"
                     : $"linia obejmująca {group}",
@@ -2970,14 +2983,27 @@ namespace Godmist.Views.UI.Workspace
             SkillTargetModeData mode,
             string group)
         {
-            var range = mode?.RelativeRange;
-            if (range == null || range.Shape != RangeShape.Square)
-            {
-                return $"obszar wokół wskazanego pola, obejmujący {group}";
-            }
+            return DescribeShape(mode?.RelativeRange)+$" wokół wskazanego pola; {group}";
+        }
 
-            var sideLength = Mathf.Max(1, range.MaxRange - range.MinRange + 1);
-            return $"obszar {sideLength}x{sideLength} wokół wskazanego pola, obejmujący {group}";
+        private static string DescribeShape(SkillRangeData range)
+        {
+            if(range==null)return "obszar";
+            var shape=range.Shape switch
+            {
+                RangeShape.Square=>$"kwadrat {2*range.MaxRange+1}×{2*range.MaxRange+1}",
+                RangeShape.Radial=>$"okrąg o zasięgu {FormatRange(range)}",
+                RangeShape.Ring=>$"pierścień o zasięgu {FormatRange(range)}",
+                RangeShape.Line=>$"linia długości {FormatRange(range)}",
+                RangeShape.TwoSidedLine=>$"linia w dwóch kierunkach, zasięg {FormatRange(range)}",
+                RangeShape.Diagonal=>$"dwa ukośne promienie, zasięg {FormatRange(range)}",
+                RangeShape.XShape=>$"obszar X, zasięg {FormatRange(range)}",
+                RangeShape.Rectangle=>$"prostokąt długości {range.MaxRange-range.MinRange+1} i szerokości {range.RectangleWidth}",
+                RangeShape.ThreeRays=>"trzy promienie: jeden prosty i dwa ukośne",
+                RangeShape.Cone=>$"stożek o zasięgu {FormatRange(range)}",
+                _=>$"obszar o zasięgu {FormatRange(range)}"
+            };
+            return shape+(range.MinRange>0 && range.Shape==RangeShape.Square?range.MinRange==1?", bez środka":$", bez wewnętrznego zasięgu {range.MinRange-1}":"");
         }
 
         private string DescribeConditions(SkillData skill, SkillEffectData effect)

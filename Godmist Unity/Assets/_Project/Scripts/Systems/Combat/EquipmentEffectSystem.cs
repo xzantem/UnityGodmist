@@ -13,26 +13,37 @@ namespace Godmist.Systems.Combat
     // Read equipped, active sockets only. No derived state is persisted in saves.
     public static class EquipmentEffectSystem
     {
-        public static IEnumerable<GalduryteEffectInstance> Effects(CharacterInstance character)
+        private static IEnumerable<(GalduryteItemInstance Rune,GalduryteEffectInstance Effect)> EffectSources(CharacterInstance character)
         {
-            foreach (var item in character?.Equipment?.GetEquippedItems() ?? Enumerable.Empty<EquipmentItemInstance>())
-                for (var i = 0; i < (item?.SocketedGaldurytes?.Count ?? 0); i++)
+            foreach(var item in character?.Equipment?.GetEquippedItems() ?? Enumerable.Empty<EquipmentItemInstance>())
+                for(var i=0;i<(item?.SocketedGaldurytes?.Count??0);i++)
                 {
-                    var rune = item.SocketedGaldurytes[i];
-                    if (!item.IsSocketActive(i) || rune?.IsIdentified != true || rune.IsDestroyed) continue;
-                    foreach (var effect in rune.Effects ?? new List<GalduryteEffectInstance>())
-                        if (effect != null) yield return effect;
+                    var rune=item.SocketedGaldurytes[i];
+                    if(!item.IsSocketActive(i)||rune?.IsIdentified!=true||rune.IsDestroyed)continue;
+                    foreach(var effect in rune.Effects ?? new List<GalduryteEffectInstance>())
+                        if(effect!=null)yield return (rune,effect);
                 }
         }
+        public static IEnumerable<GalduryteEffectInstance> Effects(CharacterInstance character)
+            => EffectSources(character).Select(source=>source.Effect);
 
-        public static float Sum(CharacterInstance character, GalduryteEffectType type) =>
-            Effects(character).Where(e => e.EffectType == type).Sum(e => Mathf.Max(0, e.Value));
+        public static float Sum(CharacterInstance character,GalduryteEffectType type,CombatValueExplanation explanation=null)
+        {
+            double total=0; // Match Enumerable.Sum(float): accumulate in double, cast once.
+            foreach(var (rune,effect) in EffectSources(character))
+                if(effect.EffectType==type)
+                {
+                    var value=Mathf.Max(0,effect.Value);total+=value;
+                    explanation?.Add(rune.DisplayName,"+"+(value*100).ToString("0.##",System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))+(type is GalduryteEffectType.DotChance or GalduryteEffectType.SuppressionChance or GalduryteEffectType.DebuffChance?" pp":"%"));
+                }
+            return (float)total;
+        }
 
-        public static float Outgoing(BattleUnit source, BattleUnit target, DamageType type, CombatSession session)
+        public static float Outgoing(BattleUnit source, BattleUnit target, DamageType type, CombatSession session, CombatValueExplanation explanation=null)
         {
             var c = source?.Character;
-            var bonus = type == DamageType.Physical ? Sum(c, GalduryteEffectType.PhysicalDamagePercent)
-                : type == DamageType.Magical ? Sum(c, GalduryteEffectType.MagicDamagePercent) : 0;
+            var bonus = type == DamageType.Physical ? Sum(c, GalduryteEffectType.PhysicalDamagePercent,explanation)
+                : type == DamageType.Magical ? Sum(c, GalduryteEffectType.MagicDamagePercent,explanation) : 0;
             foreach (var tag in target?.Character?.Definition?.Tags ?? new List<CharacterTag>())
             {
                 bonus += Sum(c, tag switch {
@@ -77,10 +88,10 @@ namespace Godmist.Systems.Combat
                 ResistanceType.Suppression => GalduryteEffectType.SuppressionResistance,
                 _ => GalduryteEffectType.DebuffResistance });
 
-        public static float StatusChance(CharacterInstance c, string status) =>
+        public static float StatusChance(CharacterInstance c, string status,CombatValueExplanation explanation=null) =>
             Sum(c, StatusEffectSystem.IsDamageOverTimeStatus(status) ? GalduryteEffectType.DotChance
                 : StatusEffectIds.UsesSuppressionResistance(status) ? GalduryteEffectType.SuppressionChance
-                : GalduryteEffectType.DebuffChance);
+                : GalduryteEffectType.DebuffChance,explanation);
 
         public static float ResourceMultiplier(CharacterInstance c) =>
             1 + Sum(c, GalduryteEffectType.ResourceGenerationPercent)

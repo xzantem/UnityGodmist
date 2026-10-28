@@ -12,6 +12,9 @@ namespace Godmist.Data.Effects
     [Serializable]
     public class SkillEffectData
     {
+        public static SkillEffectData ForDamage(DamageType type,DamageValueSource source,float multiplier)
+            => new() { effectType=EffectType.DealDamage,damageType=type,damageValueSource=source,damageMultiplier=multiplier };
+
         public SkillEffectData WithRuntimeParameters(int hits, int duration, float chance)
         {
             if (hits == damageHitCount && duration == durationTurns && Mathf.Approximately(chance, baseChance)) return this;

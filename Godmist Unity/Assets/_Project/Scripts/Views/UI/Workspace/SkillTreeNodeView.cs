@@ -335,17 +335,10 @@ namespace Godmist.Views.UI.Workspace
             else
             {
                 ranks = Mathf.Clamp(ranks, 0, node.EffectiveMaxRanks);
-                if (ranks == 0) text = "<b>Następne:</b>\n" + BuildRankDescription(node, 1);
-                else if (ranks >= node.EffectiveMaxRanks) text = "<b>Aktualne:</b>\n" + BuildRankDescription(node, ranks);
-                else
-                {
-                    var description = GetPassiveDescription(node);
-                    var matches = RankValues.Matches(description).Cast<Match>().ToArray();
-                    text = matches.Length > 0 && matches.All(match => match.Value.Split('/').Length == node.EffectiveMaxRanks)
-                        ? "<b>Aktualne → następne:</b>\n" + RankValues.Replace(description,
-                            match => RankValue(match, ranks - 1) + " → " + RankValue(match, ranks))
-                        : "<b>Efekt:</b>\n" + BuildRankDescription(node, ranks);
-                }
+                string At(int rank) => SkillTreeTooltipPresentation.Describe(node,rank,character,tooltip) ?? BuildRankDescription(node,rank);
+                if (ranks == 0) text = "<b>Następne:</b>\n" + At(1);
+                else if (ranks >= node.EffectiveMaxRanks) text = "<b>Aktualne:</b>\n" + At(ranks);
+                else text = "<b>Aktualne:</b>\n" + At(ranks) + "\n\n<b>Następne:</b>\n" + At(ranks+1);
             }
             var metadata = UIWorkspaceTooltipView.BuildPassiveMetadata(node.PassiveEffects, text);
             if (!string.IsNullOrWhiteSpace(metadata)) text += "\n" + metadata;
@@ -369,6 +362,7 @@ namespace Godmist.Views.UI.Workspace
         {
             var values = match.Value.Split('/').Select(value => value.Trim()).ToArray();
             var value = values[index];
+            if(match.Value.StartsWith("+",StringComparison.Ordinal) && !value.StartsWith("+",StringComparison.Ordinal) && !value.StartsWith("-",StringComparison.Ordinal))value="+"+value;
             return values[^1].EndsWith("%") && !value.EndsWith("%") ? value + "%" : value;
         }
 

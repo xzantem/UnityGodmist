@@ -1,5 +1,6 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Core.Utilities;
 using Godmist.Core.Constants;
 using Godmist.Data.Configuration;
 using Godmist.Data.Effects;
@@ -71,7 +72,7 @@ namespace Godmist.Systems.Combat
     public static class CombatSkillPreviewCalculator
     {
         public static int? CalculateHealing(BattleUnit caster, BattleUnit target, SkillData skill, int targetModeIndex = -1)
-            => CalculateHealingAt(caster,target,skill,targetModeIndex,0,false);
+            => CalculateHealingAt(caster,target,skill,targetModeIndex,0,false,PaladinCombatSystem.IsSingleHealingPreview(caster?.WarriorState.Session,caster,target,skill));
 
         public static CombatSkillHealingPreview CalculateHealingPreview(CombatSession session,BattleUnit caster,
             BattleUnit target,SkillData skill,int targetModeIndex=-1)
@@ -86,15 +87,16 @@ namespace Godmist.Systems.Combat
                         ||session!=null&&System.Linq.Enumerable.Count(session.Units,u=>u.Character?.LifeState==CharacterLifeState.Alive&&u.IsPlayerSide==caster.IsPlayerSide)==1;
                     chance=Mathf.Max(chance,PaladinCombatSystem.HealingCritChance(caster,single));
                 }
+            var singleHealing=PaladinCombatSystem.IsSingleHealingPreview(session,caster,target,skill);
             return new CombatSkillHealingPreview(
-                CalculateHealingAt(caster,target,skill,targetModeIndex,-1,false)??0,
-                CalculateHealingAt(caster,target,skill,targetModeIndex,1,false)??0,
-                CalculateHealingAt(caster,target,skill,targetModeIndex,-1,true)??0,
-                CalculateHealingAt(caster,target,skill,targetModeIndex,1,true)??0,chance);
+                CalculateHealingAt(caster,target,skill,targetModeIndex,-1,false,singleHealing)??0,
+                CalculateHealingAt(caster,target,skill,targetModeIndex,1,false,singleHealing)??0,
+                CalculateHealingAt(caster,target,skill,targetModeIndex,-1,true,singleHealing)??0,
+                CalculateHealingAt(caster,target,skill,targetModeIndex,1,true,singleHealing)??0,chance);
         }
 
         private static int? CalculateHealingAt(BattleUnit caster,BattleUnit target,SkillData skill,
-            int targetModeIndex,float variation,bool critical)
+            int targetModeIndex,float variation,bool critical,bool? singleTarget=null)
         {
             if (caster?.Character == null || target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return null;
             var maximum = Mathf.Max(0, Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()));
@@ -108,11 +110,11 @@ namespace Godmist.Systems.Combat
                 int amount;
                 switch (effect.EffectType)
                 {
-                    case EffectType.Heal: amount = CombatRecoverySystem.CalculateSkillHealing(caster, effect); break;
-                    case EffectType.HealPercent: amount = Mathf.CeilToInt(maximum * effect.PercentageValue); break;
+                    case EffectType.Heal: amount = Mathf.RoundToInt(CombatRecoverySystem.CalculateSkillHealing(caster,effect)*(singleTarget==true?PaladinCombatSystem.SingleTargetHealingMultiplier(caster):1)); break;
+                    case EffectType.HealPercent: amount = Mathf.RoundToInt(Mathf.CeilToInt(maximum*effect.PercentageValue)*(singleTarget==true?PaladinCombatSystem.SingleTargetHealingMultiplier(caster):1)); break;
                     case EffectType.HealMissingHealthPercent: amount = Mathf.RoundToInt(missing * effect.PercentageValue); break;
                     case EffectType.PaladinHeal:
-                        amount = Mathf.RoundToInt(PaladinCombatSystem.CalculateHealing(caster, skill, effect)
+                        amount = Mathf.RoundToInt(PaladinCombatSystem.CalculateHealing(caster, skill, effect,singleTarget)
                             *(1+variation*PaladinCombatSystem.HealingVariation)
                             *(critical?Mathf.Max(1,caster.Character.Stats.CritDamage.GetValue()):1)); break;
                     case EffectType.PaladinRegeneration: amount = PaladinCombatSystem.CalculateRegenerationUpfront(caster, target,critical); break;
@@ -180,12 +182,82 @@ namespace Godmist.Systems.Combat
                 true);
         }
 
+        public static CombatSkillDamageRange CalculateDirectDamageRange(BattleUnit source,DamageType type,float coefficient,CombatValueExplanation explanation=null)
+        {
+            if(source?.Character?.Stats==null)return default;
+            explanation?.Add("attack",source.Character.Stats.MinAttack.GetValue().ToString("0.##",UiTerms.PolishCulture)+"–"+source.Character.Stats.MaxAttack.GetValue().ToString("0.##",UiTerms.PolishCulture));
+            explanation?.Add("coefficient",coefficient);
+            var low=CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.MinAttack,coefficient);
+            var high=CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.MaxAttack,coefficient);
+            var context=new PassiveEffectCombatContext(source:source,damageType:type);
+            var result=new CombatSkillDamageRange(CombatDamageSystem.CalculateIncomingBeforeRedirect(source.WarriorState.Session,source,null,low,type,context,explanation),
+                CombatDamageSystem.CalculateIncomingBeforeRedirect(source.WarriorState.Session,source,null,high,type,context),true);
+            explanation?.Add("result",result.ToDisplayString());return result;
+        }
+
+        // One ordinary hit, before a target's defenses. Random double-damage
+        // branches are described separately; only an actual guarantee includes crit.
+        public static CombatSkillDamageRange CalculateSingleHitRange(BattleUnit caster,SkillData skill,
+            SkillEffectData effect, CombatValueExplanation explanation = null, bool bonusProc = false)
+        {
+            var range = CalculateEffectDamageRange(caster,effect,bonusProc:bonusProc);
+            if (!range.HasDamage) return range;
+            explanation?.Add("attack",$"{caster.Character.Stats.MinAttack.GetValue():0.##}–{caster.Character.Stats.MaxAttack.GetValue():0.##}");
+            explanation?.Add("coefficient",effect.DamageMultiplier);
+            if(bonusProc)explanation?.Add("bonus_damage",effect.BonusDamageMultiplier);
+            explanation?.Add("base_rounding",range.ToDisplayString());
+            var context = new PassiveEffectCombatContext(source:caster,skill:skill,skillId:skill?.SkillId,
+                attackType:skill?.AttackType ?? AttackType.Unknown,damageType:effect.DamageType);
+            var mage = MageCombatSystem.DamageMultiplier(context,explanation);
+            var scout = ScoutCombatSystem.DamageMultiplier(context,explanation);
+
+            var multiplier = mage * scout;
+            if (skill?.SkillId == WarriorDischargeRules.SkillId)
+            {
+                var spent = Mathf.Max(WarriorDischargeRules.MinimumRage,WarriorDischargeRules.Cost(caster));
+                multiplier *= WarriorDischargeRules.Multiplier(spent);
+                explanation?.Add("rage_spent",spent);
+                explanation?.Add("rage_multiplier",WarriorDischargeRules.Multiplier(spent));
+            }
+            var guaranteed = skill?.GuaranteedCritical == true || CombatDamageSystem.HasUniqueBuff(caster,UniqueBuffType.GuaranteedCriticalHit);
+            if (guaranteed)
+            {
+                var critical = Mathf.Max(1,caster.Character.Stats.CritDamage.GetValue());
+                explanation?.Add("guaranteed_critical",critical);
+                // Execution rounds the hero multipliers before applying critical damage.
+                range = new CombatSkillDamageRange(Mathf.CeilToInt(Mathf.RoundToInt(range.Minimum*multiplier)*critical),
+                    Mathf.CeilToInt(Mathf.RoundToInt(range.Maximum*multiplier)*critical),true);
+            }
+            else range = new CombatSkillDamageRange(Mathf.RoundToInt(range.Minimum*multiplier),Mathf.RoundToInt(range.Maximum*multiplier),true);
+            var theme=caster?.WarriorState.Session;
+            range=new CombatSkillDamageRange(CombatDamageSystem.ApplyJewelryDamagePassive(theme,caster,range.Minimum),
+                CombatDamageSystem.ApplyJewelryDamagePassive(theme,caster,range.Maximum),true);
+            if(StatusEffectSystem.HasStatus(caster,StatusEffectIds.Weakening))
+            {
+                range=new CombatSkillDamageRange(Mathf.CeilToInt(range.Minimum*.8f),Mathf.CeilToInt(range.Maximum*.8f),true);
+                explanation?.Add("weakening",.8f);
+            }
+            var min = ApplyCurrentDamageModifiers(caster,null,range.Minimum,skill,effect.DamageType,explanation:explanation);
+            var max = ApplyCurrentDamageModifiers(caster,null,range.Maximum,skill,effect.DamageType);
+            explanation?.Add("result",min==max ? min.ToString() : $"{min}–{max}");
+            return new CombatSkillDamageRange(min,max,true);
+        }
+
         public static CombatSkillTargetPreview CalculateTargetPreview(
             BattleUnit caster,
             BattleUnit target,
             SkillData skill,
             int targetModeIndex = -1)
-            => CalculateTargetPreviewInternal(caster, target, skill, targetModeIndex, null);
+        {
+            var guaranteed=skill?.GuaranteedCritical==true||CombatDamageSystem.HasUniqueBuff(caster,UniqueBuffType.GuaranteedCriticalHit);
+            var avoidance=Mathf.Clamp01(EquipmentEffectSystem.Sum(target?.Character,GalduryteEffectType.CriticalAvoidance));
+            if(!guaranteed||avoidance<=0)return CalculateTargetPreviewInternal(caster,target,skill,targetModeIndex,null);
+            var normal=CalculateTargetPreviewInternal(caster,target,skill,targetModeIndex,false);
+            if(avoidance>=1)return normal;
+            var critical=CalculateTargetPreviewInternal(caster,target,skill,targetModeIndex,true);
+            return new CombatSkillTargetPreview(new CombatSkillDamageRange(normal.Damage.Minimum,critical.Damage.Maximum,normal.Damage.HasDamage),
+                normal.HitChance,normal.HasHitChance,normal.StatusId,normal.StatusChance,normal.Healing);
+        }
 
         // The UI still shows its regular-hit range. AI compares expected regular
         // and critical hits; both branches use the same defense/modifier math.
@@ -313,7 +385,7 @@ namespace Godmist.Systems.Combat
                 var attackType=skill.ResolveAttackType(target.Position.X - caster.Position.X, target.Position.Y - caster.Position.Y);
                 var context=new PassiveEffectCombatContext(source:caster,target:target,skill:skill,skillId:skill.SkillId,attackType:attackType,damageType:effect.DamageType,distance:distance);
                 var scoutMultiplier=CombatDamageSystem.HawkeyeDamageMultiplier(caster,target,effect.DamageType)*PaladinCombatSystem.DamageMultiplier(context)*MageCombatSystem.DamageMultiplier(context)*WarriorCombatSystem.DamageMultiplier(context,true)*ScoutCombatSystem.DamageMultiplier(context)*(attackType==AttackType.Melee?skill.PointBlankDamageMultiplier:1f);
-                if(criticalPreview ?? skill.GuaranteedCritical)scoutMultiplier*=Mathf.Max(1f,caster.Character.Stats.CritDamage.GetValue()+ScoutCombatSystem.WeakPointCriticalDamage(target));
+                if(criticalPreview ?? (skill.GuaranteedCritical || CombatDamageSystem.HasUniqueBuff(caster,UniqueBuffType.GuaranteedCriticalHit)))scoutMultiplier*=Mathf.Max(1f,caster.Character.Stats.CritDamage.GetValue()+ScoutCombatSystem.WeakPointCriticalDamage(target));
                 range=new CombatSkillDamageRange(Mathf.RoundToInt(range.Minimum*scoutMultiplier),Mathf.RoundToInt(range.Maximum*scoutMultiplier),true);
                 var hitCount = Mathf.Max(1, effect.DamageHitCount);
                 var strike=BanditLeaderBossSystem.StrikeMultiplier(caster?.BanditLeaderState?.Session ?? caster?.WarriorState.Session,target,skill);
@@ -548,7 +620,7 @@ namespace Godmist.Systems.Combat
             };
 
             var multiplier = Mathf.Max(0f, effect.DamageMultiplier * positionalMultiplier * SummonSystem.DamageScale(caster, effect)) * (bonusProc==true?effect.BonusDamageMultiplier:1f);
-            var minimum = Mathf.CeilToInt(baseMinimum * multiplier);
+            var minimum = CombatDamageValueCalculator.ScaleAttackDamage(baseMinimum,multiplier);
             var maximum = 0;
             var maximumMultiplier = multiplier;
             if (bonusProc==null && effect.BonusDamageMultiplierChance > 0f)
@@ -556,7 +628,7 @@ namespace Godmist.Systems.Combat
                 maximumMultiplier *= effect.BonusDamageMultiplier;
             }
 
-            maximum = Mathf.CeilToInt(baseMaximum * maximumMultiplier);
+            maximum = CombatDamageValueCalculator.ScaleAttackDamage(baseMaximum,maximumMultiplier);
             return new CombatSkillDamageRange(
                 minimum,
                 maximum,
@@ -567,29 +639,19 @@ namespace Godmist.Systems.Combat
             BattleUnit caster,
             BattleUnit target,
             int damage, SkillData skill = null, DamageType damageType = DamageType.Physical,
-            AttackType? resolvedAttackType = null, bool? firstProtectionUsed = null)
+            AttackType? resolvedAttackType = null, bool? firstProtectionUsed = null, CombatValueExplanation explanation = null)
         {
             if (damage <= 0)
             {
                 return 0;
             }
 
-            var variableSystem = new CombatVariableSystem();
-            var dealtMultiplier = variableSystem.GetMultiplier(
-                caster?.Character,
-                GameplayVariableType.DamageDealtPercent);
-            dealtMultiplier=WarriorCombatSystem.PreviewDealtMultiplier(caster,skill,dealtMultiplier);
-            var receivedMultiplier = variableSystem.GetMultiplier(
-                target?.Character,
-                GameplayVariableType.DamageReceivedPercent);
-
-            return Mathf.Max(
-                0,
-                Mathf.RoundToInt(damage * SkeletonSlayerBossSystem.IncomingMultiplier(target,damageType) * DeadKingBossSystem.DamageMultiplier(caster?.WarriorState.Session,caster,target,
-                    new PassiveEffectCombatContext(attackType:skill?.AttackType ?? AttackType.Unknown)) * dealtMultiplier * receivedMultiplier * WarriorCombatSystem.Received(null,caster,target,DamageType.Physical) * ScoutCombatSystem.ReceivedDamageMultiplier(caster,target)
-                    * PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "damage_multiplier", 1f)
-                    * UniqueEquipmentCombatRules.IncomingMultiplier(target, damageType,
-                        resolvedAttackType ?? skill?.AttackType ?? AttackType.Unknown, firstProtectionUsed)));
+            var context=new PassiveEffectCombatContext(source:caster,target:target,skill:skill,skillId:skill?.SkillId,
+                attackType:resolvedAttackType??skill?.AttackType??AttackType.Unknown,damageType:damageType);
+            var amount=CombatDamageSystem.CalculateIncomingBeforeRedirect(caster?.WarriorState.Session,caster,target,
+                damage,damageType,context,explanation,skill);
+            return Mathf.Max(0,Mathf.RoundToInt(amount*UniqueEquipmentCombatRules.IncomingMultiplier(target,damageType,
+                resolvedAttackType??skill?.AttackType??AttackType.Unknown,firstProtectionUsed)));
         }
     }
 }

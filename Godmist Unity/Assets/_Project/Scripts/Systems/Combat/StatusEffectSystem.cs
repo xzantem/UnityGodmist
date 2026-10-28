@@ -1134,13 +1134,15 @@ namespace Godmist.Systems.Combat
             return Mathf.Clamp01(resistanceMultiplier * (1f - r) * s);
         }
 
+        public static float CalculateSourceStatusChance(BattleUnit source,string statusId,float baseChance,CombatValueExplanation explanation=null)
+            => Mathf.Clamp01(baseChance+EquipmentEffectSystem.StatusChance(source?.Character,statusId,explanation));
+
         public static float CalculateStatusApplicationChance(
             BattleUnit source, BattleUnit target, string statusId, float baseChance, float additionalResistanceModifier = 0f)
         {
             if (target?.Character == null || string.IsNullOrWhiteSpace(statusId)) return 0f;
 
-            var chance = Mathf.Clamp01(baseChance
-                + EquipmentEffectSystem.StatusChance(source?.Character, statusId));
+            var chance = CalculateSourceStatusChance(source,statusId,baseChance);
             var naturalResistance = GetResistance(target, statusId, includeTolerance: false, additionalResistanceModifier);
             var naturalChance = CalculateEffectChance(chance, naturalResistance);
             var tolerance = target.GetStatusTolerance(statusId);
@@ -1321,7 +1323,7 @@ namespace Godmist.Systems.Combat
                     effect.StatusDamageMultiplier);
         }
 
-        private static int CalculateStatusDamagePerTurn(
+        public static int CalculateStatusDamagePerTurn(
             BattleUnit source,
             string statusId,
             float statusDamageMultiplier)

@@ -70,6 +70,7 @@ namespace Godmist.Systems.Combat
         }
         public const string AssassinTree = "tree.scout.assassin";
         public static int AssassinRank(BattleUnit owner, string node) => Rank(owner, AssassinTree, "node.scout.assassin." + node);
+        public static float KnifeEmbeddingChance(BattleUnit owner)=>.15f+.05f*Math.Min(2,AssassinRank(owner,"keen_eye"));
         public static bool TryEmbedKnife(CombatSession session, string actionId, BattleUnit owner, BattleUnit target, AttackType attackType, Func<float> roll)
         {
             var rank = AssassinRank(owner, "sharp_knife");
@@ -77,10 +78,10 @@ namespace Godmist.Systems.Combat
                 || attackType != AttackType.Ranged || rank == 0
                 || !session.PendingScoutKnifeActions.TryGetValue(actionId, out var pending)
                 || pending.Owner != owner || pending.Count <= 0) return false;
-            var chance = .15f + .05f * Math.Min(2, AssassinRank(owner, "keen_eye"));
+            var chance = KnifeEmbeddingChance(owner);
             if (roll() >= chance) return false;
             pending.Count--;
-            target.ScoutState.Knives.Add(new EmbeddedScoutKnife { Owner = owner, BleedMultiplier = rank == 1 ? .6f : .9f });
+            target.ScoutState.Knives.Add(new EmbeddedScoutKnife { Owner = owner, BleedMultiplier = HeroTalentEffectValues.KnifeBleedMultiplier(rank) });
             return true;
         }
         public static void FinishKnifeAction(CombatSession session, string actionId, bool hit = false)

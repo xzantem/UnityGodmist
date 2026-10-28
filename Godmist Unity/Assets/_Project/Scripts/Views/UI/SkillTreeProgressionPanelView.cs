@@ -42,6 +42,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI selectedTreeNameText;
         [SerializeField] private RectTransform globalPassivePanel;
         [SerializeField] private TextMeshProUGUI globalPassiveText;
+        [SerializeField] private CombatSimpleTooltipTrigger globalPassiveTooltip;
         [SerializeField] private RectTransform prerequisiteConnectionRoot;
         [SerializeField] private Image prerequisiteConnectionTemplate;
         [SerializeField] private RectTransform[] tierGateRoots = new RectTransform[3];
@@ -576,31 +577,36 @@ namespace Godmist.Views.UI
             var summary = GetGlobalPassiveSummary(selectedTree, investedRanks, character?.ResourcePool?.ResourceType ?? ResourceType.None);
 
             globalPassiveText.text = $"<b>Premia za punkt</b>\n{GetGlobalPassiveSummary(selectedTree, 1, character?.ResourcePool?.ResourceType ?? ResourceType.None)}\nAktualnie: {summary}";
+            if(globalPassiveTooltip!=null)
+                globalPassiveTooltip.Initialize(UIWorkspaceTooltipView.ActiveInstance,UiTerms.Present(selectedTree.DisplayName),
+                    UIWorkspaceTooltipView.ActiveInstance!=null?UIWorkspaceTooltipView.ActiveInstance.GlobalPassiveDetails(selectedTree,investedRanks,character?.ResourcePool?.ResourceType ?? ResourceType.None):summary);
         }
 
         public static string GetGlobalPassiveSummary(SkillTreeDefinition tree, int investedRanks, ResourceType resource = ResourceType.None)
         {
             if (tree == null) return string.Empty;
             var points = Mathf.Max(0, investedRanks);
+            if(points==0)return "brak premii.";
+            string N(float value)=>value.ToString("0.###",UiTerms.PolishCulture);
             // These passives contain combat rules as well as ordinary stat modifiers.
             switch (tree.Id)
             {
                 case Godmist.Systems.Combat.PaladinCombatSystem.Priest:
-                    return UiTerms.Present($"+{points}% siły leczenia, {points}% faktycznego leczenia przywraca HP rzucającego", resource);
+                    return UiTerms.Present($"Zwiększa siłę leczenia o {points}%. Przywracanie zdrowia przywraca również rzucającemu zdrowie równe {points}% faktycznego leczenia.", resource);
                 case Godmist.Systems.Combat.PaladinCombatSystem.Crusader:
-                    return UiTerms.Present($"+{points}% obrażeń przeciw nieumarłym i demonom", resource);
+                    return UiTerms.Present($"Zwiększa zadawane obrażenia przeciw nieumarłym i demonom o {points}%.", resource);
                 case Godmist.Systems.Combat.MageCombatSystem.Warlock:
-                    return UiTerms.Present($"-{points * Godmist.Systems.Combat.MageCombatSystem.ManaCostReductionPerPoint * 100f:0.##}% kosztów many, +{points}% obrażeń przy jednym celu", resource);
+                    return UiTerms.Present($"Zmniejsza koszty many o {N(points * Godmist.Systems.Combat.MageCombatSystem.ManaCostReductionPerPoint * 100f)}% i zwiększa zadawane obrażenia o {points}%, gdy umiejętność obejmuje jednego przeciwnika.", resource);
                 case Godmist.Systems.Combat.MageCombatSystem.Fire:
-                    return UiTerms.Present($"+{points * 2}% obrażeń podpalenia, Kuli Ognia i Ognistej Strzały, +{points}% odporności na ogień", resource);
+                    return UiTerms.Present($"Zwiększa zadawane obrażenia od podpalenia, Kuli Ognia i Ognistej Strzały o {points*2}% oraz odporność na podpalenie o {points} pp.", resource);
                 case Godmist.Systems.Combat.ScoutCombatSystem.AssassinTree:
-                    return UiTerms.Present($"+{points * .2f:0.##} {UiTerms.PercentagePoints} szansy krytycznej, +{points * .5f:0.##}% obrażeń wręcz", resource);
+                    return UiTerms.Present($"Zwiększa szansę krytyczną o {N(points*.2f)} pp i zadawane obrażenia w walce wręcz o {N(points*.5f)}%.", resource);
                 case Godmist.Systems.Combat.ScoutCombatSystem.BladeTree:
-                    return UiTerms.Present($"{points}% szansy na zachowanie sztyletu, +{points}% siły zatrucia", resource);
+                    return UiTerms.Present($"Daje {points}% szansy na niezużycie sztyletów i zwiększa zadawane obrażenia od zatrucia o {points}%.", resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Commander:
-                    return UiTerms.Present($"+{points * .3f:0.##} {UiTerms.PercentagePoints} szansy krytycznej, {points * .002f:0.###}% obrażeń trafienia jako nieuchronne za każdy procent ulepszenia broni", resource);
+                    return UiTerms.Present($"Zwiększa szansę krytyczną o {N(points*.3f)} pp. Trafienia zadają dodatkowe obrażenia nieuchronne równe {N(points*.002f)}% zadanych obrażeń za każdy 1% ulepszenia broni.", resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Brawler:
-                    return UiTerms.Present($"+{points}% maksymalnej wściekłości, {points * 2}% wydanej wściekłości odzyskiwane jako HP", resource);
+                    return UiTerms.Present($"Zwiększa maksymalną furię o {points}%. Wydawanie furii przywraca zdrowie równe {points*2}% wydanej ilości.", resource);
             }
             var summary = string.Join(", ", SkillTreeProgressionSystem
                 .GetGlobalPassiveModifiers(tree, points).Select(modifier => FormatModifier(modifier, resource)));

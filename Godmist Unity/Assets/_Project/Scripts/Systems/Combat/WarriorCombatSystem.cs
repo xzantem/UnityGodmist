@@ -80,7 +80,8 @@ namespace Godmist.Systems.Combat
         public static int Adjacent(CombatSession s,BattleUnit u)=>s?.Units?.Count(a=>a!=u && a.IsPlayerSide==u.IsPlayerSide && a.Character.LifeState==CharacterLifeState.Alive
             && Math.Abs(a.Position.X-u.Position.X)+Math.Abs(a.Position.Y-u.Position.Y)==1 && s.Grid.CanMoveBetween(a.Position,u.Position))??0;
         public static float Protection(CombatSession s,BattleUnit target)=>target?.WarriorState.ProtectionTurns>0 ? 1-Mathf.Min(.6f,.3f+.1f*Adjacent(s ?? target.WarriorState.Session,target)):1;
-        public static float TargetPriority(CombatSession s,BattleUnit target)=>target?.WarriorState.ProtectionTurns>0 && target.WarriorState.Riposte ? 1+Mathf.Min(1.25f,.5f+.25f*Adjacent(s ?? target.WarriorState.Session,target)):1;
+        public static float ProtectionPriority(int adjacentAllies)=>1+Mathf.Min(1.25f,.5f+.25f*adjacentAllies);
+        public static float TargetPriority(CombatSession s,BattleUnit target)=>target?.WarriorState.ProtectionTurns>0 && target.WarriorState.Riposte ? ProtectionPriority(Adjacent(s ?? target.WarriorState.Session,target)):1;
         public static float DamageMultiplier(PassiveEffectCombatContext ctx,bool preview=false)
         {
             if(ctx?.Source==null || ctx.Target?.Character==null)return 1;

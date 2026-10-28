@@ -63,17 +63,24 @@ namespace Godmist.Systems.Combat
             if (skill?.SkillId == "skill.mage.fire_aura") dot *= 1 + .15f * F(u, "burning_aura");
             return e.WithScoutParameters(e.AdditionalHitTrials, e.BonusDamageMultiplierChance, dot, e.ModifierValue, turns).WithRuntimeParameters(e.DamageHitCount, turns, chance);
         }
-        public static float DamageMultiplier(PassiveEffectCombatContext ctx)
+        public static float DamageMultiplier(PassiveEffectCombatContext ctx,CombatValueExplanation explanation=null)
         {
-            var u = ctx?.Source;
-            if (u?.Character == null) return 1;
-            var multiplier = CombatDamageSystem.HasUniqueBuff(u, UniqueBuffType.MageOffering) ? 1 + OfferingBonus(u) : 1f;
-            var targets = ctx.TargetsByModeIndex?.Values.SelectMany(v => v).Where(v => v != null && v.IsPlayerSide != u.IsPlayerSide).Distinct().Count() ?? 1;
-            if (targets == 1) multiplier *= 1 + .01f * Points(u.Character, Warlock);
-            if (ctx.SkillId == "skill.mage.energy_orb") multiplier *= 1 + (W(u, "dispersion") switch { 1 => .1f, 2 => .175f, 3 => .25f, _ => 0 });
-            if (ctx.SkillId == "skill.mage.energy_split") multiplier *= (.7f + .15f * W(u, "power_saving")) / .7f;
-            if (ctx.SkillId is "skill.mage.fireball" or "skill.mage.fire_arrow") multiplier *= 1 + .02f * Points(u.Character, Fire);
-            if (Burning(ctx.Target)) multiplier *= 1 + .1f * F(u, "cauterize");
+            var u=ctx?.Source;
+            if(u?.Character==null)return 1;
+            var multiplier=1f;
+            void Apply(string id,float value,bool applies=true)
+            {
+                multiplier*=applies?value:1;
+                if(!Mathf.Approximately(value,1))explanation?.Add(id,(applies?"×":"Nie uwzględniono: ×")+value.ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL")));
+            }
+            if(CombatDamageSystem.HasUniqueBuff(u,UniqueBuffType.MageOffering) || W(u,"superhuman_offering")>0)
+                Apply("node.mage.warlock.superhuman_offering",1+OfferingBonus(u),CombatDamageSystem.HasUniqueBuff(u,UniqueBuffType.MageOffering));
+            var targets=ctx.TargetsByModeIndex?.Values.SelectMany(v=>v).Where(v=>v!=null&&v.IsPlayerSide!=u.IsPlayerSide).Distinct().Count()??1;
+            Apply(Warlock,1+.01f*Points(u.Character,Warlock),targets==1);
+            if(ctx.SkillId=="skill.mage.energy_orb")Apply("node.mage.warlock.dispersion",1+(W(u,"dispersion") switch{1=>.1f,2=>.175f,3=>.25f,_=>0}));
+            if(ctx.SkillId=="skill.mage.energy_split")Apply("node.mage.warlock.power_saving",(.7f+.15f*W(u,"power_saving"))/.7f);
+            if(ctx.SkillId is "skill.mage.fireball" or "skill.mage.fire_arrow")Apply(Fire,1+.02f*Points(u.Character,Fire));
+            Apply("node.mage.fire.cauterize",1+.1f*F(u,"cauterize"),Burning(ctx.Target));
             return multiplier;
         }
         public static void BeginSkill(BattleUnit u, SkillData skill, string actionId, CombatSession session = null)
@@ -95,10 +102,17 @@ namespace Godmist.Systems.Combat
         }
         public static float MagicCritChance(PassiveEffectCombatContext ctx) => ctx?.Source != null && ctx.ActionId != null && ctx.Source.MageState.OverflowActionId == ctx.ActionId
             ? ctx.Source.MageState.OverflowCritChance : 0;
-        public static float CritReceived(CombatSession session, BattleUnit target, BattleUnit attacker)
+        // This chance belongs to the attacking mage, never to their whole team.
+        public static float BurningCriticalChance(BattleUnit attacker, BattleUnit target)
+            => Burning(target) ? F(attacker, "weakness") switch { 1 => .15f, 2 => .4f, _ => 0f } : 0f;
+
+        public static float CalculateMagicCriticalChance(PassiveEffectCombatContext context)
         {
-            if (!Burning(target)) return 1;
-            return 1 + (session?.Units?.Where(u => u.IsPlayerSide == attacker.IsPlayerSide).Select(u => F(u, "weakness") switch { 1 => .15f, 2 => .4f, _ => 0 }).DefaultIfEmpty(0).Max() ?? 0);
+            var chance = BurningCriticalChance(context?.Source, context?.Target);
+            if(chance<=0 && MagicCritChance(context)<=0)return 0;
+            chance += context?.Source?.Character?.Stats?.CritChance.GetValue() ?? 0;
+            chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(context?.Session, context, chance);
+            return Mathf.Clamp01(chance + MagicCritChance(context));
         }
         public static int AdaptIncoming(BattleUnit source, BattleUnit target, int damage)
         {

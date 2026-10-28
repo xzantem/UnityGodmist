@@ -298,16 +298,7 @@ namespace Godmist.Systems.Combat
 
                 return 0;
             }
-            var incomingDamage = Mathf.RoundToInt(SkeletonSlayerBossSystem.IncomingMultiplier(target,damageType) * DeadKingBossSystem.DamageMultiplier(session, source, target, passiveContext) * combatVariableSystem.ApplyDamageModifiers(source, target, requestedDamage) * EquipmentEffectSystem.Outgoing(source, target, damageType, session) * EquipmentEffectSystem.Incoming(target.Character, damageType)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
-            if (HasUniqueBuff(target, UniqueBuffType.MageOffering))
-                incomingDamage = Mathf.RoundToInt(incomingDamage * (1 + MageCombatSystem.OfferingBonus(target) * (1 - .1f * MageCombatSystem.W(target,"calm"))));
-            incomingDamage = Mathf.Max(
-                0,
-                Mathf.RoundToInt(
-                    PassiveEffectCombatExecutionSystem.ApplyDamageMultiplier(
-                        session,
-                        passiveContext,
-                        incomingDamage)));
+            var incomingDamage=CalculateIncomingBeforeRedirect(session,source,target,requestedDamage,damageType,passiveContext,variables:combatVariableSystem);
             if (incomingDamage <= 0)
             {
                 SkeletonSlayerBossSystem.RecordPreMitigation(target,preMitigationDamage ?? requestedDamage);
@@ -459,9 +450,12 @@ namespace Godmist.Systems.Combat
             (passiveEffectEventDispatcher ?? session?.PassiveEffectEventDispatcher)
                 ?.Publish(triggerType, context, eventId);
         }
+        public static float CalculateAccuracy(float weaponAccuracy,float skillAccuracy)
+            => (Mathf.Max(0f,weaponAccuracy)+Mathf.Max(0f,skillAccuracy))*.5f;
+
         public static float CalculateHitChance(float weaponAccuracy, float skillAccuracy, float dodge)
         {
-            var accuracy = (Mathf.Max(0f, weaponAccuracy) + Mathf.Max(0f, skillAccuracy)) * 0.5f;
+            var accuracy = CalculateAccuracy(weaponAccuracy,skillAccuracy);
 
             var targetDodge = Mathf.Max(0f, dodge);
 
@@ -518,9 +512,7 @@ namespace Godmist.Systems.Combat
             DamageType damageType,
             PassiveEffectCombatContext context)
         {
-            if (damageType == DamageType.Magical)
-                return UnityEngine.Random.value < Mathf.Clamp01(MageCombatSystem.MagicCritChance(context));
-            if (damageType != DamageType.Physical && damageType != DamageType.Inevitable) return false;
+            if (damageType is not (DamageType.Physical or DamageType.Magical or DamageType.Inevitable)) return false;
 
             if (context?.Skill?.GuaranteedCritical == true) return true;
             if (TryConsumeUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit))
@@ -528,8 +520,10 @@ namespace Godmist.Systems.Combat
                 return true;
             }
 
-            var chance = CalculateRegularCriticalChance(session, source, context);
-            return UnityEngine.Random.value <= chance;
+            var chance = damageType == DamageType.Magical
+                ? MageCombatSystem.CalculateMagicCriticalChance(context)
+                : CalculateRegularCriticalChance(session, source, context);
+            return damageType==DamageType.Magical ? UnityEngine.Random.value < chance : UnityEngine.Random.value <= chance;
         }
 
         // No rolls or consumption: used by AI opportunity estimates. Execution
@@ -537,26 +531,36 @@ namespace Godmist.Systems.Combat
         public static float PreviewCriticalChance(CombatSession session, BattleUnit source, BattleUnit target,
             Godmist.Data.Skills.SkillData skill, DamageType damageType, bool ignoreConsumedGuaranteedCritical = false)
         {
-            if (source?.Character == null || target?.Character == null || EquipmentEffectSystem.AvoidCritical(target.Character)) return 0f;
+            if (source?.Character == null || target?.Character == null) return 0f;
+            var avoidance=Mathf.Clamp01(EquipmentEffectSystem.Sum(target.Character,GalduryteEffectType.CriticalAvoidance));
             var context = new PassiveEffectCombatContext(session: session, source: source, target: target,
                 skill: skill, skillId: skill?.SkillId, damageType: damageType,
                 attackType: skill?.ResolveAttackType(target.Position.X - source.Position.X, target.Position.Y - source.Position.Y) ?? AttackType.Unknown,
                 distance: Mathf.Abs(source.Position.X - target.Position.X) + Mathf.Abs(source.Position.Y - target.Position.Y));
-            if (damageType == DamageType.Magical) return Mathf.Clamp01(MageCombatSystem.MagicCritChance(context));
-            if (damageType is not (DamageType.Physical or DamageType.Inevitable)) return 0f;
-            if (skill?.GuaranteedCritical == true || !ignoreConsumedGuaranteedCritical && HasUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit)) return 1f;
-            return CalculateRegularCriticalChance(session, source, context);
+            if (damageType is not (DamageType.Physical or DamageType.Magical or DamageType.Inevitable)) return 0f;
+            if (skill?.GuaranteedCritical == true || !ignoreConsumedGuaranteedCritical && HasUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit)) return 1f-avoidance;
+            return (damageType == DamageType.Magical ? MageCombatSystem.CalculateMagicCriticalChance(context)
+                : CalculateRegularCriticalChance(session, source, context))*(1-avoidance);
         }
 
-        private static float CalculateRegularCriticalChance(CombatSession session, BattleUnit source, PassiveEffectCombatContext context)
+        public static float PreviewUntargetedCriticalChance(BattleUnit source,Godmist.Data.Skills.SkillData skill,int chainIndex=0)
+        {
+            if(source?.Character==null)return 0;
+            if(skill?.GuaranteedCritical==true||HasUniqueBuff(source,UniqueBuffType.GuaranteedCriticalHit))return 1;
+            var context=new PassiveEffectCombatContext(source:source,skill:skill,skillId:skill?.SkillId,attackType:skill?.AttackType??AttackType.Unknown);
+            return CalculateRegularCriticalChance(source.WarriorState.Session,source,context,chainIndex);
+        }
+
+        private static float CalculateRegularCriticalChance(CombatSession session, BattleUnit source, PassiveEffectCombatContext context,int untargetedChainIndex=0)
         {
             var chance = context?.DischargeCast?.CritChance ?? (source.Character.Stats == null ? 0f : source.Character.Stats.CritChance.GetValue());
+            chance += MageCombatSystem.BurningCriticalChance(source,context?.Target);
             chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(
                 session,
                 context,
                 chance);
 
-            chance = (chance+ScoutCombatSystem.CriticalChance(context))*WarriorCombatSystem.CriticalMultiplier(source,context?.Target)*MageCombatSystem.CritReceived(session,context?.Target,source)*PaladinCombatSystem.CriticalMultiplier(source,context?.Target);
+            chance = (chance+ScoutCombatSystem.CriticalChance(context)+(context?.Target==null&&context?.SkillId=="skill.scout.ricochet"?ScoutCombatSystem.ChainCriticalChance(untargetedChainIndex):0))*WarriorCombatSystem.CriticalMultiplier(source,context?.Target)*PaladinCombatSystem.CriticalMultiplier(source,context?.Target);
             return Mathf.Clamp01(chance);
         }
 
@@ -601,7 +605,26 @@ namespace Godmist.Systems.Combat
             return Mathf.CeilToInt((float)damage * damage / (damage + defense));
         }
 
-        private static int ApplyJewelryDamagePassive(
+        public static int CalculateIncomingBeforeRedirect(CombatSession session,BattleUnit source,BattleUnit target,
+            int requestedDamage,DamageType damageType,PassiveEffectCombatContext passiveContext,
+            CombatValueExplanation explanation=null,Godmist.Data.Skills.SkillData previewSkill=null,CombatVariableSystem variables=null)
+        {
+            var incomingDamage = Mathf.RoundToInt(SkeletonSlayerBossSystem.IncomingMultiplier(target,damageType) * DeadKingBossSystem.DamageMultiplier(session, source, target, passiveContext) * (variables??new CombatVariableSystem()).ApplyDamageModifiers(source, target, requestedDamage,explanation,previewSkill) * EquipmentEffectSystem.Outgoing(source, target, damageType, session,explanation) * EquipmentEffectSystem.Incoming(target?.Character, damageType)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
+            if (HasUniqueBuff(target, UniqueBuffType.MageOffering))
+                incomingDamage = Mathf.RoundToInt(incomingDamage * (1 + MageCombatSystem.OfferingBonus(target) * (1 - .1f * MageCombatSystem.W(target,"calm"))));
+            incomingDamage = Mathf.Max(
+                0,
+                Mathf.RoundToInt(
+                    PassiveEffectCombatExecutionSystem.ApplyDamageMultiplier(
+                        session,
+                        passiveContext,
+                        incomingDamage)));
+            explanation?.Add("equipment_outgoing",EquipmentEffectSystem.Outgoing(source,target,damageType,session));
+            explanation?.Add("incoming_before_redirect",incomingDamage);
+            return incomingDamage;
+        }
+
+        public static int ApplyJewelryDamagePassive(
             CombatSession session,
             BattleUnit source,
             int damage)

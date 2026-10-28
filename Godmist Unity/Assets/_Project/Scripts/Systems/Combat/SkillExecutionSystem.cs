@@ -795,7 +795,7 @@ namespace Godmist.Systems.Combat
                 case EffectType.PaladinHeal:
                 case EffectType.PaladinRegeneration:
                 case EffectType.PaladinBlessing:
-                    return new EffectExecutionResult { Succeeded = PaladinCombatSystem.Execute(session,caster,target,skill,effect,recoverySystem) };
+                    return new EffectExecutionResult { Succeeded = PaladinCombatSystem.Execute(session,caster,target,skill,effect,recoverySystem,PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex)) };
                 case EffectType.MageSacrifice:
                 case EffectType.MageRitual:
                 case EffectType.MageFireAura:
@@ -1033,9 +1033,11 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.Heal:
                 {
-                    var restoredHealth = recoverySystem.Heal(target, CombatRecoverySystem.CalculateSkillHealing(caster, effect), new PassiveEffectCombatContext(
+                    var restoredHealth = recoverySystem.Heal(target, Mathf.RoundToInt(CombatRecoverySystem.CalculateSkillHealing(caster, effect) * (PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex) ? PaladinCombatSystem.SingleTargetHealingMultiplier(caster) : 1f)), new PassiveEffectCombatContext(
                         session: session, source: caster, target: target, skill: skill, skillId: skill.SkillId,
                         targetsByModeIndex: targetsByModeIndex, actionId: actionId, isPassiveDuplicate: isPassiveDuplicate));
+                    PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,target,
+                        PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex),restoredHealth);
                     return new EffectExecutionResult
                         { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
                 }
@@ -1052,9 +1054,11 @@ namespace Godmist.Systems.Combat
                         : Mathf.Max(0, Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()));
                     var restoredHealth = recoverySystem.Heal(
                         target,
-                        Mathf.CeilToInt(maximumHealth * effect.PercentageValue), new PassiveEffectCombatContext(
+                        Mathf.RoundToInt(Mathf.CeilToInt(maximumHealth * effect.PercentageValue) * (PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex) ? PaladinCombatSystem.SingleTargetHealingMultiplier(caster) : 1f)), new PassiveEffectCombatContext(
                             session: session, source: caster, target: target, skill: skill, skillId: skill.SkillId,
                             targetsByModeIndex: targetsByModeIndex, actionId: actionId, isPassiveDuplicate: isPassiveDuplicate));
+                    PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,target,
+                        PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex),restoredHealth);
                     return new EffectExecutionResult
                         { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
                 }
@@ -1085,10 +1089,7 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.Shield:
                 {
-                    var shieldAmount = effect.BaseValue + Mathf.FloorToInt(
-                        CombatDamageValueCalculator.CalculateDamageValue(
-                            caster, DamageValueSource.AverageAttack, 1f)
-                        * effect.ShieldAverageAttackMultiplier);
+                    var shieldAmount=CombatShieldSystem.CalculateSkillShield(caster,effect);
                     var mageShield = skill.SkillId == CombatShieldSystem.MageShieldSourceId;
                     var grantedShield = shieldSystem.GrantShield(target, shieldAmount, skill.SkillId,
                         durationTurns: mageShield ? effect.DurationTurns : 0,
@@ -2159,19 +2160,24 @@ namespace Godmist.Systems.Combat
             if (healthDamage <= 0) return;
             if (effect.LifeStealPercent > 0f)
             {
-                var healed = recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * effect.LifeStealPercent));
+                var healed = recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * PaladinCombatSystem.LifeStealCoefficient(caster,effect.LifeStealPercent,true)));
+                PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,caster,true,healed);
                 if (healed > 0 && skill.SkillId == "skill.paladin.transfusion")
                     feedbackBus?.Publish(new CombatFeedbackEvent(caster, CombatFeedbackType.TargetEffect,
                         source: caster, targetVfx: CombatTargetVfxKind.Heal, actionId: actionId));
             }
             if (effect.AllyLifeStealPercent > 0f && session?.Units != null)
             {
-                var amount = Mathf.FloorToInt(healthDamage * effect.AllyLifeStealPercent);
+                var recipients=session.Units.Where(ally=>ally?.Character!=null && ally.IsPlayerSide==caster.IsPlayerSide
+                    && ally.Character.LifeState!=CharacterLifeState.Dead).ToArray();
+                var single=recipients.Length==1;
+                var amount = Mathf.FloorToInt(healthDamage * PaladinCombatSystem.LifeStealCoefficient(caster,effect.AllyLifeStealPercent,single));
                 if (amount > 0)
                     foreach (var ally in session.Units)
                         if (ally != null && ally.IsPlayerSide == caster.IsPlayerSide)
                         {
                             var healed = recoverySystem.Heal(ally, amount);
+                            PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,ally,single,healed);
                             if (healed > 0 && skill.SkillId == "skill.enemy.catacombs.life_drain")
                                 feedbackBus?.Publish(new CombatFeedbackEvent(ally, CombatFeedbackType.TargetEffect,
                                     source: caster, targetVfx: CombatTargetVfxKind.Heal,
