@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -432,7 +433,7 @@ namespace Godmist.Views.UI.Workspace
                 FormatStatusTitle(
                     effect.EffectId,
                     glossaryEntry?.Title,
-                    effect.DisplayName),
+                    presentation.DisplayName),
                 BuildPresentedStatusPayload(presentation),
                 presentation.HasMixedDurations || presentation.StackCount == 0 ? "" : presentation.ExplorationCharacter != null ? ExplorationStatusDuration(presentation) : BuildStatusMeta(
                     effect,
@@ -476,6 +477,8 @@ namespace Godmist.Views.UI.Workspace
 
         public void ShowCompactText(string title, string body, object source)
         {
+            title = UiTerms.Present(title);
+            body = UiTerms.Present(body);
             QueueShow(source ?? this, () => {
                 SetContent(null, title, body, string.Empty);
                 var titleWidth = titleText != null ? titleText.GetPreferredValues(title, 10000f, 0f).x : 0f;
@@ -493,6 +496,7 @@ namespace Godmist.Views.UI.Workspace
 
         public void ShowText(string title, string body, object source, string meta)
         {
+            title = UiTerms.Present(title);
             QueueShow(source ?? this, () => SetContent(null, title, body, meta));
         }
 
@@ -900,9 +904,9 @@ namespace Godmist.Views.UI.Workspace
 
         public string GetGlossaryTitle(string id)
         {
-            return TryGetGlossaryEntry(id, out var entry)
+            return HeroCombatStatusText.Name(id) ?? (TryGetGlossaryEntry(id, out var entry)
                 ? entry.Title
-                : string.Empty;
+                : string.Empty);
         }
 
         public void HideForSourceWithin(Transform root)
@@ -1187,6 +1191,9 @@ namespace Godmist.Views.UI.Workspace
             bool linkifyBody = true,
             RarityTier? itemRarity = null)
         {
+            body = UiTerms.Present(body);
+            meta = UiTerms.Present(meta);
+
             if (contentTargetOverride != null && contentTargetOverride != this)
             {
                 var target = contentTargetOverride;
@@ -2144,7 +2151,7 @@ namespace Godmist.Views.UI.Workspace
                 // Set the identity before SetContent links the body so the
                 // entry card cannot immediately link to itself.
                 glossaryEntryId = entry.Id;
-                SetContent(entry.Icon, entry.Title, entry.Description, string.Empty);
+                SetContent(entry.Icon, HeroCombatStatusText.Name(entry.Id, entry.Title), entry.Description, string.Empty);
             });
         }
 
@@ -2176,7 +2183,7 @@ namespace Godmist.Views.UI.Workspace
             foreach (var description in BuildSkillMechanics(skill, caster))
                 result.Append("• ").Append(description).Append('\n');
             var body = result.ToString().TrimEnd();
-            return LinkifyGlossary(body);
+            return LinkifyGlossary(UiTerms.Present(body));
         }
 
         private static bool CanUseGeneratedSkillSummary(SkillData skill)
@@ -2192,7 +2199,7 @@ namespace Godmist.Views.UI.Workspace
             var effects = skill.Effects ?? Array.Empty<SkillEffectData>();
             if (!CanUseGeneratedSkillSummary(skill) && !string.IsNullOrWhiteSpace(skill.TooltipDescription))
             {
-                yield return skill.TooltipDescription.Trim();
+                yield return UiTerms.Present(skill.TooltipDescription.Trim(), SkillResource(skill, caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None));
             }
             // These object behaviours are implemented by dedicated systems, not
             // CreateObject's generic payload. Keep their complete rule exactly once.
@@ -2202,7 +2209,7 @@ namespace Godmist.Views.UI.Workspace
                 or Godmist.Systems.Combat.SkeletonSlayerBossSystem.TaskId
                 or Godmist.Systems.Combat.DeadKingBossSystem.ShadowId
                 && !string.IsNullOrWhiteSpace(skill.TooltipDescription))
-                yield return skill.TooltipDescription.Trim();
+                yield return UiTerms.Present(skill.TooltipDescription.Trim(), SkillResource(skill, caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None));
             else
             {
                 var commonTarget = effects.Where(effect => effect != null)
@@ -2227,7 +2234,7 @@ namespace Godmist.Views.UI.Workspace
                 "skill.warrior.shout" => "Zużywa całą aktualną wściekłość. Wydanie co najmniej 50 PW wydłuża ogłuszenie do 2 tur.",
                 _ => string.Empty
             };
-            if (!string.IsNullOrEmpty(special)) yield return special;
+            if (!string.IsNullOrEmpty(special)) yield return UiTerms.Present(special, SkillResource(skill, caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None));
             if (skill.SkillId == WarriorDischargeRules.SkillId && caster != null)
             {
                 var refund = Mathf.Clamp(WarriorCombatSystem.B(caster, "wounding"), 0, 2) * .25f;
@@ -2259,7 +2266,7 @@ namespace Godmist.Views.UI.Workspace
                 result.Append(flat > 0 && percent > 0 ? $"max({flat}, {percent:0.#}% maks.)"
                     : percent > 0 ? $"{percent:0.#}% maks." : flat.ToString());
             }
-            return result.ToString();
+            return UiTerms.Present(result.ToString());
         }
 
         private string BuildSkillDescription(SkillData skill, BattleUnit caster)
@@ -2276,13 +2283,35 @@ namespace Godmist.Views.UI.Workspace
 
             foreach (var description in BuildSkillMechanics(skill, caster)) Append(generated, description);
 
-            return targeting.Length > 0
+            return UiTerms.Present(targeting.Length > 0
                 ? FormatSkillTargetingSummary(targeting) + "\n\n" + generated
-                : generated.ToString();
+                : generated.ToString());
         }
 
         private static string FormatSkillTargetingSummary(StringBuilder targeting) =>
             $"<size=85%>{targeting}</size>";
+
+        public static ResourceType SkillResource(SkillData skill, ResourceType fallback = ResourceType.None)
+        {
+            if (IsRuntimeConsumable(skill)) return ResourceType.None;
+            if (fallback != ResourceType.None) return fallback;
+            if (skill?.ResourceType != ResourceType.None && skill != null) return skill.ResourceType;
+            var id = skill?.SkillId ?? string.Empty;
+            if (id.StartsWith("skill.warrior.", StringComparison.Ordinal)) return ResourceType.Rage;
+            if (id.StartsWith("skill.scout.", StringComparison.Ordinal)) return ResourceType.Momentum;
+            if (id.StartsWith("skill.mage.", StringComparison.Ordinal) || id.StartsWith("skill.paladin.", StringComparison.Ordinal)) return ResourceType.Mana;
+            return ResourceType.None;
+        }
+
+        private static ResourceType EffectResource(SkillData skill, SkillEffectData effect, BattleUnit caster)
+        {
+            if (IsRuntimeConsumable(skill)) return ResourceType.None;
+            // An ally/enemy can use a different resource from the caster.
+            var mode = skill?.TargetModes != null && effect.TargetModeIndex >= 0 && effect.TargetModeIndex < skill.TargetModes.Count
+                ? skill.TargetModes[effect.TargetModeIndex] : null;
+            return mode?.TargetType == TargetType.Caster
+                ? SkillResource(skill, caster?.Character?.ResourcePool?.ResourceType ?? ResourceType.None) : ResourceType.None;
+        }
 
         private static bool IsRuntimeConsumable(SkillData skill)
         {
@@ -2330,8 +2359,12 @@ namespace Godmist.Views.UI.Workspace
             var character = presentation.Owner?.Character ?? presentation.ExplorationCharacter;
             var knownSkills = character?.GetKnownSkills() ?? Array.Empty<SkillData>();
             var catalogSkills = GameBootstrap.Instance?.ContentCatalog?.SkillDefinitions;
+            var catalogClasses = GameBootstrap.Instance?.ContentCatalog?.CharacterClasses;
+            var trees = (character?.ClassData?.SkillTrees ?? new List<SkillTreeDefinition>())
+                .Concat(catalogClasses?.Where(definition => definition != null).SelectMany(definition => definition.SkillTrees)
+                    ?? Enumerable.Empty<SkillTreeDefinition>());
             return CombatStatusPresentationFactory.ResolveIcon(presentation, GetGlossaryIcon,
-                catalogSkills != null ? knownSkills.Concat(catalogSkills) : knownSkills);
+                catalogSkills != null ? knownSkills.Concat(catalogSkills) : knownSkills, trees);
         }
 
         private void AppendSkillTargetingSummary(
@@ -2435,20 +2468,20 @@ namespace Godmist.Views.UI.Workspace
                     ? string.Empty : "Ze Strategią: drużyna otrzymuje darmowy ruch na 3 tury.",
                 EffectType.RestoreResource => effect.BaseValue > 0
                     ? $"Przywraca {effect.BaseValue} " +
-                      $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}."
+                      $"{UiTerms.Resource(EffectResource(skill, effect, caster), genitive: true)}."
                     : $"Przywraca " +
-                      $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}.",
+                      $"{UiTerms.Resource(EffectResource(skill, effect, caster), accusative: true)}.",
                 EffectType.HealPercent =>
                     $"Przywraca {FormatPercent(effect.PercentageValue)} maksymalnego zdrowia.",
                 EffectType.RestoreResourcePercent =>
-                    $"Przywraca {FormatPercent(effect.PercentageValue)} maksymalnego " +
-                    $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)}.",
+                    $"Przywraca {FormatPercent(effect.PercentageValue)} {(EffectResource(skill, effect, caster) is ResourceType.Mana or ResourceType.Rage ? "maksymalnej" : "maksymalnego")} " +
+                    $"{UiTerms.Resource(EffectResource(skill, effect, caster), genitive: true)}.",
                 EffectType.HealOverTimePercent =>
                     $"Regeneruje {FormatPercent(effect.PercentageValue)} maksymalnego zdrowia " +
                     $"co turę{FormatEffectDuration(skill, effect)}.",
                 EffectType.RestoreResourceOverTimePercent =>
-                    $"Regeneruje {FormatPercent(effect.PercentageValue)} maksymalnego " +
-                    $"{GetResourceAccusativeName(skill?.ResourceType ?? ResourceType.None)} " +
+                    $"Regeneruje {FormatPercent(effect.PercentageValue)} {(EffectResource(skill, effect, caster) is ResourceType.Mana or ResourceType.Rage ? "maksymalnej" : "maksymalnego")} " +
+                    $"{UiTerms.Resource(EffectResource(skill, effect, caster), genitive: true)} " +
                     $"co turę{FormatEffectDuration(skill, effect)}.",
                 EffectType.Shield => DescribeShield(caster, effect)
                     + (skill?.SkillId == CombatShieldSystem.MageShieldSourceId
@@ -2496,6 +2529,7 @@ namespace Godmist.Views.UI.Workspace
                 _ => "Wywołuje dodatkowy efekt."
             };
 
+            description = UiTerms.Present(description, EffectResource(skill, effect, caster));
             return IsRuntimeConsumable(skill)
                 ? description
                 : AddEffectContext(description, skill, effect, includeTarget);
@@ -2531,10 +2565,9 @@ namespace Godmist.Views.UI.Workspace
                 && (effect.DamageType == DamageType.Physical
                     || effect.DamageType == DamageType.Magical))
             {
-                var resistance = effect.DamageType == DamageType.Magical
-                    ? "obrony magicznej"
-                    : "obrony fizycznej";
-                description += $" Penetracja {resistance}: +{FormatPercent(effect.BonusPenetration)}.";
+                var resistance = UiTerms.Stat(effect.DamageType == DamageType.Magical
+                    ? CharacterStatType.MagicalDefensePenetration : CharacterStatType.PhysicalDefensePenetration);
+                description += $" {resistance}: +{FormatPercent(effect.BonusPenetration)}.";
             }
 
             if (effect.LifeStealPercent > 0f)
@@ -2698,24 +2731,38 @@ namespace Godmist.Views.UI.Workspace
             return effect.BaseChance < .9999f ? $"{FormatPercent(effect.BaseChance)} szansy: {change}" : change;
         }
 
-        public static string FormatStatusStatModifier(CharacterStatType stat, StatModifierOperation operation, float amount)
+        public static string FormatStatusStatModifier(CharacterStatType stat, StatModifierOperation operation, float amount, ResourceType resource = ResourceType.None)
         {
-            var statName = GetEquipmentStatDisplayName(stat);
-            // Runtime consumables explicitly mark percentage modifiers. Dodge
-            // is the exception: its FlatAbsolute payload is a flat point value,
-            // even though the base stat is normally displayed as a percentage.
+            var statName = UiTerms.Stat(stat, resource);
+            var value = FormatStatusStatValue(stat, operation, amount);
+            return operation == StatModifierOperation.Maximum
+                ? $"Limit — {statName}: {value}" : $"{statName}: {value}";
+        }
+
+        private static string FormatStatusStatValue(CharacterStatType stat, StatModifierOperation operation, float amount)
+        {
+            // Relative modifiers use %, additive chance bonuses use pp.
+            // Flat Dodge/Celność remain point values, never percentages.
             var isPercent = operation == StatModifierOperation.Percent
                 || (operation != StatModifierOperation.FlatAbsolute && IsFractionalStat(stat));
             var value = isPercent
                 ? FormatSignedStatValue(stat, amount, true)
                 : FormatSignedStatValue(stat, amount, false);
+            if (stat == CharacterStatType.CritChance && operation != StatModifierOperation.Percent && operation != StatModifierOperation.Maximum)
+                value = (amount * 100f).ToString("+0.##;-0.##;0", UiTerms.PolishCulture) + " " + UiTerms.PercentagePoints;
+            else if (IsFractionalStat(stat) && operation == StatModifierOperation.FlatAbsolute)
+                value = FormatSignedPercent(amount);
             return operation == StatModifierOperation.Maximum
-                ? $"Limit — {statName}: {FormatStatValue(stat, amount, isPercent)}"
-                : $"{statName}: {value}";
+                ? FormatStatValue(stat, amount, isPercent) : value;
         }
 
-        public static string FormatStatusVariableModifier(GameplayVariableType type, float value, string referenceId = null)
-            => $"{CapitalizeFirst(GetGameplayVariableDisplayName(type, referenceId))}: {FormatSignedPercent(value)}";
+        public static string FormatStatusVariableModifier(GameplayVariableType type, float value, string referenceId = null, ResourceType resource = ResourceType.None)
+            => $"{UiTerms.Variable(type, referenceId, resource)}: " + FormatStatusVariableValue(type, value);
+
+        private static string FormatStatusVariableValue(GameplayVariableType type, float value)
+            => type == GameplayVariableType.HitChanceBonus
+                ? (value * 100f).ToString("+0.##;-0.##;0", UiTerms.PolishCulture) + " " + UiTerms.PercentagePoints
+                : FormatSignedPercent(value);
 
         private static string DescribeModifyVar(
             SkillData skill,
@@ -2739,7 +2786,9 @@ namespace Godmist.Views.UI.Workspace
             SkillEffectData effect)
         {
             var verb = effect.ModifierValue >= 0f ? "Zwiększa" : "Zmniejsza";
-            var change = $"{verb} odporność na {GetResistanceDisplayName(effect.ResistanceType)} " +
+            var name = effect.ResistanceType == ResistanceType.All ? "wszystkie odporności"
+                : UiTerms.Resistance(effect.ResistanceType).ToLowerInvariant();
+            var change = $"{verb} {name} " +
                 $"o {FormatPercent(Mathf.Abs(effect.ModifierValue))}" +
                 $"{FormatEffectDuration(skill, effect)}.";
             return effect.BaseChance < .9999f ? $"{FormatPercent(effect.BaseChance)} szansy: {change}" : change;
@@ -3056,7 +3105,7 @@ namespace Godmist.Views.UI.Workspace
 
         private static string FormatPercent(float value)
         {
-            return $"{Mathf.Abs(value) * 100f:0.#}%";
+            return (Mathf.Abs(value) * 100f).ToString("0.#", UiTerms.PolishCulture) + "%";
         }
 
         private static string FormatSignedStatValue(
@@ -3077,41 +3126,25 @@ namespace Godmist.Views.UI.Workspace
             return stat switch
             {
                 CharacterStatType.CritDamage => isPercent
-                    ? $"{value * 100f:0.00}%"
-                    : value.ToString("0.00;-0.00;0.00"),
+                    ? (value * 100f).ToString("0.00", UiTerms.PolishCulture) + "%"
+                    : value.ToString("0.00;-0.00;0.00", UiTerms.PolishCulture),
                 CharacterStatType.Dodge => isPercent
                     ? $"{Mathf.RoundToInt(value * 100f)}%"
-                    : Mathf.RoundToInt(value).ToString("0;-0;0"),
+                    : Mathf.RoundToInt(value).ToString("0;-0;0", UiTerms.PolishCulture),
                 _ => isPercent
-                    ? $"{value * 100f:0.##}%"
+                    ? (value * 100f).ToString("0.##", UiTerms.PolishCulture) + "%"
                     : FormatValue(value)
             };
         }
 
         private static string GetDamageTypeDisplayName(DamageType type)
         {
-            return type switch
-            {
-                DamageType.Physical => "fizycznych",
-                DamageType.Magical => "magicznych",
-                DamageType.Inevitable => "nieuchronnych",
-                DamageType.Direct => "bezpośrednich",
-                DamageType.Bleed => "od krwawienia",
-                DamageType.Poison => "od trucizny",
-                DamageType.Burn => "od płonięcia",
-                _ => type.ToString().ToLowerInvariant()
-            };
+            return UiTerms.Damage(type, genitive: true);
         }
 
         private static string GetResourceAccusativeName(ResourceType type)
         {
-            return type switch
-            {
-                ResourceType.Rage => "Furię",
-                ResourceType.Momentum => "Impet",
-                ResourceType.Mana => "Manę",
-                _ => "zasób"
-            };
+            return UiTerms.Resource(type, accusative: true);
         }
 
         private static string GetTargetingDisplayName(TargetingType type)
@@ -3146,48 +3179,21 @@ namespace Godmist.Views.UI.Workspace
 
         private static string GetResistanceDisplayName(ResistanceType type)
         {
-            return type switch
-            {
-                ResistanceType.Bleed => "krwawienie",
-                ResistanceType.Poison => "zatrucie",
-                ResistanceType.Fire => "ogień",
-                ResistanceType.Weakening => "osłabienie",
-                ResistanceType.Suppression => "kontrolę",
-                ResistanceType.Move => "ruch",
-                ResistanceType.All => "wszystkie efekty",
-                _ => type.ToString().ToLowerInvariant()
-            };
+            return UiTerms.Resistance(type, subjectOnly: true);
         }
 
         private static string GetGameplayVariableDisplayName(
             GameplayVariableType type,
             string referenceId = null)
         {
-            return type switch
-            {
-                GameplayVariableType.DamageDealtPercent => "obrażenia zadawane",
-                GameplayVariableType.DamageReceivedPercent => "obrażenia otrzymywane",
-                GameplayVariableType.ExperienceGainPercent => "zdobywane doświadczenie",
-                GameplayVariableType.GoldGainPercent => "zdobywane złoto",
-                GameplayVariableType.ResourceGenerationPercent => "generowanie zasobu",
-                GameplayVariableType.HitChanceBonus => "szansa trafienia",
-                GameplayVariableType.DamageAgainstTag => "obrażenia przeciwko " + (referenceId switch { "Undead" => "nieumarłym", "Human" => "humanoidom", "Beast" => "bestiom", "Demon" => "demonom", _ => referenceId }),
-                GameplayVariableType.DamageInEnvironment => "obrażenia w terenie " + (referenceId switch { "Indoor" => "zamkniętym", "Outdoor" => "otwartym", "Warm" => "ciepłym", "Cold" => "zimnym", _ => referenceId }),
-                GameplayVariableType.DamageDealtPercentInDungeonTheme =>
-                    string.IsNullOrWhiteSpace(referenceId)
-                        ? "obrażenia w lochu"
-                        : $"obrażenia w lochu: {(referenceId == "Catacombs" ? "katakumby" : referenceId)}",
-                _ => type.ToString()
-            };
+            return UiTerms.Variable(type, referenceId);
         }
 
         private string GetStatusDisplayName(string statusId)
         {
             if (string.IsNullOrWhiteSpace(statusId)) return "status";
             var glossaryTitle = GetGlossaryTitle(statusId);
-            return string.IsNullOrWhiteSpace(glossaryTitle)
-                ? ToTitleCase(statusId)
-                : glossaryTitle;
+            return UiTerms.Status(statusId, string.IsNullOrWhiteSpace(glossaryTitle) ? ToTitleCase(statusId) : glossaryTitle);
         }
 
         private string GetStatusGenitiveName(string statusId)
@@ -3196,7 +3202,7 @@ namespace Godmist.Views.UI.Workspace
             {
                 StatusEffectIds.Bleed => "krwawienia",
                 StatusEffectIds.Poison => "zatrucia",
-                StatusEffectIds.Burn => "płonięcia",
+                StatusEffectIds.Burn => "podpalenia",
                 StatusEffectIds.Stun => "ogłuszenia",
                 StatusEffectIds.Freeze => "zamrożenia",
                 StatusEffectIds.Sleep => "snu",
@@ -3243,50 +3249,20 @@ namespace Godmist.Views.UI.Workspace
 
         private static string GetStatDisplayName(CharacterStatType statType)
         {
-            return statType switch
-            {
-                CharacterStatType.MaxHealth => "zdrowia",
-                CharacterStatType.MinAttack => "minimalnego ataku",
-                CharacterStatType.MaxAttack => "maksymalnego ataku",
-                CharacterStatType.PhysicalDefense => "obrony fizycznej",
-                CharacterStatType.MagicalDefense => "obrony magicznej",
-                CharacterStatType.Dodge => "uniku",
-                CharacterStatType.CritChance => "szansy na trafienie krytyczne",
-                CharacterStatType.CritDamage => "obrażenia krytyczne",
-                CharacterStatType.Speed => "szybkości",
-                CharacterStatType.ResourceRegeneration => "regeneracji zasobu",
-                CharacterStatType.WeaponAccuracy => "celności broni",
-                CharacterStatType.MaxResource => "maksymalnego zasobu",
-                CharacterStatType.PhysicalDefensePenetration => "przebicia obrony fizycznej",
-                CharacterStatType.MagicalDefensePenetration => "przebicia obrony magicznej",
-                CharacterStatType.HealingPower => "siły leczenia",
-                _ => statType.ToString()
-            };
+            return UiTerms.Stat(statType);
         }
 
         private static string GetEquipmentStatDisplayName(CharacterStatType statType, EquipmentItemInstance equipment = null)
         {
-            var usesMana = equipment?.EquipmentDefinition?.RequiredClass?.ResourceType == ResourceType.Mana
-                || equipment?.RequiredClassId == "class.mage";
-            return statType switch
+            var resource = equipment?.EquipmentDefinition?.RequiredClass?.ResourceType ?? ResourceType.None;
+            if (resource == ResourceType.None) resource = equipment?.RequiredClassId switch
             {
-                CharacterStatType.MaxHealth => "Zdrowie",
-                CharacterStatType.MinAttack => "Minimalny atak",
-                CharacterStatType.MaxAttack => "Maksymalny atak",
-                CharacterStatType.PhysicalDefense => "Obrona fizyczna",
-                CharacterStatType.MagicalDefense => "Obrona magiczna",
-                CharacterStatType.Dodge => "Unik",
-                CharacterStatType.CritChance => "Szansa krytyczna",
-                CharacterStatType.CritDamage => "Obrażenia krytyczne",
-                CharacterStatType.Speed => "Szybkość",
-                CharacterStatType.ResourceRegeneration => usesMana ? "Regeneracja many" : "Regeneracja zasobu",
-                CharacterStatType.WeaponAccuracy => "Celność",
-                CharacterStatType.MaxResource => usesMana ? "Maksymalna mana" : "Maksymalny zasób",
-                CharacterStatType.PhysicalDefensePenetration => "Przebicie obrony fizycznej",
-                CharacterStatType.MagicalDefensePenetration => "Przebicie obrony magicznej",
-                CharacterStatType.HealingPower => "Siła leczenia",
-                _ => GetStatDisplayName(statType)
+                "class.mage" or "class.paladin" => ResourceType.Mana,
+                "class.warrior" => ResourceType.Rage,
+                "class.scout" => ResourceType.Momentum,
+                _ => ResourceType.None
             };
+            return UiTerms.Stat(statType, resource);
         }
 
         private static string GetEquipmentSlotDisplayName(EquipmentSlot slot)
@@ -3349,8 +3325,10 @@ namespace Godmist.Views.UI.Workspace
             return char.ToUpperInvariant(value[0]) + value[1..];
         }
 
-        public string BuildPresentedStatusPayload(CombatStatusPresentation presentation)
+        public string BuildPresentedStatusPayload(CombatStatusPresentation presentation, CombatSession session = null)
         {
+            session ??= GameBootstrap.Instance?.Session?.Combats?.FirstOrDefault(combat => combat.Units.Contains(presentation.Owner));
+            session ??= presentation.Owner?.WarriorState.Session;
             var result = new StringBuilder();
             var combineDamage = presentation.IsDamageOverTimeGroup && presentation.Effects.Count > 1
                 && presentation.Aura == null
@@ -3372,8 +3350,8 @@ namespace Godmist.Views.UI.Workspace
                                 : group.Key.RemainingDuration > 0 ? $"{group.Key.RemainingDuration} t." : "bez limitu czasu";
                             return $"{duration} ({group.Sum(effect => Mathf.Max(1, effect.Stacks))} stos.)";
                         });
-                    Append(result, "Czas stosów: " + string.Join(" • ", durations));
-                    Append(result, $"Stosy: {presentation.StackCount}");
+                    Append(result, UiTerms.Duration + " nałożeń: " + string.Join(" • ", durations));
+                    Append(result, $"{UiTerms.Stacks}: {presentation.StackCount}");
                 }
             }
             var describedRules = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -3381,7 +3359,8 @@ namespace Godmist.Views.UI.Workspace
             {
                 if (effect == null) continue;
                 var body = BuildStatusPayloadCore(effect, presentation.Aura, presentation.OutgoingRedirect, presentation.Owner,
-                    !combineDamage, describedRules.Add(effect.EffectId + ":" + effect.RemainingDuration + ":" + effect.Lifetime));
+                    !combineDamage, describedRules.Add(effect.EffectId + ":" + effect.RemainingDuration + ":" + effect.Lifetime), session,
+                    presentation.ExplorationCharacter?.ResourcePool?.ResourceType ?? ResourceType.None);
                 if (combineDamage)
                 {
                     if (!string.IsNullOrWhiteSpace(body)) Append(result, body);
@@ -3389,7 +3368,7 @@ namespace Godmist.Views.UI.Workspace
                 }
                 if (string.IsNullOrWhiteSpace(body)) continue;
                 if (presentation.Effects.Count > 1 && presentation.StackCount == 0 && effect.Stacks > 1)
-                    body += $"\nStosy: {effect.Stacks}";
+                    body += $"\n{UiTerms.Stacks}: {effect.Stacks}";
                 if (presentation.HasMixedDurations || presentation.StackCount == 0)
                 {
                     var member = new CombatStatusPresentation(effect, presentation.Kind, presentation.Priority,
@@ -3410,11 +3389,23 @@ namespace Godmist.Views.UI.Workspace
             BattleUnit owner = null)
             => BuildStatusPayloadCore(effect, aura, outgoingRedirect, owner, true, true);
 
+        public static ResourceType StatusResource(PassiveEffectRuntime effect, BattleUnit owner, ResourceType fallback = ResourceType.None)
+        {
+            if (effect?.EffectId?.StartsWith("consumable.", StringComparison.OrdinalIgnoreCase) == true
+                || effect?.EffectId?.StartsWith("potion.", StringComparison.OrdinalIgnoreCase) == true
+                || effect?.EffectId?.StartsWith("equipment.", StringComparison.OrdinalIgnoreCase) == true
+                || effect?.EffectId?.StartsWith("galduryte.", StringComparison.OrdinalIgnoreCase) == true)
+                return ResourceType.None;
+            return owner?.Character?.ResourcePool?.ResourceType ?? fallback;
+        }
+
         private string BuildStatusPayloadCore(
             PassiveEffectRuntime effect, CombatAuraRuntime aura, CombatDamageRedirectRuntime outgoingRedirect,
-            BattleUnit owner, bool includeDamage, bool includeRule)
+            BattleUnit owner, bool includeDamage, bool includeRule, CombatSession session = null, ResourceType resourceContext = ResourceType.None)
         {
             var result = new StringBuilder();
+            var heroDescription = HeroCombatStatusText.Describe(effect, owner, session);
+            if (!string.IsNullOrWhiteSpace(heroDescription)) Append(result, heroDescription);
             if (effect?.EffectId == "catacombs.spectral_knight.shell")
             {
                 Append(result, "Bezpośrednie trafienie: 1 HP. Odporność na obrażenia okresowe.");
@@ -3518,7 +3509,7 @@ namespace Godmist.Views.UI.Workspace
                 if (modifier == null || (modifier.Operation != StatModifierOperation.Maximum && Mathf.Approximately(modifier.Value, 0f))) continue;
                 Append(
                     result,
-                    FormatStatusStatModifier(modifier.StatType, modifier.Operation, modifier.Value) + ".");
+                    FormatStatusStatModifier(modifier.StatType, modifier.Operation, modifier.Value, StatusResource(effect, owner, resourceContext)) + ".");
             }
 
             foreach (var modifier in effect.VariableModifiers)
@@ -3526,7 +3517,7 @@ namespace Godmist.Views.UI.Workspace
                 if (modifier == null || Mathf.Approximately(modifier.Value, 0f)) continue;
                 Append(
                     result,
-                    FormatStatusVariableModifier(modifier.VariableType, modifier.Value, modifier.ReferenceId) + ".");
+                    FormatStatusVariableModifier(modifier.VariableType, modifier.Value, modifier.ReferenceId, StatusResource(effect, owner, resourceContext)) + ".");
             }
 
             var uniqueBuff = effect.GetPayload<UniqueCombatBuffPayload>();
@@ -3534,15 +3525,18 @@ namespace Godmist.Views.UI.Workspace
             {
                 var description = uniqueBuff.BuffType switch
                 {
+                    UniqueBuffType.GuaranteedCriticalHit or UniqueBuffType.GuaranteedDodge or UniqueBuffType.MaximumDamage
+                        or UniqueBuffType.MageMaximumDamage or UniqueBuffType.Hawkeye when !string.IsNullOrWhiteSpace(heroDescription) => string.Empty,
                     UniqueBuffType.GuaranteedCriticalHit =>
-                        "Następny atak zawsze trafia krytycznie.",
+                        "Ładunki: 1. Następny atak zawsze trafia krytycznie.",
                     UniqueBuffType.GuaranteedDodge =>
-                        "Następny atak przeciwko tej postaci zawsze chybia.",
+                        "Ładunki: 1. Następny atak przeciwko tej postaci zawsze chybia.",
                     UniqueBuffType.MageMaximumDamage => "Ataki zadają maksymalne obrażenia przez czas działania efektu.",
                     UniqueBuffType.Hawkeye => "Ataki nie chybiają. Obrażenia zwiększone o 5% za każde pole odległości.",
-                    UniqueBuffType.MageOffering => "Zwiększa obrażenia zadawane i otrzymywane podczas aktywnego Ofiarowania.",
+                    UniqueBuffType.MageOffering => string.IsNullOrWhiteSpace(heroDescription)
+                        ? "Ofiara zwiększa obrażenia zadawane i otrzymywane." : string.Empty,
                     UniqueBuffType.MaximumDamage =>
-                        "Następny atak zada maksymalne obrażenia.",
+                        "Ładunki: 1. Następny atak zada maksymalne obrażenia.",
                     UniqueBuffType.ActionPointsNextTurn =>
                         $"Zapewnia {uniqueBuff.ActionPointModifier:+0.##;-0.##;0} AP w następnej turze.",
                     UniqueBuffType.OnHitStatus when effect.GetPayload<OnHitStatusPayload>() != null => string.Empty,
@@ -3611,8 +3605,7 @@ namespace Godmist.Views.UI.Workspace
                 var verb = resistance.Value > 0f ? "Zwiększa" : "Zmniejsza";
                 Append(
                     result,
-                    $"{verb} odporność na " +
-                    $"{GetResistanceDisplayName(resistance.ResistanceType)} o " +
+                    $"{verb} {(resistance.ResistanceType == ResistanceType.All ? "wszystkie odporności" : UiTerms.Resistance(resistance.ResistanceType).ToLowerInvariant())} o " +
                     $"{FormatPercent(Mathf.Abs(resistance.Value))}.");
             }
 
@@ -3641,7 +3634,7 @@ namespace Godmist.Views.UI.Workspace
             }
 
             return result.Length > 0
-                ? result.ToString()
+                ? UiTerms.Present(result.ToString(), StatusResource(effect, owner, resourceContext))
                 : includeDamage && includeRule ? "Brak dodatkowego działania." : string.Empty;
         }
 
@@ -3652,7 +3645,7 @@ namespace Godmist.Views.UI.Workspace
             var rule = effect.EffectId?.ToLowerInvariant() switch
             {
                 _ when effect.EffectId?.StartsWith("status.forest.demonic_plague.", StringComparison.Ordinal) == true =>
-                    $"Na początku tury traci {FormatPercent(.005f * effect.Stacks)} maksymalnego zdrowia. Ent odzyskuje {(.5f * effect.Stacks).ToString("0.#")} MP.",
+                    $"Na początku tury traci {FormatPercent(.005f * effect.Stacks)} maksymalnego zdrowia. Ent odzyskuje {(.5f * effect.Stacks).ToString("0.#", UiTerms.PolishCulture)} MP.",
                 StatusEffectIds.Stun =>
                     "Nie może wykonywać akcji ani się poruszać.",
                 StatusEffectIds.Freeze =>
@@ -3689,11 +3682,14 @@ namespace Godmist.Views.UI.Workspace
             var parts = new List<string>();
             if (aura != null) parts.Add("Aktywna aura");
             if (outgoingRedirect != null) parts.Add("Aktywne przekierowanie");
-            if (aura == null && effect.RemainingDuration > 0)
+            if (HeroCombatStatusText.IsFieldSlow(effect.EffectId)) parts.Add("W obszarze Pola Osądu");
+            else if (aura == null && effect.RemainingDuration > 0)
                 parts.Add($"Pozostało: {effect.RemainingDuration} t.");
+            else if (aura == null && effect.Lifetime == PassiveEffectLifetime.CombatScoped)
+                parts.Add("Bez limitu tur w tej walce");
             var stacks = stackCount ?? effect.Stacks;
             if (stacks > 1)
-                parts.Add($"Stosy: {stacks}");
+                parts.Add($"{UiTerms.Stacks}: {stacks}");
             return string.Join("  •  ", parts);
         }
 
@@ -3890,7 +3886,7 @@ namespace Godmist.Views.UI.Workspace
                     Append(result, "<color=#E06C75>Postać nie spełnia wymagań.</color>");
                 AppendSocketedGalduryteEffects(result, equipment, interactiveEffects);
 
-            return result.ToString();
+            return UiTerms.Present(result.ToString());
         }
 
         private static string ItemIntro(ItemInstance item)
@@ -3998,9 +3994,9 @@ namespace Godmist.Views.UI.Workspace
                     var range = Godmist.Systems.Combat.CombatSkillPreviewCalculator.CalculateDamageRange(caster, effect, skill);
                     var label = effect.DamageType switch
                     {
-                        DamageType.Physical => "Obrażenia fizyczne",
-                        DamageType.Magical => "Obrażenia magiczne",
-                        DamageType.Inevitable => "Obrażenia nieuniknione",
+                        DamageType.Physical => UiTerms.Damage(effect.DamageType),
+                        DamageType.Magical => UiTerms.Damage(effect.DamageType),
+                        DamageType.Inevitable => UiTerms.Damage(effect.DamageType),
                         _ => null
                     };
                     if (label == null) return null;
@@ -4029,25 +4025,7 @@ namespace Godmist.Views.UI.Workspace
         private static string FormatPotionEffects(SkillData skill) =>
             FormatPotionEffects(skill.Effects ?? Array.Empty<SkillEffectData>());
 
-        private static string ConsumableStatusName(string id) => id switch
-        {
-            StatusEffectIds.Weakening => "Osłabienie",
-            StatusEffectIds.Slow => "Spowolnienie",
-            StatusEffectIds.Bleed => "Krwawienie",
-            StatusEffectIds.Poison => "Zatrucie",
-            StatusEffectIds.Burn => "Płonięcie",
-            StatusEffectIds.Stun => "Ogłuszenie",
-            StatusEffectIds.Freeze => "Zamrożenie",
-            StatusEffectIds.Sleep => "Sen",
-            StatusEffectIds.Paralysis => "Paraliż",
-            StatusEffectIds.Immobilize => "Unieruchomienie",
-            StatusEffectIds.Chill => "Oziębienie",
-            StatusEffectIds.Taunt => "Prowokacja",
-            StatusEffectIds.Invisibility => "Niewidzialność",
-            StatusEffectIds.Regeneration => "Regeneracja",
-            StatusEffectIds.Counterattack => "Kontratak",
-            _ => null
-        };
+        private static string ConsumableStatusName(string id) => UiTerms.Status(id) is var name && name != id ? name : null;
 
         private static string FormatConsumableStatus(SkillEffectData effect, BattleUnit caster = null)
         {
@@ -4092,9 +4070,9 @@ namespace Godmist.Views.UI.Workspace
                     case EffectType.HealOverTimePercent:
                         label = "Regeneracja zdrowia"; value = "+" + PotionPercent(effect.PercentageValue) + " maks. / turę"; break;
                     case EffectType.RestoreResourceOverTimePercent:
-                        label = "Regeneracja zasobu"; value = "+" + PotionPercent(effect.PercentageValue) + " maks. / turę"; break;
+                        label = UiTerms.ResourceRecovery; value = "+" + PotionPercent(effect.PercentageValue) + " maks. / turę"; break;
                     case EffectType.ModifyActionPointsPercent:
-                        label = "Punkty akcji"; value = "+" + PotionPercent(effect.PercentageValue) + " / turę"; break;
+                        label = UiTerms.ActionPoints; value = "+" + PotionPercent(effect.PercentageValue) + " / turę"; break;
                     case EffectType.ApplyStatus:
                         var status = FormatConsumableStatus(effect);
                         if (status == null) return null;
@@ -4104,29 +4082,27 @@ namespace Godmist.Views.UI.Workspace
                         if (statusName == null) return null;
                         lines.Add($"Usuwa: {statusName}"); continue;
                     case EffectType.ModifyVar:
-                        label = effect.ModifierVariableType == GameplayVariableType.DamageDealtPercent
-                            ? "Obrażenia" : CapitalizeFirst(GetGameplayVariableDisplayName(effect.ModifierVariableType));
-                        value = SignedPotionValue(effect.ModifierValue, true); break;
+                        label = UiTerms.Variable(effect.ModifierVariableType);
+                        value = FormatStatusVariableValue(effect.ModifierVariableType, effect.ModifierValue); break;
                     case EffectType.ModifyResistance:
                         var resistances = matching.Append(effect).Select(other => other.ResistanceType).Distinct().ToArray();
                         if (resistances.Length == Enum.GetValues(typeof(ResistanceType)).Length)
-                        { label = "Wszystkie odporności"; foreach (var other in matching) remaining.Remove(other); }
-                        else label = "Odporność na " + GetResistanceDisplayName(effect.ResistanceType);
+                        { label = UiTerms.Resistance(ResistanceType.All); foreach (var other in matching) remaining.Remove(other); }
+                        else label = UiTerms.Resistance(effect.ResistanceType);
                         value = SignedPotionValue(effect.ModifierValue, true); break;
                     case EffectType.ModifyStat:
                         label = GetEquipmentStatDisplayName(effect.ModifierStatType);
                         if (effect.ModifierStatType == CharacterStatType.PhysicalDefense)
                         {
                             var magical = matching.FirstOrDefault(other => other.ModifierStatType == CharacterStatType.MagicalDefense);
-                            if (magical != null) { label = "Obrona fizyczna i magiczna"; remaining.Remove(magical); }
+                            if (magical != null) { label = UiTerms.Defenses; remaining.Remove(magical); }
                         }
                         if (effect.ModifierOperation == StatModifierOperation.Maximum)
                         {
                             lines.Add(FormatStatusStatModifier(effect.ModifierStatType, effect.ModifierOperation, effect.ModifierValue) + duration + chance);
                             continue;
                         }
-                        value = SignedPotionValue(effect.ModifierValue, effect.ModifierOperation == StatModifierOperation.Percent
-                            || (effect.ModifierOperation != StatModifierOperation.FlatAbsolute && IsFractionalStat(effect.ModifierStatType))); break;
+                        value = FormatStatusStatValue(effect.ModifierStatType, effect.ModifierOperation, effect.ModifierValue); break;
                     default: return null; // Existing detailed descriptions handle utility and legacy payloads.
                 }
                 lines.Add($"{label}: {value}{duration}{chance}");
@@ -4134,13 +4110,13 @@ namespace Godmist.Views.UI.Workspace
             return string.Join("\n", lines);
         }
 
-        private static string PotionPercent(float value) => (Mathf.Abs(value) * 100).ToString("0.##", CultureInfo.InvariantCulture) + "%";
+        private static string PotionPercent(float value) => (Mathf.Abs(value) * 100).ToString("0.##", UiTerms.PolishCulture) + "%";
 
         private static string FormatConsumableDuration(int turns) =>
             $"{turns} {(turns == 1 ? "tura" : GetTurnCountWord(turns))}";
 
         private static string SignedPotionValue(float value, bool percent) =>
-            (percent ? value * 100 : value).ToString("+0.##;-0.##;0", CultureInfo.InvariantCulture) + (percent ? "%" : "");
+            (percent ? value * 100 : value).ToString("+0.##;-0.##;0", UiTerms.PolishCulture) + (percent ? "%" : "");
 
         private static void AppendConsumableCatalyst(StringBuilder result, ConsumableItemInstance consumable)
         {
@@ -4241,7 +4217,7 @@ namespace Godmist.Views.UI.Workspace
 
                 Append(
                     result,
-                    ItemStatColumnsView.Marker + $"{(stat == CharacterStatType.MaxHealth ? "Maks. zdrowie" : GetEquipmentStatDisplayName(stat, item))}: {(value > 0 ? "+" : string.Empty)}{FormatEquipmentStatValue(stat, value)}"
+                    ItemStatColumnsView.Marker + $"{GetEquipmentStatDisplayName(stat, item)}: {(value > 0 ? "+" : string.Empty)}{FormatEquipmentStatValue(stat, value)}"
                     + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
             }
             // Percentage multipliers and caps are not flat stat bonuses. Keep
@@ -4311,7 +4287,7 @@ namespace Godmist.Views.UI.Workspace
                 var newValue = GetOperationValue(after, stat, operation);
                 var changed = !Mathf.Approximately(oldValue, newValue);
                 if (!changed && (!showCurrentValues || Mathf.Abs(newValue) < .0001f)) continue;
-                var label = stat == CharacterStatType.MinAttack ? "Atak min." : stat == CharacterStatType.MaxAttack ? "Atak maks." : GetEquipmentStatDisplayName(stat, before);
+                var label = GetEquipmentStatDisplayName(stat, before);
                 var oldText = operation == StatModifierOperation.Percent ? $"{oldValue * 100f:0.##}%" : $"{oldValue:0.##}";
                 var newText = operation == StatModifierOperation.Percent ? $"{newValue * 100f:0.##}%" : $"{newValue:0.##}";
                 Append(result, $"{label}{(operation == StatModifierOperation.Percent ? " (%)" : " (limit)")}: "
@@ -4355,7 +4331,7 @@ namespace Godmist.Views.UI.Workspace
                 var oldText = operation == StatModifierOperation.Percent ? $"{oldValue * 100f:0.##}%" : $"{oldValue:0.##}";
                 var newText = operation == StatModifierOperation.Percent ? $"{newValue * 100f:0.##}%" : $"{newValue:0.##}";
                 if (oldText == newText) continue;
-                var label = stat == CharacterStatType.MinAttack ? "Atak min." : stat == CharacterStatType.MaxAttack ? "Atak maks." : GetEquipmentStatDisplayName(stat, after);
+                var label = GetEquipmentStatDisplayName(stat, after);
                 Append(result, $"{label}{(operation == StatModifierOperation.Percent ? " (%)" : " (limit)")}: {oldText} → {UpgradeValue(newText, newValue - oldValue)}");
             }
             return result.ToString();
@@ -4520,9 +4496,9 @@ namespace Godmist.Views.UI.Workspace
 
         private static string FormatJewelryEffect(JewelryModifierData modifier) => modifier.Target switch
         {
-            JewelryModifierTarget.Resistance => $"Odporność na {GetResistanceDisplayName(modifier.ResistanceType)}: {FormatSignedPercent(modifier.Value)}",
+            JewelryModifierTarget.Resistance => $"{UiTerms.Resistance(modifier.ResistanceType)}: {FormatSignedPercent(modifier.Value)}",
             JewelryModifierTarget.GameplayVariable => GetJewelryGameplayVariableDisplayName(modifier.GameplayVariable, modifier.ReferenceId)
-                + ": " + FormatSignedPercent(modifier.Value),
+                + ": " + FormatStatusVariableValue(modifier.GameplayVariable, modifier.Value),
             _ => string.Empty
         };
 
@@ -4530,38 +4506,12 @@ namespace Godmist.Views.UI.Workspace
             GameplayVariableType type,
             string referenceId)
         {
-            return type switch
-            {
-                GameplayVariableType.DamageDealtPercent => "Zadawane obrażenia",
-                GameplayVariableType.DamageReceivedPercent => "Otrzymywane obrażenia",
-                GameplayVariableType.ExperienceGainPercent => "Zdobywane doświadczenie",
-                GameplayVariableType.GoldGainPercent => "Zdobywane złoto",
-                GameplayVariableType.ResourceGenerationPercent => "Generowanie zasobu",
-                GameplayVariableType.DamageAgainstTag => "Obrażenia przeciwko " + (referenceId switch { "Undead" => "nieumarłym", "Human" => "humanoidom", "Beast" => "bestiom", "Demon" => "demonom", _ => referenceId }),
-                GameplayVariableType.DamageInEnvironment => "Obrażenia w terenie " + (referenceId switch { "Indoor" => "zamkniętym", "Outdoor" => "otwartym", "Warm" => "ciepłym", "Cold" => "zimnym", _ => referenceId }),
-                GameplayVariableType.DamageDealtPercentInDungeonTheme =>
-                    string.IsNullOrWhiteSpace(referenceId)
-                        ? "Zadawane obrażenia w lochu"
-                        : $"Zadawane obrażenia w {GetDungeonThemeLocativeName(referenceId)}",
-                _ => CapitalizeFirst(GetGameplayVariableDisplayName(type, referenceId))
-            };
+            return UiTerms.Variable(type, referenceId);
         }
 
         private static string GetDungeonThemeLocativeName(string referenceId)
         {
-            return referenceId?.Trim().ToLowerInvariant() switch
-            {
-                "catacombs" => "Katakumbach",
-                "forest" => "Lesie",
-                "elvenruins" => "Elfiańskich Ruinach",
-                "docks" => "Dokach",
-                "desert" => "Pustyni",
-                "temple" => "Świątyni",
-                "mountains" => "Górach",
-                "swamp" => "Bagnach",
-                "story" => "Lochu Fabularnym",
-                _ => referenceId
-            };
+            return UiTerms.DungeonLocative(referenceId);
         }
 
         private static string DescribePassiveTriggers(
@@ -4689,18 +4639,18 @@ namespace Godmist.Views.UI.Workspace
         {
             return stat switch
             {
-                CharacterStatType.CritChance => $"{value * 100f:0.##}%",
-                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
-                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
+                CharacterStatType.CritChance => (value * 100f).ToString("0.##", UiTerms.PolishCulture) + " " + UiTerms.PercentagePoints,
+                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00", UiTerms.PolishCulture),
+                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0", UiTerms.PolishCulture),
                 _ => FormatEquipmentValue(value)
             };
         }
 
         // Equipment resolves as whole combat values. Keep the float internally for
         // calculations, but never expose binary-float fragments in item tooltips.
-        private static string FormatEquipmentValue(float value) => Mathf.RoundToInt(value).ToString("0;-0;0");
+        private static string FormatEquipmentValue(float value) => Mathf.RoundToInt(value).ToString("0;-0;0", UiTerms.PolishCulture);
 
-        private static string FormatValue(float value) => value.ToString("0.##;-0.##;0");
+        private static string FormatValue(float value) => value.ToString("0.##;-0.##;0", UiTerms.PolishCulture);
 
         private static string FormatComparisonDelta(
             float delta,
@@ -4715,8 +4665,8 @@ namespace Godmist.Views.UI.Workspace
             var value = stat switch
             {
                 CharacterStatType.CritChance => $"{Mathf.Abs(delta) * 100f:0.##} pp",
-                CharacterStatType.CritDamage => Mathf.Abs(delta).ToString("0.00"),
-                CharacterStatType.Dodge => Mathf.RoundToInt(Mathf.Abs(delta)).ToString("0"),
+                CharacterStatType.CritDamage => Mathf.Abs(delta).ToString("0.00", UiTerms.PolishCulture),
+                CharacterStatType.Dodge => Mathf.RoundToInt(Mathf.Abs(delta)).ToString("0", UiTerms.PolishCulture),
                 _ => FormatEquipmentValue(Mathf.Abs(delta))
             };
             return $" <color={color}>{arrow} {sign}{value}</color>";

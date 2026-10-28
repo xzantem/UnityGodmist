@@ -16,7 +16,7 @@ namespace Godmist.Tests.EditMode
         [TestCase(CharacterStatType.Speed, StatModifierOperation.Percent, .2f, "Szybkość: +20%")]
         [TestCase(CharacterStatType.Dodge, StatModifierOperation.FlatAbsolute, 4f, "Unik: +4")]
         [TestCase(CharacterStatType.Dodge, StatModifierOperation.Maximum, 0f, "Limit — Unik: 0")]
-        [TestCase(CharacterStatType.CritChance, StatModifierOperation.FlatBase, .1f, "Szansa krytyczna: +10%")]
+        [TestCase(CharacterStatType.CritChance, StatModifierOperation.FlatBase, .1f, "Szansa krytyczna: +10 pp")]
         public void BuffAndDebuffModifiersUsePlayerFacingTextInBothTooltipViews(
             CharacterStatType stat, StatModifierOperation operation, float value, string expected)
         {
@@ -32,7 +32,7 @@ namespace Godmist.Tests.EditMode
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic).Invoke(null, new object[] { presentation });
                 foreach (var text in new[] { body, legacy })
                 {
-                    Assert.That(text, Does.Contain(expected).And.Contain("Obrażenia zadawane: +15%"));
+                    Assert.That(text, Does.Contain(expected).And.Contain("Zadawane obrażenia: +15%"));
                     Assert.That(text, Does.Not.Contain("Modyfikator").And.Not.Contain("pkt").And.Not.Contain("addytywnie"));
                 }
                 Assert.That(effect.StatModifiers[0].Value, Is.EqualTo(value));
@@ -66,11 +66,11 @@ namespace Godmist.Tests.EditMode
                 var meta = (string)typeof(Godmist.Views.UI.Workspace.UIWorkspaceTooltipView).GetMethod("BuildStatusMeta",
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
                     .Invoke(null, new object[] { first, null, null, entries[0].StackCount });
-                Assert.That(meta, Does.Contain("Stosy: 2"));
+                Assert.That(meta, Does.Contain("Nałożenia: 2"));
                 var legacyText = (string)typeof(CombatTooltipView).GetMethod("BuildPresentedStatusPayload",
                     System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)
                     .Invoke(null, new object[] { entries[0] });
-                Assert.That(legacyText, Does.Contain("Łącznie: 8 obrażeń").And.Contain("Stosy: 2"));
+                Assert.That(legacyText, Does.Contain("Łącznie: 8 obrażeń").And.Contain("Nałożenia: 2"));
             }
             finally { UnityEngine.Object.DestroyImmediate(node); }
         }
@@ -89,7 +89,7 @@ namespace Godmist.Tests.EditMode
             try
             {
                 var text = node.AddComponent<Godmist.Views.UI.Workspace.UIWorkspaceTooltipView>().BuildPresentedStatusPayload(entry);
-                Assert.That(text, Does.Contain("łącznie 11 obrażeń").And.Contain("Stosy: 2"));
+                Assert.That(text, Does.Contain("łącznie 11 obrażeń").And.Contain("Nałożenia: 2"));
                 if (exploration) Assert.That(text, Does.Contain("Pozostało: 12 s").And.Contain("Pozostało: 30 s").And.Not.Contain("ticki"));
                 else Assert.That(text, Does.Contain("2 t.").And.Contain("5 t."));
                 first.RemainingDuration = 0;

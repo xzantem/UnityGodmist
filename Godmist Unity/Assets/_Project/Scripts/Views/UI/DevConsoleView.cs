@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System;
@@ -251,7 +252,7 @@ namespace Godmist.Views.UI
                 HandleAssetAuditRoom);
 
             var prefix = result.Success ? "OK" : "BLAD";
-            AppendOutput($"{prefix}: {result.Message}");
+            AppendOutput($"{prefix}: {UiTerms.Present(result.Message)}");
 
             commandInput.SetTextWithoutNotify(string.Empty);
             commandHistoryIndex = -1;

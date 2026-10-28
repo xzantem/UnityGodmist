@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -454,42 +455,42 @@ namespace Godmist.Views.UI
             }
 
             var left = new StringBuilder();
-            AppendStatRange(left, "Atak", FormatRange(
+            AppendStatRange(left, UiTerms.Attack, FormatRange(
                 stats.MinAttack.GetValue(),
                 stats.MaxAttack.GetValue()));
-            AppendStat(left, "Obrona fizyczna", stats.PhysicalDefense.GetValue(), format: "0");
-            AppendStat(left, "Obrona magiczna", stats.MagicalDefense.GetValue(), format: "0");
-            AppendStat(left, "Przebicie fizyczne",
+            AppendStat(left, UiTerms.Stat(CharacterStatType.PhysicalDefense), stats.PhysicalDefense.GetValue(), format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.MagicalDefense), stats.MagicalDefense.GetValue(), format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.PhysicalDefensePenetration),
                 stats.PhysicalDefensePenetration.GetValue() * 100f, "%");
-            AppendStat(left, "Przebicie magiczne",
+            AppendStat(left, UiTerms.Stat(CharacterStatType.MagicalDefensePenetration),
                 stats.MagicalDefensePenetration.GetValue() * 100f, "%");
-            AppendStat(left, "Celność", character.WeaponAccuracy, format: "0");
-            AppendStat(left, "Unik", stats.Dodge.GetValue(), format: "0");
-            AppendStat(left, "Szansa krytyczna",
+            AppendStat(left, UiTerms.Stat(CharacterStatType.WeaponAccuracy), character.WeaponAccuracy, format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.Dodge), stats.Dodge.GetValue(), format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.CritChance),
                 stats.CritChance.GetValue() * 100f, "%");
-            AppendStat(left, "Obrażenia krytyczne",
-                stats.CritDamage.GetValue(), "x", false, "0.00");
+            AppendStatRange(left, UiTerms.Stat(CharacterStatType.CritDamage),
+                "×" + stats.CritDamage.GetValue().ToString("0.##", UiTerms.PolishCulture));
 
-            AppendStat(left, "Szybkość", stats.Speed.GetValue());
+            AppendStat(left, UiTerms.Stat(CharacterStatType.Speed), stats.Speed.GetValue());
 
             var resource = character.ResourcePool;
             if (resource?.ResourceType == ResourceType.Mana)
             {
-                AppendStat(left, "Regeneracja many", resource.Regeneration);
+                AppendStat(left, UiTerms.Stat(CharacterStatType.ResourceRegeneration, resource.ResourceType), resource.Regeneration);
             }
 
             var right = new StringBuilder();
-            AppendStat(right, "Krwawienie",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Bleed),
                 character.Resistances?.BleedResistance ?? 0f, "%", true);
-            AppendStat(right, "Trucizna",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Poison),
                 character.Resistances?.PoisonResistance ?? 0f, "%", true);
-            AppendStat(right, "Ogień",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Fire),
                 character.Resistances?.FireResistance ?? 0f, "%", true);
-            AppendStat(right, "Osłabienie",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Weakening),
                 character.Resistances?.WeakeningResistance ?? 0f, "%", true);
-            AppendStat(right, "Kontrola",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Suppression),
                 character.Resistances?.SuppressionResistance ?? 0f, "%", true);
-            AppendStat(right, "Przemieszczenie",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Move),
                 character.Resistances?.MoveResistance ?? 0f, "%", true);
 
             leftColumn = left.ToString();
@@ -508,7 +509,7 @@ namespace Godmist.Views.UI
             var displayedValue = valueIsFraction ? value * 100f : value;
             result.Append(label)
                 .Append(": ")
-                .Append(displayedValue.ToString(format))
+                .Append(displayedValue.ToString(format, UiTerms.PolishCulture))
                 .Append(suffix);
         }
 
@@ -544,10 +545,10 @@ namespace Godmist.Views.UI
 
         private string FormatStatus(PassiveEffectRuntime effect)
         {
-            var name = effect.DisplayName;
+            var name = HeroCombatStatusText.Name(effect.EffectId, effect.DisplayName);
             if (string.IsNullOrWhiteSpace(name)) name = tooltip?.GetGlossaryTitle(effect.EffectId);
             if (string.IsNullOrWhiteSpace(name)) name = FormatEffectId(effect.EffectId);
-            return effect.RemainingDuration > 0
+            return effect.RemainingDuration > 0 && !HeroCombatStatusText.IsFieldSlow(effect.EffectId)
                 ? $"{name}  •  {effect.RemainingDuration} t."
                 : name;
         }

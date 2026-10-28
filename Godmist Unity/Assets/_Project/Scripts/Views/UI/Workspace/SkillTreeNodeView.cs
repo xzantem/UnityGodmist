@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -348,14 +349,14 @@ namespace Godmist.Views.UI.Workspace
             }
             var metadata = UIWorkspaceTooltipView.BuildPassiveMetadata(node.PassiveEffects, text);
             if (!string.IsNullOrWhiteSpace(metadata)) text += "\n" + metadata;
-            return text;
+            return UiTerms.Present(text, character?.ResourcePool?.ResourceType ?? ResourceType.None);
         }
 
         private static readonly Regex RankValues = new(@"[+-]?\d+(?:[.,]\d+)?%?(?:\s*/\s*[+-]?\d+(?:[.,]\d+)?%?)+");
 
         public static string BuildRankDescription(SkillTreeNodeDefinition node, int rank)
         {
-            var text = GetPassiveDescription(node);
+            var text = UiTerms.Present(GetPassiveDescription(node));
             if (node == null || node.EffectiveMaxRanks < 2) return text;
             var matches = RankValues.Matches(text).Cast<Match>().ToArray();
             // Only expand complete authored rank lists. Other slash notation stays intact.
@@ -384,6 +385,7 @@ namespace Godmist.Views.UI.Workspace
                 .Replace(", maksymalnie do trzech pokoleń kopii", ". Nowe podpalenia mogą rozprzestrzeniać się dalej, do trzech kolejnych przeniesień.")
                 .Replace("Kliknięcie wyjmuje go rzucając [90%] krwawienie", "Wyjęcie noża ma 90% szansy na nałożenie krwawienia")
                 .Replace("Kombo narzuca [80%] krwawienie", "Kombo ma 80% szansy na nałożenie krwawienia")
+                .Replace("Podwójny Rzut narzuca [80%] krwawienie", "Podwójny Rzut ma 80% szansy na nałożenie krwawienia")
                 .Replace("obrażenia DoT", "obrażenia okresowe")
                 .Replace("obrażeń przedmitygacyjnych", "obrażeń przed ich redukcją")
                 .Replace("odnowionego surowca", "odnowionego zasobu").Replace("4/8 surowca", "4/8 zasobu")

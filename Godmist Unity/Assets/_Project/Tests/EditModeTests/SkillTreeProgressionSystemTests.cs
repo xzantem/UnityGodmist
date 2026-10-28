@@ -256,10 +256,10 @@ namespace Godmist.Tests.EditMode
                 Does.Contain("Brak dostępnych"));
         }
 
-        [TestCase("tree.scout.assassin", "% szansy krytycznej", "obrażeń wręcz")]
+        [TestCase("tree.scout.assassin", "pp szansy krytycznej", "obrażeń wręcz")]
         [TestCase("tree.scout.blade_dancer", "zachowanie sztyletu", "siły zatrucia")]
-        [TestCase("tree.warrior.commander", "% szansy krytycznej", "nieuchronne")]
-        [TestCase("tree.warrior.brawler", "wściekłości", "HP")]
+        [TestCase("tree.warrior.commander", "pp szansy krytycznej", "nieuchronne")]
+        [TestCase("tree.warrior.brawler", "furii", "HP")]
         public void GlobalPassiveSummary_ShowsBothCombatEffects(string id, string first, string second)
         {
             var tree = Tree();

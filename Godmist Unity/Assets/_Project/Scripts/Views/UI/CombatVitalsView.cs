@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections.Generic;
 using Godmist.Runtime.Combat;
 using TMPro;
@@ -123,7 +124,7 @@ namespace Godmist.Views.UI
             if(resource!=null){CombatResourceColors.ApplyToFill(resourceSlider,resource.ResourceType);resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.InitializeResource(null, resource);}
             if(resourceValueText!=null)resourceValueText.text=resource==null?"":$"{resource.CurrentValue}/{resource.MaxValue}";
             var remaining=RemainingAfterPreview(unit.CurrentActionPoints,previewCost);
-            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP · potrzeba {ActionPointUnits.Format(previewCost)}":previewCost>0?$"{ActionPointUnits.Format(unit.CurrentActionPoints)} → {ActionPointUnits.Format(remaining)} AP":$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP";
+            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} {UiTerms.ActionPointsShort} · potrzeba {ActionPointUnits.Format(previewCost)}":previewCost>0?$"{ActionPointUnits.Format(unit.CurrentActionPoints)} → {ActionPointUnits.Format(remaining)} {UiTerms.ActionPointsShort}":$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} {UiTerms.ActionPointsShort}";
             if(actionPointPipTemplate==null||actionPointPipRoot==null)return;
             actionPointPipTemplate.gameObject.SetActive(false);
             var count = ActionPointUnits.PipCount(Mathf.Max(unit.MaxActionPoints, unit.CurrentActionPoints));

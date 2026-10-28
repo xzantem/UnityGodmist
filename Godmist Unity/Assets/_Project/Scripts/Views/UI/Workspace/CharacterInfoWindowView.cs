@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
@@ -276,7 +277,7 @@ namespace Godmist.Views.UI.Workspace
         {
             var maximum = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
             var resource = character.ResourcePool;
-            healthResourceText.text = $"<line-height=44>Zdrowie<pos=180>{CombatHealthPresentation.Format(character)}"
+            healthResourceText.text = $"<line-height=44>{UiTerms.Health}<pos=180>{CombatHealthPresentation.Format(character)}"
                 + (resource == null ? string.Empty : $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}<pos=180>{resource.CurrentValue}/{resource.MaxValue}") + "</line-height>";
             if (healthFill != null) healthFill.fillAmount = maximum > 0 ? Mathf.Clamp01((float)character.CurrentHealth / maximum) : 0;
             CombatHealthPresentation.UpdateShieldOverlay(ref shieldOverlay, healthFill,
@@ -696,13 +697,13 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildStats(CharacterInstance value)
         {
             var stats = value.Stats;
-            return $"Atak<pos=180>{stats.MinAttack.GetValue():0}–{stats.MaxAttack.GetValue():0}\nObrona fizyczna<pos=180>{stats.PhysicalDefense.GetValue():0}\nObrona magiczna<pos=180>{stats.MagicalDefense.GetValue():0}\nUnik<pos=180>{stats.Dodge.GetValue():0}\nSzansa krytyczna<pos=180>{stats.CritChance.GetValue() * 100f:0.#}%\nObrażenia krytyczne<pos=180>×{stats.CritDamage.GetValue():0.##}\nSzybkość<pos=180>{stats.Speed.GetValue():0}\nCelność<pos=180>{stats.WeaponAccuracy.GetValue():0}";
+            return $"{UiTerms.Attack}<pos=180>{stats.MinAttack.GetValue():0}–{stats.MaxAttack.GetValue():0}\n{UiTerms.Stat(CharacterStatType.PhysicalDefense)}<pos=180>{stats.PhysicalDefense.GetValue():0}\n{UiTerms.Stat(CharacterStatType.MagicalDefense)}<pos=180>{stats.MagicalDefense.GetValue():0}\n{UiTerms.Stat(CharacterStatType.Dodge)}<pos=180>{stats.Dodge.GetValue():0}\n{UiTerms.Stat(CharacterStatType.CritChance)}<pos=180>{stats.CritChance.GetValue() * 100f:0.#}%\n{UiTerms.Stat(CharacterStatType.CritDamage)}<pos=180>×{stats.CritDamage.GetValue():0.##}\n{UiTerms.Stat(CharacterStatType.Speed)}<pos=180>{stats.Speed.GetValue():0}\n{UiTerms.Stat(CharacterStatType.WeaponAccuracy)}<pos=180>{stats.WeaponAccuracy.GetValue():0}";
         }
 
         private static string BuildResistances(ResistanceSet value)
         {
             if (value == null) return "Odporności: -";
-            return $"Krwawienie<pos=180>{value.BleedResistance * 100f:0.#}%\nTrucizna<pos=180>{value.PoisonResistance * 100f:0.#}%\nOgień<pos=180>{value.FireResistance * 100f:0.#}%\nOsłabienie<pos=180>{value.WeakeningResistance * 100f:0.#}%\nKontrola<pos=180>{value.SuppressionResistance * 100f:0.#}%\nPrzemieszczenie<pos=180>{value.MoveResistance * 100f:0.#}%";
+            return $"{UiTerms.ResistanceRow(ResistanceType.Bleed)}<pos=180>{value.BleedResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Poison)}<pos=180>{value.PoisonResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Fire)}<pos=180>{value.FireResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Weakening)}<pos=180>{value.WeakeningResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Suppression)}<pos=180>{value.SuppressionResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Move)}<pos=180>{value.MoveResistance * 100f:0.#}%";
         }
         private static string LocalizeClass(string name) => name switch
         { "Scout" => "Zwiadowca", "Warrior" => "Wojownik", "Mage" => "Mag", "Paladin" => "Paladyn", _ => name ?? "—" };

@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections.Generic;
 using System.Collections;
 using Godmist.Core.Enums;
@@ -313,7 +314,7 @@ namespace Godmist.Views.UI
             CombatFeedbackType.ShieldLoss => $"-{feedbackEvent.Amount}",
             CombatFeedbackType.ResourceGain => $"+{feedbackEvent.Amount}",
             CombatFeedbackType.ResourceSpend => $"-{feedbackEvent.Amount}",
-            CombatFeedbackType.ActionPointSpend => $"-{Godmist.Runtime.Combat.ActionPointUnits.Format(feedbackEvent.Amount)} AP",
+            CombatFeedbackType.ActionPointSpend => $"-{Godmist.Runtime.Combat.ActionPointUnits.Format(feedbackEvent.Amount)} {UiTerms.ActionPointsShort}",
             CombatFeedbackType.Critical => "CRIT",
             CombatFeedbackType.Miss => "MISS",
             CombatFeedbackType.StatusApplied

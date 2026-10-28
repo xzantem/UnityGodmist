@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -572,12 +573,12 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            var summary = GetGlobalPassiveSummary(selectedTree, investedRanks);
+            var summary = GetGlobalPassiveSummary(selectedTree, investedRanks, character?.ResourcePool?.ResourceType ?? ResourceType.None);
 
-            globalPassiveText.text = $"<b>Premia za punkt</b>\n{GetGlobalPassiveSummary(selectedTree, 1)}\nAktualnie: {summary}";
+            globalPassiveText.text = $"<b>Premia za punkt</b>\n{GetGlobalPassiveSummary(selectedTree, 1, character?.ResourcePool?.ResourceType ?? ResourceType.None)}\nAktualnie: {summary}";
         }
 
-        public static string GetGlobalPassiveSummary(SkillTreeDefinition tree, int investedRanks)
+        public static string GetGlobalPassiveSummary(SkillTreeDefinition tree, int investedRanks, ResourceType resource = ResourceType.None)
         {
             if (tree == null) return string.Empty;
             var points = Mathf.Max(0, investedRanks);
@@ -585,66 +586,38 @@ namespace Godmist.Views.UI
             switch (tree.Id)
             {
                 case Godmist.Systems.Combat.PaladinCombatSystem.Priest:
-                    return $"+{points}% siły leczenia, {points}% faktycznego leczenia przywraca HP rzucającego";
+                    return UiTerms.Present($"+{points}% siły leczenia, {points}% faktycznego leczenia przywraca HP rzucającego", resource);
                 case Godmist.Systems.Combat.PaladinCombatSystem.Crusader:
-                    return $"+{points}% obrażeń przeciw nieumarłym i demonom";
+                    return UiTerms.Present($"+{points}% obrażeń przeciw nieumarłym i demonom", resource);
                 case Godmist.Systems.Combat.MageCombatSystem.Warlock:
-                    return $"-{points * Godmist.Systems.Combat.MageCombatSystem.ManaCostReductionPerPoint * 100f:0.##}% kosztów many, +{points}% obrażeń przy jednym celu";
+                    return UiTerms.Present($"-{points * Godmist.Systems.Combat.MageCombatSystem.ManaCostReductionPerPoint * 100f:0.##}% kosztów many, +{points}% obrażeń przy jednym celu", resource);
                 case Godmist.Systems.Combat.MageCombatSystem.Fire:
-                    return $"+{points * 2}% obrażeń podpalenia, Kuli Ognia i Ognistej Strzały, +{points}% odporności na ogień";
+                    return UiTerms.Present($"+{points * 2}% obrażeń podpalenia, Kuli Ognia i Ognistej Strzały, +{points}% odporności na ogień", resource);
                 case Godmist.Systems.Combat.ScoutCombatSystem.AssassinTree:
-                    return $"+{points * .2f:0.##}% szansy krytycznej, +{points * .5f:0.##}% obrażeń wręcz";
+                    return UiTerms.Present($"+{points * .2f:0.##} {UiTerms.PercentagePoints} szansy krytycznej, +{points * .5f:0.##}% obrażeń wręcz", resource);
                 case Godmist.Systems.Combat.ScoutCombatSystem.BladeTree:
-                    return $"{points}% szansy na zachowanie sztyletu, +{points}% siły zatrucia";
+                    return UiTerms.Present($"{points}% szansy na zachowanie sztyletu, +{points}% siły zatrucia", resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Commander:
-                    return $"+{points * .3f:0.##}% szansy krytycznej, {points * .002f:0.###}% obrażeń trafienia jako nieuchronne za każdy procent ulepszenia broni";
+                    return UiTerms.Present($"+{points * .3f:0.##} {UiTerms.PercentagePoints} szansy krytycznej, {points * .002f:0.###}% obrażeń trafienia jako nieuchronne za każdy procent ulepszenia broni", resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Brawler:
-                    return $"+{points}% maksymalnej wściekłości, {points * 2}% wydanej wściekłości odzyskiwane jako HP";
+                    return UiTerms.Present($"+{points}% maksymalnej wściekłości, {points * 2}% wydanej wściekłości odzyskiwane jako HP", resource);
             }
             var summary = string.Join(", ", SkillTreeProgressionSystem
-                .GetGlobalPassiveModifiers(tree, points).Select(FormatModifier));
+                .GetGlobalPassiveModifiers(tree, points).Select(modifier => FormatModifier(modifier, resource)));
             if (!string.IsNullOrWhiteSpace(summary)) return summary;
             return points == 0 ? "Nie wydano jeszcze punktów."
                 : string.IsNullOrWhiteSpace(tree.GlobalPassive?.Description)
-                    ? "Brak opisu pasywu." : tree.GlobalPassive.Description;
+                    ? "Brak opisu pasywu." : UiTerms.Present(tree.GlobalPassive.Description, resource);
         }
 
-        private static string FormatModifier(StatModifier modifier)
+        private static string FormatModifier(StatModifier modifier, ResourceType resource)
         {
-            var value = modifier.Value;
-            var isPercentage = modifier.Operation == StatModifierOperation.Percent
-                || modifier.StatType is CharacterStatType.CritChance or CharacterStatType.Dodge;
-            var formattedValue = isPercentage
-                ? modifier.StatType == CharacterStatType.Dodge
-                    ? $"{value * 100f:+0;-0;0}%"
-                    : modifier.StatType == CharacterStatType.CritDamage
-                        ? $"{value * 100f:+0.00;-0.00;0.00}%"
-                        : $"{value * 100f:+0.##;-0.##;0}%"
-                : modifier.StatType == CharacterStatType.CritDamage
-                    ? $"{value:+0.00;-0.00;0.00}"
-                    : $"{value:+0.##;-0.##;0}";
-
-            return $"{formattedValue} {GetStatDisplayName(modifier.StatType)}";
+            return UIWorkspaceTooltipView.FormatStatusStatModifier(modifier.StatType, modifier.Operation, modifier.Value, resource);
         }
 
         private static string GetStatDisplayName(CharacterStatType statType)
         {
-            return statType switch
-            {
-                CharacterStatType.MinAttack => "Atak min.",
-                CharacterStatType.MaxAttack => "Atak maks.",
-                CharacterStatType.PhysicalDefense => "Obrona fiz.",
-                CharacterStatType.MagicalDefense => "Obrona mag.",
-                CharacterStatType.CritChance => "Szansa kryt.",
-                CharacterStatType.CritDamage => "Obrazenia kryt.",
-                CharacterStatType.MaxHealth => "Zdrowie",
-                CharacterStatType.Dodge => "Unik",
-                CharacterStatType.Speed => "Szybkosc",
-                CharacterStatType.ResourceRegeneration => "Regeneracja zasobu",
-                CharacterStatType.WeaponAccuracy => "Celnosc",
-                CharacterStatType.MaxResource => "Maks. zasob",
-                _ => statType.ToString()
-            };
+            return UiTerms.Stat(statType);
         }
 
         private static void Clear(Transform root, Transform template)
