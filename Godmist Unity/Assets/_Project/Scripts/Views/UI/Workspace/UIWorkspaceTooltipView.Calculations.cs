@@ -56,7 +56,8 @@ namespace Godmist.Views.UI.Workspace
                     line=Row(line.Substring(0,column),line.Substring(end+1)).TrimEnd('\n');
                     if(line.Length==0)continue;
                 }
-                if(!string.IsNullOrWhiteSpace(line) && !seen.Add(PlainCalculationText(line)))continue;
+                // Equal values under distinct wrapped source labels are separate contributions.
+                if(!line.StartsWith("<indent=",StringComparison.Ordinal) && !string.IsNullOrWhiteSpace(line) && !seen.Add(PlainCalculationText(line)))continue;
                 result.Append(line).Append('\n');
             }
             return result.ToString().Trim();
@@ -82,7 +83,7 @@ namespace Godmist.Views.UI.Workspace
             // Effect observations may already include a plus sign before a negative value.
             value=value.Replace("+-","−");
             var plain=PlainCalculationText(value);
-            var lower=name.ToLower(UiTerms.PolishCulture);
+            var lower=PlainCalculationText(name).ToLower(UiTerms.PolishCulture);
             var primary=lower is "wartość bazowa" or "wydane punkty" or "baza" or "wynik" or "obrażenia" or "leczenie" or "tarcza" or "koszt końcowy" or "koszt bazowy"
                 || lower.StartsWith("aktualn",StringComparison.Ordinal) || lower.StartsWith("maksymaln",StringComparison.Ordinal) || lower.StartsWith("minimaln",StringComparison.Ordinal) || lower.StartsWith("atak",StringComparison.Ordinal) || lower.EndsWith(" — baza",StringComparison.Ordinal)
                 || int.TryParse(lower,out _);

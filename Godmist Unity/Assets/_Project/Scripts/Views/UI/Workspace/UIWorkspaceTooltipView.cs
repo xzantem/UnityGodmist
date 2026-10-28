@@ -3737,7 +3737,7 @@ namespace Godmist.Views.UI.Workspace
             // runtime effect payload below, so do not prepend stale definition
             // text for those instances.
             var result = new StringBuilder(ItemIntro(item));
-            if (item is EquipmentItemInstance equipment) return BuildEquipmentDetails(equipment, owner, true);
+            if (item is EquipmentItemInstance equipment) return BuildEquipmentDetails(equipment, owner, true, this);
             if (item is ConsumableItemInstance consumable)
             {
                 if (consumable.IsFood)
@@ -3867,7 +3867,7 @@ namespace Godmist.Views.UI.Workspace
             => BuildEquipmentDetails(equipment, owner, false);
 
         private static string BuildEquipmentDetails(
-            EquipmentItemInstance equipment, CharacterInstance owner, bool interactiveEffects)
+            EquipmentItemInstance equipment, CharacterInstance owner, bool interactiveEffects, UIWorkspaceTooltipView calculations = null, Godmist.Data.World.GameContentCatalog equipmentCatalog = null)
         {
             if (equipment?.Definition == null) return string.Empty;
             var result = new StringBuilder(ItemIntro(equipment));
@@ -3878,7 +3878,7 @@ namespace Godmist.Views.UI.Workspace
                 AppendEquipmentStats(
                     result,
                     equipment,
-                    ReferenceEquals(equipment, equippedItem) ? null : equippedItem);
+                    ReferenceEquals(equipment, equippedItem) ? null : equippedItem, calculations, equipmentCatalog);
                 AppendPassiveDescriptions(
                     result,
                     (equipment.Definition as UniqueEquipmentDefinition)?.GetEffects(equipment.ItemLevel));
@@ -3931,9 +3931,17 @@ namespace Godmist.Views.UI.Workspace
             var intro = ItemIntro(item);
             if (!body.StartsWith(intro, StringComparison.Ordinal)) return body;
             var mechanics = LinkifyGlossary(body.Substring(intro.Length));
-            // Only mechanical glossary links are interactive; flavor prose remains plain.
-            mechanics = mechanics.Replace("<color=#7EDBFF>", "<color=#7EDBFF><u>")
-                .Replace("</color></link>", "</u></color></link>");
+            // Numeric links move with ItemStatColumnsView. TMP underline geometry does not,
+            // so decorate glossary terms only, never the independently aligned values.
+            mechanics = System.Text.RegularExpressions.Regex.Replace(mechanics,
+                @"<link=""(?<id>[^""]+)"">(?<body>.*?)</link>", match =>
+                {
+                    var id = match.Groups["id"].Value;
+                    if (id.StartsWith("calculation.", StringComparison.Ordinal) || id == ItemStatColumnsView.MarkerId)
+                        return match.Value;
+                    return match.Value.Replace("<color=#7EDBFF>", "<color=#7EDBFF><u>")
+                        .Replace("</color></link>", "</u></color></link>");
+                }, System.Text.RegularExpressions.RegexOptions.Singleline);
             return intro + mechanics;
         }
 
@@ -4210,8 +4218,10 @@ namespace Godmist.Views.UI.Workspace
         private static void AppendEquipmentStats(
             StringBuilder result,
             EquipmentItemInstance item,
-            EquipmentItemInstance equippedItem)
+            EquipmentItemInstance equippedItem, UIWorkspaceTooltipView calculations = null, Godmist.Data.World.GameContentCatalog equipmentCatalog = null)
         {
+            string Value(string text, CharacterStatType stat, StatModifierOperation operation = StatModifierOperation.FlatBase, bool attack = false)
+                => calculations == null ? text : calculations.LinkEquipmentValue(text,item,stat,operation,attack,equipmentCatalog);
             var itemStats = GetEquipmentStats(item);
             var equippedStats = GetEquipmentStats(equippedItem);
             var hasAttack = itemStats.ContainsKey(CharacterStatType.MinAttack)
@@ -4228,7 +4238,7 @@ namespace Godmist.Views.UI.Workspace
                 var average = (minAttack + maxAttack) * 0.5f;
                 Append(
                     result,
-                    ItemStatColumnsView.Marker + $"Atak: {FormatAttackValue(minAttack, maxAttack)}"
+                    ItemStatColumnsView.Marker + $"Atak: {Value(FormatAttackValue(minAttack, maxAttack),CharacterStatType.MinAttack,attack:true)}"
                     + FormatComparisonDelta(average - equippedAverage, equippedItem != null)
                     + (equippedItem != null ? " (średni atak)" : string.Empty));
             }
@@ -4243,7 +4253,7 @@ namespace Godmist.Views.UI.Workspace
 
                 Append(
                     result,
-                    ItemStatColumnsView.Marker + $"{GetEquipmentStatDisplayName(stat, item)}: {(value > 0 ? "+" : string.Empty)}{FormatEquipmentStatValue(stat, value)}"
+                    ItemStatColumnsView.Marker + $"{GetEquipmentStatDisplayName(stat, item)}: {Value((value > 0 ? "+" : string.Empty)+FormatEquipmentStatValue(stat,value),stat)}"
                     + FormatComparisonDelta(value - equippedValue, equippedItem != null, stat));
             }
             // Percentage multipliers and caps are not flat stat bonuses. Keep
@@ -4255,9 +4265,9 @@ namespace Godmist.Views.UI.Workspace
                 var equippedValue = GetOperationValue(equippedItem, stat, operation);
                 if (Mathf.Abs(value) < .0001f && Mathf.Abs(equippedValue) < .0001f) continue;
                 if (operation == StatModifierOperation.Maximum)
-                    Append(result, ItemStatColumnsView.Marker + $"Limit — {GetEquipmentStatDisplayName(stat, item)}: {value:0.##}");
+                    Append(result, ItemStatColumnsView.Marker + $"Limit — {GetEquipmentStatDisplayName(stat, item)}: {Value(value.ToString("0.##",UiTerms.PolishCulture),stat,operation)}");
                 else
-                    Append(result, ItemStatColumnsView.Marker + $"{GetEquipmentStatDisplayName(stat, item)}: {value * 100f:+0.##;-0.##;0}%"
+                    Append(result, ItemStatColumnsView.Marker + $"{GetEquipmentStatDisplayName(stat, item)}: {Value((value*100f).ToString("+0.##;-0.##;0",UiTerms.PolishCulture)+"%",stat,operation)}"
                         + (equippedItem == null ? string.Empty : $" (różnica {(value - equippedValue) * 100f:+0.##;-0.##;0} pp)"));
             }
         }

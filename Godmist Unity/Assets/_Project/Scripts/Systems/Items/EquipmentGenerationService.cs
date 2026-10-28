@@ -255,6 +255,17 @@ namespace Godmist.Systems.Items
             };
         }
 
+        // Read-only inputs of the same formula used by BuildFinalItemStats.
+        public static void GetStatInputs(
+            IReadOnlyList<EquipmentPartDefinition> parts, ItemType itemType,
+            string classId, EquipmentQuality quality, int baseLevel, CharacterStatType stat,
+            out float[] bases, out float[] percentages, out float qualityAdjustment)
+        {
+            bases = parts.Select(part => GetBase(part, stat)).ToArray();
+            percentages = parts.Select(part => GetPercent(part, stat)).ToArray();
+            qualityAdjustment = GetQualityStatAdjustment(stat, itemType, classId, quality, baseLevel);
+        }
+
         private static List<StatModifier> BuildFinalItemStats(
             IEnumerable<EquipmentPartDefinition> parts,
             ItemType itemType,
