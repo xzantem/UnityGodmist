@@ -219,7 +219,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: Sprawny Odzysk
     <Description>k__BackingField: "Zwi\u0119ksza zni\u017Ck\u0119 kosztu odzysku
       w\u0142asnego sztyletu Link\u0105 z Hakiem z 20% do 60%: 10 PP i 10% PA"
-    <Icon>k__BackingField: {fileID: 21300000, guid: 23081d047b5456f4184e373087028ad1, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 65056ba8112552e48b08037080eeea3c, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 2
     <MaxRanks>k__BackingField: 1

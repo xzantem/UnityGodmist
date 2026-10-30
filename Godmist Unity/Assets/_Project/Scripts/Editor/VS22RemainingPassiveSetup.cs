@@ -15,7 +15,6 @@ using UnityEngine;
 public static class VS22RemainingPassiveSetup
 {
     private const string PassiveArtRoot = "Assets/_Project/Art/Icons/Passives/VS22/";
-    private const string EfficientRecoveryId = "node.scout.blade_dancer.efficient_recovery";
 
     private static string Field(string name) => "<" + name + ">k__BackingField";
 
@@ -205,8 +204,6 @@ public static class VS22RemainingPassiveSetup
     /// </summary>
     internal static Sprite TryLoadPassiveIcon(string nodeId)
     {
-        if (nodeId == EfficientRecoveryId)
-            return AssetDatabase.LoadAssetAtPath<SkillData>("Assets/_Project/ScriptableObjects/Skills/SD_ScoutHook.asset")?.Icon;
         if (string.IsNullOrWhiteSpace(nodeId))
             return null;
 
@@ -244,13 +241,6 @@ public static class VS22RemainingPassiveSetup
         var slugs = new HashSet<string>(StringComparer.Ordinal);
         foreach (var entry in catalog.entries)
         {
-            // The historical approved art catalog predates this gameplay replacement.
-            // Reuse the hook icon instead of importing the retired Strong Liver artwork.
-            if (entry?.fullId == "node.scout.blade_dancer.strong_liver")
-            {
-                entry.fullId = EfficientRecoveryId;
-                entry.slug = "efficient_recovery";
-            }
             if (entry == null || string.IsNullOrWhiteSpace(entry.fullId) || string.IsNullOrWhiteSpace(entry.slug) || string.IsNullOrWhiteSpace(entry.outputPng))
                 throw new InvalidOperationException(spec.DisplayName + " passive catalog contains an incomplete entry.");
             if (!entry.fullId.StartsWith(spec.NodePrefix, StringComparison.Ordinal) || !ids.Add(entry.fullId))
@@ -272,9 +262,6 @@ public static class VS22RemainingPassiveSetup
 
     private static Sprite ImportPassiveSprite(TreeSpec spec, PassiveCatalogEntry entry)
     {
-        if (entry.fullId == EfficientRecoveryId)
-            return TryLoadPassiveIcon(entry.fullId)
-                ?? throw new InvalidOperationException("Missing hook icon for Efficient Recovery.");
         var sourcePath = Path.Combine(ReviewRoot, spec.SourceDirectory, entry.outputPng.Replace('/', Path.DirectorySeparatorChar));
         var targetAssetPath = PassiveTargetPath(spec, entry.slug);
         var targetPath = Path.Combine(ProjectRoot, targetAssetPath.Replace('/', Path.DirectorySeparatorChar));
@@ -369,12 +356,6 @@ public static class VS22RemainingPassiveSetup
 
             if (entryIds.Contains(node.Id))
             {
-                if (node.Id == EfficientRecoveryId)
-                {
-                    if (node.Icon == null || node.Icon != TryLoadPassiveIcon(node.Id))
-                        throw new InvalidOperationException("Efficient Recovery must reuse the hook icon.");
-                    continue;
-                }
                 var expectedPath = PassiveTargetPath(spec, node.Id.Substring(spec.NodePrefix.Length));
                 AssertImportedTexture(expectedPath);
                 var expectedIcon = AssetDatabase.LoadAssetAtPath<Sprite>(expectedPath);

@@ -13,6 +13,7 @@ namespace Godmist.Editor
     {
         const string Root = "Assets/_Project/ScriptableObjects/";
         public const string Path = Root + "Skills/SD_WarriorDischarge.asset";
+        public const string IconPath = "Assets/_Project/Art/Icons/Skills/VS22/discharge-32.png";
         static string Field(string name) => "<" + name + ">k__BackingField";
         [MenuItem("Godmist/Content/Apply Warrior Discharge")]
         public static void Apply()
@@ -41,8 +42,8 @@ namespace Godmist.Editor
             data.FindProperty(Field("ResourceCost")).intValue = 20;
             data.FindProperty(Field("ActionCost")).intValue = 60;
             data.FindProperty(Field("SkillAccuracy")).floatValue = 82;
-            // Reuse the existing Brawler rage artwork rather than a placeholder.
-            data.FindProperty(Field("Icon")).objectReferenceValue = tree.Nodes.Single(n => n.Id == "node.warrior.brawler.release_rage").Icon;
+            data.FindProperty(Field("Icon")).objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(IconPath)
+                ?? throw new InvalidOperationException("Missing dedicated Discharge icon: " + IconPath);
             data.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssetIfDirty(skill);
             data = new SerializedObject(character);
             var starters = data.FindProperty(Field("StartingSkills"));

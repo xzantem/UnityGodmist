@@ -20,7 +20,6 @@ public static partial class VS07ScoutSetup
         }
         if (treeName == "blade_dancer")
         {
-            if (nodeId == "efficient_recovery") return Load<SkillData>("Skills/SD_ScoutHook.asset")?.Icon ?? fallback;
             if (grantedSkill != null && grantedSkill.Icon != null) return grantedSkill.Icon;
             var imported = VS22RemainingPassiveSetup.TryLoadPassiveIcon("node.scout.blade_dancer." + nodeId);
             if (imported != null) return imported;

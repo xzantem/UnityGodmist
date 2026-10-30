@@ -24,7 +24,7 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Wy\u0142adowanie"
     <Description>k__BackingField: "Zu\u017Cywa 20\u2013100 furii. Zadaje 100% ataku
       +1% za ka\u017Cdy wydany punkt (maks. 200%)."
-    <Icon>k__BackingField: {fileID: 21300000, guid: c38cf37389e2b6047a3ffd4dd11fa278, type: 3}
+    <Icon>k__BackingField: {fileID: 21300000, guid: 578d6fc4211cf5a4791423a9fdff9854, type: 3}
     <Tier>k__BackingField: 1
     <Column>k__BackingField: 1
     <MaxRanks>k__BackingField: 1
