@@ -164,8 +164,8 @@ MonoBehaviour:
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.mage.fire.expansion
     <DisplayName>k__BackingField: "Zasi\u0119g Po\u017Caru"
-    <Description>k__BackingField: "Zwi\u0119ksza zasi\u0119g Agresywnego Ognia do
-      3"
+    <Description>k__BackingField: "Zwi\u0119ksza zasi\u0119g Rozprzestrzeniania P\u0142omieni
+      do 3"
     <Icon>k__BackingField: {fileID: 21300000, guid: baec279e1d8331447a997350c6e89cc5, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 3
@@ -179,8 +179,8 @@ MonoBehaviour:
     <DisplayName>k__BackingField: "Podsycanie \u017Baru"
     <Description>k__BackingField: "Je\u015Bli podpalenie zadaje mniej ni\u017C 10%
       maksymalnego zdrowia przeciwnika na tur\u0119, jego si\u0142a zwi\u0119ksza
-      si\u0119 o 15%/30% (mo\u017Ce po tym na\u0142o\u017Cy\u0107 si\u0119 Choleryzm
-      je\u015Bli si\u0142a wzro\u015Bnie powy\u017Cej 10% maksymalnego zdrowia)"
+      si\u0119 o 15%/30% (mo\u017Ce po tym na\u0142o\u017Cy\u0107 si\u0119 Obezw\u0142adniaj\u0105cy
+      \u017Bar je\u015Bli si\u0142a wzro\u015Bnie powy\u017Cej 10% maksymalnego zdrowia)"
     <Icon>k__BackingField: {fileID: 21300000, guid: 18b1222d60190a246960e9f68d78888d, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 4

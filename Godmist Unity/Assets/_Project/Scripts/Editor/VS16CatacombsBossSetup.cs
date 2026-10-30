@@ -344,6 +344,7 @@ namespace Godmist.Editor
                         RarityTier.Rare);
                 }
             }
+            BossGemLootSetup.ConfigureBossBag(so, false);
             var unique = so.FindProperty(F("BossUniqueDrop"));
             Sub(unique, "DropChance", .3f);
             var definitions = unique.FindPropertyRelative(F("EquipmentDefinitions"));

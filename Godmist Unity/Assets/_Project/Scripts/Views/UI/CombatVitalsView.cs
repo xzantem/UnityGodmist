@@ -111,7 +111,9 @@ namespace Godmist.Views.UI
         [SerializeField] private Color previewColor = new(1f,.65f,.15f,1);
         private readonly List<Image> pips = new();
         public static int RemainingAfterPreview(int current, int cost) => Mathf.Max(0, current - Mathf.Max(0,cost));
-        public void Bind(BattleUnit unit, int previewCost = 0)
+        public TMP_Text HealthValueText => healthValueText;
+        public TMP_Text ResourceValueText => resourceValueText;
+        public void Bind(BattleUnit unit, int previewCost = 0, bool statValueLinks = false)
         {
             if (unit?.Character == null) return;
             var c=unit.Character;
@@ -119,12 +121,12 @@ namespace Godmist.Views.UI
             var shield=c.ShieldPool?.TotalShield??0;
             Set(healthSlider,c.CurrentHealth,maximum);
             CombatBarPresentation.FitFrame(healthSlider);
-            if (healthValueText!=null) healthValueText.text=CombatHealthPresentation.Format(c.CurrentHealth,maximum,shield);
+            if (healthValueText!=null) healthValueText.text=statValueLinks?CharacterStatValueLinks.Health(c):CombatHealthPresentation.Format(c.CurrentHealth,maximum,shield);
             if(shieldSlider!=null){shieldSlider.gameObject.SetActive(shield>0);Set(shieldSlider,shield,Mathf.Max(maximum,shield));}
             var resource=c.ResourcePool;
             if(resourceSlider!=null){resourceSlider.gameObject.SetActive(resource!=null&&resource.MaxValue>0);Set(resourceSlider,resource?.CurrentValue??0,resource?.MaxValue??1);}
             if(resource!=null){CombatResourceColors.ApplyToFill(resourceSlider,resource.ResourceType);resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.InitializeResource(null, resource);}
-            if(resourceValueText!=null)resourceValueText.text=resource==null?"":$"{resource.CurrentValue}/{resource.MaxValue}";
+            if(resourceValueText!=null)resourceValueText.text=resource==null?"":statValueLinks?CharacterStatValueLinks.Resource(c):$"{resource.CurrentValue}/{resource.MaxValue}";
             var remaining=RemainingAfterPreview(unit.CurrentActionPoints,previewCost);
             if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} {UiTerms.ActionPointsShort} · potrzeba {ActionPointUnits.Format(previewCost)}":previewCost>0?$"{ActionPointUnits.Format(unit.CurrentActionPoints)} → {ActionPointUnits.Format(remaining)} {UiTerms.ActionPointsShort}":$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} {UiTerms.ActionPointsShort}";
             if(actionPointPipTemplate==null||actionPointPipRoot==null)return;

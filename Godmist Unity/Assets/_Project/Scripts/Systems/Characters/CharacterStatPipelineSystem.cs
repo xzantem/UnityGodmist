@@ -15,7 +15,7 @@ namespace Godmist.Systems.Characters
         // The planner uses the same arithmetic without reconciliation, lifecycle
         // or mutation of any CharacterInstance.
         public static float EvaluateModifiers(float baseValue, CharacterStatType type,
-            IEnumerable<PassiveEffectRuntime> effects, bool applyMaximum = true)
+            IEnumerable<PassiveEffectRuntime> effects, bool clampResult = true, bool applyMaximum = true)
         {
             var accumulator = StatModifierAccumulator.Create();
             foreach (var effect in effects)
@@ -27,7 +27,7 @@ namespace Godmist.Systems.Characters
                     if (modifier != null && modifier.StatType == type) accumulator.Add(modifier);
             }
             var value = CalculateEffectiveValue(baseValue, accumulator, applyMaximum);
-            return type == CharacterStatType.MaxHealth ? Mathf.Max(1f, value) : Mathf.Max(0f, value);
+            return !clampResult ? value : type == CharacterStatType.MaxHealth ? Mathf.Max(1f, value) : Mathf.Max(0f, value);
         }
 
         public void Refresh(CharacterInstance character, bool treePreview = false)

@@ -37,6 +37,7 @@ namespace Godmist.Editor
                     var entry = pools.GetArrayElementAtIndex(pools.arraySize - 1).FindPropertyRelative(F("Entries")).GetArrayElementAtIndex(0);
                     Sub(entry, "MinimumGalduryteRarity", RarityTier.Rare); Sub(entry, "FixedGalduryteLevel", 20);
                 });
+                BossGemLootSetup.ConfigureBossBag(so, true);
                 var unique = so.FindProperty(F("BossUniqueDrop")); Sub(unique, "DropChance", .3f);
                 var list = unique.FindPropertyRelative(F("EquipmentDefinitions")); list.ClearArray();
                 foreach (var definition in uniques) Add(list).objectReferenceValue = definition;

@@ -106,7 +106,7 @@ namespace Godmist.Tests.EditMode
                 var fill = (Image)state.FindProperty("healthFill").objectReferenceValue;
                 var overlay = fill.transform.parent.GetComponentsInChildren<Image>(true)
                     .Single(image => image.name == "ShieldOverlay");
-                Assert.That(text.text, Does.Contain("50/100 (+30)"));
+                Assert.That(System.Text.RegularExpressions.Regex.Replace(text.text,"<[^>]*>",""), Does.Contain("50/100 (+30)"));
                 Assert.That(overlay.rectTransform.anchorMax.x, Is.EqualTo(.3f));
                 Assert.That(fill.fillAmount, Is.EqualTo(.5f));
                 character.ShieldPool.AbsorbDamage(30);

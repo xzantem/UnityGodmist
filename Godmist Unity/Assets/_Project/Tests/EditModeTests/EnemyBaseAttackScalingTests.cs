@@ -87,6 +87,9 @@ namespace Godmist.Tests.EditMode
                         new CharacterLevelGrowthSystem().Apply(actual, false); new CharacterStatPipelineSystem().Refresh(actual);
                         Assert.That(actual.Stats.MinAttack.GetValue(), Is.EqualTo(expected), "Refresh/growth must not compound the correction.");
                         var json = JsonUtility.ToJson(actual);
+                        var explanation = CharacterStatExplanation.Create(actual);
+                        Assert.That(explanation.Values[CharacterStatType.MinAttack], Is.EqualTo(expected));
+                        Assert.That(explanation.Rows.Any(row => row.Source == "#attack_multiplier"), Is.False);
                         Assert.That(JsonUtility.ToJson(actual), Is.EqualTo(json));
                         count++;
                     }
@@ -149,6 +152,7 @@ namespace Godmist.Tests.EditMode
                 new CharacterStatPipelineSystem().Refresh(character);
                 Assert.That(character.Stats.MinAttack.GetValue(), Is.EqualTo(95));
                 Assert.That(character.Stats.MaxAttack.GetValue(), Is.EqualTo(180));
+                Assert.That(CharacterStatExplanation.Create(character).Values[CharacterStatType.MinAttack], Is.EqualTo(95));
             });
         }
 

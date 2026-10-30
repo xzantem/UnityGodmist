@@ -84,11 +84,11 @@ namespace Godmist.Systems.Combat
             return Mathf.Max(0, 1 - bonus);
         }
 
-        public static float Resistance(CharacterInstance c, ResistanceType type) =>
-            Sum(c, GalduryteEffectType.AllResistance) + Sum(c, type switch {
+        public static float Resistance(CharacterInstance c, ResistanceType type,CombatValueExplanation explanation=null) =>
+            Sum(c, GalduryteEffectType.AllResistance,explanation) + Sum(c, type switch {
                 ResistanceType.Bleed or ResistanceType.Poison or ResistanceType.Fire => GalduryteEffectType.DotResistance,
                 ResistanceType.Suppression => GalduryteEffectType.SuppressionResistance,
-                _ => GalduryteEffectType.DebuffResistance });
+                _ => GalduryteEffectType.DebuffResistance },explanation);
 
         public static float StatusChance(CharacterInstance c, string status,CombatValueExplanation explanation=null) =>
             Sum(c, StatusEffectSystem.IsDamageOverTimeStatus(status) ? GalduryteEffectType.DotChance

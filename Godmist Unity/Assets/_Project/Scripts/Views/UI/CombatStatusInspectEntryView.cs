@@ -28,7 +28,7 @@ namespace Godmist.Views.UI
                 inset.x = icon != null && icon.enabled ? iconLabelInset : 0f;
                 labelRoot.offsetMin = inset;
             }
-            if (label != null) label.text = !string.IsNullOrWhiteSpace(effect.DisplayName) ? effect.DisplayName
+            if (label != null) label.text = !string.IsNullOrWhiteSpace(presentation.DisplayName) ? presentation.DisplayName
                 : sourceTooltip?.GetGlossaryTitle(effect.EffectId) ?? effect.EffectId;
             tooltip = sourceTooltip;
         }

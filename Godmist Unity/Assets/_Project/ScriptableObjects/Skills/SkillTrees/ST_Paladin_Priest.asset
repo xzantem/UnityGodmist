@@ -219,7 +219,7 @@ MonoBehaviour:
   - <Id>k__BackingField: node.paladin.priest.salvation
     <DisplayName>k__BackingField: "\u0141aska Zwrotna"
     <Description>k__BackingField: "Rzucaj\u0105cy otrzymuje dodatkowo 50% odnowionego
-      surowca przez \u0141ask\u0119"
+      surowca przez Gromadzenie \u0141aski"
     <Icon>k__BackingField: {fileID: 21300000, guid: e946f91bd4d93dd4c9471a9c5eac5dd4, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 2

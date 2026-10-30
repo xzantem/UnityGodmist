@@ -60,6 +60,7 @@ namespace Godmist.Views.UI
         private readonly List<GameObject> skillRows = new();
         private readonly List<Image> actionPointPips = new();
 
+        private readonly CharacterStatHoverController statHover = new();
         private RectTransform rectTransform;
         private BattleUnit boundUnit;
         private UIWorkspaceTooltipView tooltip;
@@ -156,7 +157,7 @@ namespace Godmist.Views.UI
                 portrait.enabled = portrait.sprite != null;
             }
 
-            if(vitals != null) vitals.Bind(boundUnit);
+            if(vitals != null) vitals.Bind(boundUnit,statValueLinks:true);
             else
             {
             SetSliderValue(healthSlider, character.CurrentHealth, maxHealth);
@@ -172,16 +173,13 @@ namespace Godmist.Views.UI
 
             if (healthValueText != null)
             {
-                healthValueText.text = FormatHealthValue(
-                    character.CurrentHealth,
-                    maxHealth,
-                    shield);
+                healthValueText.text = CharacterStatValueLinks.Health(character);
             }
 
             SetValueTextVisible(resourceValueText, resource != null && resource.MaxValue > 0);
             if (resourceValueText != null && resource != null)
             {
-                resourceValueText.text = $"{resource.CurrentValue}/{resource.MaxValue}";
+                resourceValueText.text = CharacterStatValueLinks.Resource(character);
             }
 
             if (sideFrame != null)
@@ -205,9 +203,7 @@ namespace Godmist.Views.UI
             if(actionPointPipRoot!=null)actionPointPipRoot.gameObject.SetActive(hasActionPoints);
             if(overviewLayout!=null)overviewLayout.minHeight=overviewLayout.preferredHeight=hasActionPoints?140:112;
 
-            BuildStatsColumns(character, out var statsLeft, out var statsRight);
-            ApplyStatsColumn(statsLeftText,statsLeftValues,statsLeft);
-            ApplyStatsColumn(statsRightText,statsRightValues,statsRight);
+            RefreshStatColumns();
             if(statsLayout!=null)
                 statsLayout.minHeight=statsLayout.preferredHeight=Mathf.Ceil(Mathf.Max(statsLeftText?.preferredHeight??0,statsRightText?.preferredHeight??0)+30);
             tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
@@ -242,11 +238,29 @@ namespace Godmist.Views.UI
 
         public void Hide()
         {
+            statHover.Clear();
             boundUnit = null;
             statusSignature = null;
             skillSignature = null;
             if (canvasGroup != null) canvasGroup.alpha = 0f;
             gameObject.SetActive(false);
+        }
+
+        private void OnDisable() => statHover.Clear();
+        private void LateUpdate()
+        {
+            if(boundUnit?.Character==null)return;
+            RefreshStatColumns();
+            statHover.Tick(Input.mousePosition);
+        }
+        private void RefreshStatColumns()
+        {
+            var character=boundUnit.Character;
+            BuildStatsColumns(character,out var left,out var right);
+            ApplyStatsColumn(statsLeftText,statsLeftValues,CharacterStatValueLinks.Decorate(left,character));
+            ApplyStatsColumn(statsRightText,statsRightValues,CharacterStatValueLinks.Decorate(right,character,true));
+            statHover.Bind(character,transform,tooltip,statsLeftText,statsLeftValues,statsRightText,statsRightValues,
+                vitals!=null?vitals.HealthValueText:healthValueText,vitals!=null?vitals.ResourceValueText:resourceValueText);
         }
 
         private void RefreshActionPointPips(BattleUnit unit)

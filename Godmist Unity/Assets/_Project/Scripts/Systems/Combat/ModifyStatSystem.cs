@@ -284,7 +284,7 @@ namespace Godmist.Systems.Combat
         public static float CalculateResistance(
             CharacterInstance character,
             ResistanceType type,
-            float combatModifier = 0f)
+            float combatModifier = 0f, CombatValueExplanation explanation = null)
         {
             if (character == null) return 0f;
 
@@ -299,6 +299,7 @@ namespace Godmist.Systems.Combat
                 ResistanceType.Move => values?.MoveResistance ?? 0f,
                 _ => 0f
             };
+            explanation?.Add("base",result);
             if (character.PassiveEffects != null)
             {
                 foreach (var effect in character.PassiveEffects)
@@ -310,16 +311,22 @@ namespace Godmist.Systems.Combat
                         || payload.ResistanceType == ResistanceType.All))
                     {
                         result += payload.Value;
+                        explanation?.Add(effect.EffectId,payload.Value);
                     }
                 }
             }
 
             if (type == ResistanceType.Fire)
             {
-                result += .01f * MageCombatSystem.Points(character, MageCombatSystem.Fire);
+                var fireBonus = .01f * MageCombatSystem.Points(character, MageCombatSystem.Fire);
+                result += fireBonus;
+                explanation?.Add(MageCombatSystem.Fire,fireBonus);
             }
 
-            return UnityEngine.Mathf.Clamp01(result + EquipmentEffectSystem.Resistance(character, type) + combatModifier);
+            var raw = result + EquipmentEffectSystem.Resistance(character, type, explanation) + combatModifier;
+            if(combatModifier!=0)explanation?.Add("combat",combatModifier);
+            explanation?.Add("raw",raw);
+            return UnityEngine.Mathf.Clamp01(raw);
         }
 
         private static float GetLegacyModifier(BattleUnit unit, ResistanceType type)

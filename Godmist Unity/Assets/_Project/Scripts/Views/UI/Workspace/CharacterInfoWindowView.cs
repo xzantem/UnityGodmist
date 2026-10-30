@@ -19,6 +19,7 @@ namespace Godmist.Views.UI.Workspace
     public sealed class CharacterInfoWindowView : MonoBehaviour
     {
         private static readonly HashSet<CharacterInfoWindowView> OpenWindows = new();
+        private readonly CharacterStatHoverController statHover = new();
 
         [SerializeField] private UIWorkspaceWindow window;
         [SerializeField] private TextMeshProUGUI headerTitleText;
@@ -111,6 +112,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void OnDisable()
         {
+            statHover.Clear();
             if (experienceSource != null) experienceSource.ExperienceGained -= OnExperienceGained;
             experienceSource = null;
             UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
@@ -182,7 +184,12 @@ namespace Godmist.Views.UI.Workspace
         private void LateUpdate()
         {
             RefreshProgressionButtons();
-            if (character != null) RefreshVitals();
+            if (character != null)
+            {
+                RefreshVitals();
+                RefreshStatTexts();
+                statHover.Tick(Input.mousePosition);
+            }
         }
 
         public void ClearInventorySearch()
@@ -277,8 +284,8 @@ namespace Godmist.Views.UI.Workspace
         {
             var maximum = character.MaximumHealth;
             var resource = character.ResourcePool;
-            healthResourceText.text = $"<line-height=44>{UiTerms.Health}<pos=180>{CombatHealthPresentation.Format(character)}"
-                + (resource == null ? string.Empty : $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}<pos=180>{resource.CurrentValue}/{resource.MaxValue}") + "</line-height>";
+            healthResourceText.text = $"<line-height=44>{UiTerms.Health}<pos=180>{CharacterStatValueLinks.Health(character)}"
+                + (resource == null ? string.Empty : $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}<pos=180>{CharacterStatValueLinks.Resource(character)}") + "</line-height>";
             if (healthFill != null) healthFill.fillAmount = maximum > 0 ? Mathf.Clamp01((float)character.CurrentHealth / maximum) : 0;
             CombatHealthPresentation.UpdateShieldOverlay(ref shieldOverlay, healthFill,
                 character.ShieldPool?.TotalShield ?? 0, maximum);
@@ -344,14 +351,20 @@ namespace Godmist.Views.UI.Workspace
                 ? 1 : Mathf.Clamp01((float)character.CurrentExperience / progressionSystem.GetExperienceRequiredForNextLevel(character.Level));
 
             RefreshVitals();
-            statsText.text = "<line-height=22>" + BuildStats(character) + "</line-height>";
-            resistancesText.text = "<line-height=22>" + BuildResistances(character.Resistances) + "</line-height>";
+            RefreshStatTexts();
             honorAvailabilityText.text = (honorValueText == null ? $"Honor<pos=180>{character.Honor}\n" : string.Empty)
                 + $"Stan: {LifeStateName(character.LifeState)}\n{AvailabilityName(character.AvailabilityState)}";
             if (honorValueText != null) honorValueText.text = character.Honor.ToString();
 
             RefreshInventory();
             RefreshEquipment();
+        }
+
+        private void RefreshStatTexts()
+        {
+            statsText.text="<line-height=22>"+CharacterStatValueLinks.Decorate(BuildStats(character),character)+"</line-height>";
+            resistancesText.text="<line-height=22>"+CharacterStatValueLinks.Decorate(BuildResistances(character.Resistances),character,true)+"</line-height>";
+            statHover.Bind(character,transform,UIWorkspaceTooltipView.ActiveInstance,statsText,resistancesText,healthResourceText);
         }
 
         private void OpenSkillLoadout()

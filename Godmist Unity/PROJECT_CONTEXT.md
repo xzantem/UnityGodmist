@@ -1,3 +1,9 @@
+## v0.1.1 — kamienie bossów — 2026-10-27
+
+Obsydian i jadeit nie wypadają z toreb zasobów. Każdy boss Katakumb ma dodatkową niezależną pulę 50% na 1–2 obsydianu, a każdy boss Lasu 50% na 1–2 jadeitu; dotyczy obu przedziałów toreb 1–10 i 11–20. Szanse odnoszą się do próby wygenerowania łupu, przed odfiltrowaniem pustej torby i przed istniejącymi bonusami dropu. Pozostałe pule bossów/unique zachowane. Bazowa podaż pozostałych materiałów z zasobów zachowana; przy dodatnim addytywnym bonusie dropu po usunięciu wpisu występuje mały wzrost udziału pozostałych kamieni (szczegóły w KANBAN).
+
+Jadeit (`item.runic.jadeite`) jest rzadkim leśnym odpowiednikiem obsydianu: cena bazowa 2847, jedna sztuka na kamień biżuterii, +3,5% zadawanych obrażeń wyłącznie w Lesie. Dostępny we wszystkich czterech typach biżuterii przez istniejący crafting i losowanie; cztery kamienie sumują się do +14%. Obsydian zachowuje analogiczną premię dla Katakumb. Zmiany danych zapisano przez Editor API, bez zmiany formatu save ani istniejących ID. Już zapisane/prerollowane nagrody pozostają; nowy loot wymaga nowej wyprawy.
+
 ## Korekta zakończenia pionowego muru — 2026-10-26 — READY_FOR_SMOKE
 
 Aktualna zatwierdzona zasada: górny odcinek cap → cap → cap → lico na wolnym dolnym końcu; dolny odcinek nadal ma zamknięty cap u góry. Lico otrzymuje wyłącznie południowy terminalny segment wewnętrznej przegrody, bez zamiany początku ciągu na lico. Natywny materiał 24px lica + 8px capa, bez nowej grafiki, zmiany kolizji, bram, low-wall lub serialized assets. 82/82 celowanych testów renderowania/ścian PASS. Porównanie i checks.xml: ../LocalHandoffs/side-terminal-face-20261026; aktualny render również w raporcie loot-portraits-walls-20261026/report.html. Manualny gameplay smoke NOT RUN; bez commit/push.

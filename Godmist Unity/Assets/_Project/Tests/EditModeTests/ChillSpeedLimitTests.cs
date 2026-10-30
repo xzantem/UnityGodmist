@@ -34,6 +34,8 @@ namespace Godmist.Tests.EditMode
                 1f, 1, 1, 0, 0, "test", sharedRoll: 0f), Is.True);
             Assert.That(target.Character.Stats.Speed.GetValue(), Is.EqualTo(expected));
             var json = JsonUtility.ToJson(target.Character);
+            Assert.That(CharacterStatExplanation.Create(target.Character).Values[CharacterStatType.Speed], Is.EqualTo(expected));
+            Assert.That(JsonUtility.ToJson(target.Character), Is.EqualTo(json), "Breakdown must not mutate the character.");
             system.ProcessTurnEnd(target);
             Assert.That(StatusEffectSystem.HasStatus(target, StatusEffectIds.Chill), Is.False);
             Assert.That(target.Character.Stats.Speed.GetValue(), Is.EqualTo(original));
@@ -50,6 +52,15 @@ namespace Godmist.Tests.EditMode
                 new CharacterStatPipelineSystem().Refresh(target.Character);
                 Assert.That(target.Character.Stats.Speed.GetValue(), Is.EqualTo(Math.Min(20, 12 + Math.Max(0, amount - 100) / 25 * 4)));
             }
+        }
+
+        [Test] public void BreakdownPlacesTheLimitAfterDerivedSpeedBonuses()
+        {
+            var target = Unit("mage", 45);
+            new StatusEffectSystem().ApplyStatus(Unit("plain", 20), target, StatusEffectIds.Chill, 1, 3, 1, 0, 0, "test", sharedRoll: 0f);
+            var explanation = CharacterStatExplanation.Create(target.Character);
+            var cap = explanation.Rows.Single(r => r.Stat == CharacterStatType.Speed && r.Operation == StatModifierOperation.Maximum);
+            Assert.That(cap.Stage, Is.GreaterThan(explanation.Rows.Where(r => r.Stat == CharacterStatType.Speed && r.Operation != StatModifierOperation.Maximum).Max(r => r.Stage)));
         }
 
         [TestCase("plain", 45)] [TestCase("rage", 61)] [TestCase("momentum", 61)] [TestCase("mage", 60)]
@@ -104,6 +115,9 @@ namespace Godmist.Tests.EditMode
             Assert.That(chill.StatModifiers.Count, Is.EqualTo(1));
             new CharacterStatPipelineSystem().Refresh(target.Character);
             Assert.That(target.Character.Stats.Speed.GetValue(), Is.EqualTo(20));
+            var explanation = CharacterStatExplanation.Create(target.Character);
+            Assert.That(explanation.Values[CharacterStatType.Speed], Is.EqualTo(20));
+            Assert.That(explanation.Rows.Any(r => r.Source == StatusEffectIds.Chill && r.Operation == StatModifierOperation.Maximum && r.Stage > 6), Is.True);
             new StatusEffectSystem().ProcessTurnEnd(target);
             Assert.That(target.Character.Stats.Speed.GetValue(), Is.EqualTo(60));
         }
@@ -120,6 +134,7 @@ namespace Godmist.Tests.EditMode
                 StatModifiers = new() { new StatModifier { StatType = CharacterStatType.Speed, Operation = StatModifierOperation.Maximum, Value = 15 } } });
             new CharacterStatPipelineSystem().Refresh(target.Character);
             Assert.That(target.Character.Stats.Speed.GetValue(), Is.EqualTo(15));
+            Assert.That(CharacterStatExplanation.Create(target.Character).Values[CharacterStatType.Speed], Is.EqualTo(15));
         }
 
         [Test] public void ExpiringBurnRemovesMageSpeedBonusWhileChillRemains()

@@ -187,7 +187,7 @@ public static partial class VS09MageSetup
         new[]{"fire","arcana","Arkana Ognia","Zwiększa obrażenia wszystkich podpaleń o 10%/20%/30%","","","2","5","3"},
         new[]{"fire","fire_resistance","Odporność na Podpalenie","Zmniejsza obrażenia otrzymywane od podpaleń o 25% i samopodpaleń o 50%","fire_offering","","3","1","1"},
         new[]{"fire","fire_offering","Ognista Ofiara","Podpalanie przeciwników daje 15%/30%/50% szansy na samopodpalenie (niepomniejszona przez odporność na ogień)","protection","","3","2","3"},
-        new[]{"fire","expansion","Zasięg Pożaru","Zwiększa zasięg Agresywnego Ognia do 3","aggressive_fire","","3","3","1"},
+        new[]{"fire","expansion","Zasięg Pożaru","Zwiększa zasięg Rozprzestrzeniania Płomieni do 3","aggressive_fire","","3","3","1"},
         new[]{"fire","sanguine","Podsycanie Żaru","Jeśli podpalenie zadaje mniej niż 10% maksymalnego zdrowia przeciwnika na turę, jego siła zwiększa się o 15%/30% (może po tym nałożyć się Obezwładniający Żar jeśli siła wzrośnie powyżej 10% maksymalnego zdrowia)","choleric","","3","4","2"},
         new[]{"fire","choleric","Obezwładniający Żar","Jeśli podpalenie zadaje więcej niż 10% maksymalnego zdrowia przeciwnika na turę, ma 10%/25% szansy na ogłuszenie na 2 tury w każdej turze","arcana","","3","5","2"},
         new[]{"fire","fire_arrow","Ognista Strzała","Zadaje losowe obrażenia magiczne z penetracją magiczną 30%, [70%] podpalenie 30% na 2 tury, zmniejsza obrażenia o 15% na 4 tury","","fire_arrow","4","1","1"},

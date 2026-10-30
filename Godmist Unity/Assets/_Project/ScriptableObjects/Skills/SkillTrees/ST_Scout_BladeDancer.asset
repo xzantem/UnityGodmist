@@ -154,7 +154,8 @@ MonoBehaviour:
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.blade_dancer.combo_master
     <DisplayName>k__BackingField: Krwawa Seria
-    <Description>k__BackingField: Kombo narzuca [80%] krwawienie 100%/120% na 3 tury
+    <Description>k__BackingField: "Podw\xF3jny Rzut narzuca [80%] krwawienie 100%/120%
+      na 3 tury"
     <Icon>k__BackingField: {fileID: 21300000, guid: bd643ccc9d6d52246b4cb93b33921f4d, type: 3}
     <Tier>k__BackingField: 3
     <Column>k__BackingField: 2

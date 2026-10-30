@@ -13,8 +13,8 @@ namespace Godmist.Editor
     [InitializeOnLoad]
     public static class EarlyAccessReleaseBuild
     {
-        public const string CandidateVersion = "0.1.0";
-        public static string Output => Path.GetFullPath("../LocalHandoffs/ea-010-20261027");
+        public const string CandidateVersion = "0.1.1";
+        public static string Output => Path.GetFullPath("../LocalHandoffs/ea-011-20261030");
         public static string PlayerDirectory => Path.GetFullPath("../Builds/" + CandidateVersion + "/Windows-x64");
         private static string Request => Path.Combine(Output, "release.request");
         private static bool running;

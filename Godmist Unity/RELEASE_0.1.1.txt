@@ -1,0 +1,26 @@
+Godmist 0.1.1 — Early Access
+
+Zmiany
+- Ujednolicone nazwy statystyk, modyfikatorów i odporności w UI.
+- Poprawione opisy umiejętności, talentów i efektów; wartości uwzględniają postać.
+- Dodatkowe podpowiedzi z obliczeniami dla umiejętności, wyposażenia i statystyk postaci.
+- Poprawione maskowanie wypełnienia pasków oraz osobne ikony Wyładowania,
+  jego ulepszeń i Sprawnego Odzysku.
+- Jadeit jako leśny odpowiednik obsydianu. Oba kamienie wypadają z właściwych
+  bossów w osobnej puli 50% na 1–2 sztuki; usunięte z toreb zasobów.
+- Naprawy obliczeń obrażeń, statusów, leczenia i oceny akcji przez AI,
+  zgodnie z zaakceptowanymi kartami audytu.
+- Kontrola własności przy usługach wyposażenia, izolacja mikstur sandboxu,
+  diagnostyka odczytu zapisów, wycena receptur i stabilne identyfikatory
+  efektów/nagród; zachowana obsługa zapisów 0.1.0.
+- Usunięty zbędny tooltip licznika sztyletów; podświetlanie po najechaniu zostaje.
+
+Znane problemy
+- Niektóre mieszane połączenia niskich i obniżonych pełnych ścian katakumb
+  mają przerwy lub nakładające się zakończenia. Poprawki odłożone do 0.1.2.
+- Wewnętrzne pełne ściany są celowo obniżane dla widoczności. Normalna
+  wysokość z zanikaniem jest propozycją kolejnej zmiany prezentacji.
+
+Dystrybucja
+Windows x64. Wypakuj całą paczkę i uruchom Godmist.exe.
+Zachowano lokalizację zapisów poprzedniego wydania.

@@ -21,7 +21,7 @@ MonoBehaviour:
     <PassivesPerPoint>k__BackingField:
     - <Id>k__BackingField: tree.scout.assassin.global.critical_chance
       <DisplayName>k__BackingField: "Instynkt Zab\xF3jcy"
-      <Description>k__BackingField:
+      <Description>k__BackingField: 
       <Lifetime>k__BackingField: 0
       <DefaultDurationTurns>k__BackingField: 0
       <TickPhase>k__BackingField: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
       - <Id>k__BackingField: modify-critical-chance
         <Type>k__BackingField: 0
         <Target>k__BackingField: 0
-        <ReferenceId>k__BackingField:
+        <ReferenceId>k__BackingField: 
         <StatType>k__BackingField: 6
         <VariableType>k__BackingField: 0
         <ResistanceType>k__BackingField: 0
@@ -43,17 +43,17 @@ MonoBehaviour:
           <Source>k__BackingField: 0
           <NumberValue>k__BackingField: 0.002
           <RankValues>k__BackingField: []
-          <ReferenceId>k__BackingField:
-          <StateKey>k__BackingField:
+          <ReferenceId>k__BackingField: 
+          <StateKey>k__BackingField: 
           <Scale>k__BackingField: 1
           <Offset>k__BackingField: 0
         <DurationTurns>k__BackingField: 0
         <Parameters>k__BackingField: []
       <Tooltip>k__BackingField:
-        <TitleOverride>k__BackingField:
-        <DescriptionOverride>k__BackingField:
-        <ConditionText>k__BackingField:
-        <TriggerText>k__BackingField:
+        <TitleOverride>k__BackingField: 
+        <DescriptionOverride>k__BackingField: 
+        <ConditionText>k__BackingField: 
+        <TriggerText>k__BackingField: 
         <ShowRuntimeState>k__BackingField: 0
   <Nodes>k__BackingField:
   - <Id>k__BackingField: node.scout.assassin.backstab
@@ -246,8 +246,8 @@ MonoBehaviour:
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.keen_eye
     <DisplayName>k__BackingField: "Pewna R\u0119ka"
-    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 na Ostry N\xF3\u017C
-      o 5%/10%"
+    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 na G\u0142\u0119bokie
+      Wbicie o 5%/10%"
     <Icon>k__BackingField: {fileID: 21300000, guid: 8f05ef1cd81bfa4418519a7e4ddd9d89, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 1
@@ -271,8 +271,8 @@ MonoBehaviour:
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.scout.assassin.light_step
     <DisplayName>k__BackingField: Lekki Krok
-    <Description>k__BackingField: Zmniejsza wymagania ruchowe podczas trwania Wojownika
-      Cieni o 1/3 punkty akcji
+    <Description>k__BackingField: "Zmniejsza wymagania ruchowe podczas trwania Kroku
+      w Cie\u0144 o 1/3 punkty akcji"
     <Icon>k__BackingField: {fileID: 21300000, guid: b9d2da6d57ef7a94ba369e6a4558ae6a, type: 3}
     <Tier>k__BackingField: 4
     <Column>k__BackingField: 3

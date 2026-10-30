@@ -32,22 +32,27 @@ namespace Godmist.Systems.Combat
         public static bool Burning(BattleUnit u) => StatusEffectSystem.HasStatus(u, StatusEffectIds.Burn);
         public static float SpeedBonus(CharacterInstance c) =>
             PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn) ? 15 * Rank(c, Fire, "adrenaline") : 0;
-        public static void ApplyStats(CharacterInstance c)
+        public static void ApplyStats(CharacterInstance c, System.Action<CharacterStatType,string,StatModifierOperation,float> observe = null)
         {
             if (c?.Stats == null) return;
             var s = c.Stats;
             var defense = Rank(c, Warlock, "defensive_power");
             s.MaxHealth.SetEffectiveValue(s.MaxHealth.GetValue() + (s.MinAttack.GetValue() + s.MaxAttack.GetValue()) * .5f * (defense switch { 1 => .1f, 2 => .3f, 3 => .5f, _ => 0f }));
+            observe?.Invoke(CharacterStatType.MaxHealth,"node.mage.warlock.defensive_power",StatModifierOperation.FlatAbsolute,(s.MinAttack.GetValue()+s.MaxAttack.GetValue())*.5f*(defense switch{1=>.1f,2=>.3f,3=>.5f,_=>0f}));
             var pool = c.ResourcePool;
             var maximumMana = Mathf.Max(0, Mathf.RoundToInt(s.MaxResource.GetValue()));
             var missing = pool == null || maximumMana <= 0 ? 0f : Mathf.Clamp01(1f - pool.CurrentValue / (float)maximumMana);
             s.ResourceRegeneration.SetEffectiveValue(s.ResourceRegeneration.GetValue() * (1 + missing * MissingManaRegenerationPerRank * Rank(c, Warlock, "energy_saving")));
+            observe?.Invoke(CharacterStatType.ResourceRegeneration,"node.mage.warlock.energy_saving",StatModifierOperation.Percent,missing*MissingManaRegenerationPerRank*Rank(c,Warlock,"energy_saving"));
             c.ActiveSkillLoadout.TrySetCapacityModifier("mage.memory", Rank(c, Warlock, "memory"));
             if (!PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn)) return;
             s.Speed.SetEffectiveValue(s.Speed.GetValue() + SpeedBonus(c));
             var protection = Rank(c, Fire, "protection") switch { 1 => .2f, 2 => .5f, _ => 0f };
             s.PhysicalDefense.SetEffectiveValue(s.PhysicalDefense.GetValue() * (1 + protection));
             s.MagicalDefense.SetEffectiveValue(s.MagicalDefense.GetValue() * (1 + protection));
+            observe?.Invoke(CharacterStatType.Speed,"node.mage.fire.adrenaline",StatModifierOperation.FlatAbsolute,SpeedBonus(c));
+            observe?.Invoke(CharacterStatType.PhysicalDefense,"node.mage.fire.protection",StatModifierOperation.Percent,protection);
+            observe?.Invoke(CharacterStatType.MagicalDefense,"node.mage.fire.protection",StatModifierOperation.Percent,protection);
         }
         public static int Cost(BattleUnit u, SkillData skill, int cost)
         {

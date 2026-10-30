@@ -29,6 +29,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(character.CurrentHealth, Is.EqualTo(expected));
             Assert.That(CombatHealthPresentation.Format(character), Is.EqualTo($"{expected}/{expected}"));
             Assert.That(CombatHealthPresentation.Format(expected, rawMaximum, 0), Is.EqualTo($"{expected}/{expected}"));
+            Assert.That(Regex.Replace(CharacterStatValueLinks.Health(character), "<[^>]*>", ""), Is.EqualTo($"{expected}/{expected}"));
             Assert.That(character.Stats.MaxHealth.BaseValue, Is.EqualTo(rawMaximum));
         }
 
