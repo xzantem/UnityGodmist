@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1286056339757946180}
+  - component: {fileID: 8924764279501450489}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -29,6 +30,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 345815854851105560}
+  - {fileID: 7162259250664503686}
   m_Father: {fileID: 8553291307698166118}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -36,6 +38,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -12, y: -6}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8924764279501450489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108269375481281537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &615563549046802641
 GameObject:
   m_ObjectHideFlags: 0
@@ -46,6 +62,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7162259250664503686}
   - component: {fileID: 474995412968791628}
+  - component: {fileID: 7793959801081736163}
   m_Layer: 0
   m_Name: ShieldSlider
   m_TagString: Untagged
@@ -68,13 +85,13 @@ RectTransform:
   - {fileID: 8581482206992609161}
   - {fileID: 2185061401914105246}
   - {fileID: 3861033394452147863}
-  m_Father: {fileID: 8553291307698166118}
+  m_Father: {fileID: 1286056339757946180}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.05, y: 1}
-  m_AnchorMax: {x: 0.95, y: 1}
-  m_AnchoredPosition: {x: 0, y: -2}
-  m_SizeDelta: {x: 0, y: 6}
-  m_Pivot: {x: 0.5, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 2}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &474995412968791628
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,6 +143,23 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7793959801081736163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 615563549046802641}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 5152202951990083415}
+  fillArea: {fileID: 2185061401914105246}
+  border: {fileID: 8350335030897150090}
+  authoredPixelsPerUnitMultiplier: 12
+  shieldOverlay: {fileID: 0}
 --- !u!1 &746470654366905084
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,6 +289,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2185061401914105246}
+  - component: {fileID: 1541771264638445263}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -282,6 +317,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1541771264638445263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1464250549279724023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &2090433239231319175
 GameObject:
   m_ObjectHideFlags: 0
@@ -356,7 +405,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 2
 --- !u!1 &2337418811366032285
 GameObject:
   m_ObjectHideFlags: 0
@@ -712,6 +761,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6115985027639670219}
+  - component: {fileID: 8407526396390380158}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -739,6 +789,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -12, y: -6}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8407526396390380158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3051559313391027385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &3389168924800073003
 GameObject:
   m_ObjectHideFlags: 0
@@ -951,7 +1015,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4304545214541581633}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -973,7 +1037,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 2
 --- !u!1 &5761127670322533400
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,7 +1090,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5761127670322533400}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1048,7 +1112,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 3
+  m_PixelsPerUnitMultiplier: 12
 --- !u!1 &6367574628737038621
 GameObject:
   m_ObjectHideFlags: 0
@@ -1135,6 +1199,7 @@ GameObject:
   - component: {fileID: 8553291307698166118}
   - component: {fileID: 1691034643221675994}
   - component: {fileID: 138640843398555246}
+  - component: {fileID: 7817323982862782743}
   m_Layer: 0
   m_Name: HealthSlider(Clone)
   m_TagString: Untagged
@@ -1156,7 +1221,6 @@ RectTransform:
   m_Children:
   - {fileID: 3878943895819977961}
   - {fileID: 1286056339757946180}
-  - {fileID: 7162259250664503686}
   - {fileID: 8176518660091783993}
   - {fileID: 7259615214665168342}
   m_Father: {fileID: 4054656111631400060}
@@ -1232,6 +1296,23 @@ MonoBehaviour:
   tooltip: {fileID: 0}
   title: Zdrowie
   description: Aktualne i maksymalne zdrowie.
+--- !u!114 &7817323982862782743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6794204466315735297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 4662914909226034900}
+  fillArea: {fileID: 1286056339757946180}
+  border: {fileID: 5826927867184232973}
+  authoredPixelsPerUnitMultiplier: 2
+  shieldOverlay: {fileID: 7162259250664503686}
 --- !u!1 &7150649785724758616
 GameObject:
   m_ObjectHideFlags: 0
@@ -1625,7 +1706,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 2
 --- !u!1 &7935539770572639675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1678,7 +1759,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7935539770572639675}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1700,7 +1781,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 2
 --- !u!1 &8115591700686904774
 GameObject:
   m_ObjectHideFlags: 0
@@ -1828,7 +1909,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8321181142209577225}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -1841,7 +1922,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b360da896d5208d4799403417f2ac78a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2e463403035904d4388682fd97afc1a7, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1850,7 +1931,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 2
+  m_PixelsPerUnitMultiplier: 12
 --- !u!1 &8462917552210277482
 GameObject:
   m_ObjectHideFlags: 0
@@ -1864,6 +1945,7 @@ GameObject:
   - component: {fileID: 8977970700740365343}
   - component: {fileID: 1218344630264273843}
   - component: {fileID: 3702079913532978534}
+  - component: {fileID: 3316892300857765383}
   m_Layer: 0
   m_Name: ResourceSlider(Clone)
   m_TagString: Untagged
@@ -1934,7 +2016,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 0
-  m_TargetGraphic: {fileID: 0}
+  m_TargetGraphic: {fileID: 3702079913532978534}
   m_FillRect: {fileID: 1982934079341124892}
   m_HandleRect: {fileID: 0}
   m_Direction: 0
@@ -1998,3 +2080,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3316892300857765383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8462917552210277482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 1097125344564747568}
+  fillArea: {fileID: 6115985027639670219}
+  border: {fileID: 8488363850860206302}
+  authoredPixelsPerUnitMultiplier: 2
+  shieldOverlay: {fileID: 0}

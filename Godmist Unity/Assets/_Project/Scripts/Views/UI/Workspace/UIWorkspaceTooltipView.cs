@@ -4995,6 +4995,7 @@ namespace Godmist.Views.UI.Workspace
                 fill.rectTransform.offsetMax = new Vector2(-6, -4);
                 fill.type = Image.Type.Filled; fill.fillMethod = Image.FillMethod.Horizontal;
                 fill.fillOrigin = 0; fill.fillAmount = ratio;
+                Godmist.Views.UI.UIBarFillMask.Install(frame, fill);
             }
             else if (npcLoyaltyProgressSliderPrefab != null)
             {

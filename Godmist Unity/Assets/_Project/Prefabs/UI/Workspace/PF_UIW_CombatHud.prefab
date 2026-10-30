@@ -120,6 +120,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3015541940730057126}
+  - component: {fileID: 6622039393710227528}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -145,8 +146,22 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -24, y: -12}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6622039393710227528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 262579861288087274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &282649414743796927
 GameObject:
   m_ObjectHideFlags: 0
@@ -2762,6 +2777,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2923466510837735146}
+  - component: {fileID: 4440582923656277476}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -2787,8 +2803,22 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -8, y: -4}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4440582923656277476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3204564267466223456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &3316756482020324924
 GameObject:
   m_ObjectHideFlags: 0
@@ -2897,6 +2927,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8067938612991417503}
   - component: {fileID: 914851946496256276}
+  - component: {fileID: 4467278093306209071}
   m_Layer: 0
   m_Name: TargetHealthSlider
   m_TagString: Untagged
@@ -2979,6 +3010,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4467278093306209071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3517516549129127416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 7769721727318086216}
+  fillArea: {fileID: 1772318382448829668}
+  border: {fileID: 5675080217229892219}
+  authoredPixelsPerUnitMultiplier: 1
 --- !u!1 &3684252683914369427
 GameObject:
   m_ObjectHideFlags: 0
@@ -3233,7 +3280,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b360da896d5208d4799403417f2ac78a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2e463403035904d4388682fd97afc1a7, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3242,7 +3289,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 2
+  m_PixelsPerUnitMultiplier: 3
 --- !u!1 &4495588815161069470
 GameObject:
   m_ObjectHideFlags: 0
@@ -4667,6 +4714,7 @@ GameObject:
   - component: {fileID: 2581288752186059337}
   - component: {fileID: 4459006172779962416}
   - component: {fileID: 1807091771663310229}
+  - component: {fileID: 3277425610454140156}
   m_Layer: 0
   m_Name: TargetResourceSlider
   m_TagString: Untagged
@@ -4801,6 +4849,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3277425610454140156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6380597993272450954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 1402014500549789710}
+  fillArea: {fileID: 3015541940730057126}
+  border: {fileID: 3240024755788443471}
+  authoredPixelsPerUnitMultiplier: 1
 --- !u!1 &6542838077360993693
 GameObject:
   m_ObjectHideFlags: 0
@@ -4886,6 +4950,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7602632408900374152}
   - component: {fileID: 7368225541256106894}
+  - component: {fileID: 368421656701091199}
   m_Layer: 0
   m_Name: TargetShieldSlider
   m_TagString: Untagged
@@ -4966,6 +5031,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &368421656701091199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6575510080757247559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 6876483432294896681}
+  fillArea: {fileID: 2923466510837735146}
+  border: {fileID: 7905754139269713371}
+  authoredPixelsPerUnitMultiplier: 3
 --- !u!1 &6610191850293837001
 GameObject:
   m_ObjectHideFlags: 0
@@ -5188,6 +5269,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1772318382448829668}
+  - component: {fileID: 3665977186979129522}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -5213,8 +5295,22 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -24, y: -12}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &3665977186979129522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6775671138815703300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &7026832443307169686
 GameObject:
   m_ObjectHideFlags: 0
@@ -5613,7 +5709,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b360da896d5208d4799403417f2ac78a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2e463403035904d4388682fd97afc1a7, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6444,7 +6540,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b360da896d5208d4799403417f2ac78a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2e463403035904d4388682fd97afc1a7, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7995,6 +8091,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: d18db0eaf0851a04dbb6e56f7f9dfd1b, type: 3}
+    - target: {fileID: 5776153526072918360, guid: 13e477d1c59e11d429c67145fc37f7d1, type: 3}
+      propertyPath: authoredPixelsPerUnitMultiplier
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

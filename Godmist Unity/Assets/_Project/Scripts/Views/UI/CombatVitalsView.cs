@@ -10,6 +10,8 @@ namespace Godmist.Views.UI
     {
         public static void FitFrame(Slider slider)
         {
+            if (slider != null && slider.TryGetComponent<UIBarFillMask>(out var presentation))
+            { presentation.Apply(); return; }
             // The authored fill area is inset 6px horizontally and 3px vertically.
             // slider_track has 12/6px slice borders: at multiplier 1 the frame
             // consumes a 12px bar's entire height and overlaps its fill.
@@ -68,7 +70,7 @@ namespace Godmist.Views.UI
             var rect = overlay.rectTransform;
             rect.anchorMin = new Vector2(0f, 1f);
             rect.anchorMax = new Vector2(Mathf.Clamp01(shield / Mathf.Max(1f, Mathf.Max(maximum, shield))), 1f);
-            rect.pivot = new Vector2(0f, 0f);
+            rect.pivot = new Vector2(0f, 1f);
             rect.sizeDelta = new Vector2(0f, Mathf.Clamp(area.rect.height * .25f, 1f, 2f));
             rect.anchoredPosition = Vector2.zero;
             rect.SetAsLastSibling();

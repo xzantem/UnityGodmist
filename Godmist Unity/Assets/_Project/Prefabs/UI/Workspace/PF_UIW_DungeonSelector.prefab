@@ -2649,14 +2649,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.055, g: 0.05, b: 0.065, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 2e463403035904d4388682fd97afc1a7, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2665,7 +2665,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 3
 --- !u!1 &4062505122936396213
 GameObject:
   m_ObjectHideFlags: 0
@@ -3774,6 +3774,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6833712023820486825}
+  - component: {fileID: 840032526212217345}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -3799,8 +3800,22 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -6, y: -6}
+  m_SizeDelta: {x: -8, y: -4}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &840032526212217345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5127164204577787258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &5136752169323188451
 GameObject:
   m_ObjectHideFlags: 0
@@ -3810,6 +3825,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8017766422433100684}
+  - component: {fileID: 7068291068979954742}
   m_Layer: 0
   m_Name: Fill Area
   m_TagString: Untagged
@@ -3835,8 +3851,22 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -6, y: -6}
+  m_SizeDelta: {x: -8, y: -4}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7068291068979954742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5136752169323188451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RectMask2D
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}
 --- !u!1 &5140251593025568595
 GameObject:
   m_ObjectHideFlags: 0
@@ -5162,14 +5192,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.055, g: 0.05, b: 0.065, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 2e463403035904d4388682fd97afc1a7, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5178,7 +5208,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 3
 --- !u!1 &7558359510853797734
 GameObject:
   m_ObjectHideFlags: 0
@@ -5424,6 +5454,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5473785386328795055}
   - component: {fileID: 4804567475536336178}
+  - component: {fileID: 5895010805203293552}
   m_Layer: 0
   m_Name: HealthSlider
   m_TagString: Untagged
@@ -5445,8 +5476,8 @@ RectTransform:
   m_Children:
   - {fileID: 8281561099826666523}
   - {fileID: 6833712023820486825}
-  - {fileID: 3810999790057504720}
   - {fileID: 1185357402996236944}
+  - {fileID: 3810999790057504720}
   m_Father: {fileID: 5475065211064804901}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -5505,6 +5536,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5895010805203293552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7882141437059709199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 5352894607946759262}
+  fillArea: {fileID: 6833712023820486825}
+  border: {fileID: 2994367517870985786}
+  authoredPixelsPerUnitMultiplier: 3
 --- !u!1 &7945089114351647309
 GameObject:
   m_ObjectHideFlags: 0
@@ -5828,6 +5875,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4463934721240660924}
   - component: {fileID: 5869909822885335722}
+  - component: {fileID: 8037566358530974800}
   m_Layer: 0
   m_Name: ResourceSlider
   m_TagString: Untagged
@@ -5849,8 +5897,8 @@ RectTransform:
   m_Children:
   - {fileID: 4836833215289394597}
   - {fileID: 8017766422433100684}
-  - {fileID: 8084319401531124473}
   - {fileID: 4459440582422828113}
+  - {fileID: 8084319401531124473}
   m_Father: {fileID: 5475065211064804901}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -5909,6 +5957,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8037566358530974800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8135796036845079610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8210667276a59c347bd062023232fbd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.UIBarFillMask
+  background: {fileID: 5647446117764786577}
+  fillArea: {fileID: 8017766422433100684}
+  border: {fileID: 275018069933761947}
+  authoredPixelsPerUnitMultiplier: 3
 --- !u!1 &8408126975490147383
 GameObject:
   m_ObjectHideFlags: 0
