@@ -173,7 +173,7 @@ public static partial class VS09MageSetup
         new[]{"warlock","adaptation","Adaptacja Energetyczna","Otrzymanie obrażeń za co najmniej 20% maksymalnego zdrowia zmniejsza obrażenia 3 następnych ataków od tego Celu o 10%/20% obrażeń zadanych podczas pierwotnego ciosu","","","4","1","2"},
         new[]{"warlock","energy_discharge","Wyładowanie Energii","Jeśli masz powyżej maksymalnej ilości many, obrażenia następnego ataku mają szansę na bycie ciosem krytycznym. Szansa wynosi 0.2%/0.6%/1% za każdy nadmierny punkt many i wszystkie są zużywane","beyond_limits","","4","2","3"},
         new[]{"warlock","energy_split","Roztrojenie Energii","Zadaje 70% losowych obrażeń magicznych","","energy_split","4","3","1"},
-        new[]{"warlock","power_saving","Skupione Promienie","Zwiększa obrażenia Roztrojenia Energii do 85%/100%","energy_split","","4","4","2"},
+        new[]{"warlock","power_saving","Skupione Promienie","Zwiększa współczynnik ataku Roztrojenia Energii o 15/30 pp.","energy_split","","4","4","2"},
         new[]{"warlock","ritual","Rytuał Odnowy","Zadaje wszystkim członkom drużyny 10% ich maksymalnego zdrowia w zamian za regenerację 30% w ciągu 5 tur;","","ritual","4","5","1"},
         new[]{"fire","burning_aura","Paląca Aura","Zwiększa obrażenia Ognistej Aury o 15%/30%","fire_aura","","1","1","2"},
         new[]{"fire","fire_aura","Ognista Aura","Tworzy aurę ognia o zasięgu 1 wokół celu z [50%] podpalenie 90%","","fire_aura","1","2","1"},

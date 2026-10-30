@@ -30,6 +30,8 @@ namespace Godmist.Systems.Combat
             if (Points(unit?.Character, Fire) > 0) new CharacterStatPipelineSystem().Refresh(unit.Character);
         }
         public static bool Burning(BattleUnit u) => StatusEffectSystem.HasStatus(u, StatusEffectIds.Burn);
+        public static float SpeedBonus(CharacterInstance c) =>
+            PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn) ? 15 * Rank(c, Fire, "adrenaline") : 0;
         public static void ApplyStats(CharacterInstance c)
         {
             if (c?.Stats == null) return;
@@ -42,7 +44,7 @@ namespace Godmist.Systems.Combat
             s.ResourceRegeneration.SetEffectiveValue(s.ResourceRegeneration.GetValue() * (1 + missing * MissingManaRegenerationPerRank * Rank(c, Warlock, "energy_saving")));
             c.ActiveSkillLoadout.TrySetCapacityModifier("mage.memory", Rank(c, Warlock, "memory"));
             if (!PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn)) return;
-            s.Speed.SetEffectiveValue(s.Speed.GetValue() + 15 * Rank(c, Fire, "adrenaline"));
+            s.Speed.SetEffectiveValue(s.Speed.GetValue() + SpeedBonus(c));
             var protection = Rank(c, Fire, "protection") switch { 1 => .2f, 2 => .5f, _ => 0f };
             s.PhysicalDefense.SetEffectiveValue(s.PhysicalDefense.GetValue() * (1 + protection));
             s.MagicalDefense.SetEffectiveValue(s.MagicalDefense.GetValue() * (1 + protection));
@@ -56,6 +58,8 @@ namespace Godmist.Systems.Combat
         }
         public static SkillEffectData ResolveEffect(BattleUnit u, SkillData skill, SkillEffectData e)
         {
+            if (skill?.SkillId == "skill.mage.energy_split" && e.EffectType == EffectType.DealDamage)
+                e = e.WithDamageMultiplier(e.DamageMultiplier + .15f * W(u, "power_saving"));
             if (skill?.SkillId == "skill.mage.fire_arrow") e = e.WithBonusPenetration(.3f + .2f * F(u,"piercing"));
             var turns = e.DurationTurns; var chance = e.BaseChance; var dot = e.StatusDamageMultiplier;
             if (skill?.SkillId == "skill.mage.magic_focus") turns += 2 * W(u, "master_concentration");
@@ -78,7 +82,6 @@ namespace Godmist.Systems.Combat
             var targets=ctx.TargetsByModeIndex?.Values.SelectMany(v=>v).Where(v=>v!=null&&v.IsPlayerSide!=u.IsPlayerSide).Distinct().Count()??1;
             Apply(Warlock,1+.01f*Points(u.Character,Warlock),targets==1);
             if(ctx.SkillId=="skill.mage.energy_orb")Apply("node.mage.warlock.dispersion",1+(W(u,"dispersion") switch{1=>.1f,2=>.175f,3=>.25f,_=>0}));
-            if(ctx.SkillId=="skill.mage.energy_split")Apply("node.mage.warlock.power_saving",(.7f+.15f*W(u,"power_saving"))/.7f);
             if(ctx.SkillId is "skill.mage.fireball" or "skill.mage.fire_arrow")Apply(Fire,1+.02f*Points(u.Character,Fire));
             Apply("node.mage.fire.cauterize",1+.1f*F(u,"cauterize"),Burning(ctx.Target));
             return multiplier;

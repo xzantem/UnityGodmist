@@ -275,7 +275,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void RefreshVitals()
         {
-            var maximum = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
+            var maximum = character.MaximumHealth;
             var resource = character.ResourcePool;
             healthResourceText.text = $"<line-height=44>{UiTerms.Health}<pos=180>{CombatHealthPresentation.Format(character)}"
                 + (resource == null ? string.Empty : $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}<pos=180>{resource.CurrentValue}/{resource.MaxValue}") + "</line-height>";

@@ -46,11 +46,13 @@ namespace Godmist.Systems.Combat
                 : type == DamageType.Magical ? Sum(c, GalduryteEffectType.MagicDamagePercent,explanation) : 0;
             foreach (var tag in target?.Character?.Definition?.Tags ?? new List<CharacterTag>())
             {
-                bonus += Sum(c, tag switch {
+                var tagEffect = tag switch {
                     CharacterTag.Undead => GalduryteEffectType.UndeadDamagePercent,
                     CharacterTag.Human => GalduryteEffectType.HumanDamagePercent,
                     CharacterTag.Beast => GalduryteEffectType.BeastDamagePercent,
-                    _ => GalduryteEffectType.DemonDamagePercent });
+                    CharacterTag.Demon => GalduryteEffectType.DemonDamagePercent,
+                    _ => (GalduryteEffectType?)null };
+                if (tagEffect.HasValue) bonus += Sum(c, tagEffect.Value);
                 bonus += new CombatVariableSystem().GetMultiplier(c, GameplayVariableType.DamageAgainstTag, tag.ToString()) - 1;
             }
             var environment = session?.DungeonDefinition;

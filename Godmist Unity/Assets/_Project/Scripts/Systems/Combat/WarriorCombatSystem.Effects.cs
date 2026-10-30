@@ -39,7 +39,7 @@ namespace Godmist.Systems.Combat
                     foreach(var ally in session.Units)if(ally.IsPlayerSide==source.IsPlayerSide && ally.Character.LifeState==CharacterLifeState.Alive){ally.WarriorState.FreeMovementTurns=3;}
                     return true;
                 case EffectType.HealMissingHealthPercent:
-                    return recovery.Heal(target,Mathf.RoundToInt(Mathf.Max(0,target.Character.Stats.MaxHealth.GetValue()-target.Character.CurrentHealth)*effect.PercentageValue))>0;
+                    return recovery.Heal(target,Mathf.RoundToInt(Mathf.Max(0,target.Character.MaximumHealth-target.Character.CurrentHealth)*effect.PercentageValue))>0;
             }
             return false;
         }

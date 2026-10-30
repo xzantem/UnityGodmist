@@ -78,12 +78,12 @@ namespace Godmist.Editor
             var tags = data.FindProperty(F("Tags")); tags.ClearArray();
             Add(tags).enumValueIndex = (int)CharacterTag.Human;
             var stats = data.FindProperty(F("BaseStats"));
-            Sub(stats, "MaxHealth", 270); Sub(stats, "MinAttack", 45); Sub(stats, "MaxAttack", 70);
+            Sub(stats, "MaxHealth", 270);
             Sub(stats, "Dodge", 19f); Sub(stats, "PhysicalDefense", 5f); Sub(stats, "MagicalDefense", 4f);
             Sub(stats, "CritChance", .11f); Sub(stats, "CritDamage", 2f); Sub(stats, "Speed", 55f);
             Sub(stats, "WeaponAccuracy", 100f); Sub(stats, "MaxResource", 100); Sub(stats, "ResourceRegeneration", 15);
             var growth = data.FindProperty(F("GrowthData"));
-            Sub(growth, "MaxHealth", 18f); Sub(growth, "MinAttack", 2.93f); Sub(growth, "MaxAttack", 4.55f);
+            Sub(growth, "MaxHealth", 18f);
             Sub(growth, "Dodge", .1425f); Sub(growth, "PhysicalDefense", 1f); Sub(growth, "MagicalDefense", .8f);
             Sub(growth, "CritChance", .000275f);
             var resist = data.FindProperty(F("BaseResistances"));

@@ -70,9 +70,10 @@ namespace Godmist.Tests.EditMode
         {
             var source=Unit(); var target=Unit(); Equip(target,Slayer("ScoutArmor"));
             Assert.That(Hit(source,target),Is.EqualTo(75)); Assert.That(Hit(source,target),Is.EqualTo(100));
-            new CombatTurnSystem().BeginActiveTurn(new CombatSession(),source);
+            var turnSession = new CombatSession { Units = new List<BattleUnit> { source, target } };
+            new CombatTurnSystem().BeginActiveTurn(turnSession,source);
             Assert.That(Hit(source,target),Is.EqualTo(100));
-            new CombatTurnSystem().BeginActiveTurn(new CombatSession(),target);
+            new CombatTurnSystem().BeginActiveTurn(turnSession,target);
             Assert.That(Hit(source,target),Is.EqualTo(75));
         }
         [Test]

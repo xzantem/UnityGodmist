@@ -8,11 +8,15 @@ namespace Godmist.Systems.Combat
     public static class WarriorDischargeRules
     {
         public const string SkillId = "skill.warrior.discharge";
-        public const int MinimumRage = 20, MaximumRage = 100;
+        public const int MinimumRage = 20, MaximumRage = 100, DefenseIgnoreThreshold = 50;
+        public const float DamagePerRage = .01f, RefundPerRank = .25f, DefenseIgnorePerRank = .2f;
+        public static float RefundFraction(int rank) => RefundPerRank * Mathf.Clamp(rank, 0, 2);
+        public static int RequestedRefund(int spent, int rank) => Mathf.FloorToInt(Mathf.Max(0, spent) * RefundFraction(rank));
+        public static float IgnoreFraction(int rank, int spent = 0) => DefenseIgnorePerRank * Mathf.Clamp(rank, 0, 2) * (spent >= DefenseIgnoreThreshold ? 2 : 1);
         public static int Cost(BattleUnit caster) => Mathf.Clamp(caster?.Character?.ResourcePool?.CurrentValue ?? 0, 0, MaximumRage);
-        public static float Multiplier(int spent) => 1f + .01f * Mathf.Clamp(spent, 0, MaximumRage);
+        public static float Multiplier(int spent) => 1f + DamagePerRage * Mathf.Clamp(spent, 0, MaximumRage);
         public static float DefenseIgnore(BattleUnit caster, SkillData skill, int? spent = null, DamageType type = DamageType.Physical) => type == DamageType.Physical && skill?.SkillId == SkillId
-            ? .2f * Mathf.Clamp(WarriorCombatSystem.B(caster, "larger_wound"), 0, 2) * ((spent ?? Cost(caster)) >= 50 ? 2f : 1f) : 0f;
+            ? IgnoreFraction(WarriorCombatSystem.B(caster, "larger_wound"), spent ?? Cost(caster)) : 0f;
         public static WarriorDischargeCast Capture(BattleUnit caster, SkillData skill) => skill?.SkillId == SkillId
             ? new WarriorDischargeCast(caster.Character.Stats.MinAttack.GetValue(), caster.Character.Stats.MaxAttack.GetValue(),
                 caster.Character.Stats.CritChance.GetValue(), Cost(caster)) : null;
@@ -30,7 +34,7 @@ namespace Godmist.Systems.Combat
         public static int RefundKill(BattleUnit caster, WarriorDischargeCast cast, CombatRecoverySystem recovery)
         {
             if (cast == null || WarriorCombatSystem.B(caster, "wounding") <= 0 || !cast.TryMarkRefunded()) return 0;
-            var restored = recovery.RestoreResource(caster, Mathf.FloorToInt(cast.RageSpent * .25f * Mathf.Clamp(WarriorCombatSystem.B(caster, "wounding"), 0, 2)));
+            var restored = recovery.RestoreResource(caster, RequestedRefund(cast.RageSpent, WarriorCombatSystem.B(caster, "wounding")));
             WarriorCombatSystem.Refresh(caster);
             return restored;
         }

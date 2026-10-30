@@ -38,8 +38,8 @@ MonoBehaviour:
   <ClassData>k__BackingField: {fileID: 11400000, guid: 5a083fbc40bc3fb438346336a20313dc, type: 2}
   <BaseStats>k__BackingField:
     <MaxHealth>k__BackingField: 784
-    <MinAttack>k__BackingField: 46
-    <MaxAttack>k__BackingField: 63
+    <MinAttack>k__BackingField: 39.100002
+    <MaxAttack>k__BackingField: 53.550003
     <PhysicalDefense>k__BackingField: 36
     <MagicalDefense>k__BackingField: 18
     <PhysicalDefensePenetration>k__BackingField: 0
@@ -61,15 +61,16 @@ MonoBehaviour:
     <MoveResistance>k__BackingField: 0.8
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 91
-    <MinAttack>k__BackingField: 3.58
-    <MaxAttack>k__BackingField: 4.88
+    <MinAttack>k__BackingField: 3.043
+    <MaxAttack>k__BackingField: 4.1480002
     <LateMaxHealth>k__BackingField: 140.7211
-    <LateMinAttack>k__BackingField: 5.4805527
-    <LateMaxAttack>k__BackingField: 7.4707537
+    <LateMinAttack>k__BackingField: 4.6584697
+    <LateMaxAttack>k__BackingField: 6.3501406
     <EarlyMaxHealth>k__BackingField: 0
-    <EarlyMinAttack>k__BackingField: 0.000000076293944
-    <EarlyMaxAttack>k__BackingField: -0.000000114440915
+    <EarlyMinAttack>k__BackingField: 0.00000006484986
+    <EarlyMaxAttack>k__BackingField: -0.00000009727478
     <LateMaxHealthOffset>k__BackingField: 0
+    <HealthCurve>k__BackingField: []
     <LateMinAttackOffset>k__BackingField: 0
     <LateMaxAttackOffset>k__BackingField: 0
     <PhysicalDefense>k__BackingField: 0
@@ -100,7 +101,6 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
-  <AttackMultiplier>k__BackingField: 0.85
   <SecondPhaseDefinition>k__BackingField: {fileID: 0}
   <TransformationFramesPerSecond>k__BackingField: 8
   <TransformationFrames>k__BackingField: []

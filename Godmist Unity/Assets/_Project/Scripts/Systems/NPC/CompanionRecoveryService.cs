@@ -47,7 +47,7 @@ namespace Godmist.Systems.NPC
             new PassiveEffectLifecycleSystem().RemoveCombatScopedEffects(character);
             character.LifeState = CharacterLifeState.Alive;
             character.AvailabilityState = CharacterAvailabilityState.Available;
-            character.CurrentHealth = Math.Max(1, Mathf.RoundToInt(character.Stats.MaxHealth.GetValue()));
+            character.CurrentHealth = character.MaximumHealth;
             if (character.ResourcePool != null)
             {
                 character.ResourcePool.MaxValue = Math.Max(0, Mathf.RoundToInt(character.Stats.MaxResource.GetValue()));

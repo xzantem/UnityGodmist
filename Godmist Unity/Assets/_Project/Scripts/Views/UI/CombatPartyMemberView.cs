@@ -70,7 +70,7 @@ namespace Godmist.Views.UI
                 characterNameText.text = $"{character.Definition?.DisplayName}\nPoz. {character.Level}";
             if (selectedMarker != null) selectedMarker.enabled = selected;
             if (turnMarker != null) turnMarker.enabled = hasTurn;
-            var maxHealth = Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maxHealth = character.MaximumHealth;
             var resource = character.ResourcePool;
             if(healthValueText!=null)healthValueText.text=CombatHealthPresentation.Format(character);
             if(resourceValueText!=null){resourceValueText.gameObject.SetActive(resource!=null&&resource.MaxValue>0);resourceValueText.text=resource==null?"":$"{resource.CurrentValue}/{resource.MaxValue}";}

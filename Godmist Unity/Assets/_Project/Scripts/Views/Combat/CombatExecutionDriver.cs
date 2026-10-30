@@ -25,6 +25,8 @@ namespace Godmist.Views.Combat
 {
     public sealed class CombatExecutionDriver : IDisposable
     {
+        private Godmist.Systems.Items.SandboxConsumableSnapshot sandboxConsumables = new();
+        private bool usesStandaloneSandbox;
         private static readonly Unity.Profiling.ProfilerMarker SelectablePositionsSample = new("Godmist.Targeting.SelectablePositions");
         private static readonly Unity.Profiling.ProfilerMarker AbsoluteRangeSample = new("Godmist.Targeting.AbsoluteRange");
         private readonly CharacterDefinition jerzyDefinition;
@@ -156,6 +158,8 @@ namespace Godmist.Views.Combat
 
         public void Initialize(CombatSession suppliedSession = null)
         {
+            usesStandaloneSandbox = false;
+            sandboxConsumables = new();
             passiveEffectEventDispatcher = new PassiveEffectCombatEventDispatcher();
             feedbackBus = new CombatFeedbackBus();
             feedbackBus.Published += HandlePoseFeedback;
@@ -481,6 +485,7 @@ namespace Godmist.Views.Combat
         // A targeting-only driver has no subscriptions, turn ticks, bosses or effects.
         public void InitializeTargetingPreview(CombatSession session)
         {
+            usesStandaloneSandbox = false;
             Session = session;
             targetingService = new CombatTargetingService();
             lineOfSightService = new CombatLineOfSightService();
@@ -649,8 +654,9 @@ namespace Godmist.Views.Combat
             return session;
         }
 
-        private static void CopyDebugConsumablesFromGameSession(CharacterInstance target)
+        private void CopyDebugConsumablesFromGameSession(CharacterInstance target)
         {
+            if (!usesStandaloneSandbox) return;
             var gameSession = GameBootstrap.Instance?.Session;
             var leaderId = gameSession?.PlayerParty?.ActiveLeaderId;
             if (target?.Inventory?.Items == null
@@ -662,18 +668,8 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            // The standalone debug sandbox creates throwaway characters. Keep
-            // debug-created consumables usable there by copying the runtime
-            // item references from the active game-session leader at startup.
-            foreach (var item in source.Inventory.Items)
-            {
-                if (item is ConsumableItemInstance consumable
-                    && consumable.HasCharges
-                    && !target.Inventory.Items.Contains(consumable))
-                {
-                    target.Inventory.Items.Add(consumable);
-                }
-            }
+            // Campaign definitions may be shared; mutable item state must not be.
+            sandboxConsumables.Import(source, target);
         }
 
         public void SyncDebugConsumablesToActiveUnit()
@@ -2273,6 +2269,7 @@ namespace Godmist.Views.Combat
                 return encounterSession;
             }
 
+            usesStandaloneSandbox = true;
             return CreateSandboxSession();
         }
 

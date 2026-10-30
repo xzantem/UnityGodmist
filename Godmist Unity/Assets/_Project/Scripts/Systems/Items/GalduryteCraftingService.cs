@@ -230,7 +230,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            paidGold = CraftingMerchantStock.Price(enchanter, stock[0]);
+            if (!CraftingMerchantStock.TryQuote(enchanter, stock, out paidGold, out failureReason)) return false;
             if (paidGold <= 0)
             {
                 failureReason = "Nie udało się ustalić ceny tego materiału.";
@@ -368,6 +368,7 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
+            if (!CraftingValueCalculator.TryValidate(new[] { stone, powder }, out failureReason)) return false;
             var level = GalduryteRuntimeRules.GetLevel(tier);
             if (level <= 0)
             {
@@ -572,7 +573,7 @@ namespace Godmist.Systems.Items
             stone = stoneOption.Material;
             powder = powderOption.Material;
             tier = stoneOption.Tier;
-            return true;
+            return CraftingValueCalculator.TryValidate(new[] { stone, powder }, out failureReason);
         }
 
         private List<CraftingMaterialCost> BuildMaterialCosts(
@@ -592,12 +593,7 @@ namespace Godmist.Systems.Items
                     var missing = Mathf.Max(0, 1 - owned);
                     var stock = CraftingMerchantStock.Items(enchanter).Count(item => item?.Definition?.Id == material.Id);
                     var purchasable = Mathf.Min(missing, stock);
-                    var price = purchasable <= 0
-                        ? 0
-                        : CraftingMerchantStock.Items(enchanter)
-                            .Where(item => item?.Definition?.Id == material.Id)
-                            .Take(purchasable)
-                            .Sum(item => CraftingMerchantStock.Price(enchanter, item));
+                    var validQuote = CraftingMerchantStock.TryQuoteMaterial(enchanter, material.Id, purchasable, out var price, out var quoteReason);
                     return new CraftingMaterialCost
                     {
                         Material = material,
@@ -605,7 +601,8 @@ namespace Godmist.Systems.Items
                         OwnedAmount = owned,
                         AvailableFromBlacksmith = stock,
                         PurchasePrice = price,
-                        CanAffordPurchase = purchasable > 0 && price > 0 && session != null && session.Gold >= price,
+                        PurchaseFailureReason = quoteReason,
+                        CanAffordPurchase = validQuote && purchasable > 0 && price > 0 && session != null && session.Gold >= price,
                         PurchaseState = missing <= 0
                             ? CraftingMaterialPurchaseState.NotNeeded
                             : purchasable <= 0 || price <= 0

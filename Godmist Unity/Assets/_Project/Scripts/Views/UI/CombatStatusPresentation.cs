@@ -397,7 +397,7 @@ namespace Godmist.Views.UI
                 if (source.SourceType == PassiveEffectSourceType.Skill)
                 {
                     var marker = source.SourceId.LastIndexOf(".effect.", StringComparison.Ordinal);
-                    if (marker > 0 && int.TryParse(source.SourceId.Substring(marker + 8), out _))
+                    if (marker > 0 && source.SourceId.Length > marker + 8)
                         return "skill:" + source.SourceId.Substring(0, marker) + ":" + source.SourceCharacterId;
                 }
                 if (source.SourceType == PassiveEffectSourceType.Consumable)

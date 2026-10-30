@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Godmist.Views.UI.Workspace
@@ -41,7 +41,7 @@ namespace Godmist.Views.UI.Workspace
             ["node.mage.warlock.mass_sacrifice"] = new[] { "Przejęcie Mocy może objąć do 2 sojuszników.", "Przejęcie Mocy może objąć do 3 sojuszników." },
             ["node.mage.warlock.adaptation"] = new[] { "Po otrzymaniu ciosu za co najmniej 20% maksymalnego zdrowia zmniejsza obrażenia 3 kolejnych trafień tego przeciwnika o 10% obrażeń pierwszego ciosu.", "Po otrzymaniu ciosu za co najmniej 20% maksymalnego zdrowia zmniejsza obrażenia 3 kolejnych trafień tego przeciwnika o 20% obrażeń pierwszego ciosu." },
             ["node.mage.warlock.energy_discharge"] = new[] { "Następna umiejętność zadająca obrażenia zużywa całą nadwyżkę many, zwiększając szansę krytyczną o 0,2 pp za każdy zużyty punkt.", "Następna umiejętność zadająca obrażenia zużywa całą nadwyżkę many, zwiększając szansę krytyczną o 0,6 pp za każdy zużyty punkt.", "Następna umiejętność zadająca obrażenia zużywa całą nadwyżkę many, zwiększając szansę krytyczną o 1 pp za każdy zużyty punkt." },
-            ["node.mage.warlock.power_saving"] = new[] { "Zwiększa obrażenia Roztrojenia Energii do 85% ataku.", "Zwiększa obrażenia Roztrojenia Energii do 100% ataku." },
+            ["node.mage.warlock.power_saving"] = new[] { "Zwiększa obrażenia Roztrojenia Energii o 15% ataku.", "Zwiększa obrażenia Roztrojenia Energii o 30% ataku." },
             ["node.paladin.crusader.field_range"] = new[] { "Zwiększa zasięg działania Pola Osądu do 3 pól od jego środka.", "Zwiększa zasięg działania Pola Osądu do 4 pól od jego środka." },
             ["node.paladin.crusader.gravedigger"] = new[] { "Zwiększa zadawane obrażenia przeciw nieumarłym o 15%.", "Zwiększa zadawane obrażenia przeciw nieumarłym o 30%." },
             ["node.paladin.crusader.hatred"] = new[] { "Trafienia nieumarłych i demonów mają 50% szansy na sprowokowanie celu na 1 turę." },

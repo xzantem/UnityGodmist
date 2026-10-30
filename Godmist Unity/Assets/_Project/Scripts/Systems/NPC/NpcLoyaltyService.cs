@@ -249,7 +249,7 @@ namespace Godmist.Systems.NPC
         {
             return character?.Stats == null
                 ? 0
-                : Mathf.Max(0, Mathf.RoundToInt(character.Stats.MaxHealth.GetValue()));
+                : character.MaximumHealth;
         }
     }
 

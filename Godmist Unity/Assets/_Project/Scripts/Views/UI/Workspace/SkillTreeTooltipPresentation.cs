@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Godmist.Core.Constants;
 using Godmist.Core.Enums;
@@ -84,6 +84,10 @@ namespace Godmist.Views.UI.Workspace
                 case "node.scout.blade_dancer.efficient_recovery":
                     var hook=Skill("skill.scout.hook");
                     if(hook!=null)text=$"Odzyskanie własnego sztyletu Linką z Hakiem kosztuje {ScoutCombatSystem.KnifeRecoveryCost(u,hook,hook.ActionCost,true)}% PA i {PassiveEffectCombatExecutionSystem.ResolveResourceCost(u,hook,true)} impetu.";break;
+                case "node.mage.warlock.power_saving":
+                    var split = Effect("skill.mage.energy_split", EffectType.DealDamage);
+                    if (split != null) text = $"Zwiększa obrażenia Roztrojenia Energii do {N(split.DamageMultiplier * 100)}% ataku.";
+                    break;
                 case "node.mage.fire.pyromania":
                     var aura=Effect("skill.mage.fire_aura",EffectType.MageFireAura);
                     var fireball=Effect("skill.mage.fireball",EffectType.ApplyStatus);

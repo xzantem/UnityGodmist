@@ -100,7 +100,7 @@ namespace Godmist.Systems.Combat
                 foreach (var operation in result.Operations)
                 {
                     if (operation == null || !TargetsOwner(operation.Target)) continue;
-                    if (!MatchesIndex(operation, "effect_index", effectIndex)
+                    if (!MatchesEffect(operation, skill, effectIndex)
                         || !MatchesIndex(operation, "target_mode_index", modeIndex)) continue;
                     var cost = operation.Type == PassiveEffectOperationType.ModifyResourceCost
                         && parameter == "resource_cost";
@@ -147,6 +147,21 @@ namespace Godmist.Systems.Combat
             && skill.TargetModes[effect.TargetModeIndex] != null
             && skill.TargetModes[effect.TargetModeIndex].TargetType != TargetType.Caster
             && skill.TargetModes[effect.TargetModeIndex].TargetingType == TargetingType.Enemies;
+
+        private static bool MatchesEffect(PassiveEffectOperationDefinition operation, SkillData skill, int actual)
+        {
+            foreach (var parameter in operation.Parameters ?? new List<PassiveEffectParameterDefinition>())
+            {
+                if (parameter?.Key == "effect_id" && (actual < 0 || actual >= skill.Effects.Count
+                    || parameter.StringValue != skill.Effects[actual].StableId)) return false;
+                if (parameter?.Key == "effect_index")
+                {
+                    var token = Godmist.Systems.SaveLoad.LegacyContentIdentities.EffectToken(skill.SkillId, parameter.IntegerValue);
+                    if (actual < 0 || actual >= skill.Effects.Count || skill.Effects[actual].StableId != token) return false;
+                }
+            }
+            return true;
+        }
 
         private static bool MatchesIndex(PassiveEffectOperationDefinition operation, string key, int actual)
         {

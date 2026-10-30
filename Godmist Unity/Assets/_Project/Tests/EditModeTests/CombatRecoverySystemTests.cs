@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
-    public class CombatRecoverySystemTests
+    public partial class CombatRecoverySystemTests
     {
         private readonly List<CharacterDefinition> createdDefinitions = new();
         private readonly List<SkillData> createdSkills = new();

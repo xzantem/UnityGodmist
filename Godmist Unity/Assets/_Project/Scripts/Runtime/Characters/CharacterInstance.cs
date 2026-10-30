@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Godmist.Core.Enums;
@@ -37,6 +37,8 @@ namespace Godmist.Runtime.Characters
         public EquipmentSet Equipment = new();
 
         public int CurrentHealth;
+        // Derived from the effective stat; never serialized or cached independently.
+        public int MaximumHealth => Godmist.Core.Utilities.HealthPoints.Maximum(Stats?.MaxHealth.GetValue() ?? 1f);
         // Observation only: actual HP restored, optional origin, feedback availability.
         // Per-instance and transient; consumers must unsubscribe at combat end.
         [field: NonSerialized] public event Action<int,string,bool> HealingReceived;

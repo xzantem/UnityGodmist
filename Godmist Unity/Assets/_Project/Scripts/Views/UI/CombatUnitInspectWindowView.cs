@@ -146,7 +146,7 @@ namespace Godmist.Views.UI
 
             var maxHealth = character.Stats == null
                 ? 1f
-                : Mathf.Max(1f, character.Stats.MaxHealth.GetValue());
+                : character.MaximumHealth;
             var shield = character.ShieldPool?.TotalShield ?? 0;
             var resource = character.ResourcePool;
 

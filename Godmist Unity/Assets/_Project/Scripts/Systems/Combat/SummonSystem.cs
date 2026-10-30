@@ -57,7 +57,7 @@ namespace Godmist.Systems.Combat
             {
                 character.Stats.MaxHealth = new Godmist.Core.Types.Stat(Mathf.Max(1,
                     Mathf.RoundToInt(caster.Character.Stats.MaxHealth.GetValue() * effect.SummonPercentMaxHealth)));
-                character.CurrentHealth = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
+                character.CurrentHealth = character.MaximumHealth;
                 character.Stats.MinAttack = new Godmist.Core.Types.Stat(caster.Character.Stats.MinAttack.GetValue());
                 character.Stats.MaxAttack = new Godmist.Core.Types.Stat(caster.Character.Stats.MaxAttack.GetValue());
                 character.Stats.Speed = new Godmist.Core.Types.Stat(caster.Character.Stats.Speed.GetValue());

@@ -98,67 +98,8 @@ namespace Godmist.Systems.Combat
                 return new CombatDamageResult(false, false, 0);
             }
 
-            ScoutCombatSystem.Face(source, target.Position);
-            attackValue += SkeletonSlayerBossSystem.AttackBonus(source);
-            attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext) * HawkeyeDamageMultiplier(source, target, damageType));
-            attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
-            var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
-            var isCritical = RollCritical(session, source, damageType, eventContext)
-                && !EquipmentEffectSystem.AvoidCritical(target.Character);
-            Publish(session, PassiveEffectTriggerType.OnHit,
-                eventContext.WithOutcome(succeeded: true));
-            if (isCritical)
-            {
-                Publish(session, PassiveEffectTriggerType.OnCriticalHit,
-                    eventContext.WithOutcome(succeeded: true, isCritical: true));
-            }
-            var damageAfterCrit = ApplyCriticalDamage(
-                source,
-                damageAfterFreeze,
-                isCritical, target);
-            damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
-
-            if (StatusEffectSystem.HasStatus(source, Godmist.Core.Constants.StatusEffectIds.Weakening))
-                damageAfterCrit = Mathf.CeilToInt(damageAfterCrit * .8f);
-            var finalDamage = ignoreDefense ? damageAfterCrit : ApplyDefense(
-                source,
-                target,
-                damageAfterCrit,
-                damageType,
-                bonusDefensePenetration, WarriorDischargeRules.DefenseIgnore(source, eventContext.Skill, eventContext.DischargeCast?.RageSpent, damageType));
-
-            if (isCritical)
-            {
-                battleLog?.Invoke($"{GetDisplayName(source)} trafia krytycznie.");
-                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
-            }
-
-            finalDamage = ScoutCombatSystem.ResolveThroatCut(session, eventContext, finalDamage);
-            var healthDamage = ApplyDamage(
-                session,
-                source,
-                target,
-                finalDamage,
-                damageType,
-                passiveContext: eventContext.WithOutcome(
-                    succeeded: true,
-                    isCritical: isCritical), preMitigationDamage: damageAfterCrit);
-            PaladinCombatSystem.AfterAttack(session,source,target,eventContext.WithOutcome(isCritical:isCritical),damageAfterCrit,bonusDefensePenetration,healthDamage,this);
-
-            if (target.Character.LifeState == CharacterLifeState.Dead)
-            {
-                Publish(session, PassiveEffectTriggerType.OnKill,
-                    eventContext.WithOutcome(
-                        succeeded: true,
-                        isCritical: isCritical,
-                        healthDamage: healthDamage,
-                        eventValue: healthDamage));
-            }
-
-            ScoutCombatSystem.RecordHit(source, target, damageType);
-            ScoutCombatSystem.AfterCritical(eventContext, isCritical);
-            WarriorCombatSystem.AfterHit(session,eventContext,isCritical,damageAfterCrit,finalDamage,this);
-            return new CombatDamageResult(true, isCritical, healthDamage);
+            return ResolveSuccessfulHit(session, source, target, attackValue, damageType,
+                bonusDefensePenetration, eventContext, ignoreDefense);
         }
 
         public CombatDamageResult ResolveAndApplyDamage(
@@ -209,11 +150,21 @@ namespace Godmist.Systems.Combat
                 return new CombatDamageResult(false, false, 0);
             }
 
+            return ResolveSuccessfulHit(session, source, target, attackValue, damageType,
+                bonusDefensePenetration, eventContext, ignoreDefense);
+        }
+
+        // Accuracy and dodge have already been resolved by the entry point.
+        // This stage must not roll hit chance again for an externally supplied hit.
+        private CombatDamageResult ResolveSuccessfulHit(CombatSession session, BattleUnit source, BattleUnit target,
+            int attackValue, DamageType damageType, float bonusDefensePenetration,
+            PassiveEffectCombatContext eventContext, bool ignoreDefense)
+        {
             ScoutCombatSystem.Face(source, target.Position);
             attackValue += SkeletonSlayerBossSystem.AttackBonus(source);
             attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext) * HawkeyeDamageMultiplier(source, target, damageType));
             attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
-            var damageAfterFreeze = ApplyFreezeDamageBonus(target, attackValue);
+            var freezeMultiplier = ConsumeFreezeDamageMultiplier(target);
             var isCritical = RollCritical(session, source, damageType, eventContext)
                 && !EquipmentEffectSystem.AvoidCritical(target.Character);
             Publish(session, PassiveEffectTriggerType.OnHit,
@@ -223,20 +174,15 @@ namespace Godmist.Systems.Combat
                 Publish(session, PassiveEffectTriggerType.OnCriticalHit,
                     eventContext.WithOutcome(succeeded: true, isCritical: true));
             }
-            var damageAfterCrit = ApplyCriticalDamage(
-                source,
-                damageAfterFreeze,
-                isCritical, target);
-            damageAfterCrit = ApplyJewelryDamagePassive(session, source, damageAfterCrit);
-
-            if (StatusEffectSystem.HasStatus(source, Godmist.Core.Constants.StatusEffectIds.Weakening))
-                damageAfterCrit = Mathf.CeilToInt(damageAfterCrit * .8f);
-            var finalDamage = ignoreDefense ? damageAfterCrit : ApplyDefense(
-                source,
-                target,
-                damageAfterCrit,
-                damageType,
-                bonusDefensePenetration, WarriorDischargeRules.DefenseIgnore(source, eventContext.Skill, eventContext.DischargeCast?.RageSpent, damageType));
+            // Critical/freeze bonuses multiply damage after the non-linear armor reduction.
+            // Keep the unmitigated equivalent for consumers explicitly requesting pre-mitigation damage.
+            var baseDamage = StatusEffectSystem.HasStatus(source, Godmist.Core.Constants.StatusEffectIds.Weakening)
+                ? Mathf.CeilToInt(attackValue * .8f) : attackValue;
+            var damageAfterCrit = ApplyPostDefenseBonuses(source, target, baseDamage, isCritical, freezeMultiplier);
+            var defended = ignoreDefense ? baseDamage : ApplyDefense(source, target, baseDamage, damageType,
+                bonusDefensePenetration, WarriorDischargeRules.DefenseIgnore(source, eventContext.Skill,
+                    eventContext.DischargeCast?.RageSpent, damageType));
+            var finalDamage = ApplyPostDefenseBonuses(source, target, defended, isCritical, freezeMultiplier);
 
             if (isCritical)
             {
@@ -564,15 +510,7 @@ namespace Godmist.Systems.Combat
             return Mathf.Clamp01(chance);
         }
 
-        private static int ApplyCriticalDamage(BattleUnit source, int damage, bool isCritical, BattleUnit target)
-        {
-            if (!isCritical) return damage;
 
-            var multiplier = source.Character.Stats == null ? 0f : source.Character.Stats.CritDamage.GetValue();
-
-            multiplier += ScoutCombatSystem.WeakPointCriticalDamage(target);
-            return Mathf.CeilToInt(damage * Mathf.Max(1f, multiplier));
-        }
 
         public static int ApplyDefense(
             BattleUnit source,
@@ -609,7 +547,7 @@ namespace Godmist.Systems.Combat
             int requestedDamage,DamageType damageType,PassiveEffectCombatContext passiveContext,
             CombatValueExplanation explanation=null,Godmist.Data.Skills.SkillData previewSkill=null,CombatVariableSystem variables=null)
         {
-            var incomingDamage = Mathf.RoundToInt(SkeletonSlayerBossSystem.IncomingMultiplier(target,damageType) * DeadKingBossSystem.DamageMultiplier(session, source, target, passiveContext) * (variables??new CombatVariableSystem()).ApplyDamageModifiers(source, target, requestedDamage,explanation,previewSkill) * EquipmentEffectSystem.Outgoing(source, target, damageType, session,explanation) * EquipmentEffectSystem.Incoming(target?.Character, damageType)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
+            var incomingDamage = Mathf.RoundToInt(SkeletonSlayerBossSystem.IncomingMultiplier(target,damageType) * DeadKingBossSystem.DamageMultiplier(session, source, target, passiveContext) * (variables??new CombatVariableSystem()).ApplyDamageModifiers(source, target, requestedDamage,explanation,previewSkill) * (variables??new CombatVariableSystem()).GetDungeonThemeDamageMultiplier(source?.Character, session?.DungeonTheme ?? DungeonTheme.Story) * EquipmentEffectSystem.Outgoing(source, target, damageType, session,explanation) * EquipmentEffectSystem.Incoming(target?.Character, damageType)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
             if (HasUniqueBuff(target, UniqueBuffType.MageOffering))
                 incomingDamage = Mathf.RoundToInt(incomingDamage * (1 + MageCombatSystem.OfferingBonus(target) * (1 - .1f * MageCombatSystem.W(target,"calm"))));
             incomingDamage = Mathf.Max(
@@ -856,24 +794,25 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        private int ApplyFreezeDamageBonus(BattleUnit target, int damage)
+        private float ConsumeFreezeDamageMultiplier(BattleUnit target)
         {
-            if (!StatusEffectSystem.TryBreakFreeze(
-                    target,
-                    out var remainingTurns))
-            {
-                return damage;
-            }
+            if (!StatusEffectSystem.TryBreakFreeze(target, out var remainingTurns)) return 1f;
+            battleLog?.Invoke($"{target.Character.Definition.DisplayName} traci Freeze.");
+            return 1f + remainingTurns * GameDefinesRuntime.GetFloat(GameDefineIds.FreezeDamagePerRemainingTurn, .5f);
+        }
 
-            var multiplier = 1f + remainingTurns * GameDefinesRuntime.GetFloat(
-                GameDefineIds.FreezeDamagePerRemainingTurn, .5f);
-            var boostedDamage = Mathf.CeilToInt(damage * multiplier);
+        public static float PreviewFreezeDamageMultiplier(BattleUnit target)
+        {
+            var freeze = target?.Character?.PassiveEffects?.Find(effect => effect?.EffectId == Godmist.Core.Constants.StatusEffectIds.Freeze
+                && effect.Lifetime == Godmist.Core.Enums.PassiveEffectLifetime.Timed && effect.RemainingDuration > 0);
+            return freeze == null ? 1f : 1f + freeze.RemainingDuration * GameDefinesRuntime.GetFloat(GameDefineIds.FreezeDamagePerRemainingTurn, .5f);
+        }
 
-            battleLog?.Invoke(
-                $"{target.Character.Definition.DisplayName} traci Freeze. " +
-                $"Uderzenie zadaje {boostedDamage} obrażeń.");
-
-            return boostedDamage;
+        public static int ApplyPostDefenseBonuses(BattleUnit source, BattleUnit target, int damage, bool critical, float freezeMultiplier = 1f)
+        {
+            var criticalMultiplier = critical ? Mathf.Max(1f, (source?.Character?.Stats?.CritDamage.GetValue() ?? 1f)
+                + ScoutCombatSystem.WeakPointCriticalDamage(target)) : 1f;
+            return Mathf.Max(0, Mathf.CeilToInt(damage * criticalMultiplier * freezeMultiplier));
         }
     }
 }

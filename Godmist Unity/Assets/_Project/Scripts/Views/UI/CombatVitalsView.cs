@@ -26,12 +26,12 @@ namespace Godmist.Views.UI
 
         public static string Format(float health, float maximum, int shield)
         {
-            var value = $"{health:0}/{maximum:0}";
+            var value = $"{health:0}/{Godmist.Core.Utilities.HealthPoints.Maximum(maximum)}";
             return shield > 0 ? $"{value} (+{shield})" : value;
         }
 
         public static string Format(Godmist.Runtime.Characters.CharacterInstance character)
-            => Format(character.CurrentHealth, Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f),
+            => Format(character.CurrentHealth, character.MaximumHealth,
                 character.ShieldPool?.TotalShield ?? 0);
 
         public static void UpdateShieldOverlay(ref Image overlay, Slider health, int shield, float maximum, float opacity = 1f)
@@ -113,7 +113,7 @@ namespace Godmist.Views.UI
         {
             if (unit?.Character == null) return;
             var c=unit.Character;
-            var maximum=Mathf.Max(1f,c.Stats?.MaxHealth.GetValue()??1f);
+            var maximum=c.MaximumHealth;
             var shield=c.ShieldPool?.TotalShield??0;
             Set(healthSlider,c.CurrentHealth,maximum);
             CombatBarPresentation.FitFrame(healthSlider);

@@ -58,6 +58,12 @@ namespace Godmist.Systems.Combat
             new PassiveEffectLifecycleSystem().TryApplyTimedEffect(target.Character,e,PassiveEffectStackingMode.ReplaceDurationAndValues,out _);
         }
         public static void Refresh(BattleUnit u){if(u?.Character!=null && (Points(u.Character,Commander)>0 || Points(u.Character,Brawler)>0))new CharacterStatPipelineSystem().Refresh(u.Character);}
+        public static float SpeedBonus(CharacterInstance c)
+        {
+            if (c?.Stats == null || Points(c, Commander) + Points(c, Brawler) == 0) return 0;
+            var rage = Mathf.Min(c.ResourcePool?.CurrentValue ?? 0, Mathf.RoundToInt(c.Stats.MaxResource.GetValue()));
+            return 4 * (rage / 25) * Rank(c, Brawler, "adrenaline");
+        }
         public static void ApplyStats(CharacterInstance c)
         {
             if(c?.Stats==null)return;
@@ -71,7 +77,7 @@ namespace Godmist.Systems.Combat
             s.PhysicalDefensePenetration.SetEffectiveValue(s.PhysicalDefensePenetration.GetValue()+.25f*Rank(c,Commander,"armor_shred"));
             var attack=.1f*s.PhysicalDefense.GetValue()*Rank(c,Brawler,"spiked_armor");
             s.MinAttack.SetEffectiveValue(s.MinAttack.GetValue()+attack);s.MaxAttack.SetEffectiveValue(s.MaxAttack.GetValue()+attack);
-            s.Speed.SetEffectiveValue(s.Speed.GetValue()+4*(rage/25)*Rank(c,Brawler,"adrenaline"));
+            s.Speed.SetEffectiveValue(s.Speed.GetValue()+SpeedBonus(c));
         }
         public static bool CanActivate(BattleUnit u,SkillData skill)=>skill?.SkillId == WarriorDischargeRules.SkillId
             ? IsRage(u) && WarriorDischargeRules.Cost(u) >= WarriorDischargeRules.MinimumRage

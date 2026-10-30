@@ -27,6 +27,12 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
+  <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
+  <GuaranteedCritical>k__BackingField: 0
+  <FreeKnivesInMelee>k__BackingField: 0
+  <PointBlankDamageMultiplier>k__BackingField: 1
   targetModes:
   - targetType: 0
     targetingType: 0
@@ -41,15 +47,22 @@ MonoBehaviour:
       minRange: 0
       maxRange: 0
       rectangleWidth: 1
+    chainTargets: 3
+    requiredStatusId: 
   effects:
-  - effectType: 0
+  - stableEffectId: eb5d63ce482775b6031435e0c
+    effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
+    additionalHitTrials: 0
+    additionalHitChance: 0.5
     bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
@@ -57,6 +70,7 @@ MonoBehaviour:
     onHitStatusChance: 1
     onHitStatusDurationTurns: 1
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -74,6 +88,7 @@ MonoBehaviour:
       rectangleWidth: 1
     maxActiveObjects: 1
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 1
@@ -115,3 +130,9 @@ MonoBehaviour:
     auraTargetingType: 1
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

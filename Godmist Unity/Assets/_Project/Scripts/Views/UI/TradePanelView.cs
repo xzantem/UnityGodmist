@@ -270,9 +270,7 @@ namespace Godmist.Views.UI
 
             foreach (var stack in BuildItemStacks(tradingCharacter.Inventory.Items))
             {
-                var sellPrice = tradeService.GetPriceWhenSellingToTrader(
-                    trader,
-                    stack.Representative);
+                var valid = tradeService.TryGetSellPrice(trader, stack.Representative, out var sellPrice, out var reason);
 
                 var buttonView = Instantiate(itemButtonPrefab, playerItemsContent);
 
@@ -282,7 +280,7 @@ namespace Godmist.Views.UI
                     selectedItemSource == SelectedItemSource.PlayerInventory
                     && ReferenceEquals(selectedItem, stack.Representative),
                     SelectPlayerItem,
-                    $"Sprzedaz: {sellPrice} zl");
+                    valid ? $"Sprzedaz: {sellPrice} zl" : reason);
             }
         }
 
@@ -294,9 +292,7 @@ namespace Godmist.Views.UI
 
             foreach (var stack in BuildItemStacks(trader.ShopInventory.Items))
             {
-                var buyPrice = tradeService.GetPriceToBuyFromTrader(
-                    trader,
-                    stack.Representative);
+                var valid = tradeService.TryGetBuyPrice(trader, stack.Representative, out var buyPrice, out var reason);
 
                 var buttonView = Instantiate(itemButtonPrefab, traderItemsContent);
 
@@ -306,7 +302,7 @@ namespace Godmist.Views.UI
                     selectedItemSource == SelectedItemSource.TraderStock
                     && ReferenceEquals(selectedItem, stack.Representative),
                     SelectTraderItem,
-                    $"Kupno: {buyPrice} zl");
+                    valid ? $"Kupno: {buyPrice} zl" : reason);
             }
         }
 
@@ -320,7 +316,7 @@ namespace Godmist.Views.UI
             {
                 if (entry?.Item?.Definition == null) continue;
 
-                var buybackPrice = tradeService.GetPriceFromBuyback(trader, entry);
+                var valid = tradeService.TryGetBuybackPrice(trader, entry, out var buybackPrice, out var reason);
                 var buttonView = Instantiate(itemButtonPrefab, buybackItemsContent);
 
                 buttonView.Bind(
@@ -329,7 +325,7 @@ namespace Godmist.Views.UI
                     selectedItemSource == SelectedItemSource.BuybackStock
                     && ReferenceEquals(selectedBuybackEntry, entry),
                     _ => SelectBuybackItem(entry),
-                    $"Odkup: {buybackPrice} zl");
+                    valid ? $"Odkup: {buybackPrice} zl" : reason);
             }
         }
 
@@ -342,13 +338,13 @@ namespace Godmist.Views.UI
             }
 
             var definition = selectedItem.Definition;
-            var price = GetSelectedBuyOrSellPrice(out var priceLabel);
+            var price = GetSelectedBuyOrSellPrice(out var priceLabel, out var reason);
 
             detailsText.text =
                 $"{Workspace.ItemRarityPresentation.Name(selectedItem)}\n" +
                 $"{definition.ItemType} | {Workspace.UIWorkspaceTooltipView.GetColoredRarityDisplayName(selectedItem.CurrentRarity)} | poziom {selectedItem.ItemLevel}\n" +
                 $"Waga: {definition.Weight:0.##} kg\n" +
-                $"{priceLabel}: {price} zl\n\n" +
+                (price.HasValue ? $"{priceLabel}: {price} zl\n\n" : reason + "\n\n") +
                 definition.Description;
         }
 
@@ -356,12 +352,12 @@ namespace Godmist.Views.UI
         {
             var buyPrice = selectedItemSource == SelectedItemSource.TraderStock
                 || selectedItemSource == SelectedItemSource.BuybackStock
-                ? GetSelectedBuyOrSellPrice(out _)
+                ? GetSelectedBuyOrSellPrice(out _, out _)
                 : 0;
 
             var sellPrice = selectedItemSource == SelectedItemSource.PlayerInventory
-                ? tradeService.GetPriceWhenSellingToTrader(trader, selectedItem)
-                : 0;
+                ? GetSelectedBuyOrSellPrice(out _, out _)
+                : null;
 
             buyButton.interactable = buyPrice > 0
                 && gameSession != null
@@ -370,28 +366,24 @@ namespace Godmist.Views.UI
             sellButton.interactable = sellPrice > 0;
         }
 
-        private int GetSelectedBuyOrSellPrice(out string priceLabel)
+        private int? GetSelectedBuyOrSellPrice(out string priceLabel, out string reason)
         {
+            int price; bool valid;
             switch (selectedItemSource)
             {
                 case SelectedItemSource.TraderStock:
                     priceLabel = "Cena zakupu";
-                    return tradeService.GetPriceToBuyFromTrader(trader, selectedItem);
-
+                    valid = tradeService.TryGetBuyPrice(trader, selectedItem, out price, out reason); break;
                 case SelectedItemSource.BuybackStock:
-                    priceLabel = "Cena odkupku";
-                    return tradeService.GetPriceFromBuyback(trader, selectedBuybackEntry);
-
+                    priceLabel = "Cena odkupu";
+                    valid = tradeService.TryGetBuybackPrice(trader, selectedBuybackEntry, out price, out reason); break;
                 case SelectedItemSource.PlayerInventory:
-                    priceLabel = "Cena sprzedazy";
-                    return tradeService.GetPriceWhenSellingToTrader(
-                        trader,
-                        selectedItem);
-
+                    priceLabel = "Cena sprzedaży";
+                    valid = tradeService.TryGetSellPrice(trader, selectedItem, out price, out reason); break;
                 default:
-                    priceLabel = "Cena";
-                    return 0;
+                    priceLabel = "Cena"; reason = "Wybierz przedmiot."; return null;
             }
+            return valid ? price : null;
         }
 
         private static List<ItemStackEntry> BuildItemStacks(

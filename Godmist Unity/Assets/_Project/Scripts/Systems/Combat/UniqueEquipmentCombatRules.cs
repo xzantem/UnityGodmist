@@ -23,7 +23,12 @@ namespace Godmist.Systems.Combat
                 if (item?.Definition is not UniqueEquipmentDefinition unique) continue;
                 foreach (var effect in unique.GetEffects(item.ItemLevel) ?? new List<PassiveEffectDefinition>())
                 {
-                    if (effect == null || !effect.IsAlwaysActive || effect.IsTriggered) continue;
+                    if (effect == null) continue;
+                    foreach (var authored in effect.Operations ?? new List<PassiveEffectOperationDefinition>())
+                        if (authored != null && PassiveEffectOperationCapabilities.IsSpecialUnique(authored.Type)
+                            && (!effect.IsAlwaysActive || effect.IsTriggered))
+                            throw new System.InvalidOperationException($"Unique effect {effect.Id}/{authored.Id} must be unconditional and untriggered.");
+                    if (!effect.IsAlwaysActive || effect.IsTriggered) continue;
                     foreach (var operation in effect.Operations ?? new List<PassiveEffectOperationDefinition>())
                         if (operation?.Target == PassiveEffectTargetType.Self
                             && operation.Value?.Source == PassiveEffectValueSourceType.Constant)
@@ -96,7 +101,7 @@ namespace Godmist.Systems.Combat
                 unit.Character.ShieldPool ??= new ShieldPool();
                 unit.Character.ShieldPool.RemoveLayersBySourceId("equipment.poacher-armor");
                 unit.Character.ShieldPool.AddLayer(Mathf.RoundToInt(unit.Character.Stats.MaxHealth.GetValue()*op.Value.NumberValue),"equipment.poacher-armor");
-                unit.PoacherArmorCooldown=5;unit.PoacherArmorShieldTurns=5;break;
+                unit.PoacherArmorCooldown=op.CooldownTurns;unit.PoacherArmorShieldTurns=op.DurationTurns;break;
             }
         }
     }

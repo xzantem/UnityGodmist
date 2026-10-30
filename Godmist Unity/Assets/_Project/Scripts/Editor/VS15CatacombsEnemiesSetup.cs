@@ -32,6 +32,8 @@ namespace Godmist.Editor
         {
             var existing = AssetDatabase.LoadAssetAtPath<T>(path);
             if (existing != null) return existing;
+            if (typeof(T) == typeof(CharacterDefinition))
+                throw new System.InvalidOperationException("Historical content setup requires an authored CharacterDefinition at " + path + "; attack data is maintained in that asset.");
             var created = ScriptableObject.CreateInstance<T>();
             created.name = System.IO.Path.GetFileNameWithoutExtension(path);
             AssetDatabase.CreateAsset(created, path);
@@ -349,8 +351,8 @@ namespace Godmist.Editor
         private sealed class EnemySpec
         {
             public string Key, Name;
-            public int Health, AttackMin, AttackMax;
-            public float HealthGrowth, MinGrowth, MaxGrowth, Dodge, DodgeGrowth,
+            public int Health;
+            public float HealthGrowth, Dodge, DodgeGrowth,
                 PhysicalDefense, PhysicalGrowth, MagicDefense, MagicGrowth,
                 Crit, CritGrowth, CritMultiplier, Bleed, Poison, Fire, Suppression, Speed;
             public CombatAiRole Role;
@@ -360,43 +362,43 @@ namespace Godmist.Editor
         private static readonly EnemySpec[] Enemies =
         {
             new() { Key="swordsman", Name="Szkielet Miecznik", Health=350, HealthGrowth=23,
-                AttackMin=42, AttackMax=64, MinGrowth=2.73f, MaxGrowth=4.16f,
+
                 Dodge=15, DodgeGrowth=.1125f, PhysicalDefense=10, PhysicalGrowth=2,
                 MagicDefense=4, MagicGrowth=.8f, Crit=.11f, CritGrowth=.000275f,
                 CritMultiplier=2, Bleed=1, Poison=.2f, Fire=.4f, Suppression=.25f,
                 Speed=44, Role=CombatAiRole.Balanced, Personality=CombatAiPersonality.Aggressive },
             new() { Key="undead", Name="Umarlak", Health=500, HealthGrowth=33,
-                AttackMin=30, AttackMax=48, MinGrowth=1.95f, MaxGrowth=3.12f,
+
                 Dodge=4, DodgeGrowth=.03f, PhysicalDefense=13, PhysicalGrowth=2.6f,
                 MagicDefense=11, MagicGrowth=2.2f, Crit=.09f, CritGrowth=.000225f,
                 CritMultiplier=1.7f, Bleed=.65f, Poison=.6f, Fire=.1f, Suppression=.4f,
                 Speed=32, Role=CombatAiRole.Tank, Personality=CombatAiPersonality.Neutral },
             new() { Key="wraith", Name="Upiór", Health=270, HealthGrowth=18,
-                AttackMin=25, AttackMax=75, MinGrowth=1.63f, MaxGrowth=4.88f,
+
                 Dodge=25, DodgeGrowth=.1875f, PhysicalDefense=3, PhysicalGrowth=.6f,
                 MagicDefense=16, MagicGrowth=3.2f, Crit=.08f, CritGrowth=.0002f,
                 CritMultiplier=1.8f, Bleed=.65f, Poison=.2f, Fire=1, Suppression=1,
                 Speed=60, Role=CombatAiRole.Dps, Personality=CombatAiPersonality.Cautious },
             new() { Key="occultist", Name="Szkielet Okultysta", Health=250, HealthGrowth=17,
-                AttackMin=55, AttackMax=80, MinGrowth=3.58f, MaxGrowth=5.2f,
+
                 Dodge=11, DodgeGrowth=.0825f, PhysicalDefense=4, PhysicalGrowth=.8f,
                 MagicDefense=14, MagicGrowth=2.8f, Crit=.06f, CritGrowth=.00015f,
                 CritMultiplier=1.85f, Bleed=1, Poison=.2f, Fire=.4f, Suppression=.35f,
                 Speed=50, Role=CombatAiRole.Support, Personality=CombatAiPersonality.Cautious },
             new() { Key="archer", Name="Szkielet Łucznik", Health=300, HealthGrowth=20,
-                AttackMin=40, AttackMax=60, MinGrowth=2.6f, MaxGrowth=3.9f,
+
                 Dodge=20, DodgeGrowth=.15f, PhysicalDefense=7, PhysicalGrowth=1.4f,
                 MagicDefense=5, MagicGrowth=1, Crit=.12f, CritGrowth=.0003f,
                 CritMultiplier=2.1f, Bleed=1, Poison=.2f, Fire=.4f, Suppression=.2f,
                 Speed=56, Role=CombatAiRole.Dps, Personality=CombatAiPersonality.Cautious },
             new() { Key="ghoul", Name="Ghul", Health=400, HealthGrowth=26,
-                AttackMin=36, AttackMax=66, MinGrowth=2.34f, MaxGrowth=4.29f,
+
                 Dodge=7, DodgeGrowth=.0525f, PhysicalDefense=11, PhysicalGrowth=2.2f,
                 MagicDefense=12, MagicGrowth=2.4f, Crit=.08f, CritGrowth=.0002f,
                 CritMultiplier=1.8f, Bleed=.3f, Poison=.65f, Fire=.25f, Suppression=.5f,
                 Speed=52, Role=CombatAiRole.Dps, Personality=CombatAiPersonality.Aggressive },
             new() { Key="defender", Name="Szkielet Obrońca", Health=550, HealthGrowth=36,
-                AttackMin=25, AttackMax=45, MinGrowth=1.63f, MaxGrowth=2.93f,
+
                 Dodge=8, DodgeGrowth=.06f, PhysicalDefense=16, PhysicalGrowth=3.2f,
                 MagicDefense=8, MagicGrowth=1.6f, Crit=.06f, CritGrowth=.00015f,
                 CritMultiplier=1.65f, Bleed=1, Poison=.2f, Fire=.4f, Suppression=.25f,
@@ -435,8 +437,6 @@ namespace Godmist.Editor
             Add(tags).enumValueIndex = (int)CharacterTag.Undead;
             var stat = so.FindProperty(F("BaseStats"));
             Sub(stat, "MaxHealth", spec.Health);
-            Sub(stat, "MinAttack", spec.AttackMin);
-            Sub(stat, "MaxAttack", spec.AttackMax);
             Sub(stat, "PhysicalDefense", spec.PhysicalDefense);
             Sub(stat, "MagicalDefense", spec.MagicDefense);
             Sub(stat, "Dodge", spec.Dodge);
@@ -448,8 +448,6 @@ namespace Godmist.Editor
             Sub(stat, "ResourceRegeneration", 15);
             var growth = so.FindProperty(F("GrowthData"));
             Sub(growth, "MaxHealth", spec.HealthGrowth);
-            Sub(growth, "MinAttack", spec.MinGrowth);
-            Sub(growth, "MaxAttack", spec.MaxGrowth);
             Sub(growth, "PhysicalDefense", spec.PhysicalGrowth);
             Sub(growth, "MagicalDefense", spec.MagicGrowth);
             Sub(growth, "Dodge", spec.DodgeGrowth);

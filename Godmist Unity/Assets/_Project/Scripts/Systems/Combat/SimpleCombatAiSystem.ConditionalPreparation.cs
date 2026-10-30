@@ -121,7 +121,7 @@ namespace Godmist.Systems.Combat
                         + CombatActionCostCalculator.CalculateSkillCost(caster, followUp)) continue;
                 var suffix = preparation.Strong.EffectType == EffectType.ModifyStat ? "modify_stat" : "modify_var";
                 if (PassiveEffectLifecycleSystem.HasActiveEffect(caster.Character,
-                        $"{followUp.SkillId}.{suffix}.{preparation.StrongIndex}")) continue;
+                        SkillEffectIdentity.RuntimeId(followUp, preparation.StrongIndex, suffix))) continue;
 
                 var pool = caster.Character.ResourcePool;
                 var followUpCost = PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, followUp);

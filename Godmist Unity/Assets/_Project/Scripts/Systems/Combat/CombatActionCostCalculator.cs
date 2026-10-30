@@ -20,6 +20,9 @@ namespace Godmist.Systems.Combat
                 ScoutCombatSystem.KnifeRecoveryCost(unit, skill, skill.ActionCost, recoveringKnife))
                 * UniqueEquipmentCombatRules.OrderCostMultiplier(unit,skill)));
         }
+        public static int CalculateSkillCostForTarget(BattleUnit unit, SkillData skill, BattleUnit target, bool recoveringKnife = false) =>
+            PaladinCombatSystem.HealCost(unit, skill, target, CalculateSkillCost(unit, skill, recoveringKnife));
+
         public static int CalculatePercentageCost(
             int maxActionPoints, 
             int percentage)

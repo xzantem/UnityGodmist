@@ -327,12 +327,11 @@ namespace Godmist.Systems.Combat
                         definition,
                         CreateSource(PassiveEffectSourceType.SkillTree, sourceId),
                         $"{sourceId}.{definition?.Id}",
-                        out var runtime))
+                        out var runtime, ranks))
                 {
                     continue;
                 }
 
-                ScaleRuntimeValues(runtime, ranks);
                 character.PassiveEffects.Add(runtime);
             }
 
@@ -353,15 +352,13 @@ namespace Godmist.Systems.Combat
                             CreateSource(
                                 PassiveEffectSourceType.SkillTree,
                                 sourceId),
-                            out var runtime))
+                            out var runtime, nodeRanks))
                     {
                         continue;
                     }
 
                     runtime.EffectId =
                         $"{sourceId}.node.{node.Id}.{definition?.Id}";
-                    runtime.Stacks = nodeRanks;
-                    ScaleRuntimeValues(runtime, nodeRanks);
                     if (string.IsNullOrWhiteSpace(runtime.DisplayName))
                         runtime.DisplayName = node.DisplayName ?? string.Empty;
                     character.PassiveEffects.Add(runtime);
@@ -479,25 +476,6 @@ namespace Godmist.Systems.Combat
         private static string BuildEquipmentSourceId(EquipmentItemInstance item)
         {
             return $"{ManagedEquipmentSourcePrefix}{item?.InstanceId ?? string.Empty}";
-        }
-
-        private static void ScaleRuntimeValues(
-            PassiveEffectRuntime runtime,
-            int multiplier)
-        {
-            if (runtime == null) return;
-
-            foreach (var modifier in runtime.StatModifiers ?? new List<StatModifier>())
-                modifier.Value *= multiplier;
-
-            foreach (var modifier in runtime.VariableModifiers
-                         ?? new List<GameplayVariableModifier>())
-            {
-                modifier.Value *= multiplier;
-            }
-
-            var resistance = runtime.GetPayload<ResistanceModifierPayload>();
-            if (resistance != null) resistance.Value *= multiplier;
         }
 
         private static List<StatModifier> CopyStatModifiers(

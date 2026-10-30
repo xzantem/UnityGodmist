@@ -39,7 +39,7 @@ namespace Godmist.Systems.Combat
             }
             var mapped = RemapSelection(selection, node.World, next.World);
             var caster = next.World.ActiveUnit;
-            var price = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
+            var price = CombatActionCostCalculator.CalculateSkillCostForTarget(caster, skill, mapped.TargetsByModeIndex.Values.SelectMany(value => value).FirstOrDefault());
             var resource = PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill);
             if (!WarriorCombatSystem.CanActivate(caster, skill)) return null;
             var previewCaster = skill.SkillId == WarriorDischargeRules.SkillId ? CopyPlanningUnit(caster) : caster;
@@ -54,8 +54,9 @@ namespace Godmist.Systems.Combat
                 - resource * Ai(GameDefineIds.AiResourceCostPenaltyPerPoint, .1f);
             var requiredChance = string.IsNullOrEmpty(skill.RequiredCasterStatusId) ? 1f
                 : ProjectedStatusChance(node, node.World.ActiveUnit, skill.RequiredCasterStatusId);
+            var dischargeRefunded = false;
             var preparations = FindConditionalStatusPreparations(caster, caster.Character.GetActiveSkills());
-            for (var index = 0; index < skill.Effects.Count; index++)
+            foreach (var index in SkillEffectIdentity.ExecutionOrder(skill))
             {
                 var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, skill.Effects[index]);
                 if (!mapped.TargetsByModeIndex.TryGetValue(effect.TargetModeIndex, out var targets)) return null;
@@ -81,7 +82,12 @@ namespace Godmist.Systems.Combat
                             if (certainKill)
                             {
                                 target.Character.LifeState = CharacterLifeState.Dead;
-                                if (skill.SkillId == WarriorDischargeRules.SkillId && !ResourceRuleSystem.IsResourceGainBlocked(caster)) caster.Character.ResourcePool?.Restore(Mathf.FloorToInt(resource * .25f * WarriorCombatSystem.B(caster, "wounding")));
+                                if (skill.SkillId == WarriorDischargeRules.SkillId && !dischargeRefunded)
+                                {
+                                    dischargeRefunded = true;
+                                    if (!ResourceRuleSystem.IsResourceGainBlocked(caster))
+                                        caster.Character.ResourcePool?.Restore(WarriorDischargeRules.RequestedRefund(resource, WarriorCombatSystem.B(caster, "wounding")));
+                                }
                             }
                             if (effect.LifeStealPercent > 0f)
                                 caster.Character.CurrentHealth += Mathf.RoundToInt(Mathf.Min(GetMissingHealth(caster),Mathf.Max(0,expected-shieldBefore)*effect.LifeStealPercent));
@@ -102,11 +108,12 @@ namespace Godmist.Systems.Combat
                                 amount = StatusUtility(live, actor, live.Units[next.World.Units.IndexOf(target)], skill, effect);
                             if (!StatusEffectSystem.HasStatus(target, effect.StatusId))
                             {
-                                target.Character.PassiveEffects.Add(new PassiveEffectRuntime
+                                target.Character.PassiveEffects.Add(StatusEffectSystem.NormalizeStatus(new PassiveEffectRuntime
                                 {
                                     EffectId = effect.StatusId, Lifetime = PassiveEffectLifetime.Timed,
                                     RemainingDuration = Math.Max(1, effect.DurationTurns)
-                                });
+                                }));
+                                target.Character.Stats.Speed.SetEffectiveValue(CharacterStatPipelineSystem.CalculateEffectiveSpeed(target.Character));
                                 next.StatusConfidence[(next.World.Units.IndexOf(target), effect.StatusId)] = application * chance;
                             }
                             break;
@@ -115,7 +122,7 @@ namespace Godmist.Systems.Combat
                         case EffectType.ModifyVar:
                         {
                             var suffix = effect.EffectType == EffectType.ModifyStat ? "modify_stat" : "modify_var";
-                            var id = $"{skill.SkillId}.{suffix}.{index}";
+                            var id = SkillEffectIdentity.RuntimeId(skill, index, suffix);
                             if (PassiveEffectLifecycleSystem.HasActiveEffect(target.Character, id)) break;
                             var runtime = new PassiveEffectRuntime { EffectId = id,
                                 Lifetime = effect.DurationTurns > 0 ? PassiveEffectLifetime.Timed : PassiveEffectLifetime.CombatScoped,
@@ -128,9 +135,9 @@ namespace Godmist.Systems.Combat
                                     Operation = effect.ModifierOperation, Stacking = effect.ModifierStacking, Value = effect.ModifierValue } };
                                 target.Character.PassiveEffects.Add(runtime);
                                 var after = CharacterStatPipelineSystem.EvaluateModifiers(stat.BaseValue, effect.ModifierStatType, target.Character.PassiveEffects);
-                                var multiplier=effect.ModifierStatType is CharacterStatType.MinAttack or CharacterStatType.MaxAttack
-                                    ?Mathf.Max(0f,target.Character.Definition?.AttackMultiplier??1f):1f;
-                                stat.SetEffectiveValue(Mathf.Max(0f, stat.GetValue() + (after - before)*multiplier));
+                                stat.SetEffectiveValue(effect.ModifierStatType == CharacterStatType.Speed
+                                    ? CharacterStatPipelineSystem.CalculateEffectiveSpeed(target.Character)
+                                    : Mathf.Max(0f, stat.GetValue() + (after - before)));
                                 if (effect.ModifierStatType == CharacterStatType.WeaponAccuracy) target.Character.WeaponAccuracy = stat.GetValue();
                             }
                             else
@@ -146,6 +153,30 @@ namespace Godmist.Systems.Combat
                             // fractional speed/AP budget for a random outcome.
                             if (chance < 1f) next.Terminal = true;
                             if (IsOffensivePreparation(skill)) next.PreparationConfidence = Mathf.Min(next.PreparationConfidence, chance);
+                            break;
+                        }
+                        case EffectType.PaladinHeal:
+                        case EffectType.PaladinRegeneration:
+                        {
+                            var recipient = next.World.Units.IndexOf(target);
+                            var previous = next.PendingHealing.TryGetValue(recipient, out var pending) ? pending : PendingRegeneration(target);
+                            var forecast = PaladinCombatSystem.ForecastHealing(next.World, caster, target, skill, effect,
+                                PaladinCombatSystem.IsSingleHealingTarget(skill, mapped.TargetsByModeIndex), RecoveryForecastTurns);
+                            amount = PaladinRecoveryUtility(next.World, caster, target, skill, effect,
+                                PaladinCombatSystem.IsSingleHealingTarget(skill, mapped.TargetsByModeIndex), previous);
+                            target.Character.CurrentHealth += Mathf.RoundToInt(forecast.Immediate);
+                            if (forecast.Immediate > 0 && target.Character.LifeState == CharacterLifeState.Downed)
+                            { target.Character.LifeState = CharacterLifeState.Alive; target.DownedTurnsRemaining = 0; }
+                            next.PendingHealing[recipient] = effect.EffectType == EffectType.PaladinRegeneration
+                                ? forecast.Future : Mathf.Min(previous, GetMissingHealth(target));
+                            if (skill.SkillId == "skill.paladin.heal") target.PaladinState.HealingDiscount = false;
+                            // Secondary buffs and timeline changes need a real refresh, just like arbitrary cleanses.
+                            // Their effects are not invented in the detached same-turn projection.
+                            if (caster != target && PaladinCombatSystem.Points(caster.Character, PaladinCombatSystem.Priest) > 0 && GetMissingHealth(caster) > 0
+                                || PaladinCombatSystem.P(caster, "encouragement") > 0
+                                || PaladinCombatSystem.P(caster, "anointed_warrior") > 0
+                                || skill.SkillId == "skill.paladin.group_heal" && (PaladinCombatSystem.P(caster, "battle_zeal") > 0
+                                    || PaladinCombatSystem.P(caster, "universal_grace") > 0)) next.Terminal = true;
                             break;
                         }
                         case EffectType.Heal:
@@ -177,7 +208,7 @@ namespace Godmist.Systems.Combat
                             {
                                 target.Character.PassiveEffects.Add(new PassiveEffectRuntime
                                 {
-                                    EffectId = $"{skill.SkillId}.unique_buff.{index}",
+                                    EffectId = SkillEffectIdentity.RuntimeId(skill, index, "unique_buff"),
                                     Lifetime = PassiveEffectLifetime.Timed, RemainingDuration = Math.Max(1, effect.DurationTurns),
                                     IsUniqueCombatBuff = true, UniqueBuffType = effect.UniqueBuffType,
                                     Stacks = Math.Max(1, effect.UniqueBuffStacks)
@@ -253,7 +284,7 @@ namespace Godmist.Systems.Combat
                 if (condition == null) continue;
                 if (condition.ConditionType == EffectConditionType.ReferencedEffectSucceeded && effect.EffectType != EffectType.ApplyStatus)
                     chance *= CombatSkillPreviewCalculator.CalculateTargetPreview(caster, target, skill,
-                        skill.Effects[condition.ReferencedEffectIndex].TargetModeIndex).HitChance;
+                        skill.Effects[SkillEffectIdentity.ReferenceIndex(skill, condition)].TargetModeIndex).HitChance;
                 if (condition.ConditionType == EffectConditionType.CasterHasStatus) chance *= ProjectedStatusChance(node, caster, condition.StatusId);
                 if (condition.ConditionType == EffectConditionType.TargetHasStatus) chance *= ProjectedStatusChance(node, target, condition.StatusId);
                 if (condition.ConditionType == EffectConditionType.AnyOpponentHasStatus)
@@ -283,7 +314,7 @@ namespace Godmist.Systems.Combat
         {
             var pool = caster.Character.ResourcePool;
             var difference = MomentumResourceRule.SpeedBonus(pool, pool?.CurrentValue ?? 0) - MomentumResourceRule.SpeedBonus(pool, previous);
-            if (difference != 0) caster.Character.Stats.Speed.SetEffectiveValue(caster.Character.Stats.Speed.GetValue() + difference);
+            if (difference != 0) caster.Character.Stats.Speed.SetEffectiveValue(CharacterStatPipelineSystem.CalculateEffectiveSpeed(caster.Character));
         }
 
         private static void RefreshProjectedAp(CombatSession world)

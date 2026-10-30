@@ -2247,16 +2247,16 @@ namespace Godmist.Views.UI.Workspace
             {
                 "skill.scout.ricochet" => DescribeRicochetCritical(skill,caster),
                 MageTiringSpellSystem.SkillId => TiringValues(),
-                WarriorDischargeRules.SkillId => $"Każdy wydany punkt furii zwiększa obrażenia o {DischargeValue(caster)}." + ((caster?.Character?.ResourcePool?.CurrentValue ?? 20)<20?$" Podgląd przy {BaseValue("20","Minimalna furia dla Wyładowania")} furii; za mało furii.":""),
+                WarriorDischargeRules.SkillId => $"Każdy wydany punkt furii zwiększa obrażenia o {DischargeValue(caster)}." + ((caster?.Character?.ResourcePool?.CurrentValue ?? WarriorDischargeRules.MinimumRage)<WarriorDischargeRules.MinimumRage?$" Podgląd przy {BaseValue(WarriorDischargeRules.MinimumRage.ToString(),"Minimalna furia dla Wyładowania")} furii; za mało furii.":""),
                 _ => string.Empty
             };
             if (!string.IsNullOrEmpty(special)) yield return special;
             if (skill.SkillId == WarriorDischargeRules.SkillId && caster != null)
             {
-                var refund = Mathf.Clamp(WarriorCombatSystem.B(caster, "wounding"), 0, 2) * .25f;
-                var ignore = Mathf.Clamp(WarriorCombatSystem.B(caster, "larger_wound"), 0, 2) * .2f;
+                var refund = WarriorDischargeRules.RefundFraction(WarriorCombatSystem.B(caster, "wounding"));
+                var ignore = WarriorDischargeRules.IgnoreFraction(WarriorCombatSystem.B(caster, "larger_wound"));
                 if (refund > 0) yield return $"Zabicie celu: zwrot {TalentPercent(caster,"Zwrot furii po zabiciu",0,refund,"node.warrior.brawler.wounding")} zużytej furii.";
-                if (ignore > 0) yield return $"Ignoruje {TalentPercent(caster,"Ignorowanie obrony fizycznej",0,ignore,"node.warrior.brawler.larger_wound")} obrony fizycznej; {BaseValue(FormatPercent(ignore*2),"Ignorowanie obrony od progu furii")} przy zużyciu co najmniej {BaseValue("50","Próg furii — ignorowanie obrony")} furii.";
+                if (ignore > 0) yield return $"Ignoruje {TalentPercent(caster,"Ignorowanie obrony fizycznej",0,ignore,"node.warrior.brawler.larger_wound")} obrony fizycznej; {BaseValue(FormatPercent(ignore*2),"Ignorowanie obrony od progu furii")} przy zużyciu co najmniej {BaseValue(WarriorDischargeRules.DefenseIgnoreThreshold.ToString(),"Próg furii — ignorowanie obrony")} furii.";
             }
         }
 
@@ -3024,12 +3024,12 @@ namespace Godmist.Views.UI.Workspace
                 var text = condition.ConditionType switch
                 {
                     EffectConditionType.ReferencedEffectSucceeded =>
-                        skill?.Effects != null && condition.ReferencedEffectIndex >= 0
-                        && condition.ReferencedEffectIndex < skill.Effects.Count
-                        && skill.Effects[condition.ReferencedEffectIndex]?.EffectType == EffectType.DealDamage
-                            ? "trafienie celu" : $"efekt {condition.ReferencedEffectIndex + 1} zadziała",
+                        skill?.Effects != null && SkillEffectIdentity.ReferenceIndex(skill, condition) >= 0
+                        && SkillEffectIdentity.ReferenceIndex(skill, condition) < skill.Effects.Count
+                        && skill.Effects[SkillEffectIdentity.ReferenceIndex(skill, condition)]?.EffectType == EffectType.DealDamage
+                            ? "trafienie celu" : $"efekt {SkillEffectIdentity.ReferenceIndex(skill, condition) + 1} zadziała",
                     EffectConditionType.ReferencedEffectDealtHealthDamage =>
-                        $"efekt {condition.ReferencedEffectIndex + 1} zada obrażenia zdrowiu",
+                        $"efekt {SkillEffectIdentity.ReferenceIndex(skill, condition) + 1} zada obrażenia zdrowiu",
                     EffectConditionType.TargetHasStatus =>
                         $"cel ma {GetStatusGenitiveName(condition.StatusId)}",
                     EffectConditionType.CasterHasStatus =>
@@ -4207,9 +4207,11 @@ namespace Godmist.Views.UI.Workspace
         public static string BuildItemMeta(ItemInstance item, int? contextPrice = null)
         {
             if (item?.Definition == null) return string.Empty;
+            if (!CraftingValueCalculator.TryGetValue(item.Definition, out var definitionValue, out _))
+                return $"{item.Definition.Weight:0.##} kg • Błąd wyceny";
             var intrinsicValue = Mathf.Max(0, item.BaseValue);
             if (intrinsicValue <= 0 && item.Definition is CraftableItemDefinition craftable)
-                intrinsicValue = Mathf.Max(0, craftable.CalculatedBaseValue);
+                intrinsicValue = definitionValue;
             var price = contextPrice.HasValue ? Mathf.Max(0, contextPrice.Value) : intrinsicValue;
             return $"{item.Definition.Weight:0.##} kg • <sprite name=\"gold\"> {price}"
                 + (item.IsSaleProtected ? "\n<color=#E8C65A>Ochrona przed sprzedażą</color>" : string.Empty);
@@ -5257,7 +5259,7 @@ namespace Godmist.Views.UI.Workspace
                 portrait.enabled = portrait.sprite != null;
             }
 
-            var maximumHealth = Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? character.CurrentHealth);
+            var maximumHealth = (character.Stats == null ? Mathf.Max(1, character.CurrentHealth) : character.MaximumHealth);
             SetBar(healthSlider, character.CurrentHealth, maximumHealth);
             if (healthText != null) healthText.text = $"HP  {CombatHealthPresentation.Format(character)}";
             CombatHealthPresentation.UpdateShieldOverlay(ref shieldOverlay, healthSlider,

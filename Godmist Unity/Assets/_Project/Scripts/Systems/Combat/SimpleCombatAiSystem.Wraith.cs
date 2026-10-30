@@ -87,7 +87,7 @@ namespace Godmist.Systems.Combat
 
         private static bool IsEmergencyPreparationHeal(CombatSession session, BattleUnit unit, SkillData skill)
         {
-            var maximum = unit.Character.Stats.MaxHealth.GetValue();
+            var maximum = unit.Character.MaximumHealth;
             var healing = skill.Effects.Where(effect => effect != null
                     && skill.TargetModes[effect.TargetModeIndex].TargetType == TargetType.Caster
                     && SkillExecutionSystem.CanPlanEffect(session, effect, unit, unit))

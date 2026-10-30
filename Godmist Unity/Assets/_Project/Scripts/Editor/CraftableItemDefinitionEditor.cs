@@ -46,9 +46,10 @@ namespace Godmist.Editor
 
             using (new EditorGUI.DisabledScope(true))
             {
-                EditorGUILayout.IntField(
-                    "Calculated Base Value",
-                    ((CraftableItemDefinition)target).CalculatedBaseValue);
+                if (((CraftableItemDefinition)target).TryCalculateBaseValue(out var value, out var failure))
+                    EditorGUILayout.IntField("Calculated Base Value", value);
+                else
+                    EditorGUILayout.HelpBox(failure.Message, MessageType.Error);
             }
 
             serializedObject.ApplyModifiedProperties();

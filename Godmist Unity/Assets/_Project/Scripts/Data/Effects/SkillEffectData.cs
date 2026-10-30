@@ -12,6 +12,8 @@ namespace Godmist.Data.Effects
     [Serializable]
     public class SkillEffectData
     {
+        [SerializeField] private string stableEffectId = Guid.NewGuid().ToString("N");
+        public string StableId => stableEffectId;
         public static SkillEffectData ForDamage(DamageType type,DamageValueSource source,float multiplier)
             => new() { effectType=EffectType.DealDamage,damageType=type,damageValueSource=source,damageMultiplier=multiplier };
 
@@ -133,6 +135,23 @@ namespace Godmist.Data.Effects
         public float ExpectedHitCount => DamageHitCount + AdditionalHitTrials * AdditionalHitChance;
         public int MaximumHitCount => DamageHitCount + (AdditionalHitChance > 0f ? AdditionalHitTrials : 0);
 
+        public SkillEffectData DeepCopy() => DeepCopy(new Dictionary<SkillEffectData, SkillEffectData>());
+        private SkillEffectData DeepCopy(Dictionary<SkillEffectData, SkillEffectData> copies)
+        {
+            if (copies.TryGetValue(this, out var existing)) return existing;
+            var copy = (SkillEffectData)MemberwiseClone(); copies.Add(this, copy);
+            copy.teleportDestinationRange = teleportDestinationRange?.DeepCopy();
+            copy.objectPlacementRange = objectPlacementRange?.DeepCopy();
+            copy.summonPlacementRange = summonPlacementRange?.DeepCopy();
+            copy.counterattackRange = counterattackRange?.DeepCopy();
+            copy.summonPool = summonPool == null ? new List<CharacterDefinition>() : new List<CharacterDefinition>(summonPool);
+            copy.conditions = new List<SkillEffectConditionData>();
+            foreach (var condition in conditions ?? new List<SkillEffectConditionData>()) copy.conditions.Add(condition?.DeepCopy());
+            copy.counterattackEffects = new List<SkillEffectData>();
+            foreach (var effect in counterattackEffects ?? new List<SkillEffectData>()) copy.counterattackEffects.Add(effect?.DeepCopy(copies));
+            return copy;
+        }
+
         public SkillEffectData WithAdditionalHitTrials(int trials)
         {
             if (trials == additionalHitTrials) return this;
@@ -148,6 +167,12 @@ namespace Godmist.Data.Effects
             copy.statusDamageMultiplier = dotMultiplier;
             copy.modifierValue = statValue;
             copy.durationTurns = turns;
+            return copy;
+        }
+        public SkillEffectData WithDamageMultiplier(float value)
+        {
+            var copy = (SkillEffectData)MemberwiseClone();
+            copy.damageMultiplier = Mathf.Max(0, value);
             return copy;
         }
         public SkillEffectData WithBonusPenetration(float value)

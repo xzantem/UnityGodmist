@@ -143,6 +143,8 @@ namespace Godmist.Systems.Items
                 if (count != 1) return null;
             }
 
+            if (!CraftingValueCalculator.TryValidate(selected.SelectMany(part => part.CraftingMaterials ?? new())
+                    .Where(input => input?.Material != null).Select(input => input.Material), out _)) return null;
             var item = itemFactory.Create(definition) as EquipmentItemInstance;
             if (item == null) return null;
 
@@ -245,7 +247,7 @@ namespace Godmist.Systems.Items
             };
         }
 
-        private static EquipmentPartKind[] GetRequiredKinds(EquipmentItemDefinition definition)
+        public static EquipmentPartKind[] GetRequiredKinds(EquipmentItemDefinition definition)
         {
             return definition.ItemType switch
             {

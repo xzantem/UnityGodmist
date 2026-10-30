@@ -49,7 +49,7 @@ namespace Godmist.Tests.EditMode
 
                 var item = new EquipmentItemInstance(definition, "equipment.instance.1")
                 {
-                    StatModifiers = new List<StatModifier>
+                    BaseStatModifiers = new List<StatModifier>
                     {
                         new()
                         {

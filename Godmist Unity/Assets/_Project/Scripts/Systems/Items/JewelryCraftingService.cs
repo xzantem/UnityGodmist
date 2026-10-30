@@ -168,9 +168,8 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
-            var stock = GetMaterialPurchaseStock(enchanter, materialId)
-                .Take(cost.PurchasableAmount)
-                .ToList();
+            if (!TryGetMaterialPurchaseStock(enchanter, materialId, out var available, out failure)) return false;
+            var stock = available.Take(cost.PurchasableAmount).ToList();
             var stockItems = stock.Select(entry => entry.Item).ToList();
             paidGold = stock.Sum(entry => entry.Price);
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
@@ -258,7 +257,7 @@ namespace Godmist.Systems.Items
             {
                 var owned = CountPartyItems(session, pair.Key.Id);
                 var missing = Mathf.Max(0, pair.Value - owned);
-                var purchaseStock = GetMaterialPurchaseStock(enchanter, pair.Key.Id);
+                var validQuote = TryGetMaterialPurchaseStock(enchanter, pair.Key.Id, out var purchaseStock, out var quoteReason);
                 var stock = purchaseStock.Count;
                 var purchasable = Mathf.Min(missing, stock);
                 var price = purchaseStock.Take(purchasable).Sum(entry => entry.Price);
@@ -268,9 +267,10 @@ namespace Godmist.Systems.Items
                     RequiredAmount = pair.Value,
                     OwnedAmount = owned,
                     AvailableFromBlacksmith = stock,
-                    PurchasePrice = price
+                    PurchasePrice = price,
+                    PurchaseFailureReason = quoteReason
                 };
-                cost.CanAffordPurchase = purchasable > 0 && price > 0 && session?.Gold >= price;
+                cost.CanAffordPurchase = validQuote && purchasable > 0 && price > 0 && session?.Gold >= price;
                 cost.PurchaseState = missing <= 0 ? CraftingMaterialPurchaseState.NotNeeded
                     : purchasable == 0 || price <= 0 ? CraftingMaterialPurchaseState.OutOfStock
                     : cost.CanAffordPurchase ? CraftingMaterialPurchaseState.Available
@@ -280,31 +280,34 @@ namespace Godmist.Systems.Items
             return true;
         }
 
-        private List<MaterialPurchase> GetMaterialPurchaseStock(
+        private bool TryGetMaterialPurchaseStock(
             NpcInstance enchanter,
-            string materialId)
+            string materialId, out List<MaterialPurchase> stock, out string reason)
         {
-            var stock = new List<MaterialPurchase>();
+            stock = new List<MaterialPurchase>();
+            reason = string.Empty;
             foreach (var item in enchanter?.ShopInventory?.Items ?? new List<ItemInstance>())
             {
                 if (item?.Definition?.Id != materialId) continue;
+                if (!trade.TryGetBuyPrice(enchanter, item, out var price, out reason)) { stock.Clear(); return false; }
                 stock.Add(new MaterialPurchase(
                     item,
                     null,
-                    trade.GetPriceToBuyFromTrader(enchanter, item)));
+                    price));
             }
 
             foreach (var buyback in enchanter?.ShopInventory?.BuybackStock
                 ?? new List<BuybackEntry>())
             {
                 if (buyback?.Item?.Definition?.Id != materialId) continue;
+                if (!trade.TryGetBuybackPrice(enchanter, buyback, out var price, out reason)) { stock.Clear(); return false; }
                 stock.Add(new MaterialPurchase(
                     buyback.Item,
                     buyback,
-                    trade.GetPriceFromBuyback(enchanter, buyback)));
+                    price));
             }
 
-            return stock;
+            return true;
         }
 
         private static bool RemoveFromTrader(NpcInstance enchanter, MaterialPurchase purchase)
@@ -380,7 +383,8 @@ namespace Godmist.Systems.Items
                 failure = "Wybierz jeden klejnot dla biżuterii.";
                 return false;
             }
-            return true;
+            return CraftingValueCalculator.TryValidate(
+                new[] { request.Metal.Material, request.Gem.CraftingMaterial }, out failure);
         }
 
         private static bool TryGetRecipient(GameSession session, string id, out CharacterInstance recipient)
