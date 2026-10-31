@@ -19,7 +19,7 @@ namespace Godmist.Tests.EditMode
         [Test]
         public void CandidateVersionAndExistingSaveLocationArePreserved()
         {
-            Assert.That(PlayerSettings.bundleVersion, Is.EqualTo(EarlyAccessReleaseBuild.CandidateVersion));
+            Assert.That(PlayerSettings.bundleVersion, Is.EqualTo(Godmist.Core.Constants.GameVersion.Bundle));
             Assert.That(PlayerSettings.companyName, Is.EqualTo("DefaultCompany"));
             Assert.That(PlayerSettings.productName, Is.EqualTo("Godmist Unity"));
             Assert.That(new SaveManager().SaveDirectoryPath, Is.EqualTo(Path.Combine(Application.persistentDataPath, "Saves")));
@@ -37,7 +37,7 @@ namespace Godmist.Tests.EditMode
             GameObject menuCopy = null;
             try
             {
-                var authoredCanvas = scene.GetRootGameObjects().Single(r => r.name == "Canvas");
+                var authoredCanvas = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Canvas>(true)).Single(canvas => canvas.name == "Canvas").gameObject;
                 menuCopy = Object.Instantiate(authoredCanvas);
                 var canvas = menuCopy.GetComponent<Canvas>();
                 menuCopy.SetActive(true); canvas.enabled = true;
@@ -45,7 +45,7 @@ namespace Godmist.Tests.EditMode
                 view.gameObject.SetActive(true);
                 var label = new SerializedObject(view).FindProperty("versionLabel").objectReferenceValue as TextMeshProUGUI;
                 Assert.That(label, Is.Not.Null);
-                Assert.That(label.text, Is.EqualTo(EarlyAccessReleaseBuild.CandidateVersion + " — Early Access"));
+                Assert.That(label.text, Is.EqualTo(Godmist.Core.Constants.GameVersion.MenuLabel));
                 Assert.That(label.raycastTarget, Is.False);
                 Assert.That(label.rectTransform.anchorMin, Is.EqualTo(Vector2.right));
                 Assert.That(label.rectTransform.anchorMax, Is.EqualTo(Vector2.right));

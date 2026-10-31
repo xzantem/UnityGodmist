@@ -39,7 +39,7 @@ namespace Godmist.Views.UI
 
         private void Start()
         {
-            if (versionLabel != null) versionLabel.text = $"{Application.version} — Early Access";
+            if (versionLabel != null) versionLabel.text = Godmist.Core.Constants.GameVersion.MenuLabel;
             if (enabled) RefreshSaveAvailability();
         }
         private void Update()

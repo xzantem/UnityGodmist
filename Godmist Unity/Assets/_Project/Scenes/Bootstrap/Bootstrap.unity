@@ -23045,7 +23045,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "0.1.1 \u2014 Early Access"
+  m_text: "0.1.2-beta.1 \u2014 Early Access"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b0366477598559848b91ffe6c1717e31, type: 2}
   m_sharedMaterial: {fileID: -8384879772825197092, guid: b0366477598559848b91ffe6c1717e31, type: 2}
@@ -23801,8 +23801,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 911.34454, y: -17.145}
-  m_SizeDelta: {x: 1806.6891, y: 18.29}
+  m_AnchoredPosition: {x: 911.5, y: -17.145}
+  m_SizeDelta: {x: 1807, y: 18.29}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1760695765
 MonoBehaviour:

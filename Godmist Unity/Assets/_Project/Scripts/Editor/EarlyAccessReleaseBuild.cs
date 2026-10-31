@@ -13,8 +13,8 @@ namespace Godmist.Editor
     [InitializeOnLoad]
     public static class EarlyAccessReleaseBuild
     {
-        public const string CandidateVersion = "0.1.1";
-        public static string Output => Path.GetFullPath("../LocalHandoffs/ea-011-20261030");
+        public const string CandidateVersion = Godmist.Core.Constants.GameVersion.Release;
+        public static string Output => Path.GetFullPath("../LocalHandoffs/beta-012-20261031");
         public static string PlayerDirectory => Path.GetFullPath("../Builds/" + CandidateVersion + "/Windows-x64");
         private static string Request => Path.Combine(Output, "release.request");
         private static bool running;
@@ -49,7 +49,7 @@ namespace Godmist.Editor
             if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play Mode before release configuration.");
             var company = PlayerSettings.companyName;
             var product = PlayerSettings.productName;
-            PlayerSettings.bundleVersion = CandidateVersion;
+            PlayerSettings.bundleVersion = Godmist.Core.Constants.GameVersion.Bundle;
             GodmistMainMenuSetup.ConfigureReleaseVersionLabel();
             AssetDatabase.SaveAssets();
             if (PlayerSettings.companyName != company || PlayerSettings.productName != product)
@@ -68,7 +68,7 @@ namespace Godmist.Editor
             playerDirectory ??= PlayerDirectory;
             output ??= Output;
             Directory.CreateDirectory(output);
-            if (PlayerSettings.bundleVersion != CandidateVersion) throw new InvalidOperationException("Configure the candidate first.");
+            if (PlayerSettings.bundleVersion != Godmist.Core.Constants.GameVersion.Bundle) throw new InvalidOperationException("Configure the candidate first.");
             if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64))
                 throw new InvalidOperationException("Windows x64 build support is not installed.");
             var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray();

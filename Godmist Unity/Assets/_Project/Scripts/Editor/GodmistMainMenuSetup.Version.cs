@@ -36,7 +36,7 @@ public static partial class GodmistMainMenuSetup
     {
         // Reuse the menu's existing palette/font. This footer has no interaction
         // and is anchored outside the button column and its Layout Groups.
-        var label = Text(menu, "ReleaseVersion", UnityEditor.PlayerSettings.bundleVersion + " — Early Access", 18);
+        var label = Text(menu, "ReleaseVersion", Godmist.Core.Constants.GameVersion.MenuLabel, 18);
         var data = new SerializedObject(view);
         data.FindProperty("versionLabel").objectReferenceValue = label;
         data.ApplyModifiedPropertiesWithoutUndo();
