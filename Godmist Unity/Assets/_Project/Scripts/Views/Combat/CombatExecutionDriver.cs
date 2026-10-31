@@ -1320,7 +1320,7 @@ namespace Godmist.Views.Combat
             if (unitViewSpawner == null
                 || path == null
                 || path.Count == 0
-                || !unitViewSpawner.TryBeginPresentationMovement(unit))
+                || !unitViewSpawner.TryBeginPresentationPath(unit, path))
             {
                 yield break;
             }
@@ -1331,17 +1331,9 @@ namespace Godmist.Views.Combat
                 () => unitViewSpawner.GetPresentationMovementPosition(unit), unit);
             try
             {
-                foreach (var position in path)
-                {
-                    if (Session == null
-                        || Session.Outcome != CombatOutcomeState.Ongoing
-                        || !unitViewSpawner.TryMovePresentationStep(unit, position)) break;
-
-                    // Inactive hidden views finish their step immediately. Give
-                    // the camera a presentation frame without revealing the view.
-                    if (followEnemy && !unitViewSpawner.IsPresentationMovementInProgress(unit)) yield return null;
-                    while (unitViewSpawner.IsPresentationMovementInProgress(unit)) yield return null;
-                }
+                while (Session == movementSession
+                    && Session?.Outcome == CombatOutcomeState.Ongoing
+                    && unitViewSpawner.IsPresentationMovementInProgress(unit)) yield return null;
             }
             finally
             {

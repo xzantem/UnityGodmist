@@ -49,6 +49,17 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<BattleUnit, Godmist.Views.Exploration.ExplorationCharacterView> borrowed = new();
         private readonly Dictionary<BattleUnit, CombatSession> owners = new();
         private readonly Dictionary<BattleUnit, GridPosition> movementTargets = new();
+        private sealed class MovementPathPresentation
+        {
+            public readonly GridPosition[] Waypoints;
+            public int Next;
+            public MovementPathPresentation(IReadOnlyList<GridPosition> path)
+            {
+                Waypoints = new GridPosition[path.Count];
+                for (var i = 0; i < path.Count; i++) Waypoints[i] = path[i];
+            }
+        }
+        private readonly Dictionary<BattleUnit, MovementPathPresentation> movementPaths = new();
         public void ConfigureDungeon(Godmist.Runtime.Game.GameSession game, Godmist.Views.Dungeons.DungeonFloorMapView map)
         {
             if (!ReferenceEquals(floorMap, map))
@@ -92,6 +103,9 @@ namespace Godmist.Views.Combat
             owners.Remove(unit);
             movementTargets.Remove(unit);
             presentationMovingUnits.Remove(unit);
+            movementPaths.Remove(unit);
+            if (views.TryGetValue(unit, out var standalone) && standalone != null)
+                standalone.SetPathPresentationControlled(false);
         }
         private bool IsPositionVisible(CombatSession session, GridPosition position, bool ownUnit = false) => floorMap == null || session.DungeonContext == null
             || (ownUnit
@@ -120,9 +134,14 @@ namespace Godmist.Views.Combat
             {
                 var unit = pair.Key;
                 var view = pair.Value;
-                if (view == null || !view.gameObject.activeSelf) continue;
+                if (view == null || !view.gameObject.activeInHierarchy)
+                {
+                    AdvancePresentationPath(unit, deltaTime);
+                    continue;
+                }
                 var target = movementTargets.TryGetValue(unit, out var step) ? step : unit.Position;
-                view.MoveTowards(UnitWorldPosition(unit, target), 6f * deltaTime, 0f);
+                if (movementPaths.ContainsKey(unit)) AdvancePresentationPath(unit, deltaTime);
+                else view.MoveTowards(UnitWorldPosition(unit, target), 6f * deltaTime, 0f);
                 var owner = owners[unit];
                 var isFocused = sandboxBootstrap.Session == owner;
                 view.RefreshCombatPresentation(owner.ActiveUnit == unit
@@ -364,11 +383,14 @@ namespace Godmist.Views.Combat
         public Vector3 GetPresentationMovementPosition(BattleUnit unit)
         {
             if (unit == null) return Vector3.zero;
-            // An inactive borrowed exploration view does not animate. Use its
+            // An inactive view does not animate. Use its
             // current logical presentation step instead of its stale transform.
-            if (unit != null && borrowed.TryGetValue(unit, out var borrowedView)
-                && (borrowedView == null || !borrowedView.gameObject.activeSelf)
-                && movementTargets.TryGetValue(unit, out var step)) return UnitWorldPosition(unit, step);
+            if (movementTargets.TryGetValue(unit, out var step)
+                && ((borrowed.TryGetValue(unit, out var borrowedView)
+                        && (borrowedView == null || !borrowedView.gameObject.activeInHierarchy))
+                    || (views.TryGetValue(unit, out var view)
+                        && (view == null || !view.gameObject.activeInHierarchy))))
+                return UnitWorldPosition(unit, step);
             return TryGetWorldPosition(unit, out var position) ? position : UnitWorldPosition(unit, unit.Position);
         }
 
@@ -377,6 +399,61 @@ namespace Godmist.Views.Combat
             if (unit == null || (!views.ContainsKey(unit) && !borrowed.ContainsKey(unit))) return false;
             presentationMovingUnits.Add(unit);
             return true;
+        }
+
+        public bool TryBeginPresentationPath(BattleUnit unit, IReadOnlyList<GridPosition> path)
+        {
+            if (unit == null || path == null || path.Count == 0
+                || (!(borrowed.TryGetValue(unit, out var existing) && existing != null)
+                    && !(views.TryGetValue(unit, out var standalone) && standalone != null))
+                || !TryBeginPresentationMovement(unit)) return false;
+            movementPaths[unit] = new MovementPathPresentation(path);
+            if (views.TryGetValue(unit, out var view) && view != null)
+                view.SetPathPresentationControlled(true);
+            return TryMovePresentationStep(unit, path[0]);
+        }
+
+        private void AdvancePresentationPath(BattleUnit unit, float deltaTime)
+        {
+            if (deltaTime <= 0 || !movementPaths.TryGetValue(unit, out var path)) return;
+            borrowed.TryGetValue(unit, out var borrowedView);
+            views.TryGetValue(unit, out var view);
+            var active = borrowedView != null ? borrowedView.gameObject.activeInHierarchy
+                : view != null && view.gameObject.activeInHierarchy;
+            // Preserve hidden enemy camera steps without activating hidden views.
+            if (!active)
+            {
+                if (path.Next < path.Waypoints.Length) path.Next++;
+                if (path.Next < path.Waypoints.Length)
+                    TryMovePresentationStep(unit, path.Waypoints[path.Next]);
+                return;
+            }
+            var remaining = Mathf.Max(0, deltaTime) * (borrowedView != null ? 6f : view.MovementSpeed);
+            while (path.Next < path.Waypoints.Length)
+            {
+                var waypoint = path.Waypoints[path.Next];
+                var target = UnitWorldPosition(unit, waypoint);
+                var before = borrowedView != null ? (Vector3)borrowedView.Position : view.transform.position;
+                var distance = borrowedView != null ? Vector2.Distance(before, target) : Vector3.Distance(before, target);
+                if (distance > .00001f)
+                {
+                    if (remaining <= 0) break;
+                    var step = Mathf.Min(remaining, distance);
+                    if (borrowedView != null) borrowedView.MoveTowards(target, step, 0);
+                    else view.AdvancePathPresentation(target, step, path.Next == path.Waypoints.Length - 1);
+                    remaining -= step;
+                    var after = borrowedView != null ? (Vector3)borrowedView.Position : view.transform.position;
+                    // Transformations can temporarily lock movement. Never skip
+                    // a waypoint or spin if the view could not reach it.
+                    if ((borrowedView != null ? Vector2.Distance(after, target) : Vector3.Distance(after, target)) > .00001f)
+                        break;
+                }
+                path.Next++;
+                if (path.Next < path.Waypoints.Length)
+                    TryMovePresentationStep(unit, path.Waypoints[path.Next]);
+            }
+            if (path.Next == path.Waypoints.Length && view != null)
+                view.SetWorldPosition(UnitWorldPosition(unit, path.Waypoints[path.Next - 1]), true);
         }
 
         public bool TryMovePresentationStep(BattleUnit unit, GridPosition targetPosition)
@@ -401,12 +478,15 @@ namespace Godmist.Views.Combat
                 return false;
             }
 
+            movementTargets[unit] = targetPosition;
             view.SetWorldPosition(UnitWorldPosition(unit, targetPosition));
             return true;
         }
 
         public bool IsPresentationMovementInProgress(BattleUnit unit)
         {
+            if (unit != null && movementPaths.TryGetValue(unit, out var path))
+                return path.Next < path.Waypoints.Length;
             if (unit != null && borrowed.TryGetValue(unit, out var existing) && existing != null
                 && movementTargets.TryGetValue(unit, out var target))
             {
@@ -428,8 +508,10 @@ namespace Godmist.Views.Combat
             if (unit == null) return;
             presentationMovingUnits.Remove(unit);
             movementTargets.Remove(unit);
+            movementPaths.Remove(unit);
             if (views.TryGetValue(unit, out var view) && view != null)
             {
+                view.SetPathPresentationControlled(false);
                 view.SetWorldPosition(UnitWorldPosition(unit, unit.Position));
             }
         }
@@ -537,7 +619,8 @@ namespace Godmist.Views.Combat
                     continue;
                 }
 
-                if (!presentationMovingUnits.Contains(unit))
+                if (movementPaths.ContainsKey(unit)) AdvancePresentationPath(unit, Time.deltaTime);
+                else if (!presentationMovingUnits.Contains(unit))
                 {
                     view.SetWorldPosition(UnitWorldPosition(unit, unit.Position));
                 }
@@ -583,7 +666,9 @@ namespace Godmist.Views.Combat
             {
                 views.Remove(unit);
                 owners.Remove(unit);
+                movementTargets.Remove(unit);
                 presentationMovingUnits.Remove(unit);
+                movementPaths.Remove(unit);
             }
         }
 
@@ -601,6 +686,8 @@ namespace Godmist.Views.Combat
 
             views.Clear();
             presentationMovingUnits.Clear();
+            movementPaths.Clear();
+            movementTargets.Clear();
 
             foreach (var renderer in summonedObjectViews.Values)
             {
