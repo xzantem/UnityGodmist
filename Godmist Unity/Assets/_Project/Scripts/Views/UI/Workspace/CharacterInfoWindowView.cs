@@ -692,7 +692,7 @@ namespace Godmist.Views.UI.Workspace
                 }
             }
 
-            return stacks;
+            return ItemDisplayOrder.Sort(stacks, stack => stack.Representative);
         }
 
         private sealed class ItemStackEntry

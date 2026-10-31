@@ -421,7 +421,7 @@ namespace Godmist.Views.UI
                 matchingStack.Count++;
             }
 
-            return stacks;
+            return ItemDisplayOrder.Sort(stacks, stack => stack.Representative);
         }
 
         private static void ClearContent(Transform content)
