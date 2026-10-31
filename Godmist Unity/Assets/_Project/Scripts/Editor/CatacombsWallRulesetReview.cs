@@ -65,37 +65,52 @@ namespace Godmist.Editor
             return cases.ToArray();
         }
 
-        public static DungeonFloorMap BuildMap(Case sample)
+        public static DungeonFloorMap BuildMap(Case sample, int armLength = 1)
         {
+            if (armLength < 1) throw new ArgumentOutOfRangeException(nameof(armLength));
             var map = new DungeonFloorMap();
             for (var i = 0; i < Cells.Length; i++)
-                if ((sample.floorMask & (1 << i)) != 0) map.TryAddFloorCell(Cells[i], "ruleset");
+                if ((sample.floorMask & (1 << i)) != 0)
+                    for (var x = 0; x < armLength; x++)
+                        for (var y = 0; y < armLength; y++)
+                            map.TryAddFloorCell(Cells[i] + new Vector2Int(Cells[i].x < 0 ? -x : x, Cells[i].y < 0 ? -y : y), "ruleset");
+            var directions = new[] { Vector2Int.left, Vector2Int.right, Vector2Int.down, Vector2Int.up };
             for (var i = 0; i < 4; i++)
-                if (sample.arms[i] != 0 && !map.SetWallType(new DungeonCellEdge(Cells[First[i]], Cells[Second[i]]),
+                for (var step = 0; step < armLength; step++)
+                if (sample.arms[i] != 0 && !map.SetWallType(new DungeonCellEdge(Cells[First[i]] + directions[i] * step, Cells[Second[i]] + directions[i] * step),
                         sample.arms[i] == 1 ? DungeonWallType.Low : DungeonWallType.Full))
                     throw new InvalidOperationException("Invalid wall in " + sample.id);
             return map;
         }
 
         [MenuItem("Godmist/Diagnostics/Export Catacombs wall ruleset")]
-        public static void Export()
+        public static void Export() => Export(Output);
+
+        public static void Export(string output, string[] caseIds = null, int armLength = 1, bool reviewOcclusion = false)
         {
             if (EditorApplication.isPlayingOrWillChangePlaymode)
                 throw new InvalidOperationException("Exit Play Mode before rendering the ruleset.");
             var scene = EditorSceneManager.OpenPreviewScene("Assets/_Project/Scenes/Sandbox/DungeonSandbox.unity");
-            var target = new RenderTexture(192,192,24);
-            var pixels = new Texture2D(192,192,TextureFormat.RGB24,false);
+            var resolution = reviewOcclusion ? 384 : 192;
+            var target = new RenderTexture(resolution,resolution,24);
+            var pixels = new Texture2D(resolution,resolution,TextureFormat.RGB24,false);
             var previous = RenderTexture.active;
             var roots = new List<GameObject>();
             Material wallMaterial = null, floorMaterial = null;
             try
             {
                 var authored = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<DungeonFloorMapView>(true)).Single();
+                var authoredCamera = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<Camera>(true))
+                    .Single(c => c.CompareTag("MainCamera"));
                 wallMaterial = Lit("Godmist/Dungeon/Torch Wall");
                 floorMaterial = Lit("Godmist/Dungeon/Silhouette Floor");
                 var catalog = Cases();
-                Directory.CreateDirectory(Path.Combine(Output,"native"));
-                Directory.CreateDirectory(Path.Combine(Output,"lit"));
+                if (caseIds != null) catalog = catalog.Where(sample => caseIds.Contains(sample.id)).ToArray();
+                Directory.CreateDirectory(Path.Combine(output,"native"));
+                Directory.CreateDirectory(Path.Combine(output,"lit"));
+                if (reviewOcclusion)
+                    foreach (var folder in new[] { "without-masks", "floor-only" })
+                        Directory.CreateDirectory(Path.Combine(output, folder));
                 foreach (var sample in catalog)
                 {
                     var root = new GameObject(sample.id,typeof(Grid)); roots.Add(root);
@@ -109,11 +124,11 @@ namespace Godmist.Editor
                         destination.FindProperty(field).objectReferenceValue = source.FindProperty(field).objectReferenceValue;
                     destination.ApplyModifiedPropertiesWithoutUndo();
                     view.ConfigureCatacombsArtPresentation(true);
-                    var map = BuildMap(sample); var revision = map.TraversalRevision;
+                    var map = BuildMap(sample, armLength); var revision = map.TraversalRevision;
                     view.Rebuild(map);
                     if (revision != map.TraversalRevision) throw new InvalidOperationException("Presentation mutated map: " + sample.id);
                     var walls = view.GetComponentsInChildren<DungeonWallSegmentView>();
-                    if (walls.Length != sample.low + sample.full)
+                    if (walls.Length != (sample.low + sample.full) * armLength)
                         throw new InvalidOperationException("Missing/duplicate segment in " + sample.id);
                     sample.profiles = walls.Select(w => w.SurfaceProfile.ToString()).Distinct().ToArray();
                     sample.joins = view.GetComponentsInChildren<SpriteRenderer>().Where(r => r.name.Contains("junction") || r.name.Contains("miter"))
@@ -123,23 +138,38 @@ namespace Godmist.Editor
                     var camera = cameraObject.GetComponent<Camera>();camera.enabled=false;
                     camera.scene=scene;
                     camera.overrideSceneCullingMask=EditorSceneManager.GetSceneCullingMask(scene);
-                    camera.orthographic=true;camera.orthographicSize=3;camera.aspect=1;
+                    camera.orthographic=true;camera.orthographicSize=reviewOcclusion ? 6 : 3;camera.aspect=1;
                     camera.transform.position=new Vector3(0,.5f,-10);
                     camera.cullingMask=1<<30;camera.clearFlags=CameraClearFlags.SolidColor;
-                    camera.backgroundColor=new Color(.035f,.03f,.035f);camera.targetTexture=target;
-                    Capture(camera,target,pixels,Path.Combine(Output,"native",sample.id+".png"));
+                    camera.backgroundColor=authoredCamera.backgroundColor;camera.targetTexture=target;
+                    Capture(camera,target,pixels,Path.Combine(output,"native",sample.id+".png"));
+                    if (reviewOcclusion)
+                    {
+                        // Disposable preview objects only; never edit the authored scene or prefab.
+                        var masks = root.GetComponentsInChildren<SpriteRenderer>(true)
+                            .Where(r => r.enabled && r.gameObject.activeInHierarchy
+                                && (r.name == "SideVoidOcclusion" || r.name == "SouthWallOcclusionMask")).ToArray();
+                        foreach (var mask in masks) mask.enabled = false;
+                        Capture(camera,target,pixels,Path.Combine(output,"without-masks",sample.id+".png"));
+                        foreach (var mask in masks) mask.enabled = true;
+                        var visibleSprites = root.GetComponentsInChildren<SpriteRenderer>(true)
+                            .Where(r => r.enabled && r.gameObject.activeInHierarchy).ToArray();
+                        foreach (var sprite in visibleSprites) sprite.enabled = false;
+                        Capture(camera,target,pixels,Path.Combine(output,"floor-only",sample.id+".png"));
+                        foreach (var sprite in visibleSprites) sprite.enabled = true;
+                    }
                     foreach(var renderer in view.LightingWallRenderers)renderer.sharedMaterial=wallMaterial;
                     tilesObject.GetComponent<TilemapRenderer>().sharedMaterial=floorMaterial;
-                    Capture(camera,target,pixels,Path.Combine(Output,"lit",sample.id+".png"));
+                    Capture(camera,target,pixels,Path.Combine(output,"lit",sample.id+".png"));
                     camera.targetTexture=null;Object.DestroyImmediate(root);roots.Remove(root);
                 }
                 var data=JsonUtility.ToJson(new Catalog { cases=catalog,
-                    contract="711 ground-level local cases: 4 floor quadrants, arms W/E/S/N each absent/low/full; 390 cases include low walls with floor on only one side; flagged separately, not automatically classified as defects. Native32px per world unit; controlled torch pass has no shadow casting. Doors, railings, elevation and wider room layouts are separate contexts." },true);
-                File.WriteAllText(Path.Combine(Output,"cases.json"),data);
-                File.WriteAllText(Path.Combine(Output,"cases.js"),"window.ruleset="+data+";");
+                    contract=$"{catalog.Length} ground-level local cases: 4 floor quadrants, arms W/E/S/N each absent/low/full; 390 cases include low walls with floor on only one side; flagged separately, not automatically classified as defects. Native32px per world unit; controlled torch pass has no shadow casting. Doors, railings, elevation and wider room layouts are separate contexts." },true);
+                File.WriteAllText(Path.Combine(output,"cases.json"),data);
+                File.WriteAllText(Path.Combine(output,"cases.js"),"window.ruleset="+data+";");
                 var template = Path.Combine(Application.dataPath,"../Tools/Diagnostics/CatacombsWallRuleset/report.html");
-                File.Copy(template,Path.Combine(Output,"report.html"),true);
-                Debug.Log("Catacombs wall ruleset exported: " + catalog.Length + " cases,1422 production renders. " + Output);
+                File.Copy(template,Path.Combine(output,"report.html"),true);
+                Debug.Log("Catacombs wall ruleset exported: " + catalog.Length + " cases," + (catalog.Length*2) + " production renders. " + output);
             }
             finally
             {
@@ -163,7 +193,7 @@ namespace Godmist.Editor
         static void Capture(Camera camera,RenderTexture target,Texture2D pixels,string file)
         {
             SortingGroup.UpdateAllSortingGroups();camera.Render();RenderTexture.active=target;
-            pixels.ReadPixels(new Rect(0,0,192,192),0,0);pixels.Apply();
+            pixels.ReadPixels(new Rect(0,0,target.width,target.height),0,0);pixels.Apply();
             if(pixels.GetPixels32().Select(c=>((int)c.r<<16)|((int)c.g<<8)|c.b).Distinct().Take(5).Count()<5)
                 throw new InvalidOperationException("Blank or incomplete GPU capture: "+file);
             File.WriteAllBytes(file,pixels.EncodeToPNG());

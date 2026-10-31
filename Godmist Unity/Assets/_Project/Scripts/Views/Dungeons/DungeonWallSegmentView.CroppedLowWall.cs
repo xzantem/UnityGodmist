@@ -71,10 +71,21 @@ namespace Godmist.Views.Dungeons
             lowWallJunctionRenderers.Clear();lowWallJunctionSprites.Clear();
         }
 
-        internal void ConfigureNativeLowWallJoins(Sprite side,Sprite north,Vector2 first,Vector2 second,
-            int firstArms,int secondArms,bool ownFirst,bool ownSecond)
+        internal readonly struct LowWallJoinEndpoint
+        {
+            internal readonly Vector2 Position;
+            internal readonly int Arms,LowArms;
+            internal readonly bool Owns,HasFullWall;
+            internal LowWallJoinEndpoint(Vector2 position,int arms,int lowArms,bool owns,bool hasFullWall)
+            {Position=position;Arms=arms;LowArms=lowArms;Owns=owns;HasFullWall=hasFullWall;}
+        }
+
+        internal void ConfigureNativeLowWallJoins(Sprite side,Sprite north,LowWallJoinEndpoint firstEndpoint,LowWallJoinEndpoint secondEndpoint)
         {
             if(catacombsLowWallRenderer==null||side==null||north==null)return;
+            var first=firstEndpoint.Position;var second=secondEndpoint.Position;
+            var firstArms=firstEndpoint.Arms;var secondArms=secondEndpoint.Arms;
+            var ownFirst=firstEndpoint.Owns;var ownSecond=secondEndpoint.Owns;
             var horizontal=Mathf.Abs(first.y-second.y)<.001f;
             var ppu=north.pixelsPerUnit;
             var capDepth=8/ppu;
@@ -92,6 +103,18 @@ namespace Godmist.Views.Dungeons
                 var bounds=body.bounds;
                 var left=leftOwn?min.x-half:bounds.min.x;
                 var right=rightOwn?max.x+half:bounds.max.x;
+                var phaseOrigin=left;
+                var leftArms=first.x<second.x?firstEndpoint.LowArms:secondEndpoint.LowArms;
+                var rightArms=first.x<second.x?secondEndpoint.LowArms:firstEndpoint.LowArms;
+                var leftFull=first.x<second.x?firstEndpoint.HasFullWall:secondEndpoint.HasFullWall;
+                var rightFull=first.x<second.x?secondEndpoint.HasFullWall:firstEndpoint.HasFullWall;
+                // Keep both adjacent horizontal faces out of the descending
+                // roof's footprint. That roof remains visible even when the
+                // two face groups share a depth lane and draw in either order.
+                if((leftArms&4)!=0 && !leftFull)left=Mathf.Max(left,min.x+half);
+                if((rightArms&4)!=0 && !rightFull)right=Mathf.Min(right,max.x-half);
+                if(left>phaseOrigin+.00001f)
+                    body.sprite=CreateLowWallFacePhase(body.sprite,Mathf.RoundToInt((left-phaseOrigin)*ppu));
                 body.transform.position=new Vector3((left+right)*.5f,body.transform.position.y,body.transform.position.z);
                 body.size=new Vector2(right-left,height);
             }
@@ -117,18 +140,31 @@ namespace Godmist.Views.Dungeons
                     AddPiece("Native low wall south face",Crop(rect),new Vector2(min.x,min.y),new Vector2(capDepth,faceHeight),0);
                 }
             }
-            AddEndpoint(first,firstArms,ownFirst);
-            AddEndpoint(second,secondArms,ownSecond);
+            AddEndpoint(firstEndpoint);
+            AddEndpoint(secondEndpoint);
 
-            void AddEndpoint(Vector2 vertex,int arms,bool owns)
+            void AddEndpoint(LowWallJoinEndpoint endpoint)
             {
+                var vertex=endpoint.Position;var arms=endpoint.Arms;var owns=endpoint.Owns;
                 if(!owns||arms==3||arms==12)return; // no cap across a straight continuation
+                if(horizontal && (endpoint.LowArms&4)!=0)
+                {
+                    // The descending roof overlaps the horizontal face below
+                    // the turn. Draw just this overlap in the shared owner's
+                    // depth lane, retaining the original vertical UV phase.
+                    var rect=side.rect;
+                    rect.y+=Mathf.Repeat(-(height-half),side.rect.height/side.pixelsPerUnit)*side.pixelsPerUnit;
+                    rect.height=faceHeight*side.pixelsPerUnit;
+                    var roof=Sprite.Create(side.texture,rect,new Vector2(.5f,0),side.pixelsPerUnit,0,SpriteMeshType.FullRect);
+                    roof.hideFlags=HideFlags.DontSave;lowWallJunctionSprites.Add(roof);
+                    AddPiece("Native low wall roof continuation",roof,vertex,new Vector2(capDepth,faceHeight),1);
+                }
                 var capCenter=vertex+Vector2.up*(height-half);
                 var patch=CreateDedicatedCornerSprite(side,north,vertex,body.bounds,body.bounds,
                     CornerMiterRole.NorthCap,(arms&1)!=0?1:-1,(arms&4)!=0?1:-1,arms);
                 cornerMiterSprites.Remove(patch);lowWallJunctionSprites.Add(patch);
                 var renderer=AddPiece("Native low wall cap junction "+arms,patch,capCenter-Vector2.up*half,
-                    Vector2.one*capDepth,1,false);
+                    Vector2.one*capDepth,2,false);
                 // Corner sprites are centred; ordinary UV crops use bottom pivots.
                 renderer.transform.position=capCenter;
             }
@@ -149,6 +185,25 @@ namespace Godmist.Views.Dungeons
                 renderer.maskInteraction=body.maskInteraction;go.layer=body.gameObject.layer;
                 lowWallJunctionRenderers.Add(renderer);return renderer;
             }
+        }
+
+        private Sprite CreateLowWallFacePhase(Sprite source,int shift)
+        {
+            var rect=ToTextureRectInt(source.rect);
+            shift=((shift%rect.width)+rect.width)%rect.width;
+            if(shift==0)return source;
+            var key="low-face-phase:"+source.texture.GetInstanceID()+":"+rect.x+":"+rect.y+":"+rect.width+":"+rect.height+":"+shift;
+            if(!cornerMiterTextureCache.TryGetValue(key,out var texture)||texture==null)
+            {
+                var shifted=rect;shifted.x+=shift;
+                texture=new Texture2D(rect.width,rect.height,TextureFormat.RGBA32,false,false)
+                {name="Runtime low wall face phase",filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp,hideFlags=HideFlags.DontSave};
+                texture.SetPixels32(GetCornerSourceRegion(source.texture,shifted,rect));texture.Apply(false,false);
+                cornerMiterTextures.Add(texture);cornerMiterTextureCache[key]=texture;
+            }
+            var sprite=Sprite.Create(texture,new Rect(0,0,rect.width,rect.height),
+                source.pivot/source.rect.size,source.pixelsPerUnit,0,SpriteMeshType.FullRect);
+            sprite.hideFlags=HideFlags.DontSave;lowWallJunctionSprites.Add(sprite);return sprite;
         }
     }
 }
