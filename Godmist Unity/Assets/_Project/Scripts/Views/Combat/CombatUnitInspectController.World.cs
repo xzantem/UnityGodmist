@@ -49,6 +49,8 @@ namespace Godmist.Views.Combat
             var game = explorationParty != null ? explorationParty.Session : null;
             var combat = sandboxBootstrap != null ? sandboxBootstrap.Session : null;
             var mode = game?.CurrentMode;
+            var pointerHover = !ControllerInput.Active || ControllerInput.WorldActive
+                && (combat != null || ControllerInput.PrecisePointer);
             if (previousSession != combat || previousMode != mode)
             {
                 ClearWorldInteraction();
@@ -66,7 +68,7 @@ namespace Godmist.Views.Combat
                     || menuView != null && !menuView.IsVisibleForInspection
                     || menuUnit != null && !IsCombatTargetVisible(menuUnit)
                     || menuNpc != null && !menuNpc.isActiveAndEnabled)) CloseContextMenu();
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if ((Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel))
             {
                 // Manual tooltip pins are dismissed only by a pointer press outside
                 // the complete card chain. Escape remains available for ordinary
@@ -79,10 +81,17 @@ namespace Godmist.Views.Combat
             if (floatingInspectWindow != null && floatingInspectWindow.IsVisible && Time.unscaledTime >= nextInspectRefresh)
             { nextInspectRefresh = Time.unscaledTime + .2f; floatingInspectWindow.Refresh(); }
             if (!IsTooltipTargetValid()) { ClearTooltip(); return; }
+            // In direct pad exploration the pointer is an interaction anchor, not
+            // a mouse hover. Clear its old card before tooltip geometry can retain it.
+            if (!pointerHover)
+            {
+                if (worldTooltip?.HasPinnedBranch == true) NotifyTooltipSourceExit();
+                else ClearTooltip();
+            }
             // Tooltip pinning is handled from its screen-space geometry so an
             // unlocked tooltip never needs to intercept world input. Keep the
             // world source/context menu dormant while the pointer is over it.
-            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition)) return;
+            if (pointerHover && UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition)) return;
             ResetHover();
             if (worldCamera == null) { ClearTooltip(); return; }
             if (UIWorkspaceInputRouter.IsPointerOverUi()
@@ -92,7 +101,7 @@ namespace Godmist.Views.Combat
                 else ClearTooltip();
                 return;
             }
-            var world = (Vector2)worldCamera.ScreenToWorldPoint(Input.mousePosition);
+            var world = (Vector2)worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition);
             if (combat != null)
                 HoveredUnit = GetUnitUnderMouse();
             else
@@ -127,9 +136,9 @@ namespace Godmist.Views.Combat
                 ClearKnifeHover();
             }
             var character = HoveredUnit?.Character ?? hoveredView?.RuntimeCharacter;
-            if (hoveredKnife == null) ShowHover(character, HoveredUnit ?? hoveredView?.CombatUnit);
+            if (hoveredKnife == null && pointerHover) ShowHover(character, HoveredUnit ?? hoveredView?.CombatUnit);
 
-            if (combat == null && hoveredView != null && Input.GetMouseButtonDown(0)
+            if (combat == null && hoveredView != null && (Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
                 && explorationParty?.CanRequestRevive(hoveredView) == true)
             {
                 primaryFrame = Time.frameCount;
@@ -137,13 +146,13 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (hoveredNpc != null && Input.GetMouseButtonDown(0))
+            if (hoveredNpc != null && (Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm))
             {
                 primaryFrame = Time.frameCount;
                 RequestNpc(hoveredNpc);
                 return;
             }
-            if (Input.GetMouseButtonDown(0) && HoveredUnit != null
+            if ((Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm) && HoveredUnit != null
                 && (targetSelectionController == null || !targetSelectionController.IsSelectingTarget)
                 && Godmist.Systems.Combat.ScoutCombatSystem.CanExtractKnife(combat, combat?.ActiveUnit, HoveredUnit))
             {
@@ -152,7 +161,7 @@ namespace Godmist.Views.Combat
                 return;
             }
             // Right-click during targeting retains cancellation, never opens inspect.
-            if (!Input.GetMouseButtonDown(1) || targetSelectionController != null && targetSelectionController.IsSelectingTarget) return;
+            if (!(Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context) || targetSelectionController != null && targetSelectionController.IsSelectingTarget) return;
             if (contextMenu == null || character == null && hoveredNpc == null) return;
             secondaryFrame = Time.frameCount;
             // Opening a source context menu is a soft source transition. It
@@ -164,7 +173,7 @@ namespace Godmist.Views.Combat
             if (menuNpc != null)
             {
                 var npc = menuNpc;
-                contextMenu.Show(Input.mousePosition, new[] {
+                contextMenu.Show(Godmist.Views.UI.ControllerInput.PointerPosition, new[] {
                     ("Rozmawiaj", (System.Action)(() => RequestNpc(npc)), true) }, npc.DisplayName);
             }
             else
@@ -179,7 +188,7 @@ namespace Godmist.Views.Combat
                     var actor = combat.ActiveUnit;
                     actions.Add(("Wyjmij sztylet", () => sandboxBootstrap.GetDriver(combat)?.TryExtractScoutKnife(actor, unit), true));
                 }
-                contextMenu.Show(Input.mousePosition, actions, character.Definition?.DisplayName ?? character.CharacterId);
+                contextMenu.Show(Godmist.Views.UI.ControllerInput.PointerPosition, actions, character.Definition?.DisplayName ?? character.CharacterId);
             }
         }
 

@@ -75,7 +75,7 @@ namespace Godmist.Views.UI
             if (skill == null) { Hide(); return; }
             QueueShow(skill, () =>
             {
-                Begin(Input.mousePosition, skill);
+                Begin(Godmist.Views.UI.ControllerInput.PointerPosition, skill);
                 SetContent(skill.Icon, skill.DisplayName, BuildDescription(skill), $"{UiTerms.ActionPointsShort} {actionCost}  •  {UiTerms.Resource(skill.ResourceType)} {skill.ResourceCost}");
             });
         }
@@ -84,7 +84,7 @@ namespace Godmist.Views.UI
         {
             QueueShow(source, () =>
             {
-                Begin(Input.mousePosition, source);
+                Begin(Godmist.Views.UI.ControllerInput.PointerPosition, source);
                 SetContent(null, title, description, string.Empty, compact: true);
             });
         }
@@ -95,7 +95,7 @@ namespace Godmist.Views.UI
             if (effect == null) { Hide(); return; }
             QueueShow(effect, () =>
             {
-                Begin(Input.mousePosition, effect);
+                Begin(Godmist.Views.UI.ControllerInput.PointerPosition, effect);
                 CombatTooltipGlossary.Entry glossaryEntry = null;
                 if (glossary != null) glossary.TryGet(effect.EffectId, out glossaryEntry);
                 var title = !string.IsNullOrWhiteSpace(presentation.DisplayName) ? presentation.DisplayName : glossaryEntry?.Title ?? effect.EffectId;
@@ -215,7 +215,7 @@ namespace Godmist.Views.UI
             if (isNested) return;
             if (!locked)
             {
-                PlaceAt(Input.mousePosition);
+                PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
                 if (!sourceHovered && !IsPointerOverAnyTooltip()) Hide();
                 return;
             }
@@ -280,7 +280,7 @@ namespace Godmist.Views.UI
             if (text == null || text.textInfo.linkCount == 0) return null;
             var camera = text.canvas != null && text.canvas.renderMode != RenderMode.ScreenSpaceOverlay
                 ? text.canvas.worldCamera : null;
-            var index = TMP_TextUtilities.FindIntersectingLink(text, Input.mousePosition, camera);
+            var index = TMP_TextUtilities.FindIntersectingLink(text, Godmist.Views.UI.ControllerInput.PointerPosition, camera);
             return index < 0 ? null : text.textInfo.linkInfo[index].GetLinkID();
         }
 
@@ -298,7 +298,7 @@ namespace Godmist.Views.UI
             view.ApplyPointerInteraction();
             view.UpdateLockVisual();
             view.SetContent(entry.Icon, entry.Title, entry.Description, string.Empty);
-            view.PlaceAt(Input.mousePosition);
+            view.PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
             nested.Add(view);
             ActiveInstance = this;
             RefreshOpacity();
@@ -354,7 +354,7 @@ namespace Godmist.Views.UI
             if (tooltipRect == null) return false;
             var canvas = tooltipRect.GetComponentInParent<Canvas>()?.rootCanvas;
             var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
-            return RectTransformUtility.RectangleContainsScreenPoint(tooltipRect, Input.mousePosition, camera);
+            return RectTransformUtility.RectangleContainsScreenPoint(tooltipRect, Godmist.Views.UI.ControllerInput.PointerPosition, camera);
         }
 
         private void SetContent(

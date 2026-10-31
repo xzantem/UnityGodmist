@@ -10,7 +10,9 @@
         "Systems",
         "Views",
         "Unity.TextMeshPro",
-        "Editor"
+        "Editor",
+        "Unity.InputSystem",
+        "Unity.InputSystem.TestFramework"
     ],
     "includePlatforms": [
         "Editor"

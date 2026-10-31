@@ -225,13 +225,13 @@ namespace Godmist.Views.UI.Workspace
                 && Input.GetKeyDown(KeyCode.T)
                 && !UIWorkspaceInputRouter.HasFocusedTextInput())
             {
-                TryPinAtCurrentPointer(Input.mousePosition);
+                TryPinAtCurrentPointer(Godmist.Views.UI.ControllerInput.PointerPosition);
             }
 
             if (!isNested && ActiveInstance == this
-                && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)))
+                && ((Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.PointerPressed) || (Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.PointerSecondaryPressed)))
             {
-                HandlePointerClick(Input.mousePosition, Input.GetMouseButtonDown(1));
+                HandlePointerClick(Godmist.Views.UI.ControllerInput.PointerPosition, (Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.PointerSecondaryPressed));
             }
 
             if ((visible && !IsSourceAlive(sourceIdentity))
@@ -335,7 +335,7 @@ namespace Godmist.Views.UI.Workspace
             // A manual pin owns its screen position. Re-running PlaceAt here would
             // make a pinned card drift whenever layout or the pointer changes.
             if (!isPinned)
-                PlaceAt(hasPlacementScreenPosition ? placementScreenPosition : Input.mousePosition);
+                PlaceAt(hasPlacementScreenPosition ? placementScreenPosition : Godmist.Views.UI.ControllerInput.PointerPosition);
         }
 
         private void SetRichUnitContent(BattleUnit unit)
@@ -371,7 +371,7 @@ namespace Godmist.Views.UI.Workspace
             richUnitContent.Bind(unit, this);
             ResizeForContent();
             resizeAfterLayout = true;
-            PlaceAt(Input.mousePosition);
+            PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
         }
 
         // The dungeon owner prepares its shared tooltip while loading the floor.
@@ -489,7 +489,7 @@ namespace Godmist.Views.UI.Workspace
                 var bodyWidth = bodyText != null ? bodyText.GetPreferredValues(body, 10000f, 0f).x : 0f;
                 SetTooltipWidth(ClampTooltipWidth(Mathf.Clamp(Mathf.Ceil(Mathf.Max(titleWidth, bodyWidth)) + TitleOnlyTooltipHorizontalPadding, 120f, defaultTooltipWidth > 1f ? defaultTooltipWidth : 360f)));
                 ResizeForContent();
-                PlaceAt(Input.mousePosition);
+                PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
             });
         }
 
@@ -1269,7 +1269,7 @@ namespace Godmist.Views.UI.Workspace
 
             ResizeForContent();
             resizeAfterLayout = true;
-            PlaceAt(Input.mousePosition);
+            PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
         }
 
         private void SetNpcLoyaltyContent(NpcLoyaltyTooltipData data)
@@ -1290,7 +1290,7 @@ namespace Godmist.Views.UI.Workspace
             npcLoyaltyProgression.gameObject.SetActive(true);
             ResizeForContent();
             resizeAfterLayout = true;
-            PlaceAt(Input.mousePosition);
+            PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
         }
 
         private float ClampTooltipWidth(float desiredWidth)
@@ -1825,7 +1825,7 @@ namespace Godmist.Views.UI.Workspace
                     : null;
             var index = TMP_TextUtilities.FindIntersectingLink(
                 text,
-                Input.mousePosition,
+                Godmist.Views.UI.ControllerInput.PointerPosition,
                 camera);
             return index < 0 ? null : text.textInfo.linkInfo[index].GetLinkID();
         }
@@ -1881,7 +1881,7 @@ namespace Godmist.Views.UI.Workspace
             view.sourceHovered = false;
             view.ApplyPointerInteraction();
             view.UpdateLockProgressVisual();
-            view.PlaceAt(Input.mousePosition);
+            view.PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
             nested.Add(view);
             ActiveInstance = root;
             root.RefreshNestedOpacity();
@@ -2074,7 +2074,7 @@ namespace Godmist.Views.UI.Workspace
 
         private bool IsPointerOverTooltip()
         {
-            return IsPointerOverTooltip(Input.mousePosition);
+            return IsPointerOverTooltip(Godmist.Views.UI.ControllerInput.PointerPosition);
         }
 
         private bool IsPointerOverTooltip(Vector2 screenPosition)
@@ -4207,11 +4207,8 @@ namespace Godmist.Views.UI.Workspace
         public static string BuildItemMeta(ItemInstance item, int? contextPrice = null)
         {
             if (item?.Definition == null) return string.Empty;
-            if (!CraftingValueCalculator.TryGetValue(item.Definition, out var definitionValue, out _))
+            if (!ItemDisplayOrder.TryGetIntrinsicValue(item, out var intrinsicValue))
                 return $"{item.Definition.Weight:0.##} kg • Błąd wyceny";
-            var intrinsicValue = Mathf.Max(0, item.BaseValue);
-            if (intrinsicValue <= 0 && item.Definition is CraftableItemDefinition craftable)
-                intrinsicValue = definitionValue;
             var price = contextPrice.HasValue ? Mathf.Max(0, contextPrice.Value) : intrinsicValue;
             return $"{item.Definition.Weight:0.##} kg • <sprite name=\"gold\"> {price}"
                 + (item.IsSaleProtected ? "\n<color=#E8C65A>Ochrona przed sprzedażą</color>" : string.Empty);

@@ -45,7 +45,7 @@ namespace Godmist.Views.Exploration
         {
             if (ReferenceEquals(pendingWorldObject, null)) return false;
             if (pendingWorldObject == null || !pendingWorldObject.CanRequestInteraction
-                || ExplorationKeyboardInput.ReadMovement().sqrMagnitude > 0)
+                || ExplorationKeyboardInput.ReadGameplayMovement().sqrMagnitude > 0)
             { CancelMovement(); return false; }
             if (pendingWorldObject.CanInteract())
             {

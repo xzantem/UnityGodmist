@@ -46,7 +46,7 @@ namespace Godmist.Views.Dungeons
         private void Update()
         {
             if (floor?.Map == null || map == null || worldCamera == null || tooltip == null) return;
-            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
+            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
             {
                 groundPress = false;
                 return;
@@ -67,7 +67,7 @@ namespace Godmist.Views.Dungeons
         }
         private void UpdateGroundMenu()
         {
-            if (Input.GetKeyDown(KeyCode.Escape)) { groundPress = false; if (groundMenu) HideObstacleUi(); return; }
+            if ((Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel)) { groundPress = false; if (groundMenu) HideObstacleUi(); return; }
             if (partyController == null || !partyController.CanAcceptExplorationInput
                 || partyController.Session.HasCombat || obstacleMenu == null)
             {
@@ -75,11 +75,11 @@ namespace Godmist.Views.Dungeons
                 if (groundMenu) HideObstacleUi();
                 return;
             }
-            if (Input.GetMouseButtonDown(1))
+            if ((Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context))
             {
                 groundPress = false;
                 if (UIWorkspaceInputRouter.IsPointerOverUi() || unitInteractions != null && unitInteractions.HasWorldUnitHover) return;
-                var world = worldCamera.ScreenToWorldPoint(Input.mousePosition);
+                var world = worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition);
                 var at = map.WorldToCell(world);
                 if (!floor.Map.IsWalkable(at) || !map.IsSurfaceVisible(new DungeonSurfacePosition(at))
                     || floor.Objects.Any(o => o.IsActive
@@ -87,10 +87,10 @@ namespace Godmist.Views.Dungeons
                             ? obstacle.OccupiesCell(at)
                             : o.Position == at))
                     || DungeonEnemyBodyView.IsPointerOverBody(world)) return;
-                groundPress = true; groundDragged = false; groundPressScreen = Input.mousePosition;
+                groundPress = true; groundDragged = false; groundPressScreen = Godmist.Views.UI.ControllerInput.PointerPosition;
             }
             if (!groundPress) return;
-            if (((Vector2)Input.mousePosition - groundPressScreen).sqrMagnitude
+            if (((Vector2)Godmist.Views.UI.ControllerInput.PointerPosition - groundPressScreen).sqrMagnitude
                 > ExplorationCameraFollow.RightDragThreshold * ExplorationCameraFollow.RightDragThreshold) groundDragged = true;
             if (!Input.GetMouseButtonUp(1)) return;
             groundPress = false;
@@ -102,7 +102,7 @@ namespace Godmist.Views.Dungeons
             var actions = new List<(string, System.Action, bool)> {
                 ("Rozbij obóz", TryCampFromMenu, allowed)
             };
-            obstacleMenu.Show(Input.mousePosition, actions, allowed ? "Obóz" : reason);
+            obstacleMenu.Show(Godmist.Views.UI.ControllerInput.PointerPosition, actions, allowed ? "Obóz" : reason);
         }
         private void TryCampFromMenu()
         {
@@ -111,7 +111,7 @@ namespace Godmist.Views.Dungeons
             var failure = partyController.TryCamp();
             if (string.IsNullOrEmpty(failure)) return;
             groundMenu = true;
-            obstacleMenu.Show(Input.mousePosition,
+            obstacleMenu.Show(Godmist.Views.UI.ControllerInput.PointerPosition,
                 new List<(string, System.Action, bool)> { (failure, null, false) }, "Obóz");
         }
         private bool IsVisible(ObstacleDungeonObjectInstance obstacle)
@@ -141,17 +141,17 @@ namespace Godmist.Views.Dungeons
             var hovered = menuObstacle;
             if (!UIWorkspaceInputRouter.IsPointerOverUi())
             {
-                var world = worldCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -worldCamera.transform.position.z));
+                var world = worldCamera.ScreenToWorldPoint(new Vector3(Godmist.Views.UI.ControllerInput.PointerPosition.x, Godmist.Views.UI.ControllerInput.PointerPosition.y, -worldCamera.transform.position.z));
                 var at = map.WorldToCell(world);
                 hovered = FindHoveredObstacle(at);
                 pointerOverObstacle = hovered != null;
-                if (Input.GetMouseButtonDown(1) && hovered != null && obstacleMenu != null && partyController != null && partyController.CanOrderDestruction)
+                if ((Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context) && hovered != null && obstacleMenu != null && partyController != null && partyController.CanOrderDestruction)
                 {
                     var target = hovered;
                     groundMenu = false;
                     partyController.CancelMovement();
                     menuObstacle = target;
-                    obstacleMenu.Show(Input.mousePosition, new List<(string, System.Action, bool)> {
+                    obstacleMenu.Show(Godmist.Views.UI.ControllerInput.PointerPosition, new List<(string, System.Action, bool)> {
                         (target.Definition.DisplayName, null, false),
                         ("Zniszcz", () => {
                             if (!partyController.BeginDestroyObstacle(target))

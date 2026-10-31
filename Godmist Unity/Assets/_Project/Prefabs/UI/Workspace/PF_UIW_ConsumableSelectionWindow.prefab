@@ -257,6 +257,10 @@ PrefabInstance:
       propertyPath: minimumSize.y
       value: 176
       objectReference: {fileID: 0}
+    - target: {fileID: 8811916187188666875, guid: 8caa76ff76d3a6a45a8d5b7b8f93ef6a, type: 3}
+      propertyPath: modal
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

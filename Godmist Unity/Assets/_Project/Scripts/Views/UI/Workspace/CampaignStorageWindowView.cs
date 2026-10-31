@@ -338,7 +338,7 @@ namespace Godmist.Views.UI.Workspace
             if (item?.Owner == this && item.IsStashItem != targetStash) TryQuickTransfer(item, ControlHeld);
         }
 
-        private static bool ControlHeld => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+        private static bool ControlHeld => (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate) || Input.GetKey(KeyCode.RightControl);
         private static bool ShiftHeld => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 
         private void ResetClickSequence()

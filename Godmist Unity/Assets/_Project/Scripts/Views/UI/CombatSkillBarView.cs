@@ -24,6 +24,37 @@ namespace Godmist.Views.UI
         [SerializeField] private GridLayoutGroup skillGrid;
 
         public SkillData HoveredSkill { get; private set; }
+        public bool FocusForController(UnityEngine.EventSystems.EventSystem events)
+        {
+            foreach (var slot in spawnedSlots)
+            {
+                if (slot == null || !slot.gameObject.activeInHierarchy) continue;
+                var button = slot.GetComponentInChildren<Button>();
+                if (button == null || !button.interactable) continue;
+                events.SetSelectedGameObject(button.gameObject);
+                return true;
+            }
+            return false;
+        }
+
+        public bool PageForController(UnityEngine.EventSystems.EventSystem events, int direction)
+        {
+            var buttons = spawnedSlots.Where(slot => slot != null && slot.gameObject.activeInHierarchy)
+                .Select(slot => slot.GetComponentInChildren<Button>()).Where(button => button != null && button.interactable).ToArray();
+            if (buttons.Length == 0) return false;
+            var index = System.Array.FindIndex(buttons, button => button.gameObject == events.currentSelectedGameObject);
+            // A page is one authored viewport; the final partial page wraps to the first.
+            var columns = skillGrid != null && skillGrid.constraint == GridLayoutGroup.Constraint.FixedColumnCount
+                ? Mathf.Max(1, skillGrid.constraintCount) : 5;
+            var rows = skillScroll?.viewport != null && skillGrid != null
+                ? Mathf.Max(1, Mathf.FloorToInt((skillScroll.viewport.rect.height + skillGrid.spacing.y)
+                    / Mathf.Max(1, skillGrid.cellSize.y + skillGrid.spacing.y))) : 1;
+            var pageSize = columns * rows;
+            var pageCount = Mathf.CeilToInt(buttons.Length / (float)pageSize);
+            var page = ((Mathf.Max(0, index) / pageSize + direction) % pageCount + pageCount) % pageCount;
+            events.SetSelectedGameObject(buttons[page * pageSize].gameObject);
+            return true;
+        }
         private readonly List<CombatSkillSlotView> spawnedSlots = new();
         private readonly Dictionary<int, CombatSkillSlotView> shortcutSlots = new();
         private readonly Stack<CombatSkillSlotView> spareSlots = new();
@@ -47,6 +78,7 @@ namespace Godmist.Views.UI
         {
             if (sandboxBootstrap?.Session == null) selectExplorationSkill?.Invoke(skill);
             else targetSelectionController?.BeginTargetSelection(skill);
+            if (ControllerInput.UiActive) GetComponentInParent<ControllerInputView>()?.ReturnToWorld();
         }
         private BattleUnit cachedActiveUnit;
         private int cachedSkillCount = -1;

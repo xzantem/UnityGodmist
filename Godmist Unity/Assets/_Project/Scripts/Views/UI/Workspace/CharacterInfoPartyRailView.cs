@@ -13,6 +13,7 @@ using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
 {
+    public enum ControllerCharacterPanel { Inventory, Development, Skills, Stats }
     public sealed class CharacterInfoPartyRailView : MonoBehaviour
     {
         [SerializeField] private Transform portraitRoot;
@@ -255,6 +256,17 @@ namespace Godmist.Views.UI.Workspace
                     view.BindWorldAnchor(camera, root, Anchor, anchor, new Vector2(0, levels > 0 ? 64 : 40));
             }
         }
+        public void OpenControllerCharacterPanel(ControllerCharacterPanel panel, string characterId)
+        {
+            var id = characterId;
+            if (session == null || string.IsNullOrEmpty(id) || !session.CharactersById.TryGetValue(id, out var character)) return;
+            if (panel == ControllerCharacterPanel.Stats) { Inspect(character); return; }
+            OpenCharacterInfo(character);
+            if (!windows.TryGetValue(id, out var view) || view == null) return;
+            if (panel == ControllerCharacterPanel.Development) view.OpenSkillTree();
+            if (panel == ControllerCharacterPanel.Skills) view.OpenSkillLoadout();
+        }
+
         private void OpenCharacterInfo(CharacterInstance character)
         {
             if (character == null || characterInfoWindowPrefab == null || session == null) return;

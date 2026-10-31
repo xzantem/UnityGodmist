@@ -39,7 +39,7 @@ namespace Godmist.Views.UI.Workspace
                 if (storageItemView.IsStashItem) storageItemView.Owner.TryWithdraw(
                     owner.Character,
                     storageItemView.Item,
-                    Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
+                    (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate) || Input.GetKey(KeyCode.RightControl));
                 storageItemView.Owner.EndDrag();
                 return;
             }

@@ -159,6 +159,7 @@ MonoBehaviour:
   fillArea: {fileID: 9176455210427126373}
   border: {fileID: 8277726279667126876}
   authoredPixelsPerUnitMultiplier: 1
+  shieldOverlay: {fileID: 0}
 --- !u!1 &3679374370183608566
 GameObject:
   m_ObjectHideFlags: 0

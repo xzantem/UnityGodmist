@@ -114,7 +114,9 @@ namespace Godmist.Views.UI.Workspace
 
         public void Focus()
         {
-            ResolveManager()?.Focus(this);
+            var owner = ResolveManager();
+            if (owner != null) owner.Focus(this);
+            else GetComponent<Godmist.Views.UI.ControllerNavigationScope>()?.Focus();
         }
 
         public void Move(Vector2 localDelta)

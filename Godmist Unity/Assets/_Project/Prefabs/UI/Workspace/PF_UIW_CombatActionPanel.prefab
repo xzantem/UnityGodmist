@@ -1180,6 +1180,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.UI.CombatActionButtonsView
   sandboxBootstrap: {fileID: 0}
+  targetSelectionController: {fileID: 0}
   endTurnButton: {fileID: 4703980114652618856}
   escapeButton: {fileID: 7643465994743352213}
   escapeIcon: {fileID: 3299035048905477001}

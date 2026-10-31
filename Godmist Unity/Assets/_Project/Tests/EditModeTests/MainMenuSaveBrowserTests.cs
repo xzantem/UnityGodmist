@@ -27,7 +27,7 @@ namespace Godmist.Tests.EditMode
         [SetUp] public void Open()
         {
             scene=EditorSceneManager.OpenPreviewScene("Assets/_Project/Scenes/Bootstrap/Bootstrap.unity");
-            var canvas=scene.GetRootGameObjects().Single(root=>root.name=="Canvas").GetComponent<Canvas>();
+            var canvas=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<Canvas>(true)).Single(candidate=>candidate.name=="Canvas");
             // Headless EditMode has no Game View surface for an overlay canvas.
             // Preserve authoring units so ScrollRect can calculate world bounds.
             canvas.GetComponent<CanvasScaler>().enabled=false;canvas.renderMode=RenderMode.WorldSpace;

@@ -15,7 +15,7 @@ public static partial class GodmistMainMenuSetup
         if (EditorApplication.isPlaying) throw new System.InvalidOperationException("Exit Play Mode before authoring.");
         palette=AssetDatabase.LoadAssetAtPath<UIWorkspaceStylePalette>("Assets/_Project/ScriptableObjects/UI/Workspace/UIWorkspaceStylePalette.asset");
         var scene=EditorSceneManager.OpenScene(ScenePath,OpenSceneMode.Single);
-        var menu=scene.GetRootGameObjects().Single(root=>root.name=="Canvas").transform.Find("MainMenuRoot");
+        var menu=FindMenuCanvas(scene).Find("MainMenuRoot");
         ConfigureSettings(menu);
         foreach(var component in menu.GetComponentsInChildren<Component>(true))
             if(component!=null&&PrefabUtility.IsPartOfPrefabInstance(component))PrefabUtility.RecordPrefabInstancePropertyModifications(component);

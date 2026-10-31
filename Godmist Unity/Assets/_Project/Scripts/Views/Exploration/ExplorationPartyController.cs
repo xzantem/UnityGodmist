@@ -37,7 +37,7 @@ namespace Godmist.Views.Exploration
         public void ClaimWorldPrimaryClick() => claimedPrimaryFrame = Time.frameCount;
         public bool TryGetPointerWorldPosition(out Vector2 position)
         {
-            position = worldCamera != null ? (Vector2)worldCamera.ScreenToWorldPoint(Input.mousePosition) : default;
+            position = worldCamera != null ? (Vector2)worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition) : default;
             return worldCamera != null;
         }
 
@@ -75,6 +75,28 @@ namespace Godmist.Views.Exploration
         {
             if (interaction != null) registeredInteractions.Add(interaction);
         }
+
+        public IInteractable GetControllerInteraction()
+        {
+            if (!CanAcceptExplorationInput || ActiveLeaderTransform == null) return null;
+            IInteractable best = null;
+            var distance = float.PositiveInfinity;
+            foreach (var interaction in registeredInteractions)
+            {
+                if (interaction is not Component component || component == null || !interaction.CanInteract()) continue;
+                var next = (component.transform.position - ActiveLeaderTransform.position).sqrMagnitude;
+                if (next < distance || Mathf.Approximately(next, distance)
+                    && best is Component previous && string.CompareOrdinal(component.name, previous.name) < 0)
+                { best = interaction; distance = next; }
+            }
+            return best;
+        }
+
+        public IReadOnlyList<IInteractable> GetControllerInteractions() => !CanAcceptExplorationInput || ActiveLeaderTransform == null
+            ? System.Array.Empty<IInteractable>()
+            : registeredInteractions.Where(value => value is Component component && component != null && value.CanInteract())
+                .OrderBy(value => (((Component)value).transform.position - ActiveLeaderTransform.position).sqrMagnitude)
+                .ThenBy(value => ((Component)value).name, System.StringComparer.Ordinal).ToArray();
 
         public void UnregisterInteraction(IInteractable interaction)
         {
@@ -213,7 +235,7 @@ namespace Godmist.Views.Exploration
             }
 
             if (claimedPrimaryFrame == Time.frameCount || unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame) return;
-            if (!Input.GetMouseButtonDown(0)
+            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
                 || worldCamera == null
                 || UIWorkspaceInputRouter.IsPointerOverUi())
             {
@@ -221,7 +243,7 @@ namespace Godmist.Views.Exploration
             }
 
             pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null;
-            var point = (Vector2)worldCamera.ScreenToWorldPoint(Input.mousePosition);
+            var point = (Vector2)worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition);
             foreach (var view in viewsById.Values)
                 if (view.CharacterId != gameSession.PlayerParty.ActiveLeaderId
                     && (view.TerrainView == null || view.TerrainView.IsTraversalVisible(view.DungeonPosition))
@@ -232,7 +254,7 @@ namespace Godmist.Views.Exploration
 
         private void TryMoveLeaderToPointerPosition()
         {
-            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Input.mousePosition);
+            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition);
             var terrainView = GetActiveLeaderView()?.TerrainView;
             if (!IsNoclipEnabled && traversalFloor?.Map != null)
             { TrySetTraversalDestination(pointerWorldPosition); return; }
@@ -447,20 +469,13 @@ namespace Godmist.Views.Exploration
 
         private Vector2 GetMovementDirection(ExplorationCharacterView leaderView)
         {
-            if (cameraController == null || cameraController.IsFollowingLeader)
+            // Keyboard movement belongs to the free camera when unlocked; the pad's
+            // left stick remains independent from the right-stick camera controls.
+            var directMovement = ExplorationKeyboardInput.ReadGameplayMovement(cameraController == null || cameraController.IsFollowingLeader);
+            if (directMovement.sqrMagnitude > 0f)
             {
-                var keyboardMovement = ExplorationKeyboardInput.ReadMovement();
-
-                if (keyboardMovement.sqrMagnitude > 1f)
-                {
-                    keyboardMovement.Normalize();
-                }
-
-                if (keyboardMovement.sqrMagnitude > 0f)
-                {
-                    pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
-                    return keyboardMovement;
-                }
+                pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
+                return directMovement;
             }
 
             if (!movementDestination.HasValue) return Vector2.zero;

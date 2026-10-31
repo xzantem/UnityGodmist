@@ -918,6 +918,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 8441050199827770456, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
+      propertyPath: pointerHandler
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8352713981641007731, guid: 7c6e35b9c7f84e146b2151515c08621f, type: 3}
@@ -1006,6 +1010,10 @@ MonoBehaviour:
   insertBefore: {fileID: 406879940256004876}
   insertAfter: {fileID: 2000393989913069691}
   memberView: {fileID: 0}
+  healthFill: {fileID: 0}
+  lifeStateText: {fileID: 0}
+  resourceRect: {fileID: 0}
+  tooltipView: {fileID: 0}
 --- !u!114 &2590883850755759375
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -333,19 +333,21 @@ namespace Godmist.Views.Combat
             }
             if (actionRestore.HasValue || movementPosition != null || DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) { dragging = false; return; }
             if (Input.GetKeyDown(KeyCode.F)) FocusActiveUnit();
+            if (Godmist.Views.UI.ControllerInput.Pressed(Godmist.Views.UI.ControllerInput.WorldMap, "Center")) FocusActiveUnit();
+            if (Godmist.Views.UI.ControllerInput.Zoom != 0) Zoom(Godmist.Views.UI.ControllerInput.Zoom * Time.unscaledDeltaTime * 5);
             if (Input.GetKeyDown(KeyCode.Home)) ShowArena();
-            var direction = ExplorationKeyboardInput.ReadMovement();
+            var direction = Vector2.ClampMagnitude(ExplorationKeyboardInput.ReadMovement() + Godmist.Views.UI.ControllerInput.Camera, 1f);
             if (direction.sqrMagnitude > 0f) Pan(direction.normalized * (keyboardPanSpeed * Time.unscaledDeltaTime));
             if (UIWorkspaceInputRouter.IsPointerOverUi()) { dragging = false; return; }
             if (Input.mouseScrollDelta.y != 0f) Zoom(Input.mouseScrollDelta.y);
-            if (Input.GetMouseButtonDown(2)) { previousMouse = Input.mousePosition; dragging = true; }
+            if (Input.GetMouseButtonDown(2)) { previousMouse = Godmist.Views.UI.ControllerInput.PointerPosition; dragging = true; }
             if (!Input.GetMouseButton(2)) dragging = false;
             if (dragging)
             {
-                var delta = previousMouse - Input.mousePosition;
+                var delta = previousMouse - Godmist.Views.UI.ControllerInput.PointerPosition;
                 var scale = worldCamera.orthographicSize * 2f / Mathf.Max(1f, worldCamera.pixelHeight);
                 if (delta.sqrMagnitude > 0f) Pan((Vector2)delta * scale);
-                previousMouse = Input.mousePosition;
+                previousMouse = Godmist.Views.UI.ControllerInput.PointerPosition;
             }
         }
         private void LateUpdate() => TickTransition(Time.unscaledDeltaTime);

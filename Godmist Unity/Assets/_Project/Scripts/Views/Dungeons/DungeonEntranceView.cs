@@ -96,7 +96,7 @@ namespace Godmist.Views.Dungeons
             if (!hovered) { ClearHover(); return; }
             if (!useGateExit && hoverOutline != null) hoverOutline.Refresh(null, false, true, false, true);
             if (tooltip != null) tooltip.ShowCompactText("Wyprawy", string.Empty, this);
-            if (!Input.GetMouseButtonDown(0)) return;
+            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)) return;
             partyController.ClaimWorldPrimaryClick();
             if (!partyController.RequestEntranceInteraction(this) && tooltip != null)
             {

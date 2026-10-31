@@ -421,3 +421,4 @@ MonoBehaviour:
   fillArea: {fileID: 939786593274716999}
   border: {fileID: 8656127340574413109}
   authoredPixelsPerUnitMultiplier: 2
+  shieldOverlay: {fileID: 0}

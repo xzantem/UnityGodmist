@@ -122,7 +122,7 @@ namespace Godmist.Views.Dungeons
             }
 
             if (!pointerOverBody
-                || !Input.GetMouseButtonDown(0)
+                || !(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
                 || UIWorkspaceInputRouter.IsPointerOverUi()
                 || DevConsoleView.IsOpen
                 || !CanInteract())
@@ -208,7 +208,7 @@ namespace Godmist.Views.Dungeons
             }
 
             var pointerWorldPosition = worldCamera.ScreenToWorldPoint(
-                Input.mousePosition);
+                Godmist.Views.UI.ControllerInput.PointerPosition);
 
             foreach (var hit in Physics2D.OverlapPointAll(pointerWorldPosition))
             {
@@ -339,7 +339,7 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            var shader = Shader.Find("Godmist/Combat/Solid Sprite Silhouette");
+            var shader = Godmist.Views.Combat.CombatOutlineShader.Load();
             if (shader == null)
             {
                 Debug.LogError("DungeonEnemyBodyView: nie znaleziono shadera obramowki.");

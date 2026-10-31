@@ -9,6 +9,8 @@ namespace Godmist.Views.Exploration
 
         // Legacy Horizontal/Vertical axes also include connected joysticks and wheels.
         public static Vector2 ReadMovement() => ReadMovement(ReadKey);
+        public static Vector2 ReadGameplayMovement(bool followingLeader = true) => Vector2.ClampMagnitude((followingLeader ? ReadMovement() : Vector2.zero)
+            + (Godmist.Views.UI.ControllerInput.Alternate ? Vector2.zero : Godmist.Views.UI.ControllerInput.Movement), 1f);
 
         public static Vector2 ReadMovement(Func<KeyCode, bool> isPressed)
         {

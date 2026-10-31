@@ -858,7 +858,6 @@ MonoBehaviour:
   lockAccentGraphic: {fileID: 0}
   lockedAccentColor: {r: 0.22, g: 0.18, b: 0.1, a: 0.97}
   nestedLinkDelay: 0.25
-  exitGracePeriod: 0.4
   minimumHeight: 68
   contentHeightPadding: 16
   pointerOffset: {x: 16, y: -16}

@@ -1,5 +1,91 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1236111647351813321
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 941682233671181269}
+  - component: {fileID: 4046851501116694735}
+  - component: {fileID: 4531870715425182809}
+  - component: {fileID: 9024852713259361858}
+  m_Layer: 0
+  m_Name: ControllerFocus
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &941682233671181269
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236111647351813321}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7341807905796515559}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &4046851501116694735
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236111647351813321}
+  m_CullTransparentMesh: 1
+--- !u!114 &4531870715425182809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236111647351813321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+--- !u!114 &9024852713259361858
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236111647351813321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc2701b1ff8e3704e87c97665a17c83f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.ControllerFocusGraphic
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0.8, b: 0.25, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1573803524059536067
 GameObject:
   m_ObjectHideFlags: 0
@@ -1362,6 +1448,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6080363801922272366, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
       insertIndex: 8
       addedObject: {fileID: 4711005911446662181}
+    - targetCorrespondingSourceObject: {fileID: 6080363801922272366, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 941682233671181269}
     - targetCorrespondingSourceObject: {fileID: 764099632211120364, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 102984196269097319}
@@ -1372,6 +1461,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5460696341581842635, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7097184335665039382}
+    - targetCorrespondingSourceObject: {fileID: 5460696341581842635, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2061887038324195535}
     - targetCorrespondingSourceObject: {fileID: 2235338854557482977, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8942154685382750223}
@@ -1466,6 +1558,7 @@ MonoBehaviour:
   fillArea: {fileID: 2021121290126209658}
   border: {fileID: 2358813811571997250}
   authoredPixelsPerUnitMultiplier: 3
+  shieldOverlay: {fileID: 0}
 --- !u!114 &3367145442733379196 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2249580163206305013, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
@@ -1555,6 +1648,7 @@ MonoBehaviour:
   fillArea: {fileID: 3251057885590327303}
   border: {fileID: 3189985329344898343}
   authoredPixelsPerUnitMultiplier: 3
+  shieldOverlay: {fileID: 0}
 --- !u!114 &6508134409060402667 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7769575835158536034, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}
@@ -1667,7 +1761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
-    m_Mode: 0
+    m_Mode: 3
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -1698,6 +1792,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2061887038324195535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8812092745760723522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f93f206ccae0e04f852e8a7592367e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.ControllerNavigationItem
+  focusFrame: {fileID: 1236111647351813321}
+  pointerHandler: {fileID: 0}
 --- !u!224 &8986402158017622761 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5563213188560726112, guid: 100adca281d3b4c46bea4c4f11ea1ca0, type: 3}

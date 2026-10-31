@@ -9,7 +9,13 @@ namespace Godmist.Views.UI
 {
     public class CombatActionButtonsView : MonoBehaviour
     {
+        public bool CanOpenControllerItems => consumablesButton != null && consumablesButton.gameObject.activeInHierarchy && consumablesButton.interactable;
+        public bool CanControllerEscape => escapeButton != null && escapeButton.gameObject.activeInHierarchy && escapeButton.interactable;
+        public bool IsConsumableSelectionOpen => consumableSelection != null && consumableSelection.IsOpen;
+        public void OpenControllerItems() { if (CanOpenControllerItems) consumablesButton.onClick.Invoke(); }
+        public void ControllerEscape() { if (CanControllerEscape) escapeButton.onClick.Invoke(); }
         [SerializeField] private CombatSandboxBootstrap sandboxBootstrap;
+        [SerializeField] private CombatTargetSelectionController targetSelectionController;
         [SerializeField] private Button endTurnButton;
         [SerializeField] private Button escapeButton;
         [SerializeField] private Image escapeIcon;
@@ -179,7 +185,7 @@ namespace Godmist.Views.UI
             }
             consumableSelection?.Configure(
                 sandboxBootstrap,
-                GetComponentInParent<CombatHudView>()?.Targeting,
+                targetSelectionController,
                 tooltipView);
             consumableSelection?.Open(consumablesButton.transform as RectTransform);
         }

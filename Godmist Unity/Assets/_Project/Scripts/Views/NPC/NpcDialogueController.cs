@@ -14,6 +14,7 @@ namespace Godmist.Views.NPC
 {
     public class NpcDialogueController : MonoBehaviour
     {
+        public void CloseForController() => dialogueService?.TryEndDialogue();
         [Header("Panel")]
         [SerializeField] private GameObject panelRoot;
         [SerializeField] private TextMeshProUGUI speakerText;

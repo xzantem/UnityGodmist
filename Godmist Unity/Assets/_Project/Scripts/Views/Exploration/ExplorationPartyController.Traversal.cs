@@ -1333,8 +1333,7 @@ namespace Godmist.Views.Exploration
 
         private void TickTraversalMovement(ExplorationCharacterView leader)
         {
-            var keyboard = cameraController == null || cameraController.IsFollowingLeader
-                ? ExplorationKeyboardInput.ReadMovement() : Vector2.zero;
+            var keyboard = ExplorationKeyboardInput.ReadGameplayMovement(cameraController == null || cameraController.IsFollowingLeader);
             if (keyboard.sqrMagnitude > 0)
             {
                 destroyTarget = null;
@@ -1536,7 +1535,7 @@ namespace Godmist.Views.Exploration
         {
             if (pendingReviveTarget == null) return false;
             if (!CanRequestRevive(pendingReviveTarget)
-                || ExplorationKeyboardInput.ReadMovement().sqrMagnitude > 0f)
+                || ExplorationKeyboardInput.ReadGameplayMovement().sqrMagnitude > 0f)
             { CancelMovement(); return false; }
             var actor = GetActiveLeaderView();
             if (actor?.RuntimeCharacter?.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive)
@@ -1573,7 +1572,7 @@ namespace Godmist.Views.Exploration
         {
             if (ReferenceEquals(pendingChest, null)) return false;
             if (pendingChest == null || pendingChest.Floor != traversalFloor || !pendingChest.CanRequestInteraction
-                || ExplorationKeyboardInput.ReadMovement().sqrMagnitude > 0f)
+                || ExplorationKeyboardInput.ReadGameplayMovement().sqrMagnitude > 0f)
             { CancelMovement(); return false; }
             if (pendingChest.CanInteract())
             {
@@ -1624,7 +1623,7 @@ namespace Godmist.Views.Exploration
         {
             if (pendingEntrance != null)
             {
-                if (!pendingEntrance.isActiveAndEnabled || ExplorationKeyboardInput.ReadMovement().sqrMagnitude > 0f)
+                if (!pendingEntrance.isActiveAndEnabled || ExplorationKeyboardInput.ReadGameplayMovement().sqrMagnitude > 0f)
                 { CancelMovement(); return false; }
                 if (pendingEntrance.CanInteract())
                 { var entrance = pendingEntrance; CancelMovement(); entrance.TryInteract(); return true; }
@@ -1633,7 +1632,7 @@ namespace Godmist.Views.Exploration
             }
             if (pendingNpc == null) return false;
             if (!pendingNpc.isActiveAndEnabled) { CancelMovement(); return false; }
-            if (ExplorationKeyboardInput.ReadMovement().sqrMagnitude > 0f) { CancelMovement(); return false; }
+            if (ExplorationKeyboardInput.ReadGameplayMovement().sqrMagnitude > 0f) { CancelMovement(); return false; }
             if (pendingNpc.CanInteract())
             {
                 var npc = pendingNpc; CancelMovement(); npc.Interact(); return true;

@@ -10,6 +10,7 @@ namespace Godmist.Views.Combat
     {
         public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
         public System.Func<bool> IsWorldInteractionClaimedThisFrame { get; set; }
+        public float GridCellSize => Mathf.Max(.01f, cellSize);
 
         public void SetGridMapping(Vector2 origin, float size)
         {
@@ -125,7 +126,7 @@ namespace Godmist.Views.Combat
             RefreshIfNeeded();
             RefreshMovementPreview();
 
-            if (!Input.GetMouseButtonDown(0))
+            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm))
             {
                 return;
             }
@@ -153,7 +154,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var forceInteraction = Input.GetKey(KeyCode.LeftControl)
+            var forceInteraction = (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate)
                                 || Input.GetKey(KeyCode.RightControl);
 
             if (forceInteraction
@@ -266,7 +267,7 @@ namespace Godmist.Views.Combat
 
         private bool TryShowInspectedUnitMovementRange()
         {
-            var isInspectingMovement = Input.GetKey(KeyCode.LeftControl)
+            var isInspectingMovement = (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate)
                 || Input.GetKey(KeyCode.RightControl);
             var inspectedUnit = inspectController?.HoveredUnit;
             if (!isInspectingMovement
@@ -363,7 +364,7 @@ namespace Godmist.Views.Combat
 
         private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
-            var screenPosition = Input.mousePosition;
+            var screenPosition = Godmist.Views.UI.ControllerInput.PointerPosition;
             screenPosition.z =
                 Mathf.Abs(worldCamera.transform.position.z);
 
@@ -387,7 +388,7 @@ namespace Godmist.Views.Combat
         private bool TryInteractWithDoorUnderMouse()
         {
             if (worldCamera == null || sandboxBootstrap?.Session?.ActiveUnit == null) return false;
-            var screen = Input.mousePosition;
+            var screen = Godmist.Views.UI.ControllerInput.PointerPosition;
             screen.z = Mathf.Abs(worldCamera.transform.position.z);
             var world = worldCamera.ScreenToWorldPoint(screen);
             var point = new Vector2((world.x - gridOrigin.x) / cellSize, (world.y - gridOrigin.y) / cellSize);

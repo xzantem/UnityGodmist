@@ -26,6 +26,8 @@ namespace Godmist.Views.Dungeons
         private int overviewSibling;
         private bool overviewWasExpanded, overviewRaycast;
         public bool IsOverviewOpen { get; private set; }
+        [SerializeField] private ControllerNavigationScope controllerScope;
+        public void CloseOverviewForController() => SetOverviewOpen(false);
         public RectInt OverviewDiscoveredBounds { get; private set; }
         public int OverviewTerrainRefreshCount { get; private set; }
         private int RasterWidth => IsOverviewOpen ? overviewWidth : Size;
@@ -53,7 +55,7 @@ namespace Godmist.Views.Dungeons
         }
 
         private void Update()
-            => HandleOverviewInput(Input.GetKeyDown(KeyCode.M),Input.GetKeyDown(KeyCode.Escape));
+            => HandleOverviewInput(Input.GetKeyDown(KeyCode.M),(Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel));
 
         private void HandleOverviewInput(bool mapPressed,bool escapePressed)
         {
@@ -93,6 +95,7 @@ namespace Godmist.Views.Dungeons
                 if(toggle!=null)Stretch((RectTransform)toggle.transform,new Vector2(0,1),Vector2.one,new Vector2(0,-28),Vector2.zero);
                 content.SetActive(true);image.raycastTarget=true;
                 IsOverviewOpen=true;
+                if (controllerScope != null) controllerScope.enabled = true;
                 root.ForceUpdateRectTransforms();image.rectTransform.ForceUpdateRectTransforms();
                 PrepareOverview();
                 image.texture=overviewTexture;image.uvRect=new Rect(0,0,1,1);
@@ -100,6 +103,8 @@ namespace Godmist.Views.Dungeons
             else
             {
                 IsOverviewOpen=false;
+                if (controllerScope != null) controllerScope.enabled = false;
+                if (ControllerInput.Active) GetComponentInParent<ControllerInputView>()?.ReturnToWorld();
                 if(root!=null && overviewParent!=null) { root.SetParent(overviewParent,false);root.SetSiblingIndex(overviewSibling); }
                 foreach(var state in overviewLayout)state.Restore();
                 overviewLayout.Clear();

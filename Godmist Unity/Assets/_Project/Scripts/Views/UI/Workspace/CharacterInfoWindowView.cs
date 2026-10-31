@@ -188,7 +188,7 @@ namespace Godmist.Views.UI.Workspace
             {
                 RefreshVitals();
                 RefreshStatTexts();
-                statHover.Tick(Input.mousePosition);
+                statHover.Tick(Godmist.Views.UI.ControllerInput.PointerPosition);
             }
         }
 
@@ -367,7 +367,7 @@ namespace Godmist.Views.UI.Workspace
             statHover.Bind(character,transform,UIWorkspaceTooltipView.ActiveInstance,statsText,resistancesText,healthResourceText);
         }
 
-        private void OpenSkillLoadout()
+        public void OpenSkillLoadout()
         {
             if (session == null || character == null || session.IsCharacterInCombat(character?.CharacterId)) return;
             if (skillLoadoutWindow == null)
@@ -380,7 +380,7 @@ namespace Godmist.Views.UI.Workspace
             skillLoadoutWindow.Open(session, character.CharacterId);
         }
 
-        private void OpenSkillTree()
+        public void OpenSkillTree()
         {
             if (session == null || character == null || session.IsCharacterInCombat(character?.CharacterId)) return;
             if (skillTreeWindow == null)
@@ -530,7 +530,7 @@ namespace Godmist.Views.UI.Workspace
                 this,
                 item,
                 eventData,
-                Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
+                (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate) || Input.GetKey(KeyCode.RightControl));
         }
 
         public void TryHandleDrop(CharacterInfoEquipmentSlotView target)

@@ -251,7 +251,7 @@ namespace Godmist.Views.UI
         {
             if(boundUnit?.Character==null)return;
             RefreshStatColumns();
-            statHover.Tick(Input.mousePosition);
+            statHover.Tick(Godmist.Views.UI.ControllerInput.PointerPosition);
         }
         private void RefreshStatColumns()
         {

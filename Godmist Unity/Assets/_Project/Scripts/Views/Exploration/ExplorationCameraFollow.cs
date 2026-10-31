@@ -124,7 +124,10 @@ namespace Godmist.Views.Exploration
                     : CameraMode.FollowLeader;
             }
 
-            if (!UIWorkspaceInputRouter.IsPointerOverUi()) Zoom(Input.mouseScrollDelta.y);
+            if (ControllerInput.Pressed(ControllerInput.WorldMap, "Center") && partyController?.ActiveLeaderTransform != null)
+                CenterOn(partyController.ActiveLeaderTransform.position, true);
+            if (ControllerInput.Camera.sqrMagnitude > .01f) currentMode = CameraMode.FreeRoam;
+            if (!UIWorkspaceInputRouter.IsPointerOverUi()) Zoom(Input.mouseScrollDelta.y + ControllerInput.Zoom * Time.unscaledDeltaTime * 5);
             HandleFreeRoamPanning();
         }
 
@@ -154,7 +157,7 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            var keyboardDirection = ExplorationKeyboardInput.ReadMovement();
+            var keyboardDirection = Vector2.ClampMagnitude(ExplorationKeyboardInput.ReadMovement() + ControllerInput.Camera, 1f);
 
             if (keyboardDirection.sqrMagnitude > 1f)
             {
@@ -168,12 +171,12 @@ namespace Godmist.Views.Exploration
             }
 
             if (unitInteractions != null && unitInteractions.ConsumedSecondaryClickThisFrame) { isPanning = false; return; }
-            if (Input.GetMouseButtonDown(1)
+            if ((Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context)
                 && !UIWorkspaceInputRouter.IsPointerOverUi()
-                && !UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
+                && !UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
             {
                 previousMouseWorldPosition = GetMouseWorldPosition();
-                panPressScreen = Input.mousePosition;
+                panPressScreen = Godmist.Views.UI.ControllerInput.PointerPosition;
                 panDragged = false;
                 isPanning = true;
             }
@@ -186,7 +189,7 @@ namespace Godmist.Views.Exploration
             if (!isPanning
                 || !Input.GetMouseButton(1)
                 || UIWorkspaceInputRouter.IsPointerOverUi()
-                || UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
+                || UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
             {
                 return;
             }
@@ -194,7 +197,7 @@ namespace Godmist.Views.Exploration
             var currentMouseWorldPosition = GetMouseWorldPosition();
             if (!panDragged)
             {
-                if (((Vector2)Input.mousePosition - panPressScreen).sqrMagnitude <= RightDragThreshold * RightDragThreshold) return;
+                if (((Vector2)Godmist.Views.UI.ControllerInput.PointerPosition - panPressScreen).sqrMagnitude <= RightDragThreshold * RightDragThreshold) return;
                 panDragged = true;
             }
             var dragOffset = previousMouseWorldPosition - currentMouseWorldPosition;
@@ -205,7 +208,7 @@ namespace Godmist.Views.Exploration
 
         private Vector3 GetMouseWorldPosition()
         {
-            var mousePosition = Input.mousePosition;
+            var mousePosition = Godmist.Views.UI.ControllerInput.PointerPosition;
             mousePosition.z = -transform.position.z;
 
             return worldCamera.ScreenToWorldPoint(mousePosition);

@@ -103,7 +103,7 @@ namespace Godmist.Views.Dungeons
             var hovered = !partyController.IsWorldPrimaryClickClaimed
                 && partyController.TryGetPointerWorldPosition(out point) && IsPointerHit(point);
             SetInspectionHighlight(hovered);
-            if (!hovered || !Input.GetMouseButtonDown(0)) return;
+            if (!hovered || !(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)) return;
             TryPrimaryInteraction(point);
         }
 

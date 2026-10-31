@@ -77,6 +77,9 @@ namespace Godmist.Views.Combat
         public GridPosition? HoveredPosition { get; private set; }
         public SkillData SelectedSkill => selectedSkill;
         public int CurrentTargetModeIndex => currentTargetModeIndex;
+        public bool IsControllerTarget(BattleUnit unit) => unit != null && IsSelectingTarget
+            && (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain
+                ? eligibleTargetPositions.Contains(unit.Position) : selectablePositions.Contains(unit.Position));
         public System.Func<Vector3, BattleUnit> ResolvePointerUnit { get; set; }
         private SkillData hoveredSkill;
         private BattleUnit hoverActor;
@@ -327,7 +330,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
+            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
             {
                 HoveredUnit = null;
                 HoveredPosition = null;
@@ -348,10 +351,10 @@ namespace Godmist.Views.Combat
             if (!isSelectingTeleportDestination
                 && !isSelectingObjectPlacement)
             {
-                if (Input.GetKeyDown(KeyCode.R) && CanRotateCurrentSelection)
+                if ((Input.GetKeyDown(KeyCode.R) || Godmist.Views.UI.ControllerInput.Rotate || Godmist.Views.UI.ControllerInput.RotateBack) && CanRotateCurrentSelection)
                 {
                     directionalRotationQuarterTurns =
-                        (directionalRotationQuarterTurns + 1) % 4;
+                        (directionalRotationQuarterTurns + (Godmist.Views.UI.ControllerInput.RotateBack ? 3 : 1)) % 4;
                     previewedRelativeCenter = null;
                 }
                 UpdateRelativeRangePreview();
@@ -365,15 +368,15 @@ namespace Godmist.Views.Combat
                 targetPreview?.Hide();
             }
 
-            if (Input.GetKeyDown(KeyCode.Escape)
-                || Input.GetMouseButtonDown(1))
+            if ((Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel)
+                || (Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context))
             {
                 CancelTargetSelection();
                 return;
             }
 
             if (!isSelectingTeleportDestination && !isSelectingObjectPlacement
-                && Input.GetKeyDown(KeyCode.Return)
+                && (Input.GetKeyDown(KeyCode.Return) || Godmist.Views.UI.ControllerInput.CompleteTargets)
                 && CurrentTargetMode.TargetType == TargetType.MultipleChosen
                 && chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var confirmed)
                 && confirmed.Count > 0)
@@ -381,7 +384,7 @@ namespace Godmist.Views.Combat
                 AdvanceTargetMode();
                 return;
             }
-            if (!Input.GetMouseButtonDown(0)
+            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
                 || worldCamera == null)
             {
                 return;
@@ -790,7 +793,7 @@ namespace Godmist.Views.Combat
         }
         private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
-            var screenPosition = Input.mousePosition;
+            var screenPosition = Godmist.Views.UI.ControllerInput.PointerPosition;
             screenPosition.z =
                 Mathf.Abs(worldCamera.transform.position.z);
 
@@ -930,7 +933,7 @@ namespace Godmist.Views.Combat
                     ?? UIWorkspaceTooltipView.ActiveInstance?.GetGlossaryIcon("debuff")
                 : null;
             targetPreview.Show(
-                Input.mousePosition,
+                Godmist.Views.UI.ControllerInput.PointerPosition,
                 damageText,
                 new Color(1f, 0.86f, 0.45f),
                 statusSprite,
