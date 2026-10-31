@@ -223,6 +223,9 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
+            if (!CraftingValueCalculator.TryValidate((request.Ingredients ?? new List<ItemDefinition>()).Concat(
+                    new[] { request.Medium, request.Catalyst }), out failureReason)) return false;
+
             var costs = CreatePreviewCosts(session, alchemist, request, out failureReason);
             if (costs == null) return false;
 
@@ -243,7 +246,7 @@ namespace Godmist.Systems.Items
                 .Where(item => item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
-            paidGold = stock.Sum(item => CraftingMerchantStock.Price(alchemist, item));
+            if (!CraftingMerchantStock.TryQuote(alchemist, stock, out paidGold, out failureReason)) return false;
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -340,7 +343,7 @@ namespace Godmist.Systems.Items
                 var missing = Mathf.Max(0, pair.Amount - owned);
                 var stock = GetAlchemistStock(alchemist, pair.Definition.Id);
                 var purchasable = Mathf.Min(missing, stock);
-                var price = GetStockPurchasePrice(alchemist, pair.Definition.Id, purchasable);
+                var validQuote = CraftingMerchantStock.TryQuoteMaterial(alchemist, pair.Definition.Id, purchasable, out var price, out var quoteReason);
                 var cost = new AlchemyMaterialCost
                 {
                     Material = pair.Definition,
@@ -348,7 +351,8 @@ namespace Godmist.Systems.Items
                     OwnedAmount = owned,
                     AvailableFromAlchemist = stock,
                     PurchasePrice = price,
-                    CanAffordPurchase = purchasable > 0 && session != null && session.Gold >= price,
+                    PurchaseFailureReason = quoteReason,
+                    CanAffordPurchase = validQuote && purchasable > 0 && session != null && session.Gold >= price,
                     PurchaseState = missing <= 0
                         ? CraftingMaterialPurchaseState.NotNeeded
                         : purchasable <= 0 || price <= 0
@@ -447,6 +451,9 @@ namespace Godmist.Systems.Items
                 failureReason = "Alchemik nie ma skonfigurowanego poprawnego typu wynikowego.";
                 return false;
             }
+
+            if (!CraftingValueCalculator.TryValidate((request.Ingredients ?? new List<ItemDefinition>()).Concat(
+                    new[] { request.Medium, request.Catalyst }), out failureReason)) return false;
 
             configuration = new AlchemyConfiguration(
                 options, catalyst, effectTier, level, resultDefinition);
@@ -591,12 +598,6 @@ namespace Godmist.Systems.Items
 
         private static int GetAlchemistStock(NpcInstance alchemist, string definitionId) =>
             CraftingMerchantStock.Items(alchemist).Count(item => item?.Definition?.Id == definitionId);
-
-        private int GetStockPurchasePrice(NpcInstance alchemist, string definitionId, int amount) =>
-            amount <= 0 ? 0 : CraftingMerchantStock.Items(alchemist)
-                .Where(item => item?.Definition?.Id == definitionId)
-                .Take(amount)
-                .Sum(item => CraftingMerchantStock.Price(alchemist, item));
 
         private static bool CanReceiveAll(Inventory inventory, ItemInstance item, int amount)
         {

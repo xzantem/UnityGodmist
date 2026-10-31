@@ -56,6 +56,24 @@ namespace Godmist.Views.Characters
         private int lastKnownHealth;
         private Vector3 targetWorldPosition;
         private bool hasTargetWorldPosition;
+        private bool pathPresentationControlled;
+        public float MovementSpeed => movementSpeed;
+
+        public void SetPathPresentationControlled(bool controlled)
+        {
+            pathPresentationControlled = controlled;
+            if (!controlled && !hasTargetWorldPosition) PlayIdleAnimation();
+        }
+
+        // The path owner spends one frame's distance across as many segments as
+        // needed. Do not enter idle at an intermediate waypoint.
+        public void AdvancePathPresentation(Vector3 target, float distance, bool finalWaypoint)
+        {
+            if (transformation.IsPlaying) return;
+            SetWorldPosition(target);
+            hasTargetWorldPosition = transform.position != target;
+            AdvanceMovement(distance, finalWaypoint, .0000000001f);
+        }
         private CombatPosePlayer combatPose;
         private CharacterLifeState displayedLifeState;
         private bool hasDisplayedLifeState;
@@ -283,19 +301,25 @@ namespace Godmist.Views.Characters
 
         private void UpdateMovement()
         {
+            if (pathPresentationControlled) return;
+            AdvanceMovement(movementSpeed * Time.deltaTime, true);
+        }
+
+        private void AdvanceMovement(float distance, bool stopAtTarget, float arrivalSquaredTolerance = .0001f)
+        {
             if (!hasTargetWorldPosition) return;
 
             transform.position = Vector3.MoveTowards(
                 transform.position,
                 targetWorldPosition,
-                movementSpeed * Time.deltaTime);
+                distance);
 
-            if (Vector3.SqrMagnitude(transform.position - targetWorldPosition) > 0.0001f) return;
+            if (Vector3.SqrMagnitude(transform.position - targetWorldPosition) > arrivalSquaredTolerance) return;
 
             transform.position = targetWorldPosition;
             hasTargetWorldPosition = false;
             crossingDepthEdge = null;
-            PlayIdleAnimation();
+            if (stopAtTarget) PlayIdleAnimation();
         }
 
         private void UpdateAnimation()

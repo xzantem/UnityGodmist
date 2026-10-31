@@ -54,9 +54,9 @@ namespace Godmist.Tests.EditMode
             var s = source.Character.Stats; var t = target.Character.Stats;
             var hit = kind == DamageType.Physical ? CombatDamageSystem.ApplyHitChanceBonus(source.Character,
                 CombatDamageSystem.CalculateHitChance(source.Character.WeaponAccuracy,100,t.Dodge.GetValue())) : 1f;
-            var crit = kind == DamageType.Physical ? Mathf.Clamp01((PassiveEffectCombatExecutionSystem.ApplyCriticalChance(session,ctx,s.CritChance.GetValue())
+            var crit = kind == DamageType.Magical ? MageCombatSystem.CalculateMagicCriticalChance(ctx) : kind == DamageType.Physical ? Mathf.Clamp01((PassiveEffectCombatExecutionSystem.ApplyCriticalChance(session,ctx,s.CritChance.GetValue())
                 + ScoutCombatSystem.CriticalChance(ctx))*WarriorCombatSystem.CriticalMultiplier(source,target)
-                * MageCombatSystem.CritReceived(session,target,source)*PaladinCombatSystem.CriticalMultiplier(source,target)) : 0f;
+                *PaladinCombatSystem.CriticalMultiplier(source,target)) : 0f;
             var critical = Mathf.Max(1,s.CritDamage.GetValue()+ScoutCombatSystem.WeakPointCriticalDamage(target));
             var pre = ScoutCombatSystem.DamageMultiplier(ctx)*WarriorCombatSystem.DamageMultiplier(ctx)
                 * MageCombatSystem.DamageMultiplier(ctx)*PaladinCombatSystem.DamageMultiplier(ctx);

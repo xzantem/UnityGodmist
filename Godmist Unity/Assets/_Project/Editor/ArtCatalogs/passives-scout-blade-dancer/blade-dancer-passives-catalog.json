@@ -66,9 +66,9 @@
       "outputPng": "brew_strength-32.png"
     },
     {
-      "fullId": "node.scout.blade_dancer.strong_liver",
-      "slug": "strong_liver",
-      "outputPng": "strong_liver-32.png"
+      "fullId": "node.scout.blade_dancer.efficient_recovery",
+      "slug": "efficient_recovery",
+      "outputPng": "efficient_recovery-32.png"
     },
     {
       "fullId": "node.scout.blade_dancer.accurate_throw",

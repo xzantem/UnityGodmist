@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI selectedTreeNameText;
         [SerializeField] private RectTransform globalPassivePanel;
         [SerializeField] private TextMeshProUGUI globalPassiveText;
+        [SerializeField] private CombatSimpleTooltipTrigger globalPassiveTooltip;
         [SerializeField] private RectTransform prerequisiteConnectionRoot;
         [SerializeField] private Image prerequisiteConnectionTemplate;
         [SerializeField] private RectTransform[] tierGateRoots = new RectTransform[3];
@@ -572,79 +574,56 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            var summary = GetGlobalPassiveSummary(selectedTree, investedRanks);
+            var summary = GetGlobalPassiveSummary(selectedTree, investedRanks, character?.ResourcePool?.ResourceType ?? ResourceType.None);
 
-            globalPassiveText.text = $"<b>Premia za punkt</b>\n{GetGlobalPassiveSummary(selectedTree, 1)}\nAktualnie: {summary}";
+            globalPassiveText.text = $"<b>Premia za punkt</b>\n{GetGlobalPassiveSummary(selectedTree, 1, character?.ResourcePool?.ResourceType ?? ResourceType.None)}\nAktualnie: {summary}";
+            if(globalPassiveTooltip!=null)
+                globalPassiveTooltip.Initialize(UIWorkspaceTooltipView.ActiveInstance,UiTerms.Present(selectedTree.DisplayName),
+                    UIWorkspaceTooltipView.ActiveInstance!=null?UIWorkspaceTooltipView.ActiveInstance.GlobalPassiveDetails(selectedTree,investedRanks,character?.ResourcePool?.ResourceType ?? ResourceType.None):summary);
         }
 
-        public static string GetGlobalPassiveSummary(SkillTreeDefinition tree, int investedRanks)
+        public static string GetGlobalPassiveSummary(SkillTreeDefinition tree, int investedRanks, ResourceType resource = ResourceType.None)
         {
             if (tree == null) return string.Empty;
             var points = Mathf.Max(0, investedRanks);
+            if(points==0)return "brak premii.";
+            string N(float value)=>value.ToString("0.###",UiTerms.PolishCulture);
             // These passives contain combat rules as well as ordinary stat modifiers.
             switch (tree.Id)
             {
                 case Godmist.Systems.Combat.PaladinCombatSystem.Priest:
-                    return $"+{points}% siły leczenia, {points}% faktycznego leczenia przywraca HP rzucającego";
+                    return UiTerms.Present($"Zwiększa siłę leczenia o {points}%. Przywracanie zdrowia przywraca również rzucającemu zdrowie równe {points}% faktycznego leczenia.", resource);
                 case Godmist.Systems.Combat.PaladinCombatSystem.Crusader:
-                    return $"+{points}% obrażeń przeciw nieumarłym i demonom";
+                    return UiTerms.Present($"Zwiększa zadawane obrażenia przeciw nieumarłym i demonom o {points}%.", resource);
                 case Godmist.Systems.Combat.MageCombatSystem.Warlock:
-                    return $"-{points * Godmist.Systems.Combat.MageCombatSystem.ManaCostReductionPerPoint * 100f:0.##}% kosztów many, +{points}% obrażeń przy jednym celu";
+                    return UiTerms.Present($"Zmniejsza koszty many o {N(points * Godmist.Systems.Combat.MageCombatSystem.ManaCostReductionPerPoint * 100f)}% i zwiększa zadawane obrażenia o {points}%, gdy umiejętność obejmuje jednego przeciwnika.", resource);
                 case Godmist.Systems.Combat.MageCombatSystem.Fire:
-                    return $"+{points * 2}% obrażeń podpalenia, Kuli Ognia i Ognistej Strzały, +{points}% odporności na ogień";
+                    return UiTerms.Present($"Zwiększa zadawane obrażenia od podpalenia, Kuli Ognia i Ognistej Strzały o {points*2}% oraz odporność na podpalenie o {points} pp.", resource);
                 case Godmist.Systems.Combat.ScoutCombatSystem.AssassinTree:
-                    return $"+{points * .2f:0.##}% szansy krytycznej, +{points * .5f:0.##}% obrażeń wręcz";
+                    return UiTerms.Present($"Zwiększa szansę krytyczną o {N(points*.2f)} pp i zadawane obrażenia w walce wręcz o {N(points*.5f)}%.", resource);
                 case Godmist.Systems.Combat.ScoutCombatSystem.BladeTree:
-                    return $"{points}% szansy na zachowanie sztyletu, +{points}% siły zatrucia";
+                    return UiTerms.Present($"Daje {points}% szansy na niezużycie sztyletów i zwiększa zadawane obrażenia od zatrucia o {points}%.", resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Commander:
-                    return $"+{points * .3f:0.##}% szansy krytycznej, {points * .002f:0.###}% obrażeń trafienia jako nieuchronne za każdy procent ulepszenia broni";
+                    return UiTerms.Present($"Zwiększa szansę krytyczną o {N(points*.3f)} pp. Trafienia zadają dodatkowe obrażenia nieuchronne równe {N(points*.002f)}% zadanych obrażeń za każdy 1% ulepszenia broni.", resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Brawler:
-                    return $"+{points}% maksymalnej wściekłości, {points * 2}% wydanej wściekłości odzyskiwane jako HP";
+                    return UiTerms.Present($"Zwiększa maksymalną furię o {points}%. Wydawanie furii przywraca zdrowie równe {points*2}% wydanej ilości.", resource);
             }
             var summary = string.Join(", ", SkillTreeProgressionSystem
-                .GetGlobalPassiveModifiers(tree, points).Select(FormatModifier));
+                .GetGlobalPassiveModifiers(tree, points).Select(modifier => FormatModifier(modifier, resource)));
             if (!string.IsNullOrWhiteSpace(summary)) return summary;
             return points == 0 ? "Nie wydano jeszcze punktów."
                 : string.IsNullOrWhiteSpace(tree.GlobalPassive?.Description)
-                    ? "Brak opisu pasywu." : tree.GlobalPassive.Description;
+                    ? "Brak opisu pasywu." : UiTerms.Present(tree.GlobalPassive.Description, resource);
         }
 
-        private static string FormatModifier(StatModifier modifier)
+        private static string FormatModifier(StatModifier modifier, ResourceType resource)
         {
-            var value = modifier.Value;
-            var isPercentage = modifier.Operation == StatModifierOperation.Percent
-                || modifier.StatType is CharacterStatType.CritChance or CharacterStatType.Dodge;
-            var formattedValue = isPercentage
-                ? modifier.StatType == CharacterStatType.Dodge
-                    ? $"{value * 100f:+0;-0;0}%"
-                    : modifier.StatType == CharacterStatType.CritDamage
-                        ? $"{value * 100f:+0.00;-0.00;0.00}%"
-                        : $"{value * 100f:+0.##;-0.##;0}%"
-                : modifier.StatType == CharacterStatType.CritDamage
-                    ? $"{value:+0.00;-0.00;0.00}"
-                    : $"{value:+0.##;-0.##;0}";
-
-            return $"{formattedValue} {GetStatDisplayName(modifier.StatType)}";
+            return UIWorkspaceTooltipView.FormatStatusStatModifier(modifier.StatType, modifier.Operation, modifier.Value, resource);
         }
 
         private static string GetStatDisplayName(CharacterStatType statType)
         {
-            return statType switch
-            {
-                CharacterStatType.MinAttack => "Atak min.",
-                CharacterStatType.MaxAttack => "Atak maks.",
-                CharacterStatType.PhysicalDefense => "Obrona fiz.",
-                CharacterStatType.MagicalDefense => "Obrona mag.",
-                CharacterStatType.CritChance => "Szansa kryt.",
-                CharacterStatType.CritDamage => "Obrazenia kryt.",
-                CharacterStatType.MaxHealth => "Zdrowie",
-                CharacterStatType.Dodge => "Unik",
-                CharacterStatType.Speed => "Szybkosc",
-                CharacterStatType.ResourceRegeneration => "Regeneracja zasobu",
-                CharacterStatType.WeaponAccuracy => "Celnosc",
-                CharacterStatType.MaxResource => "Maks. zasob",
-                _ => statType.ToString()
-            };
+            return UiTerms.Stat(statType);
         }
 
         private static void Clear(Transform root, Transform template)

@@ -63,21 +63,21 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void RankComparisonPreservesUnitsAndWritesRulesOnlyOnce()
+        public void RankComparisonPreservesUnitsInSeparateFullDescriptions()
         {
             var node = Node("Przy ataku obrażenia +10/20/30%, przez 2/3/4 tury. Maksymalnie 5 kumulacji.", 3);
             var body = Plain(SkillTreeNodeView.BuildDetails(node, 1));
-            Assert.That(body, Does.Contain("+10% → 20%").And.Contain("2 → 3 tury"));
-            Assert.That(Regex.Matches(body, "Przy ataku").Count, Is.EqualTo(1));
-            Assert.That(Regex.Matches(body, "Maksymalnie 5 kumulacji").Count, Is.EqualTo(1));
+            Assert.That(body, Does.Contain("Aktualne:").And.Contain("Następne:").And.Contain("+10%").And.Contain("+20%").And.Contain("2 tury").And.Contain("3 tury"));
+            Assert.That(Regex.Matches(body, "Przy ataku").Count, Is.EqualTo(2));
+            Assert.That(Regex.Matches(body, "Maksymalnie 5 kumulacji").Count, Is.EqualTo(2));
             Assert.That(body, Does.Not.Contain("30%").And.Not.Contain("4 tury"));
         }
 
         [Test]
-        public void FixedDescriptionIsNotRepeatedBetweenRanks()
+        public void FixedDescriptionHasCurrentAndNextRankSections()
         {
             var body = Plain(SkillTreeNodeView.BuildDetails(Node("Raz na turę odnawia sztylet."), 1));
-            Assert.That(Regex.Matches(body, "Raz na turę").Count, Is.EqualTo(1));
+            Assert.That(Regex.Matches(body, "Raz na turę").Count, Is.EqualTo(2));
         }
 
         [Test]

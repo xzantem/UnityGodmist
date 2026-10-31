@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -334,28 +335,21 @@ namespace Godmist.Views.UI.Workspace
             else
             {
                 ranks = Mathf.Clamp(ranks, 0, node.EffectiveMaxRanks);
-                if (ranks == 0) text = "<b>Następne:</b>\n" + BuildRankDescription(node, 1);
-                else if (ranks >= node.EffectiveMaxRanks) text = "<b>Aktualne:</b>\n" + BuildRankDescription(node, ranks);
-                else
-                {
-                    var description = GetPassiveDescription(node);
-                    var matches = RankValues.Matches(description).Cast<Match>().ToArray();
-                    text = matches.Length > 0 && matches.All(match => match.Value.Split('/').Length == node.EffectiveMaxRanks)
-                        ? "<b>Aktualne → następne:</b>\n" + RankValues.Replace(description,
-                            match => RankValue(match, ranks - 1) + " → " + RankValue(match, ranks))
-                        : "<b>Efekt:</b>\n" + BuildRankDescription(node, ranks);
-                }
+                string At(int rank) => SkillTreeTooltipPresentation.Describe(node,rank,character,tooltip) ?? BuildRankDescription(node,rank);
+                if (ranks == 0) text = "<b>Następne:</b>\n" + At(1);
+                else if (ranks >= node.EffectiveMaxRanks) text = "<b>Aktualne:</b>\n" + At(ranks);
+                else text = "<b>Aktualne:</b>\n" + At(ranks) + "\n\n<b>Następne:</b>\n" + At(ranks+1);
             }
             var metadata = UIWorkspaceTooltipView.BuildPassiveMetadata(node.PassiveEffects, text);
             if (!string.IsNullOrWhiteSpace(metadata)) text += "\n" + metadata;
-            return text;
+            return UiTerms.Present(text, character?.ResourcePool?.ResourceType ?? ResourceType.None);
         }
 
         private static readonly Regex RankValues = new(@"[+-]?\d+(?:[.,]\d+)?%?(?:\s*/\s*[+-]?\d+(?:[.,]\d+)?%?)+");
 
         public static string BuildRankDescription(SkillTreeNodeDefinition node, int rank)
         {
-            var text = GetPassiveDescription(node);
+            var text = UiTerms.Present(GetPassiveDescription(node));
             if (node == null || node.EffectiveMaxRanks < 2) return text;
             var matches = RankValues.Matches(text).Cast<Match>().ToArray();
             // Only expand complete authored rank lists. Other slash notation stays intact.
@@ -368,6 +362,7 @@ namespace Godmist.Views.UI.Workspace
         {
             var values = match.Value.Split('/').Select(value => value.Trim()).ToArray();
             var value = values[index];
+            if(match.Value.StartsWith("+",StringComparison.Ordinal) && !value.StartsWith("+",StringComparison.Ordinal) && !value.StartsWith("-",StringComparison.Ordinal))value="+"+value;
             return values[^1].EndsWith("%") && !value.EndsWith("%") ? value + "%" : value;
         }
 
@@ -384,6 +379,7 @@ namespace Godmist.Views.UI.Workspace
                 .Replace(", maksymalnie do trzech pokoleń kopii", ". Nowe podpalenia mogą rozprzestrzeniać się dalej, do trzech kolejnych przeniesień.")
                 .Replace("Kliknięcie wyjmuje go rzucając [90%] krwawienie", "Wyjęcie noża ma 90% szansy na nałożenie krwawienia")
                 .Replace("Kombo narzuca [80%] krwawienie", "Kombo ma 80% szansy na nałożenie krwawienia")
+                .Replace("Podwójny Rzut narzuca [80%] krwawienie", "Podwójny Rzut ma 80% szansy na nałożenie krwawienia")
                 .Replace("obrażenia DoT", "obrażenia okresowe")
                 .Replace("obrażeń przedmitygacyjnych", "obrażeń przed ich redukcją")
                 .Replace("odnowionego surowca", "odnowionego zasobu").Replace("4/8 surowca", "4/8 zasobu")

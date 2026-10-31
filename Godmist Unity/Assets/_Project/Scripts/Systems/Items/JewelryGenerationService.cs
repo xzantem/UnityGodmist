@@ -26,6 +26,7 @@ namespace Godmist.Systems.Items
             var gem = Choose(definition.Gems, _ => true);
             if (metal == null || gem == null) return item;
 
+            if (!CraftingValueCalculator.TryValidate(new[] { metal.Material, gem.CraftingMaterial }, out _)) return null;
             ApplySelection(item, metal, gem);
             return item;
         }
@@ -38,6 +39,7 @@ namespace Godmist.Systems.Items
             if (definition == null || metal == null || gem == null) return null;
 
             var item = (JewelryItemInstance)itemFactory.Create(definition);
+            if (!CraftingValueCalculator.TryValidate(new[] { metal.Material, gem.CraftingMaterial }, out _)) return null;
             ApplySelection(item, metal, gem);
             return item;
         }

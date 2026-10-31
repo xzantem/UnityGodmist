@@ -21,6 +21,29 @@ namespace Godmist.Systems.Combat
         public static float ChillMaximumSpeed => GameDefinesRuntime.GetFloat(
             GameDefineIds.ChillMaximumSpeed, 20f);
 
+        // The status owns its canonical payload. Called only at effect entry boundaries:
+        // application, save restoration and detached AI projection.
+        public static PassiveEffectRuntime NormalizeStatus(PassiveEffectRuntime effect)
+        {
+            if (effect == null || !string.Equals(effect.EffectId, StatusEffectIds.Chill, StringComparison.OrdinalIgnoreCase))
+                return effect;
+            var modifiers = effect.GetPayload<StatModifiersPayload>()?.Modifiers;
+            if (modifiers == null)
+            {
+                modifiers = new List<StatModifier>();
+                effect.SetPayload(new StatModifiersPayload { Modifiers = modifiers });
+            }
+            modifiers.RemoveAll(m => m?.StatType == CharacterStatType.Speed && m.Operation == StatModifierOperation.Maximum);
+            modifiers.Add(CreateChillSpeedModifier());
+            return effect;
+        }
+
+        private static StatModifier CreateChillSpeedModifier() => new()
+        {
+            StatType = CharacterStatType.Speed, Operation = StatModifierOperation.Maximum,
+            Stacking = StatModifierStacking.Additive, Value = ChillMaximumSpeed
+        };
+
         public static bool IsDamageOverTimeStatus(string statusId)
         {
             return string.Equals(statusId, StatusEffectIds.Bleed,
@@ -142,13 +165,13 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            var effectId = $"{skill?.SkillId ?? "skill"}.on_hit_buff.{effectIndex}";
+            var effectId = SkillEffectIdentity.RuntimeId(skill, effect, "on_hit_buff");
             var runtimeEffect = CreateTimedCombatBuff(
                 source,
                 skill,
                 effectIndex,
                 effectId,
-                effect.DurationTurns);
+                effect.DurationTurns, effect);
             runtimeEffect.SetPayload(new OnHitStatusPayload
             {
                 StatusId = effect.OnHitStatusId,
@@ -182,8 +205,8 @@ namespace Godmist.Systems.Combat
 
             var runtimeEffect = CreateTimedCombatBuff(
                 source, skill, effectIndex,
-                $"{skill?.SkillId ?? "skill"}.unique_buff.{effectIndex}",
-                effect.DurationTurns);
+                SkillEffectIdentity.RuntimeId(skill, effect, "unique_buff"),
+                effect.DurationTurns, effect);
             runtimeEffect.SetPayload(new UniqueCombatBuffPayload
             {
                 BuffType = effect.UniqueBuffType
@@ -229,8 +252,8 @@ namespace Godmist.Systems.Combat
             if (target?.Character == null || effect == null || modifier == 0) return false;
 
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
-                $"{skill?.SkillId ?? "skill"}.action_points.{effectIndex}",
-                effect.DurationTurns);
+                SkillEffectIdentity.RuntimeId(skill, effect, "action_points"),
+                effect.DurationTurns, effect);
             runtimeEffect.SetPayload(new UniqueCombatBuffPayload
             {
                 BuffType = UniqueBuffType.ActionPointsNextTurn,
@@ -252,8 +275,8 @@ namespace Godmist.Systems.Combat
                     && effect.ResourceRegenerationBlockTurns <= 0)) return false;
 
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
-                $"{skill?.SkillId ?? "skill"}.resource_block.{effectIndex}",
-                effect.ResourceRegenerationBlockTurns);
+                SkillEffectIdentity.RuntimeId(skill, effect, "resource_block"),
+                effect.ResourceRegenerationBlockTurns, effect);
             runtimeEffect.SetPayload(new ResourceRegenerationBlockPayload());
             var applied = TryApplySkillRuntimeEffect(target.Character,
                 runtimeEffect, PassiveEffectStackingMode.ReplaceDurationAndValues);
@@ -278,8 +301,8 @@ namespace Godmist.Systems.Combat
             }
 
             var runtimeEffect = CreateTimedCombatBuff(source, skill, effectIndex,
-                $"{skill?.SkillId ?? "skill"}.damage_redirect.{effectIndex}",
-                effect.DurationTurns);
+                SkillEffectIdentity.RuntimeId(skill, effect, "damage_redirect"),
+                effect.DurationTurns, effect);
             runtimeEffect.SetPayload(new DamageRedirectPayload
             {
                 RedirectPercent = effect.RedirectedDamagePercent,
@@ -365,14 +388,14 @@ namespace Godmist.Systems.Combat
 
         private static PassiveEffectRuntime CreateTimedCombatBuff(
             BattleUnit source, SkillData skill, int effectIndex,
-            string effectId, int durationTurns)
+            string effectId, int durationTurns, SkillEffectData effect)
         {
             var isToggle = skill?.IsToggle == true;
             return new PassiveEffectRuntime(
                 effectId,
                 new List<PassiveEffectSourceRuntime>
                 {
-                    PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex)
+                    PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex, effect)
                 },
                 stacks: 1,
                 remainingDuration: isToggle ? 0 : Mathf.Max(1, durationTurns),
@@ -976,10 +999,10 @@ namespace Godmist.Systems.Combat
             }
 
             var runtimeEffect = new PassiveEffectRuntime(
-                $"{skill?.SkillId ?? "consumable"}.periodic_recovery.{effectIndex}",
+                SkillEffectIdentity.RuntimeId(skill, effect, "periodic_recovery"),
                 new List<PassiveEffectSourceRuntime>
                 {
-                    PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex)
+                    PassiveEffectSourceFactory.FromSkill(source, skill, effectIndex, effect)
                 },
                 1,
                 Mathf.Max(1, effect.DurationTurns),
@@ -1024,7 +1047,7 @@ namespace Godmist.Systems.Combat
                 ? PassiveEffectSourceFactory.FromSkill(
                     source,
                     skill,
-                    effectIndex)
+                    effectIndex, effect)
                 : PassiveEffectSourceFactory.FromRuntimeSystem(
                     source,
                     $"status.{effect.StatusId}");
@@ -1054,23 +1077,6 @@ namespace Godmist.Systems.Combat
                         ? new List<SkillEffectData>(effect.CounterattackEffects)
                         : new List<SkillEffectData>()
                 });
-            }
-
-            if (string.Equals(
-                    effect.StatusId,
-                    StatusEffectIds.Chill,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                runtimeEffect.StatModifiers = new List<StatModifier>
-                {
-                    new()
-                    {
-                        StatType = CharacterStatType.Speed,
-                        Operation = StatModifierOperation.Maximum,
-                        Stacking = StatModifierStacking.Additive,
-                        Value = ChillMaximumSpeed
-                    }
-                };
             }
 
             return runtimeEffect;
@@ -1134,13 +1140,15 @@ namespace Godmist.Systems.Combat
             return Mathf.Clamp01(resistanceMultiplier * (1f - r) * s);
         }
 
+        public static float CalculateSourceStatusChance(BattleUnit source,string statusId,float baseChance,CombatValueExplanation explanation=null)
+            => Mathf.Clamp01(baseChance+EquipmentEffectSystem.StatusChance(source?.Character,statusId,explanation));
+
         public static float CalculateStatusApplicationChance(
             BattleUnit source, BattleUnit target, string statusId, float baseChance, float additionalResistanceModifier = 0f)
         {
             if (target?.Character == null || string.IsNullOrWhiteSpace(statusId)) return 0f;
 
-            var chance = Mathf.Clamp01(baseChance
-                + EquipmentEffectSystem.StatusChance(source?.Character, statusId));
+            var chance = CalculateSourceStatusChance(source,statusId,baseChance);
             var naturalResistance = GetResistance(target, statusId, includeTolerance: false, additionalResistanceModifier);
             var naturalChance = CalculateEffectChance(chance, naturalResistance);
             var tolerance = target.GetStatusTolerance(statusId);
@@ -1321,7 +1329,7 @@ namespace Godmist.Systems.Combat
                     effect.StatusDamageMultiplier);
         }
 
-        private static int CalculateStatusDamagePerTurn(
+        public static int CalculateStatusDamagePerTurn(
             BattleUnit source,
             string statusId,
             float statusDamageMultiplier)

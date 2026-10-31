@@ -18,8 +18,7 @@ namespace Godmist.Systems.Combat
             if (effect?.EffectId != StatusEffectIds.Burn) return;
             var dot = effect.GetPayload<DamageOverTimePayload>();
             if (dot == null) return;
-            var multiplier = (1 + .02f * Points(source?.Character, Fire)) * (1 + .1f * F(source, "arcana"));
-            dot.RemainingTotalDamage = Mathf.RoundToInt(dot.RemainingTotalDamage * multiplier);
+            dot.RemainingTotalDamage = CalculateInitialBurnTotal(source,dot.RemainingTotalDamage);
             dot.DamagePerTurn = Mathf.CeilToInt(dot.RemainingTotalDamage / (float)Math.Max(1, effect.RemainingDuration));
             effect.SetStateValue(PassiveEffectRuntimeStateValue.Integer(Generation, 0));
             var rank = F(source, "fire_offering");
@@ -29,6 +28,16 @@ namespace Godmist.Systems.Combat
             new PassiveEffectLifecycleSystem().TryApplyTimedEffect(source.Character, copy, PassiveEffectStackingMode.ReplaceDurationAndAddTotalDamage, out _);
             new CharacterStatPipelineSystem().Refresh(source.Character);
         }
+        public static int CalculateInitialBurnTotal(BattleUnit source,int total,CombatValueExplanation explanation=null)
+        {
+            var tree=1+.02f*Points(source?.Character,Fire);
+            var arcana=1+.1f*F(source,"arcana");
+            if(tree!=1)explanation?.Add(Fire,"×"+tree.ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL")));
+            if(arcana!=1)explanation?.Add("node.mage.fire.arcana","×"+arcana.ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL")));
+            var multiplier=tree*arcana;
+            return Mathf.RoundToInt(total*multiplier);
+        }
+
         static PassiveEffectRuntime CopyBurn(PassiveEffectRuntime parent, float strength, int generation)
         {
             var dot = parent.GetPayload<DamageOverTimePayload>();

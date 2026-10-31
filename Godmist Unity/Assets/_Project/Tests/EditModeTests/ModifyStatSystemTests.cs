@@ -206,6 +206,7 @@ namespace Godmist.Tests.EditMode
         {
             var caster = CreateUnit();
             var target = CreateUnit();
+            target.Character.BaseResistances = new ResistanceSet { BleedResistance = .5f };
             target.Character.Resistances.BleedResistance = .5f;
             caster.Position = new GridPosition(0, 0);
             target.Position = new GridPosition(1, 0);
@@ -240,8 +241,7 @@ namespace Godmist.Tests.EditMode
                 ModifyResistanceSystem.GetModifier(target, ResistanceType.Bleed),
                 Is.EqualTo(-.25f));
             Assert.That(
-                target.Character.Resistances.BleedResistance
-                    + ModifyResistanceSystem.GetModifier(target, ResistanceType.Bleed),
+                target.Character.Resistances.BleedResistance,
                 Is.EqualTo(.25f));
 
             Object.DestroyImmediate(skill);

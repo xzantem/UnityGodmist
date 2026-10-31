@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            entries.Add(message);
+            entries.Add(UiTerms.Present(message));
             if (entries.Count > maximumEntries)
             {
                 entries.RemoveAt(0);

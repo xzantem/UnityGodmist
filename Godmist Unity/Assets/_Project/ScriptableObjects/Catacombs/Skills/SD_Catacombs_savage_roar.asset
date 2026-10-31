@@ -52,7 +52,8 @@ MonoBehaviour:
     chainTargets: 0
     requiredStatusId: 
   effects:
-  - effectType: 2
+  - stableEffectId: e5a22f8fa0b80b18d71b3b274
+    effectType: 2
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
@@ -136,7 +137,8 @@ MonoBehaviour:
     summonPersistent: 0
     summonGroupId: 
     damagePerOwnedSummonGroup: 
-  - effectType: 2
+  - stableEffectId: e8e78a3e56483a7b3822c3df4
+    effectType: 2
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
@@ -220,3 +222,4 @@ MonoBehaviour:
     summonPersistent: 0
     summonGroupId: 
     damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

@@ -53,7 +53,7 @@ namespace Godmist.Views.UI
 
             var character = unit.Character;
             if (unitNameText != null) unitNameText.text = character.Definition?.DisplayName ?? character.CharacterId;
-            var maxHealth = Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maxHealth = character.MaximumHealth;
             var shield = character.ShieldPool?.TotalShield ?? 0;
             var resource = character.ResourcePool;
             var accentColor = unit.IsPlayerSide ? playerAccentColor : enemyAccentColor;

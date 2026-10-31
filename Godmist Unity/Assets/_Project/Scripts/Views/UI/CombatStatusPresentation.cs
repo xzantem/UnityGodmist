@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Constants;
@@ -34,6 +35,7 @@ namespace Godmist.Views.UI
             Effects = groupedEffects ?? new[] { effect };
         }
         public PassiveEffectRuntime Effect { get; }
+        public string DisplayName => HeroCombatStatusText.Name(Effect?.EffectId, Effect?.DisplayName);
         public IReadOnlyList<PassiveEffectRuntime> Effects { get; }
         public bool IsDamageOverTimeGroup
         {
@@ -68,6 +70,9 @@ namespace Godmist.Views.UI
         {
             get
             {
+                if (HeroCombatStatusText.Key(Effect?.EffectId) == "mage.erosion" && Owner != null
+                    && Owner.MageState.FireErosion.TryGetValue(Effect.EffectId.Substring("mage.erosion.".Length), out var hits))
+                    return hits;
                 if (IsDamageOverTimeGroup)
                 {
                     var total = 0;
@@ -85,7 +90,7 @@ namespace Godmist.Views.UI
         {
             get
             {
-                var duration = Effect?.RemainingDuration ?? 0;
+                var duration = HeroCombatStatusText.IsFieldSlow(Effect?.EffectId) ? 0 : Effect?.RemainingDuration ?? 0;
                 foreach (var effect in Effects ?? Array.Empty<PassiveEffectRuntime>())
                     if (effect.RemainingDuration != duration || effect.Lifetime != Effect.Lifetime) return 0;
                 return duration;
@@ -116,7 +121,8 @@ namespace Godmist.Views.UI
         public static Sprite ResolveIcon(
             CombatStatusPresentation presentation,
             Func<string, Sprite> effectIcon,
-            IEnumerable<SkillData> skills)
+            IEnumerable<SkillData> skills,
+            IEnumerable<SkillTreeDefinition> trees = null)
         {
             var fallback = effectIcon?.Invoke("buff");
             var effectId = presentation.Effect?.EffectId;
@@ -126,13 +132,20 @@ namespace Godmist.Views.UI
             // Some glossary entries still use the same question-mark placeholder.
             if (dedicated != null && dedicated != fallback) return dedicated;
 
+            var iconSource = HeroCombatStatusText.IconSource(effectId);
+            if (iconSource?.StartsWith("node.", StringComparison.Ordinal) == true)
+                foreach (var tree in trees ?? Array.Empty<SkillTreeDefinition>())
+                    foreach (var node in tree?.Nodes ?? new List<SkillTreeNodeDefinition>())
+                        if (node?.Id == iconSource && (node.Icon != null || node.GrantedSkill?.Icon != null))
+                            return node.Icon != null ? node.Icon : node.GrantedSkill.Icon;
+
             Sprite skillIcon = null;
             var matchedIdLength = 0;
             foreach (var skill in skills ?? Array.Empty<SkillData>())
             {
                 if (skill == null || string.IsNullOrWhiteSpace(skill.SkillId)
                     || skill.SkillId.Length < matchedIdLength) continue;
-                var matches = effectId == "mage.tiring" && skill.SkillId == "skill.mage.tiring"
+                var matches = skill.SkillId == iconSource
                     || MatchesSkillSource(presentation.Aura?.AuraId, skill.SkillId)
                     || MatchesSkillSource(presentation.OutgoingRedirect?.SourceEffectId, skill.SkillId);
                 foreach (var effect in presentation.Effects ?? Array.Empty<PassiveEffectRuntime>())
@@ -211,7 +224,7 @@ namespace Godmist.Views.UI
                 {
                     result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {
                         EffectId=slayer.PhaseTwo ? Godmist.Systems.Combat.SkeletonSlayerBossSystem.RevengeStatusId : Godmist.Systems.Combat.SkeletonSlayerBossSystem.ArmorStatusId,
-                        DisplayName=slayer.PhaseTwo ? "Zemsta Zabójcy ("+(100+3*slayer.RevengeHits)+"% AP)" : "Kościana Zbroja",
+                        DisplayName=slayer.PhaseTwo ? "Zemsta Zabójcy ("+(100+3*slayer.RevengeHits)+"% " + UiTerms.ActionPointsShort + ")" : "Kościana Zbroja",
                         Stacks=1,Lifetime=PassiveEffectLifetime.CombatScoped},CombatStatusKind.Buff,30,owner:owner));
                     foreach(var entry in new[]{("defense","Nieugięta Obrona",slayer.DefenseTurns),("hammer","Młot Zniszczenia — przygotowanie",slayer.HammerTurns)})
                         if(entry.Item3>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {
@@ -244,6 +257,13 @@ namespace Godmist.Views.UI
                 if(owner.ScoutState.WeakPointTurns>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.weak_point",DisplayName="Słaby Punkt",Stacks=1,RemainingDuration=owner.ScoutState.WeakPointTurns,Lifetime=PassiveEffectLifetime.Timed},CombatStatusKind.Debuff,30,owner:owner));
                 if(owner.ScoutState.Knives.Count>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.embedded_knives",DisplayName="Wbite sztylety ("+owner.ScoutState.Knives.Count+")",Stacks=owner.ScoutState.Knives.Count,Lifetime=PassiveEffectLifetime.CombatScoped},CombatStatusKind.Debuff,30,owner:owner));
                 if(owner.ScoutState.AnalysisTurns>0)result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {EffectId="scout.analysis",DisplayName="Dogłębna Analiza",Stacks=1,RemainingDuration=owner.ScoutState.AnalysisTurns,Lifetime=PassiveEffectLifetime.Timed},CombatStatusKind.Buff,30,owner:owner));
+                foreach (var adaptation in owner.MageState.Adaptation)
+                    if (adaptation.Value.RemainingHits > 0)
+                        result.Add(new CombatStatusPresentation(new PassiveEffectRuntime {
+                            EffectId = "mage.adaptation." + adaptation.Key,
+                            DisplayName = "Adaptacja Energetyczna", Stacks = adaptation.Value.RemainingHits,
+                            Lifetime = PassiveEffectLifetime.CombatScoped
+                        }, CombatStatusKind.Buff, 30, owner: owner));
             }
             foreach (var aura in auraList)
             {
@@ -372,10 +392,12 @@ namespace Godmist.Views.UI
             {
                 var source = effect.Sources[0];
                 if (source == null || string.IsNullOrWhiteSpace(source.SourceId)) return null;
+                if (effect.EffectId is "paladin.zeal.base" or "paladin.zeal.extra")
+                    return "hero:paladin.zeal:" + source.SourceCharacterId;
                 if (source.SourceType == PassiveEffectSourceType.Skill)
                 {
                     var marker = source.SourceId.LastIndexOf(".effect.", StringComparison.Ordinal);
-                    if (marker > 0 && int.TryParse(source.SourceId.Substring(marker + 8), out _))
+                    if (marker > 0 && source.SourceId.Length > marker + 8)
                         return "skill:" + source.SourceId.Substring(0, marker) + ":" + source.SourceCharacterId;
                 }
                 if (source.SourceType == PassiveEffectSourceType.Consumable)
@@ -433,6 +455,12 @@ namespace Godmist.Views.UI
 
         private static bool IsDebuff(PassiveEffectRuntime effect)
         {
+            if (effect?.EffectId == "paladin.exposure") return true;
+            // A voluntary mixed-benefit toggle remains a buff, like Ofiara.
+            if (effect?.Sources != null)
+                foreach (var source in effect.Sources)
+                    if (source?.SourceId?.StartsWith(WarriorCombatSystem.DeathWish + ".", StringComparison.Ordinal) == true)
+                        return false;
             if (effect?.EffectId?.StartsWith("status.forest.demonic_plague.", StringComparison.Ordinal) == true) return true;
             var resistance = effect?.GetPayload<ResistanceModifierPayload>();
             if (resistance != null && resistance.Value < 0f)
@@ -443,7 +471,7 @@ namespace Godmist.Views.UI
             foreach (var modifier in effect.StatModifiers)
                 if (modifier.Value < 0f) return true;
             foreach (var modifier in effect.VariableModifiers)
-                if (modifier.Value < 0f) return true;
+                if (modifier.VariableType == GameplayVariableType.DamageReceivedPercent ? modifier.Value > 0f : modifier.Value < 0f) return true;
             return false;
         }
 

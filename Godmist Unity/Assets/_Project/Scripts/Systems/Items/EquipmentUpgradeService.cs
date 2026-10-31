@@ -108,7 +108,7 @@ namespace Godmist.Systems.Items
                 failureReason = $"Ulepszenie nie powiodło się; utrata {loss:P0} postępu. Nadmiarowe gniazda są nieaktywne.";
             }
             ApplyUpgradeStats(item);
-            if (owner != null && owner.Equipment.GetEquippedItems().Any(equipped => ReferenceEquals(equipped, item))) statPipeline.Refresh(owner);
+            RefreshEquippedOwner(session, item);
             return true;
         }
 
@@ -150,8 +150,7 @@ namespace Godmist.Systems.Items
                 : roll < up + unchanged ? item.CurrentRarity : (RarityTier)((int)item.CurrentRarity - 1);
             item.CurrentRarity = result;
             ApplyUpgradeStats(item);
-            if (owner != null && owner.Equipment.GetEquippedItems().Any(equipped => ReferenceEquals(equipped, item)))
-                statPipeline.Refresh(owner);
+            RefreshEquippedOwner(session, item);
             failureReason = string.Empty;
             return true;
         }
@@ -211,14 +210,25 @@ namespace Godmist.Systems.Items
             if (session == null || blacksmith?.Definition?.GetRole<BlacksmithRoleData>() == null || item?.EquipmentDefinition == null || catalog == null)
             { error = "Nieprawidłowa usługa kowala lub wyposażenie."; return false; }
             if (item.Definition.ItemType is not (ItemType.Weapon or ItemType.Armor)) { error = "Ulepszać i reforgować można tylko broń oraz pancerz."; return false; }
+            if (!EquipmentServiceOwnership.Contains(session, item))
+            { error = "Wybierz wyposażenie aktywnej drużyny albo ze schowka."; return false; }
             if (item.EquipmentDefinition.IsStarterEquipment)
             { error = "Wyposażenia startowego nie można ulepszać ani reforgować."; return false; }
             var parts = (item.PartIds ?? new()).Select(id => catalog.EquipmentPartDefinitions.FirstOrDefault(part => part != null && part.Id == id)).ToList();
             if (parts.Count == 0 || parts.Any(part => part == null)) { error = "Wyposażenie ma brakujące dane części."; return false; }
+            if (!CraftingValueCalculator.TryValidate(parts.SelectMany(part => part.CraftingMaterials ?? new())
+                    .Where(input => input?.Material != null).Select(input => input.Material), out error)) return false;
             baseValue = parts.Sum(part => (part.CraftingMaterials ?? new()).Where(requirement => requirement?.Material != null).Sum(requirement => requirement.Amount * GetDefinitionValue(requirement.Material)));
             if (item.CraftedBaseValue > 0) baseValue = item.CraftedBaseValue;
             if (baseValue <= 0) { error = "Części wyposażenia muszą mieć dodatnią wartość materiałów."; return false; }
             return true;
+        }
+
+        private void RefreshEquippedOwner(GameSession session, EquipmentItemInstance item)
+        {
+            // The legacy owner argument is not proof of ownership and may be stale.
+            var actualOwner = EquipmentServiceOwnership.FindEquippedOwner(session, item);
+            if (actualOwner != null) statPipeline.Refresh(actualOwner);
         }
 
         private static float GetDefinitionValue(ItemDefinition definition) => definition is CraftableItemDefinition craftable ? craftable.CalculatedBaseValue : Mathf.Max(0, definition.BaseValue);

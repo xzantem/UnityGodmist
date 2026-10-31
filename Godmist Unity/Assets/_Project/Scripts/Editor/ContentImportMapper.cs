@@ -251,8 +251,8 @@ namespace Godmist.Editor
             SetInt(source, row, "ExperienceReward", "experience_reward", "xp", "experience");
             SetInt(source, row, "GoldReward", "gold_reward", "gold");
             SetInt(source, row, "BaseStats.MaxHealth", "hp", "health", "zdrowie");
-            SetInt(source, row, "BaseStats.MinAttack", "min_attack", "atk1", "atak min");
-            SetInt(source, row, "BaseStats.MaxAttack", "max_attack", "atk2", "atak max");
+            SetFloat(source, row, "BaseStats.MinAttack", "min_attack", "atk1", "atak min");
+            SetFloat(source, row, "BaseStats.MaxAttack", "max_attack", "atk2", "atak max");
             SetFloat(source, row, "BaseStats.PhysicalDefense", "physical_defense", "obrona fizyczna");
             SetFloat(source, row, "BaseStats.MagicalDefense", "magical_defense", "obrona magiczna");
             SetFloat(source, row, "BaseStats.Dodge", "dodge", "unik");

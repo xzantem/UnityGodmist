@@ -143,13 +143,13 @@ namespace Godmist.Systems.Combat
                 PassiveEffectSourceFactory.FromSkill(
                     source,
                     skill,
-                    effectIndex)
+                    effectIndex, effect)
             };
 
             var isTimed = !skill.IsToggle && effect.DurationTurns > 0;
 
             return new PassiveEffectRuntime(
-                BuildEffectId(skill.SkillId, effectIndex),
+                SkillEffectIdentity.RuntimeId(skill, effect, "modify_stat"),
                 sources,
                 stacks: 1,
                 remainingDuration: isTimed ? effect.DurationTurns : 0,
@@ -171,12 +171,7 @@ namespace Godmist.Systems.Combat
             };
         }
 
-        private static string BuildEffectId(
-            string skillId,
-            int effectIndex)
-        {
-            return $"{skillId}.modify_stat.{effectIndex}";
-        }
+
     }
 
     /// <summary>
@@ -289,7 +284,7 @@ namespace Godmist.Systems.Combat
         public static float CalculateResistance(
             CharacterInstance character,
             ResistanceType type,
-            float combatModifier = 0f)
+            float combatModifier = 0f, CombatValueExplanation explanation = null)
         {
             if (character == null) return 0f;
 
@@ -304,6 +299,7 @@ namespace Godmist.Systems.Combat
                 ResistanceType.Move => values?.MoveResistance ?? 0f,
                 _ => 0f
             };
+            explanation?.Add("base",result);
             if (character.PassiveEffects != null)
             {
                 foreach (var effect in character.PassiveEffects)
@@ -315,16 +311,22 @@ namespace Godmist.Systems.Combat
                         || payload.ResistanceType == ResistanceType.All))
                     {
                         result += payload.Value;
+                        explanation?.Add(effect.EffectId,payload.Value);
                     }
                 }
             }
 
             if (type == ResistanceType.Fire)
             {
-                result += .01f * MageCombatSystem.Points(character, MageCombatSystem.Fire);
+                var fireBonus = .01f * MageCombatSystem.Points(character, MageCombatSystem.Fire);
+                result += fireBonus;
+                explanation?.Add(MageCombatSystem.Fire,fireBonus);
             }
 
-            return UnityEngine.Mathf.Clamp01(result + EquipmentEffectSystem.Resistance(character, type) + combatModifier);
+            var raw = result + EquipmentEffectSystem.Resistance(character, type, explanation) + combatModifier;
+            if(combatModifier!=0)explanation?.Add("combat",combatModifier);
+            explanation?.Add("raw",raw);
+            return UnityEngine.Mathf.Clamp01(raw);
         }
 
         private static float GetLegacyModifier(BattleUnit unit, ResistanceType type)
@@ -345,13 +347,13 @@ namespace Godmist.Systems.Combat
             var isTimed = !skill.IsToggle && effect.DurationTurns > 0;
 
             var runtimeEffect = new PassiveEffectRuntime(
-                BuildEffectId(skill.SkillId, effectIndex),
+                SkillEffectIdentity.RuntimeId(skill, effect, "modify_resistance"),
                 new List<PassiveEffectSourceRuntime>
                 {
                     PassiveEffectSourceFactory.FromSkill(
                         source,
                         skill,
-                        effectIndex)
+                        effectIndex, effect)
                 },
                 stacks: 1,
                 remainingDuration: isTimed ? effect.DurationTurns : 0,
@@ -373,12 +375,9 @@ namespace Godmist.Systems.Combat
             return runtimeEffect;
         }
 
-        public static string BuildEffectId(string skillId, int effectIndex)
+        public static string BuildEffectId(SkillData skill, int effectIndex)
         {
-            // Crushing Blow's suppression debuff historically occupied slot 2.
-            // Preserve its identity when moving it before stun, including saved effects.
-            if (skillId == "skill.paladin.crushing_blow") effectIndex = 2;
-            return $"{skillId}.modify_resistance.{effectIndex}";
+            return SkillEffectIdentity.RuntimeId(skill, effectIndex, "modify_resistance");
         }
     }
 }

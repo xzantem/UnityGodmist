@@ -74,8 +74,8 @@ namespace Godmist.Tests.EditMode
             {
                 var basis=data.FindProperty("<BaseStats>k__BackingField");
                 basis.FindPropertyRelative("<MaxHealth>k__BackingField").intValue=(int)historicalBase.x;
-                basis.FindPropertyRelative("<MinAttack>k__BackingField").intValue=(int)historicalBase.y;
-                basis.FindPropertyRelative("<MaxAttack>k__BackingField").intValue=(int)historicalBase.z;
+                basis.FindPropertyRelative("<MinAttack>k__BackingField").floatValue=(int)historicalBase.y;
+                basis.FindPropertyRelative("<MaxAttack>k__BackingField").floatValue=(int)historicalBase.z;
             }
             if (Original.TryGetValue(BaseId(source.Id), out var growth))
             {
@@ -104,8 +104,8 @@ namespace Godmist.Tests.EditMode
                     var authoredBase=new Vector3(Mathf.RoundToInt(reduced.x*multiplier),
                         Mathf.RoundToInt(reduced.y*multiplier),Mathf.RoundToInt(reduced.z*multiplier));
                     basis.FindPropertyRelative("<MaxHealth>k__BackingField").intValue=(int)authoredBase.x;
-                    basis.FindPropertyRelative("<MinAttack>k__BackingField").intValue=(int)authoredBase.y;
-                    basis.FindPropertyRelative("<MaxAttack>k__BackingField").intValue=(int)authoredBase.z;
+                    basis.FindPropertyRelative("<MinAttack>k__BackingField").floatValue=(int)authoredBase.y;
+                    basis.FindPropertyRelative("<MaxAttack>k__BackingField").floatValue=(int)authoredBase.z;
                     full+=(originalBase-(ramp?anchorBase:reduced))/199f;
                     if(ramp)lateOffset=anchorBase-reduced;
                 }

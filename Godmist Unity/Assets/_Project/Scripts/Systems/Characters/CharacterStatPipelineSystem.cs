@@ -15,7 +15,7 @@ namespace Godmist.Systems.Characters
         // The planner uses the same arithmetic without reconciliation, lifecycle
         // or mutation of any CharacterInstance.
         public static float EvaluateModifiers(float baseValue, CharacterStatType type,
-            IEnumerable<PassiveEffectRuntime> effects)
+            IEnumerable<PassiveEffectRuntime> effects, bool clampResult = true, bool applyMaximum = true)
         {
             var accumulator = StatModifierAccumulator.Create();
             foreach (var effect in effects)
@@ -26,11 +26,11 @@ namespace Godmist.Systems.Characters
                 foreach (var modifier in modifiers)
                     if (modifier != null && modifier.StatType == type) accumulator.Add(modifier);
             }
-            var value = CalculateEffectiveValue(baseValue, accumulator);
-            return type == CharacterStatType.MaxHealth ? Mathf.Max(1f, value) : Mathf.Max(0f, value);
+            var value = CalculateEffectiveValue(baseValue, accumulator, applyMaximum);
+            return !clampResult ? value : type == CharacterStatType.MaxHealth ? Mathf.Max(1f, value) : Mathf.Max(0f, value);
         }
 
-        public void Refresh(CharacterInstance character)
+        public void Refresh(CharacterInstance character, bool treePreview = false)
         {
             if (character?.Stats == null) return;
 
@@ -41,7 +41,8 @@ namespace Godmist.Systems.Characters
                 foreach(var id in character.ActiveSkillLoadout.ActiveSkillIds)
                     if(!known.Contains(id))character.ActiveSkillLoadout.TryRemoveSkill(id);
             }
-            new PassiveEffectReconciliationSystem().Reconcile(character);
+            if (treePreview) new PassiveEffectReconciliationSystem().ReconcileSkillTrees(character);
+            else new PassiveEffectReconciliationSystem().Reconcile(character);
             var accumulators = new Dictionary<CharacterStatType, StatModifierAccumulator>();
 
             ApplyPassiveEffectModifiers(character.PassiveEffects, accumulators);
@@ -56,7 +57,7 @@ namespace Godmist.Systems.Characters
 
                 if (accumulators.TryGetValue(statType, out var accumulator))
                 {
-                    effectiveValue = CalculateEffectiveValue(effectiveValue, accumulator);
+                    effectiveValue = CalculateEffectiveValue(effectiveValue, accumulator, statType != CharacterStatType.Speed);
                 }
 
                 effectiveValue = statType == CharacterStatType.MaxHealth
@@ -69,24 +70,47 @@ namespace Godmist.Systems.Characters
             WarriorCombatSystem.ApplyStats(character);
             MageCombatSystem.ApplyStats(character);
             UniqueEquipmentCombatRules.ApplyDerivedStats(character);
-            var attackMultiplier = Mathf.Max(0f, character.Definition?.AttackMultiplier ?? 1f);
-            character.Stats.MinAttack.SetEffectiveValue(character.Stats.MinAttack.GetValue() * attackMultiplier);
-            character.Stats.MaxAttack.SetEffectiveValue(character.Stats.MaxAttack.GetValue() * attackMultiplier);
             SyncDependentRuntimeValues(character);
-            character.Stats.Speed.SetEffectiveValue(character.Stats.Speed.GetValue()
-                + MomentumResourceRule.SpeedBonus(character.ResourcePool, character.ResourcePool?.CurrentValue ?? 0));
+            character.Stats.Speed.SetEffectiveValue(ApplyFinalSpeedMaximum(character,
+                character.Stats.Speed.GetValue()
+                + MomentumResourceRule.SpeedBonus(character.ResourcePool, character.ResourcePool?.CurrentValue ?? 0)));
+        }
+
+        // Pure speed calculation for detached planner state; uses the same derived rules as Refresh.
+        public static float CalculateEffectiveSpeed(CharacterInstance character)
+        {
+            var speed = EvaluateModifiers(character.Stats.Speed.BaseValue, CharacterStatType.Speed,
+                character.PassiveEffects, applyMaximum: false);
+            speed += WarriorCombatSystem.SpeedBonus(character) + MageCombatSystem.SpeedBonus(character)
+                + MomentumResourceRule.SpeedBonus(character.ResourcePool, character.ResourcePool?.CurrentValue ?? 0);
+            return ApplyFinalSpeedMaximum(character, speed);
+        }
+
+        public static float ApplyFinalSpeedMaximum(CharacterInstance character, float speed)
+        {
+            foreach (var effect in character.PassiveEffects)
+            {
+                if (!PassiveEffectLifecycleSystem.IsActive(effect)) continue;
+                var modifiers = effect.GetPayload<StatModifiersPayload>()?.Modifiers;
+                if (modifiers != null)
+                    foreach (var modifier in modifiers)
+                        if (modifier?.StatType == CharacterStatType.Speed && modifier.Operation == StatModifierOperation.Maximum)
+                        speed = Mathf.Min(speed, modifier.Value);
+
+            }
+            return Mathf.Max(0, speed);
         }
 
         private static float CalculateEffectiveValue(
             float baseValue,
-            StatModifierAccumulator accumulator)
+            StatModifierAccumulator accumulator, bool applyMaximum = true)
         {
             var effectiveValue = (baseValue + accumulator.FlatBaseBonus)
                 * (1f + accumulator.AdditivePercentBonus)
                 * accumulator.MultiplicativePercentMultiplier
                 + accumulator.FlatAbsoluteBonus;
 
-            return accumulator.HasMaximum
+            return applyMaximum && accumulator.HasMaximum
                 ? Mathf.Min(effectiveValue, accumulator.MaximumValue)
                 : effectiveValue;
         }
@@ -132,9 +156,7 @@ namespace Godmist.Systems.Characters
 
         private static void SyncDependentRuntimeValues(CharacterInstance character)
         {
-            var maxHealth = Mathf.Max(
-                1,
-                Mathf.RoundToInt(character.Stats.MaxHealth.GetValue()));
+            var maxHealth = character.MaximumHealth;
 
             character.CurrentHealth = Mathf.Clamp(character.CurrentHealth, 0, maxHealth);
 

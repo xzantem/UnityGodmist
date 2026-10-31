@@ -461,7 +461,7 @@ namespace Godmist.Views.UI.Workspace
                 if (stack == null) stacks.Add(new List<ItemInstance> { item });
                 else stack.Add(item);
             }
-            foreach (var stack in stacks)
+            foreach (var stack in ItemDisplayOrder.Sort(stacks, group => group[0]))
             {
                 var view = Instantiate(itemTemplate, root); view.gameObject.SetActive(true);
                 view.Bind(this, stack[0], stack.Count, isStash); spawned.Add(view);

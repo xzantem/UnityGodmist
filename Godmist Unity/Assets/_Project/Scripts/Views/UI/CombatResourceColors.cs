@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using Godmist.Core.Enums;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,13 +16,7 @@ namespace Godmist.Views.UI
         private static readonly Color Momentum = new(0.25f, 0.78f, 0.55f, 1f);
         private static readonly Color Mana = new(0.27f, 0.59f, 0.94f, 1f);
 
-        public static string ResourceName(ResourceType type) => type switch
-        {
-            ResourceType.Rage => "Furia",
-            ResourceType.Momentum => "Impet",
-            ResourceType.Mana => "Mana",
-            _ => "Zasób"
-        };
+        public static string ResourceName(ResourceType type) => UiTerms.Resource(type);
 
         public static Color Get(ResourceType resourceType)
         {

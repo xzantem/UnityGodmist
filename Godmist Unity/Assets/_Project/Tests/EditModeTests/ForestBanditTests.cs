@@ -44,8 +44,8 @@ namespace Godmist.Tests.EditMode
         {
             Assert.That(Bandit, Is.Not.Null);
             Assert.That(Bandit.BaseStats.MaxHealth, Is.EqualTo(216));
-            Assert.That(Bandit.BaseStats.MinAttack, Is.EqualTo(31));
-            Assert.That(Bandit.BaseStats.MaxAttack, Is.EqualTo(49));
+            Assert.That(Bandit.BaseStats.MinAttack, Is.EqualTo(26.35f).Within(.0001f));
+            Assert.That(Bandit.BaseStats.MaxAttack, Is.EqualTo(41.65f).Within(.0001f));
             Assert.That(Bandit.BaseStats.Speed, Is.EqualTo(52));
             Assert.That(Bandit.GrowthData.MaxHealth, Is.EqualTo(23f)); // PT-06 level48 calibration.
             Assert.That(Bandit.StartingSkills.Select(s => s.ResourceCost), Is.EqualTo(new[] { 0, 45, 35 }));
@@ -66,7 +66,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(caster.Character.ResourcePool.CurrentValue, Is.EqualTo(55));
             Assert.That(execution.TryExecute(session, caster, Bandit.BasicAttackSkill, target), Is.True);
             Assert.That(StatusEffectSystem.IsInvisible(caster), Is.False);
-            var critBuffId = Bandit.StartingSkills[1].SkillId + ".modify_stat.1";
+            var critBuffId = Godmist.Data.Skills.SkillEffectIdentity.RuntimeId(Bandit.StartingSkills[1], 1, "modify_stat");
             var critBuff = caster.Character.PassiveEffects.Single(effect => effect.EffectId == critBuffId);
             Assert.That(critBuff.RemainingDuration, Is.EqualTo(2));
             Assert.That(caster.Character.Stats.CritChance.GetValue(), Is.EqualTo(crit + .1f).Within(.0001f));

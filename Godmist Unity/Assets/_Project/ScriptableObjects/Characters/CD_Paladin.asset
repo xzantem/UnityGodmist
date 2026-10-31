@@ -57,8 +57,19 @@ MonoBehaviour:
     <MaxHealth>k__BackingField: 20
     <MinAttack>k__BackingField: 0.6
     <MaxAttack>k__BackingField: 0.8
+    <LateMaxHealth>k__BackingField: 0
+    <LateMinAttack>k__BackingField: 0
+    <LateMaxAttack>k__BackingField: 0
+    <EarlyMaxHealth>k__BackingField: 0
+    <EarlyMinAttack>k__BackingField: 0
+    <EarlyMaxAttack>k__BackingField: 0
+    <LateMaxHealthOffset>k__BackingField: 0
+    <HealthCurve>k__BackingField: []
+    <LateMinAttackOffset>k__BackingField: 0
+    <LateMaxAttackOffset>k__BackingField: 0
     <PhysicalDefense>k__BackingField: 0.6
     <MagicalDefense>k__BackingField: 0.6
+    <DefenseCurve>k__BackingField: []
     <Dodge>k__BackingField: 0.04
     <CritChance>k__BackingField: 0
     <CritDamage>k__BackingField: 0
@@ -66,6 +77,11 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
+  <SecondPhaseDefinition>k__BackingField: {fileID: 0}
+  <TransformationFramesPerSecond>k__BackingField: 8
+  <TransformationFrames>k__BackingField: []
+  <SanctuaryWarning>k__BackingField: {fileID: 0}
+  <SanctuaryFire>k__BackingField: {fileID: 0}
   <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: c1490e635a5521f4e8e5013441f80a08, type: 2}
   <StartingSkills>k__BackingField:
   - {fileID: 11400000, guid: c1490e635a5521f4e8e5013441f80a08, type: 2}

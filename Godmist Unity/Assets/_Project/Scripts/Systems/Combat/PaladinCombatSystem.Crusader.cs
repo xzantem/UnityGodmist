@@ -104,7 +104,7 @@ namespace Godmist.Systems.Combat
                     position: contact, source: source, targetVfx: CombatTargetVfxKind.HolyImpact));
                 if(field.RemainingDurationTurns==2&&C(source,"exhaustion")>0)statuses.ApplyStatus(source,target,StatusEffectIds.Stun,1,C(source,"exhaustion"),1,0,0,"paladin.exhaustion");
                 if(field.RemainingDurationTurns==1&&C(source,"judgement_release")>0)
-                {var burst=CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.AttackRange,.5f*C(source,"judgement_release"));damage.ApplyDamage(session,source,target,CombatDamageSystem.ApplyDefense(source,target,burst,DamageType.Magical),DamageType.Magical,allowWarriorProcs:false);}
+                {var burst=CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.AttackRange,HeroTalentEffectValues.JudgementReleaseMultiplier(C(source,"judgement_release")));damage.ApplyDamage(session,source,target,CombatDamageSystem.ApplyDefense(source,target,burst,DamageType.Magical),DamageType.Magical,allowWarriorProcs:false);}
             }
         }
         public static void RemoveFieldEffects(CombatSession session,SummonedCombatMapObject field)

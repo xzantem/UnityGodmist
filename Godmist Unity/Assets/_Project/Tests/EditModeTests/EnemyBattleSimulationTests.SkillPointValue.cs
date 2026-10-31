@@ -126,8 +126,8 @@ namespace Godmist.Tests.EditMode
                 targetsByModeIndex:new Dictionary<int,IReadOnlyList<BattleUnit>>{{0,new[]{target}}},attackType:attack,attackPosition:AttackPosition.Front,damageType:kind,distance:melee?1:4);
             var s=source.Character.Stats;var t=target.Character.Stats;
             var hit=kind==DamageType.Physical?CombatDamageSystem.ApplyHitChanceBonus(source.Character,CombatDamageSystem.CalculateHitChance(source.Character.WeaponAccuracy,100,t.Dodge.GetValue())):1f;
-            var crit=kind==DamageType.Physical?Mathf.Clamp01((PassiveEffectCombatExecutionSystem.ApplyCriticalChance(session,ctx,s.CritChance.GetValue())+ScoutCombatSystem.CriticalChance(ctx))
-                *WarriorCombatSystem.CriticalMultiplier(source,target)*MageCombatSystem.CritReceived(session,target,source)*PaladinCombatSystem.CriticalMultiplier(source,target)):0f;
+            var crit=kind==DamageType.Magical?MageCombatSystem.CalculateMagicCriticalChance(ctx):kind==DamageType.Physical?Mathf.Clamp01((PassiveEffectCombatExecutionSystem.ApplyCriticalChance(session,ctx,s.CritChance.GetValue())+ScoutCombatSystem.CriticalChance(ctx))
+                *WarriorCombatSystem.CriticalMultiplier(source,target)*PaladinCombatSystem.CriticalMultiplier(source,target)):0f;
             var critical=Mathf.Max(1,s.CritDamage.GetValue()+ScoutCombatSystem.WeakPointCriticalDamage(target));
             var pre=ScoutCombatSystem.DamageMultiplier(ctx)*WarriorCombatSystem.DamageMultiplier(ctx)*MageCombatSystem.DamageMultiplier(ctx)*PaladinCombatSystem.DamageMultiplier(ctx);
             var vars=new CombatVariableSystem();

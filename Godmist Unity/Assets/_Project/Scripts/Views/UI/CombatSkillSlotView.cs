@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
@@ -104,7 +105,7 @@ namespace Godmist.Views.UI
         {
             actionCost = calculatedActionCost;
             unavailableReason = reason;
-            if (actionCostText != null && displayedActionCost != actionCost) { displayedActionCost = actionCost; actionCostText.text = $"{Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} AP"; }
+            if (actionCostText != null && displayedActionCost != actionCost) { displayedActionCost = actionCost; actionCostText.text = $"{Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} {UiTerms.ActionPointsShort}"; }
             if (selectedFrame != null) selectedFrame.enabled = selected;
             if (button != null)
             {
@@ -149,7 +150,7 @@ namespace Godmist.Views.UI
             hoverChanged?.Invoke(true);
             if (consumable != null)
                 tooltipView?.ShowItemWithExtra(consumable, casterProvider?.Invoke()?.Character, this,
-                    $"Koszt: {ActionPointUnits.Format(actionCost)} AP" + (string.IsNullOrEmpty(unavailableReason) ? "" : "\n" + unavailableReason));
+                    $"Koszt: {ActionPointUnits.Format(actionCost)} {UiTerms.ActionPointsShort}" + (string.IsNullOrEmpty(unavailableReason) ? "" : "\n" + unavailableReason));
             else tooltipView?.ShowSkill(skill, actionCost, this, casterProvider?.Invoke(), unavailableReason);
         }
 

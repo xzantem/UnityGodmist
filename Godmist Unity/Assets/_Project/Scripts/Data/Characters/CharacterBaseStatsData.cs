@@ -7,8 +7,8 @@ namespace Godmist.Data.Characters
     public class CharacterBaseStatsData
     {
         [field: SerializeField] public int MaxHealth { get; private set; } = 100;
-        [field: SerializeField] public int MinAttack { get; private set; } = 8;
-        [field: SerializeField] public int MaxAttack { get; private set; } = 12;
+        [field: SerializeField] public float MinAttack { get; private set; } = 8;
+        [field: SerializeField] public float MaxAttack { get; private set; } = 12;
 
         [field: SerializeField] public float PhysicalDefense { get; private set; } = 10f;
         [field: SerializeField] public float MagicalDefense { get; private set; } = 10f;

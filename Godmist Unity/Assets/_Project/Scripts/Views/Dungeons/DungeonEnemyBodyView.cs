@@ -339,7 +339,7 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            var shader = Shader.Find("Godmist/Combat/Solid Sprite Silhouette");
+            var shader = Godmist.Views.Combat.CombatOutlineShader.Load();
             if (shader == null)
             {
                 Debug.LogError("DungeonEnemyBodyView: nie znaleziono shadera obramowki.");

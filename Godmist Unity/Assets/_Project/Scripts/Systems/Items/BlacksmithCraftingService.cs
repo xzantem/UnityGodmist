@@ -125,6 +125,11 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
+            if (!CraftingValueCalculator.TryValidate((request.Parts ?? Array.Empty<EquipmentPartDefinition>())
+                    .Where(part => part != null).SelectMany(part => part.CraftingMaterials ?? new())
+                    .Where(input => input?.Material != null).Select(input => input.Material), out var valueFailure))
+            { preview.FailureReason = valueFailure; return preview; }
+
             var result = equipmentGeneration.GenerateFromSelectedParts(
                 request.Definition,
                 request.Parts,
@@ -236,6 +241,10 @@ namespace Godmist.Systems.Items
             paidGold = 0;
             failureReason = string.Empty;
 
+            if (!CraftingValueCalculator.TryValidate((request?.Parts ?? Array.Empty<EquipmentPartDefinition>())
+                    .Where(part => part != null).SelectMany(part => part.CraftingMaterials ?? new())
+                    .Where(input => input?.Material != null).Select(input => input.Material), out failureReason)) return false;
+
             if (!IsValidBlacksmith(blacksmith)
                 || blacksmith.Definition.GetRole<TraderRoleData>() == null
                 || blacksmith.ShopInventory?.Items == null
@@ -264,8 +273,7 @@ namespace Godmist.Systems.Items
                     item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
-            paidGold = stock.Sum(item =>
-                CraftingMerchantStock.Price(blacksmith, item));
+            if (!CraftingMerchantStock.TryQuote(blacksmith, stock, out paidGold, out failureReason)) return false;
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -362,6 +370,9 @@ namespace Godmist.Systems.Items
         {
             costs = new List<CraftingMaterialCost>();
             var requiredAmounts = new Dictionary<ItemDefinition, int>();
+            if (!CraftingValueCalculator.TryValidate((request?.Parts ?? Array.Empty<EquipmentPartDefinition>())
+                    .Where(part => part != null).SelectMany(part => part.CraftingMaterials ?? new())
+                    .Where(input => input?.Material != null).Select(input => input.Material), out _)) return false;
 
             foreach (var part in request?.Parts ?? Array.Empty<EquipmentPartDefinition>())
             {
@@ -395,16 +406,18 @@ namespace Godmist.Systems.Items
                 var missing = Mathf.Max(0, pair.Value - owned);
                 var stock = GetBlacksmithStock(blacksmith, pair.Key.Id);
 
+                var validQuote = CraftingMerchantStock.TryQuoteMaterial(blacksmith, pair.Key.Id, Mathf.Min(missing, stock), out var price, out var quoteReason);
                 costs.Add(new CraftingMaterialCost
                 {
                     Material = pair.Key,
                     RequiredAmount = pair.Value,
                     OwnedAmount = owned,
                     AvailableFromBlacksmith = stock,
-                    PurchasePrice = GetStockPurchasePrice(blacksmith, pair.Key.Id, Mathf.Min(missing, stock))
+                    PurchasePrice = price,
+                    PurchaseFailureReason = quoteReason
                 });
                 var cost = costs[costs.Count - 1];
-                cost.CanAffordPurchase = cost.PurchasableAmount > 0
+                cost.CanAffordPurchase = validQuote && cost.PurchasableAmount > 0
                     && cost.PurchasePrice > 0
                     && session != null
                     && session.Gold >= cost.PurchasePrice;
@@ -457,19 +470,6 @@ namespace Godmist.Systems.Items
         private static int GetBlacksmithStock(NpcInstance blacksmith, string definitionId) =>
             CraftingMerchantStock.Items(blacksmith).Count(item =>
                 item?.Definition?.Id == definitionId);
-
-        private int GetStockPurchasePrice(
-            NpcInstance blacksmith,
-            string definitionId,
-            int amount)
-        {
-            if (amount <= 0) return 0;
-
-            return CraftingMerchantStock.Items(blacksmith)
-                .Where(candidate => candidate?.Definition?.Id == definitionId)
-                .Take(amount)
-                .Sum(item => CraftingMerchantStock.Price(blacksmith, item));
-        }
 
         private static bool TrySelectConsumedItems(
             GameSession session,

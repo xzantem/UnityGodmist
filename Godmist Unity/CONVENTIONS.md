@@ -111,6 +111,19 @@ Przykłady:
 
 `Systems` nie powinno być zależne od UI ani sceny.
 
+#### Baza ataku zależna od poziomu
+
+`CharacterInstanceFactory` dla bazy startowej i `CharacterLevelGrowthSystem` po
+pełnym wzroście poziomu wyliczają `Stat.BaseValue` z definicji. Runtime `Stat.BaseValue` dla
+MinAttack/MaxAttack jest bezpośrednim wynikiem danych bazowych i przyrostów.
+Baza ataku dopuszcza wartości ułamkowe. Dawna korekta przeciwników ×0,85 jest
+wliczona w bazę i wszystkie składowe przyrostu w assetach; nie istnieje osobny
+mnożnik postaci. Wyposażenie, efekty, premie pochodne i limity działają po bazie.
+Odtwarzanie zapisu przelicza bazę z aktualnej definicji, bez mnożenia zachowanych efektów.
+Atak przeciwnika edytuje się w CharacterDefinition (Inspector/import danych).
+Historyczne generatory Lasu i Katakumb zachowują istniejące dane ATK; nie tworzą
+nowych CharacterDefinitions ze starych tabel balansu. Brak takiej definicji jest jawnym błędem setupu.
+
 ### 2.5. Views
 
 Warstwa `Views` zawiera:
@@ -427,6 +440,30 @@ Zasady:
 - HUD i panele nie podejmują decyzji gameplayowych,
 - UI pyta systemy o stan i wywołuje akcje przez warstwę logiczną,
 - tooltipy i inspect panele są prezentacją danych, a nie ich źródłem.
+
+### Wspólne nazwy statystyk, modyfikatorów i odporności
+
+Źródłem nazw w polskim UI jest `Scripts/Core/Utilities/UiTerms.cs`:
+`Stat`, `Variable`, `Resistance`, `Damage`, `Status`, `Galduryte` oraz stałe etykiet.
+Nowe widoki i generowane tooltipy korzystają z tego słownika zamiast lokalnych
+mapowań i własnych synonimów. Uzgodnione nazwy to m.in. „Szansa krytyczna”,
+„Siła leczenia”, „Penetracja fizyczna” i „Penetracja magiczna”. W sekcji
+„Odporności” krótkie nazwy wierszy pochodzą z `ResistanceRow` tego samego słownika.
+
+Kontekst zasobu przekazujemy jawnie: postać, jej umiejętności, drzewko i status
+o znanym odbiorcy używają many/furii/impetu. Dla statusu liczy się odbiorca,
+nie rzucający. Przy nieznanym zasobie celu zachowujemy „zasób”. Mikstury,
+galduryty i ogólne przedmioty nadal używają „zasób”; sprzęt przypisany do klasy
+może używać nazwy zasobu tej klasy. Nie przenosimy kontekstu oglądającej postaci
+na ogólny tooltip przedmiotu.
+
+Nazwy nie określają operacji matematycznej: flat Unik/Celność to punkty,
+addytywna zmiana prawdopodobieństwa to `pp`, zmiana względna to `%`.
+Regeneracja, generowanie i odzysk zasobu oraz odporność i redukcja obrażeń
+pozostają odrębnymi pojęciami. Nie zmieniamy wartości ani zasad przez zmianę nazwy.
+`UiTerms.Present` obsługuje historyczne synonimy w istniejących opisach podczas
+prezentacji, zachowując dane źródłowe i linki TMP. Nie zastępuje typowanego
+słownika przy dodawaniu nowych etykiet. Długie opisy mechanik zmieniamy osobno.
 
 ## 13. Konwencje dotyczące debugowania
 

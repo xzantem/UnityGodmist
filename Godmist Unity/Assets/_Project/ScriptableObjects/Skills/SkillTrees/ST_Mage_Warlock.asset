@@ -184,7 +184,7 @@ MonoBehaviour:
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.mage.warlock.mass_sacrifice
     <DisplayName>k__BackingField: "Zbiorowe Przej\u0119cie Mocy"
-    <Description>k__BackingField: "Mo\u017Cesz u\u017Cy\u0107 Po\u015Bwi\u0119cenia
+    <Description>k__BackingField: "Mo\u017Cesz u\u017Cy\u0107 Przej\u0119cia Mocy
       na 2/3 sojusznikach"
     <Icon>k__BackingField: {fileID: 21300000, guid: 5ec4508ce46dd1640a500988b6602bf2, type: 3}
     <Tier>k__BackingField: 3

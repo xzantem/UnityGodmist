@@ -39,7 +39,7 @@ namespace Godmist.Systems.Combat
                     foreach(var ally in session.Units)if(ally.IsPlayerSide==source.IsPlayerSide && ally.Character.LifeState==CharacterLifeState.Alive){ally.WarriorState.FreeMovementTurns=3;}
                     return true;
                 case EffectType.HealMissingHealthPercent:
-                    return recovery.Heal(target,Mathf.RoundToInt(Mathf.Max(0,target.Character.Stats.MaxHealth.GetValue()-target.Character.CurrentHealth)*effect.PercentageValue))>0;
+                    return recovery.Heal(target,Mathf.RoundToInt(Mathf.Max(0,target.Character.MaximumHealth-target.Character.CurrentHealth)*effect.PercentageValue))>0;
             }
             return false;
         }
@@ -52,10 +52,10 @@ namespace Godmist.Systems.Combat
             if(critical)
             {
                 var amok=B(source,"amok");if(amok>0)ScoutCombatSystem.TimedStat(source,source,CharacterStatType.MaxResource,10+10*amok,5,"warrior.amok");
-                var wounds=C(source,"deep_wounds");if(wounds>0)statuses.ApplyStatus(source,target,StatusEffectIds.Bleed,.9f,3,1,.3f+.15f*wounds,0,"warrior.deep_wounds");
+                var wounds=C(source,"deep_wounds");if(wounds>0)statuses.ApplyStatus(source,target,StatusEffectIds.Bleed,.9f,3,1,HeroTalentEffectValues.DeepWoundsMultiplier(wounds),0,"warrior.deep_wounds");
                 var trauma=C(source,"trauma");if(trauma>0 && UnityEngine.Random.value<StatusEffectSystem.CalculateEffectChance(.85f,StatusEffectSystem.GetResistance(target,StatusEffectIds.Weakening))){target.WarriorState.TraumaTurns=5;target.WarriorState.TraumaBonus=.3f*trauma;}
             }
-            if(ctx.SkillId=="skill.warrior.whirlwind" && B(source,"conflagration")>0)statuses.ApplyStatus(source,target,StatusEffectIds.Burn,.15f,2,1,B(source,"conflagration")==1?.3f:.5f,0,"warrior.conflagration");
+            if(ctx.SkillId=="skill.warrior.whirlwind" && B(source,"conflagration")>0)statuses.ApplyStatus(source,target,StatusEffectIds.Burn,.15f,2,1,HeroTalentEffectValues.ConflagrationMultiplier(B(source,"conflagration")),0,"warrior.conflagration");
             var bonus=hitDamage*.00002f*Points(source.Character,Commander)*100*(source.Character.Equipment?.Weapon?.UpgradeProgress??0);
             source.WarriorState.TrueDamageRemainder+=bonus;var extra=Mathf.FloorToInt(source.WarriorState.TrueDamageRemainder);source.WarriorState.TrueDamageRemainder-=extra;
             if(extra>0)damage.ApplyDamage(session,source,target,extra,DamageType.Inevitable,allowWarriorProcs:false);
@@ -74,7 +74,7 @@ namespace Godmist.Systems.Combat
         public static void DamageDealt(BattleUnit source,BattleUnit target,PassiveEffectCombatContext ctx)
         {
             if(!IsRage(source) || GainBlocked(source) || ctx?.SkillId == WarriorDischargeRules.SkillId)return;
-            var gain=ctx?.SkillId==Cut?5*B(source,"rage"):0;
+            var gain=ctx?.SkillId==Cut?HeroTalentEffectValues.CutRageBonus(B(source,"rage")):0;
             if(StatusEffectSystem.HasStatus(target,StatusEffectIds.Stun))gain+=Mathf.RoundToInt(Godmist.Data.Configuration.GameDefinesRuntime.GetInt(Godmist.Data.Configuration.GameDefineIds.RagePerHit,10)*.5f*B(source,"unawareness"));
             if(gain>0)source.Character.ResourcePool.Restore(gain);Refresh(source);
         }

@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "discharge",
+    "destination": "Assets/_Project/Art/Icons/Skills/VS22/discharge-32.png",
+    "sourceSha256": "9657f879987aa170d8e1c50b824bcd0c69234c16f8ae7adffe15389c470c9921",
+    "outputSha256": "2de05417628a95c788d49de5b1519a010127ace74e34979200762c4a3cf65809"
+  },
+  {
+    "slug": "wounding",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/wounding-32.png",
+    "sourceSha256": "eaf7f266a7cc97e792d7fb7a14cac0a2a7a91aa1974ceb438e98a8372f2d8301",
+    "outputSha256": "f455a04fef67936fc522c023a24dfc549932a00fc3b4b62b27a71771d4f17d2f"
+  },
+  {
+    "slug": "larger_wound",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/larger_wound-32.png",
+    "sourceSha256": "177512579592423b9dc8c6b570bf973faa8568f380f2acce983dd60aa4bac68e",
+    "outputSha256": "e956781fd633c915aadd7144f208974134dc6ad39bd200b326a53860de403012"
+  },
+  {
+    "slug": "revenge",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/revenge-32.png",
+    "sourceSha256": "bcd4119acc15be22c5a533190d7f0eae5da9c1645d5684275d019be9b25196b1",
+    "outputSha256": "c559e01241365c41f0ad871760b9c5c9f12dfcfb6ca725ba4f3f2c2ff25c798a"
+  },
+  {
+    "slug": "efficient_recovery",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutBladeDancer/efficient_recovery-32.png",
+    "sourceSha256": "345a5c8f6bdecd3b209181c446904ecf7989542555e74fbfb2e44bdfc59fa2a8",
+    "outputSha256": "bc587a42a83e7cc478183871a05d315b925a1b1adea7887214a2a3a7be3aa795"
+  }
+]

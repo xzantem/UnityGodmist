@@ -118,7 +118,8 @@ namespace Godmist.Tests.EditMode
             data.Characters.Add(new CharacterSaveData { CharacterId = "missing.character", ClassId = "missing.class", Level = 1 });
             File.WriteAllText(path, serializer.Serialize(data));
             File.WriteAllText(Path.Combine(temporaryDirectoryPath, "invalid.json"), "{broken");
-            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "Odtwarzanie GameSession odrzucone przy odtwarzaniu postaci.");
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error,
+                new System.Text.RegularExpressions.Regex(@"Etap: Characters; pole: \$\.Characters\[0\]\.CharacterId; kod: UnknownReference.*ID: 'missing.character'"));
             Assert.That(manager.TryLoadLatestValid(contentCatalog, out var restored, out var message), Is.True, message);
             Assert.That(restored.CampaignId, Is.EqualTo("valid"));
             Assert.That(File.Exists(path), Is.True);

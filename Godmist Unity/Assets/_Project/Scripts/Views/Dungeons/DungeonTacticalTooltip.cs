@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -241,7 +242,7 @@ namespace Godmist.Views.Dungeons
                 if (floor.Objects[index] is ObstacleDungeonObjectInstance obstacleAtCell && obstacleAtCell.OccupiesCell(cell))
                     return string.Empty;
             var lines = new List<string>();
-            if (floor.Map.IsDifficultTerrain(cell)) lines.Add("Trudny teren: +1 AP za wejście. W eksploracji ruch wolniejszy o 50%.");
+            if (floor.Map.IsDifficultTerrain(cell)) lines.Add($"Trudny teren: +1 {UiTerms.ActionPointsShort} za wejście. W eksploracji ruch wolniejszy o 50%.");
             foreach (var obj in floor.Objects)
             {
                 if (!obj.IsActive) continue;
@@ -261,7 +262,7 @@ namespace Godmist.Views.Dungeons
             foreach (var edge in floor.Map.WallEdges)
                 if (edge.FirstCell == cell || edge.SecondCell == cell) walls.Add(floor.Map.GetWallType(edge));
             foreach (var wall in walls)
-                lines.Add(wall == DungeonWallType.Low ? "Niski murek przy polu: przejście +2 AP, tylko na istniejącą podłogę."
+                lines.Add(wall == DungeonWallType.Low ? $"Niski murek przy polu: przejście +2 {UiTerms.ActionPointsShort}, tylko na istniejącą podłogę."
                     : wall == DungeonWallType.Full ? "Pełna ściana przy polu: blokuje ruch i widoczność."
                     : "Balustrada przy polu: blokuje ruch, przepuszcza widoczność.");
             return string.Join("\n", lines);

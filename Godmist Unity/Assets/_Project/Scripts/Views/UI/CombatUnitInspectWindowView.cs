@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -59,6 +60,7 @@ namespace Godmist.Views.UI
         private readonly List<GameObject> skillRows = new();
         private readonly List<Image> actionPointPips = new();
 
+        private readonly CharacterStatHoverController statHover = new();
         private RectTransform rectTransform;
         private BattleUnit boundUnit;
         private UIWorkspaceTooltipView tooltip;
@@ -145,7 +147,7 @@ namespace Godmist.Views.UI
 
             var maxHealth = character.Stats == null
                 ? 1f
-                : Mathf.Max(1f, character.Stats.MaxHealth.GetValue());
+                : character.MaximumHealth;
             var shield = character.ShieldPool?.TotalShield ?? 0;
             var resource = character.ResourcePool;
 
@@ -155,7 +157,7 @@ namespace Godmist.Views.UI
                 portrait.enabled = portrait.sprite != null;
             }
 
-            if(vitals != null) vitals.Bind(boundUnit);
+            if(vitals != null) vitals.Bind(boundUnit,statValueLinks:true);
             else
             {
             SetSliderValue(healthSlider, character.CurrentHealth, maxHealth);
@@ -171,16 +173,13 @@ namespace Godmist.Views.UI
 
             if (healthValueText != null)
             {
-                healthValueText.text = FormatHealthValue(
-                    character.CurrentHealth,
-                    maxHealth,
-                    shield);
+                healthValueText.text = CharacterStatValueLinks.Health(character);
             }
 
             SetValueTextVisible(resourceValueText, resource != null && resource.MaxValue > 0);
             if (resourceValueText != null && resource != null)
             {
-                resourceValueText.text = $"{resource.CurrentValue}/{resource.MaxValue}";
+                resourceValueText.text = CharacterStatValueLinks.Resource(character);
             }
 
             if (sideFrame != null)
@@ -204,9 +203,7 @@ namespace Godmist.Views.UI
             if(actionPointPipRoot!=null)actionPointPipRoot.gameObject.SetActive(hasActionPoints);
             if(overviewLayout!=null)overviewLayout.minHeight=overviewLayout.preferredHeight=hasActionPoints?140:112;
 
-            BuildStatsColumns(character, out var statsLeft, out var statsRight);
-            ApplyStatsColumn(statsLeftText,statsLeftValues,statsLeft);
-            ApplyStatsColumn(statsRightText,statsRightValues,statsRight);
+            RefreshStatColumns();
             if(statsLayout!=null)
                 statsLayout.minHeight=statsLayout.preferredHeight=Mathf.Ceil(Mathf.Max(statsLeftText?.preferredHeight??0,statsRightText?.preferredHeight??0)+30);
             tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
@@ -241,11 +238,29 @@ namespace Godmist.Views.UI
 
         public void Hide()
         {
+            statHover.Clear();
             boundUnit = null;
             statusSignature = null;
             skillSignature = null;
             if (canvasGroup != null) canvasGroup.alpha = 0f;
             gameObject.SetActive(false);
+        }
+
+        private void OnDisable() => statHover.Clear();
+        private void LateUpdate()
+        {
+            if(boundUnit?.Character==null)return;
+            RefreshStatColumns();
+            statHover.Tick(Input.mousePosition);
+        }
+        private void RefreshStatColumns()
+        {
+            var character=boundUnit.Character;
+            BuildStatsColumns(character,out var left,out var right);
+            ApplyStatsColumn(statsLeftText,statsLeftValues,CharacterStatValueLinks.Decorate(left,character));
+            ApplyStatsColumn(statsRightText,statsRightValues,CharacterStatValueLinks.Decorate(right,character,true));
+            statHover.Bind(character,transform,tooltip,statsLeftText,statsLeftValues,statsRightText,statsRightValues,
+                vitals!=null?vitals.HealthValueText:healthValueText,vitals!=null?vitals.ResourceValueText:resourceValueText);
         }
 
         private void RefreshActionPointPips(BattleUnit unit)
@@ -454,42 +469,42 @@ namespace Godmist.Views.UI
             }
 
             var left = new StringBuilder();
-            AppendStatRange(left, "Atak", FormatRange(
+            AppendStatRange(left, UiTerms.Attack, FormatRange(
                 stats.MinAttack.GetValue(),
                 stats.MaxAttack.GetValue()));
-            AppendStat(left, "Obrona fizyczna", stats.PhysicalDefense.GetValue(), format: "0");
-            AppendStat(left, "Obrona magiczna", stats.MagicalDefense.GetValue(), format: "0");
-            AppendStat(left, "Przebicie fizyczne",
+            AppendStat(left, UiTerms.Stat(CharacterStatType.PhysicalDefense), stats.PhysicalDefense.GetValue(), format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.MagicalDefense), stats.MagicalDefense.GetValue(), format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.PhysicalDefensePenetration),
                 stats.PhysicalDefensePenetration.GetValue() * 100f, "%");
-            AppendStat(left, "Przebicie magiczne",
+            AppendStat(left, UiTerms.Stat(CharacterStatType.MagicalDefensePenetration),
                 stats.MagicalDefensePenetration.GetValue() * 100f, "%");
-            AppendStat(left, "Celność", character.WeaponAccuracy, format: "0");
-            AppendStat(left, "Unik", stats.Dodge.GetValue(), format: "0");
-            AppendStat(left, "Szansa krytyczna",
+            AppendStat(left, UiTerms.Stat(CharacterStatType.WeaponAccuracy), character.WeaponAccuracy, format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.Dodge), stats.Dodge.GetValue(), format: "0");
+            AppendStat(left, UiTerms.Stat(CharacterStatType.CritChance),
                 stats.CritChance.GetValue() * 100f, "%");
-            AppendStat(left, "Obrażenia krytyczne",
-                stats.CritDamage.GetValue(), "x", false, "0.00");
+            AppendStatRange(left, UiTerms.Stat(CharacterStatType.CritDamage),
+                "×" + stats.CritDamage.GetValue().ToString("0.##", UiTerms.PolishCulture));
 
-            AppendStat(left, "Szybkość", stats.Speed.GetValue());
+            AppendStat(left, UiTerms.Stat(CharacterStatType.Speed), stats.Speed.GetValue());
 
             var resource = character.ResourcePool;
             if (resource?.ResourceType == ResourceType.Mana)
             {
-                AppendStat(left, "Regeneracja many", resource.Regeneration);
+                AppendStat(left, UiTerms.Stat(CharacterStatType.ResourceRegeneration, resource.ResourceType), resource.Regeneration);
             }
 
             var right = new StringBuilder();
-            AppendStat(right, "Krwawienie",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Bleed),
                 character.Resistances?.BleedResistance ?? 0f, "%", true);
-            AppendStat(right, "Trucizna",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Poison),
                 character.Resistances?.PoisonResistance ?? 0f, "%", true);
-            AppendStat(right, "Ogień",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Fire),
                 character.Resistances?.FireResistance ?? 0f, "%", true);
-            AppendStat(right, "Osłabienie",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Weakening),
                 character.Resistances?.WeakeningResistance ?? 0f, "%", true);
-            AppendStat(right, "Kontrola",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Suppression),
                 character.Resistances?.SuppressionResistance ?? 0f, "%", true);
-            AppendStat(right, "Przemieszczenie",
+            AppendStat(right, UiTerms.ResistanceRow(ResistanceType.Move),
                 character.Resistances?.MoveResistance ?? 0f, "%", true);
 
             leftColumn = left.ToString();
@@ -508,7 +523,7 @@ namespace Godmist.Views.UI
             var displayedValue = valueIsFraction ? value * 100f : value;
             result.Append(label)
                 .Append(": ")
-                .Append(displayedValue.ToString(format))
+                .Append(displayedValue.ToString(format, UiTerms.PolishCulture))
                 .Append(suffix);
         }
 
@@ -544,10 +559,10 @@ namespace Godmist.Views.UI
 
         private string FormatStatus(PassiveEffectRuntime effect)
         {
-            var name = effect.DisplayName;
+            var name = HeroCombatStatusText.Name(effect.EffectId, effect.DisplayName);
             if (string.IsNullOrWhiteSpace(name)) name = tooltip?.GetGlossaryTitle(effect.EffectId);
             if (string.IsNullOrWhiteSpace(name)) name = FormatEffectId(effect.EffectId);
-            return effect.RemainingDuration > 0
+            return effect.RemainingDuration > 0 && !HeroCombatStatusText.IsFieldSlow(effect.EffectId)
                 ? $"{name}  •  {effect.RemainingDuration} t."
                 : name;
         }

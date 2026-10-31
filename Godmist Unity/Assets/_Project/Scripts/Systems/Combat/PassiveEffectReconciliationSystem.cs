@@ -33,11 +33,23 @@ namespace Godmist.Systems.Combat
                 AddSocketedGaldurytes(character, item);
             }
 
-            foreach (var tree in character.ClassData?.SkillTrees
-                         ?? new List<SkillTreeDefinition>())
-            {
+            AddSkillTreeEffects(character);
+        }
+
+        // Preview rebuilds only tree-derived effects. Equipment and active runtime
+        // payloads can be read as-is without recalculating or mutating owned items.
+        public void ReconcileSkillTrees(CharacterInstance character)
+        {
+            character.PassiveEffects.RemoveAll(effect => effect.Sources?.Exists(source =>
+                source?.SourceType == PassiveEffectSourceType.SkillTree
+                && source.SourceId.StartsWith(ManagedSkillTreeSourcePrefix,StringComparison.Ordinal)) == true);
+            AddSkillTreeEffects(character);
+        }
+
+        private static void AddSkillTreeEffects(CharacterInstance character)
+        {
+            foreach (var tree in character.ClassData?.SkillTrees ?? new List<SkillTreeDefinition>())
                 AddSkillTreePassives(character, tree);
-            }
         }
 
         public static bool IsManaged(PassiveEffectRuntime effect)
@@ -315,12 +327,11 @@ namespace Godmist.Systems.Combat
                         definition,
                         CreateSource(PassiveEffectSourceType.SkillTree, sourceId),
                         $"{sourceId}.{definition?.Id}",
-                        out var runtime))
+                        out var runtime, ranks))
                 {
                     continue;
                 }
 
-                ScaleRuntimeValues(runtime, ranks);
                 character.PassiveEffects.Add(runtime);
             }
 
@@ -341,15 +352,13 @@ namespace Godmist.Systems.Combat
                             CreateSource(
                                 PassiveEffectSourceType.SkillTree,
                                 sourceId),
-                            out var runtime))
+                            out var runtime, nodeRanks))
                     {
                         continue;
                     }
 
                     runtime.EffectId =
                         $"{sourceId}.node.{node.Id}.{definition?.Id}";
-                    runtime.Stacks = nodeRanks;
-                    ScaleRuntimeValues(runtime, nodeRanks);
                     if (string.IsNullOrWhiteSpace(runtime.DisplayName))
                         runtime.DisplayName = node.DisplayName ?? string.Empty;
                     character.PassiveEffects.Add(runtime);
@@ -467,25 +476,6 @@ namespace Godmist.Systems.Combat
         private static string BuildEquipmentSourceId(EquipmentItemInstance item)
         {
             return $"{ManagedEquipmentSourcePrefix}{item?.InstanceId ?? string.Empty}";
-        }
-
-        private static void ScaleRuntimeValues(
-            PassiveEffectRuntime runtime,
-            int multiplier)
-        {
-            if (runtime == null) return;
-
-            foreach (var modifier in runtime.StatModifiers ?? new List<StatModifier>())
-                modifier.Value *= multiplier;
-
-            foreach (var modifier in runtime.VariableModifiers
-                         ?? new List<GameplayVariableModifier>())
-            {
-                modifier.Value *= multiplier;
-            }
-
-            var resistance = runtime.GetPayload<ResistanceModifierPayload>();
-            if (resistance != null) resistance.Value *= multiplier;
         }
 
         private static List<StatModifier> CopyStatModifiers(

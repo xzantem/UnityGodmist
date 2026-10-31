@@ -196,7 +196,7 @@ namespace Godmist.Tests.EditMode
             item.StatModifiers=new(){new StatModifier{StatType=CharacterStatType.MinAttack,Value=15},new StatModifier{StatType=CharacterStatType.MaxAttack,Value=28},new StatModifier{StatType=CharacterStatType.CritChance,Value=.05f},new StatModifier{StatType=CharacterStatType.CritDamage,Value=.53f},new StatModifier{StatType=CharacterStatType.WeaponAccuracy,Value=65}};
             var next=new EquipmentItemInstance{Definition=definition,StatModifiers=new(){new StatModifier{StatType=CharacterStatType.MinAttack,Value=15},new StatModifier{StatType=CharacterStatType.MaxAttack,Value=28},new StatModifier{StatType=CharacterStatType.CritChance,Value=.055f},new StatModifier{StatType=CharacterStatType.CritDamage,Value=.583f},new StatModifier{StatType=CharacterStatType.WeaponAccuracy,Value=66.95f}}};
             var text=UIWorkspaceTooltipView.BuildEquipmentReforgeChanges(item,next);
-            Assert.That(text,Does.Contain($"5% → <color=#3D9E63>{5.5f:0.##}%</color>"));
+            Assert.That(text,Does.Contain($"5 pp → <color=#3D9E63>{5.5f:0.##} pp</color>"));
             Assert.That(text,Does.Contain($"Obrażenia krytyczne: {.53f:0.00} → <color=#3D9E63>{.58f:0.00}</color>"));
             Assert.That(text,Does.Contain("Celność: 65 → <color=#3D9E63>67</color>"));
             Assert.That(text,Does.Not.Contain("Atak:"));Assert.That(text,Does.Not.Contain("Gniazda:"));
@@ -242,12 +242,12 @@ namespace Godmist.Tests.EditMode
             Field(definition,"ItemType",ItemType.Weapon);
             item.StatModifiers=new(){new StatModifier{StatType=CharacterStatType.MinAttack,Value=15},new StatModifier{StatType=CharacterStatType.MinAttack,Operation=StatModifierOperation.Percent,Value=.1f}};
             var next=new EquipmentItemInstance{Definition=definition,UpgradeProgress=.1f,StatModifiers=new(){new StatModifier{StatType=CharacterStatType.MinAttack,Value=15.1f},new StatModifier{StatType=CharacterStatType.MinAttack,Operation=StatModifierOperation.Percent,Value=.12f}}};
-            Assert.That(UIWorkspaceTooltipView.BuildEquipmentUpgradeChanges(item,next),Does.Contain("Atak min. (%): 10% → <color=#3D9E63>12%</color>").And.Contain("Gniazda: 0 → 0").And.Not.Contain("Atak: "));
+            Assert.That(UIWorkspaceTooltipView.BuildEquipmentUpgradeChanges(item,next),Does.Contain("Minimalny atak (%): 10% → <color=#3D9E63>12%</color>").And.Contain("Gniazda: 0 → 0").And.Not.Contain("Atak: "));
         }
         [Test] public void EquipmentUsesSignedStatsCompactRequirementsAndCurrencyIcon()
         {
             var body=UIWorkspaceTooltipView.BuildEquipmentDetails(item,null);
-            Assert.That(body,Does.Contain("Rzadkość: Pospolity").And.Contain("Jakość: Normalna").And.Contain("Maks. zdrowie: +50").And.Contain("Unik: +10").And.Not.Contain("Galduryty: 0/0"));
+            Assert.That(body,Does.Contain("Rzadkość: Pospolity").And.Contain("Jakość: Normalna").And.Contain("Maksymalne zdrowie: +50").And.Contain("Unik: +10").And.Not.Contain("Galduryty: 0/0"));
             Assert.That(body.IndexOf("Statystyki"),Is.LessThan(body.IndexOf("Poziom:")));
             Assert.That(body,Does.Not.Contain("Typ: Pancerz").And.Not.Contain("Ulepszenie:").And.Not.Contain("Wymagany poziom:"));
             Assert.That(UIWorkspaceTooltipView.BuildItemMeta(item),Is.EqualTo("5 kg • <sprite name=\"gold\"> 0"));
@@ -267,10 +267,10 @@ namespace Godmist.Tests.EditMode
             item.StatModifiers.Add(new StatModifier{StatType=CharacterStatType.MaxHealth,Operation=StatModifierOperation.Percent,Stacking=StatModifierStacking.Multiplicative,Value=.2f});
             item.StatModifiers.Add(new StatModifier{StatType=CharacterStatType.CritDamage,Value=.25f});
             var criticalBonus=.25f.ToString("0.00");
-            Assert.That(UIWorkspaceTooltipView.BuildEquipmentDetails(item,null),Does.Contain("Maks. zdrowie: +50").And.Contain("+32%").And.Contain("Obrażenia krytyczne: +"+criticalBonus).And.Not.Contain("×"+criticalBonus));
+            Assert.That(UIWorkspaceTooltipView.BuildEquipmentDetails(item,null),Does.Contain("Maksymalne zdrowie: +50").And.Contain("+32%").And.Contain("Obrażenia krytyczne: +"+criticalBonus).And.Not.Contain("×"+criticalBonus));
         }
         [TestCase("class.mage", "Regeneracja many", "Maksymalna mana")]
-        [TestCase("class.warrior", "Regeneracja zasobu", "Maksymalny zasób")]
+        [TestCase("class.warrior", "Regeneracja furii", "Maksymalna furia")]
         public void ResourceLabelsFollowEquipmentClass(string classId, string regeneration, string maximum)
         {
             item.RequiredClassId=classId;
@@ -292,9 +292,9 @@ namespace Godmist.Tests.EditMode
                 part.Stats.CritDamagePercent=.2f;
                 var raw=(string)typeof(BlacksmithCraftingWindowView).GetMethod("BuildPartTooltip",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{part});
                 var text=System.Text.RegularExpressions.Regex.Replace(raw,"<[^>]+>","");
-                Assert.That(text,Does.Contain("Statystyki bazowe").And.Contain("Szansa krytyczna: +5%").And.Contain("Zmiany procentowe").And.Contain("Obrażenia krytyczne: +20%").And.Not.Contain("↑").And.Not.Contain("↓"));
-                if(minimum==maximum) Assert.That(text,Does.Contain($"Atak: {minimum*100f:+0.##;-0.##;0}%").And.Not.Contain("Atak min.").And.Not.Contain("Atak maks."));
-                else Assert.That(text,Does.Contain("Atak min.: -10%").And.Contain("Atak maks.: +20%"));
+                Assert.That(text,Does.Contain("Statystyki bazowe").And.Contain("Szansa krytyczna: +5 pp").And.Contain("Zmiany procentowe").And.Contain("Obrażenia krytyczne: +20%").And.Not.Contain("↑").And.Not.Contain("↓"));
+                if(minimum==maximum) Assert.That(text,Does.Contain($"Atak: {minimum*100f:+0.##;-0.##;0}%").And.Not.Contain("Minimalny atak").And.Not.Contain("Maksymalny atak"));
+                else Assert.That(text,Does.Contain("Minimalny atak: -10%").And.Contain("Maksymalny atak: +20%"));
             }
             finally { Object.DestroyImmediate(part); }
         }
@@ -387,7 +387,7 @@ namespace Godmist.Tests.EditMode
                 System.Globalization.CultureInfo.CurrentCulture=new System.Globalization.CultureInfo("pl-PL");
                 var body=(string)typeof(UIWorkspaceTooltipView).GetMethod("BuildItemBody",Hidden).Invoke(tooltip,new object[]{galduryte,owner});
                 Assert.That(body.Split('•').Length-1,Is.EqualTo(3));
-                Assert.That(body,Does.Contain("Obrażenia fizyczne: +6%").And.Contain("Znajdowanie przedmiotów").And.Contain("Zatrucie przy trafieniu").And.Not.Contain("średnia premia").And.Not.Contain("raz na użycie"));
+                Assert.That(body,Does.Contain("Obrażenia fizyczne: +6%").And.Contain("Szansa znalezienia przedmiotu").And.Contain("Zatrucie przy trafieniu").And.Not.Contain("średnia premia").And.Not.Contain("raz na użycie"));
                 var resolver=typeof(UIWorkspaceTooltipView).GetMethod("TryGetGlossaryEntry",Hidden);
                 var links=System.Text.RegularExpressions.Regex.Matches(body,"<link=\"([^\"]+)\">");
                 Assert.That(links.Count,Is.EqualTo(3)); // includes the noninteractive divider marker
@@ -424,8 +424,8 @@ namespace Godmist.Tests.EditMode
                 var effects=(TMP_Text)typeof(GalduryteSocketRowView).GetField("effectText",Hidden).GetValue(row);
                 row.BindForSocketing(stone,2);
                 Assert.That(title.text,Does.Contain("Gniazdo 2"));
-                Assert.That(effects.text,Does.Contain("• Znajdowanie przedmiotów: +3%").And.Not.Contain("średnia premia aktywnej drużyny"));
-                Assert.That(effects.text,Does.Contain("Zdrowie na początku tury: +"+GalduryteRuntimeText.FormatPercent(.0052f)+" maks."));
+                Assert.That(effects.text,Does.Contain("• Szansa znalezienia przedmiotu: +3%").And.Not.Contain("średnia premia aktywnej drużyny"));
+                Assert.That(effects.text,Does.Contain("Leczenie na początku tury: +"+GalduryteRuntimeText.FormatPercent(.0052f)+" maks."));
                 Assert.That(stone.GetEffectSummary(),Is.EqualTo(before));
                 row.BindForSocketing(stone);
                 Assert.That(effects.text,Is.EqualTo("• " + before.Replace("\n", "\n• ")));
@@ -456,7 +456,7 @@ namespace Godmist.Tests.EditMode
                 var title=(TMP_Text)typeof(GalduryteSocketRowView).GetField("titleText",Hidden).GetValue(row);
                 var effects=(TMP_Text)typeof(GalduryteSocketRowView).GetField("effectText",Hidden).GetValue(row);
                 Assert.That(title.text,Does.Contain("Gniazdo 3").And.Contain("Kamień odnowy"));
-                Assert.That(effects.text,Does.Contain("Zdrowie na początku tury: +"+GalduryteRuntimeText.FormatPercent(.0052f)+" maks.").And.Contain("Surowiec na początku tury: +2% maks.").And.Not.Contain("Na początku swojej tury"));
+                Assert.That(effects.text,Does.Contain("Leczenie na początku tury: +"+GalduryteRuntimeText.FormatPercent(.0052f)+" maks.").And.Contain("Odzysk zasobu na początku tury: +2% maks.").And.Not.Contain("Na początku swojej tury"));
                 Assert.That(stone.GetEffectSummary(),Is.EqualTo(before));
                 row.SetInactive(true);Assert.That(title.text,Does.Contain("nieaktywne gniazdo"));
                 row.BindForSocketing(stone);Assert.That(title.text,Does.Not.Contain("Gniazdo").And.Not.Contain("nieaktywne"));

@@ -53,37 +53,10 @@ namespace Godmist.Data.Items
         /// ingredient resolves its own recipe recursively, which lets multi-step
         /// production chains retain their input value.
         /// </summary>
-        public int CalculatedBaseValue => CalculateBaseValue(new HashSet<CraftableItemDefinition>());
+        public int CalculatedBaseValue => TryCalculateBaseValue(out var value, out var failure)
+            ? value : throw new System.InvalidOperationException(failure.Message);
 
-        private int CalculateBaseValue(HashSet<CraftableItemDefinition> visiting)
-        {
-            if (OutputAmount < 1 || Ingredients == null || Ingredients.Count == 0
-                || !visiting.Add(this))
-            {
-                return 0;
-            }
-
-            long minimum = long.MaxValue;
-            for (var variant = 0; variant < RecipeVariantCount; variant++)
-            {
-                var ingredients = GetIngredients(variant);
-                if (ingredients == null || ingredients.Count == 0
-                    || ingredients.Any(i => i?.Material == null || i.Amount <= 0)) continue;
-                var total = ingredients.Sum(i => (long)i.Amount * GetIngredientBaseValue(i.Material, visiting));
-                minimum = System.Math.Min(minimum, total);
-            }
-            visiting.Remove(this);
-            return minimum == long.MaxValue || minimum <= 0 ? 0
-                : (int)System.Math.Min(int.MaxValue, minimum / OutputAmount);
-        }
-
-        private static int GetIngredientBaseValue(
-            ItemDefinition ingredient,
-            HashSet<CraftableItemDefinition> visiting)
-        {
-            return ingredient is CraftableItemDefinition craftable
-                ? craftable.CalculateBaseValue(visiting)
-                : Mathf.Max(0, ingredient.BaseValue);
-        }
+        public bool TryCalculateBaseValue(out int value, out CraftingValueFailure failure)
+            => CraftingValueCalculator.TryGetValue(this, out value, out failure);
     }
 }

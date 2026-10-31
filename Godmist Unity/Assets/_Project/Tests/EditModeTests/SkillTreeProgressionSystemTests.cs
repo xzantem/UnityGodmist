@@ -256,17 +256,19 @@ namespace Godmist.Tests.EditMode
                 Does.Contain("Brak dostępnych"));
         }
 
-        [TestCase("tree.scout.assassin", "% szansy krytycznej", "obrażeń wręcz")]
-        [TestCase("tree.scout.blade_dancer", "zachowanie sztyletu", "siły zatrucia")]
-        [TestCase("tree.warrior.commander", "% szansy krytycznej", "nieuchronne")]
-        [TestCase("tree.warrior.brawler", "wściekłości", "HP")]
+        [TestCase("tree.scout.assassin", "szansę krytyczną", "obrażenia w walce wręcz")]
+        [TestCase("tree.scout.blade_dancer", "niezużycie sztyletów", "obrażenia od zatrucia")]
+        [TestCase("tree.warrior.commander", "szansę krytyczną", "obrażenia nieuchronne")]
+        [TestCase("tree.warrior.brawler", "maksymalną furię", "przywraca zdrowie")]
         public void GlobalPassiveSummary_ShowsBothCombatEffects(string id, string first, string second)
         {
             var tree = Tree();
             try
             {
                 Set(tree, "Id", id);
-                foreach (var points in new[] { 0, 10, 19 })
+                Assert.That(Godmist.Views.UI.SkillTreeProgressionPanelView.GetGlobalPassiveSummary(tree, 0),
+                    Is.EqualTo("brak premii."));
+                foreach (var points in new[] { 1, 10, 19 })
                 {
                     var summary = Godmist.Views.UI.SkillTreeProgressionPanelView.GetGlobalPassiveSummary(tree, points);
                     Assert.That(summary, Does.Contain(first).And.Contain(second));

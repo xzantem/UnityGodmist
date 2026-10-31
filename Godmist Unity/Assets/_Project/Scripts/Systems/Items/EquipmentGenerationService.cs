@@ -143,6 +143,8 @@ namespace Godmist.Systems.Items
                 if (count != 1) return null;
             }
 
+            if (!CraftingValueCalculator.TryValidate(selected.SelectMany(part => part.CraftingMaterials ?? new())
+                    .Where(input => input?.Material != null).Select(input => input.Material), out _)) return null;
             var item = itemFactory.Create(definition) as EquipmentItemInstance;
             if (item == null) return null;
 
@@ -245,7 +247,7 @@ namespace Godmist.Systems.Items
             };
         }
 
-        private static EquipmentPartKind[] GetRequiredKinds(EquipmentItemDefinition definition)
+        public static EquipmentPartKind[] GetRequiredKinds(EquipmentItemDefinition definition)
         {
             return definition.ItemType switch
             {
@@ -253,6 +255,17 @@ namespace Godmist.Systems.Items
                 ItemType.Armor => new[] { EquipmentPartKind.ArmorPlate, EquipmentPartKind.ArmorBinder, EquipmentPartKind.ArmorBase },
                 _ => null
             };
+        }
+
+        // Read-only inputs of the same formula used by BuildFinalItemStats.
+        public static void GetStatInputs(
+            IReadOnlyList<EquipmentPartDefinition> parts, ItemType itemType,
+            string classId, EquipmentQuality quality, int baseLevel, CharacterStatType stat,
+            out float[] bases, out float[] percentages, out float qualityAdjustment)
+        {
+            bases = parts.Select(part => GetBase(part, stat)).ToArray();
+            percentages = parts.Select(part => GetPercent(part, stat)).ToArray();
+            qualityAdjustment = GetQualityStatAdjustment(stat, itemType, classId, quality, baseLevel);
         }
 
         private static List<StatModifier> BuildFinalItemStats(

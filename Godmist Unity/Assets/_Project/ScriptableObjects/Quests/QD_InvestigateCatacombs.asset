@@ -29,28 +29,42 @@ MonoBehaviour:
       <RequiredAmount>k__BackingField: 1
       <IsOptional>k__BackingField: 0
     <CompletionRewards>k__BackingField:
-    - rewardType: 0
+    - rewardId: r1f58ef1be6b0f5c8e8c3f3d7
+      equipmentQuality: 0
+      equipmentRarity: 3
+      rewardType: 0
       amount: 30
       itemDefinition: {fileID: 0}
       worldFlagId: 
       worldFlagValue: true
       standardExperienceLevel: 1
-    - rewardType: 1
+    - rewardId: r110b506add84e9372729c863
+      equipmentQuality: 0
+      equipmentRarity: 3
+      rewardType: 1
       amount: 25
       itemDefinition: {fileID: 0}
       worldFlagId: 
       worldFlagValue: true
       standardExperienceLevel: 0
-    - rewardType: 3
+    - rewardId: rbadb7872211e1a774a5d1f6b
+      equipmentQuality: 0
+      equipmentRarity: 3
+      rewardType: 3
       amount: 2
       itemDefinition: {fileID: 0}
       worldFlagId: 
       worldFlagValue: true
       standardExperienceLevel: 0
-    - rewardType: 4
+    - rewardId: ra316282b7328e7bbd242722a
+      equipmentQuality: 0
+      equipmentRarity: 3
+      rewardType: 4
       amount: 1
       itemDefinition: {fileID: 0}
       worldFlagId: world.quest.investigate_catacombs.completed
       worldFlagValue: true
       standardExperienceLevel: 0
     <Transitions>k__BackingField: []
+  stableRewardIdsInitialized: 1
+  level: 1

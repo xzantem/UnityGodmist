@@ -35,7 +35,7 @@ namespace Godmist.Views.Combat
             for (var i = 0; i < renderers.Length; i++) defaults[i] = renderers[i].color;
             if (renderers.Length == 0) return;
 
-            var outlineShader = Shader.Find("Godmist/Combat/Solid Sprite Silhouette");
+            var outlineShader = CombatOutlineShader.Load();
             if (outlineShader == null)
             {
                 Debug.LogError("Combat visual-state outline shader was not found.", this);

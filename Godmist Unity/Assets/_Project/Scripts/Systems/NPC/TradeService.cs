@@ -24,41 +24,54 @@ namespace Godmist.Systems.NPC
             this.npcEconomyService = npcEconomyService ?? new NpcEconomyService();
         }
 
+        public bool TryGetBuyPrice(ItemInstance item, out int price, out string reason)
+        {
+            price = 0;
+            reason = "Brak definicji przedmiotu.";
+            if (item?.Definition == null) return false;
+            if (!CraftingValueCalculator.TryGetValue(item.Definition, out var definitionValue, out var failure))
+            { reason = failure.Message; return false; }
+            price = IsFreeStarter(item) ? 0 : item.BaseValue > 0 ? item.BaseValue : definitionValue;
+            reason = string.Empty;
+            return true;
+        }
+
+        public bool TryGetBuyPrice(NpcInstance trader, ItemInstance item, out int price, out string reason)
+        {
+            price = 0;
+            reason = "Ten NPC nie oferuje poprawnej usługi handlu.";
+            if (!CanTrade(trader) || !TryGetBuyPrice(item, out var basis, out reason)) return false;
+            price = npcLoyaltyService.GetDiscountedGoldCost(trader, basis);
+            return true;
+        }
+
+        public bool TryGetBuybackPrice(NpcInstance trader, BuybackEntry entry, out int price, out string reason)
+            => TryGetBuyPrice(trader, entry?.Item, out price, out reason);
+
+        public bool TryGetSellPrice(NpcInstance trader, ItemInstance item, out int price, out string reason)
+        {
+            price = 0;
+            reason = "Ten NPC nie oferuje poprawnej usługi handlu.";
+            if (!CanTrade(trader) || !TryGetBuyPrice(item, out var basis, out reason)) return false;
+            if (item.IsSaleProtected)
+            { reason = "Przedmiot jest zablokowany przed sprzedażą. Odblokuj go w menu PPM."; return false; }
+            var multiplier = IsRelevantForTrader(trader, item)
+                ? GameDefinesRuntime.GetFloat(GameDefineIds.TraderRelevantSellMultiplier, .5f)
+                : GameDefinesRuntime.GetFloat(GameDefineIds.TraderIrrelevantSellMultiplier, .25f);
+            price = Mathf.FloorToInt(basis * multiplier);
+            return true;
+        }
+
+        // Strict convenience accessors for callers requiring a valid quote. Failure is never a price.
         public int GetPriceToBuyFromTrader(ItemInstance item)
-        {
-            if (item?.Definition == null) return 0;
-
-            return GetBaseValue(item);
-        }
-
-        public int GetPriceToBuyFromTrader(
-            NpcInstance trader,
-            ItemInstance item)
-        {
-            if (!CanBuyItem(trader, item, out _)) return 0;
-
-            return npcLoyaltyService.GetDiscountedGoldCost(
-                trader,
-                GetPriceToBuyFromTrader(item));
-        }
-
-        public int GetPriceFromBuyback(BuybackEntry entry)
-        {
-            if (entry?.Item?.Definition == null) return 0;
-
-            return GetPriceToBuyFromTrader(entry.Item);
-        }
-
-        public int GetPriceFromBuyback(
-            NpcInstance trader,
-            BuybackEntry entry)
-        {
-            if (entry?.Item == null || !CanBuyItem(trader, entry.Item, out _)) return 0;
-
-            return npcLoyaltyService.GetDiscountedGoldCost(
-                trader,
-                GetPriceToBuyFromTrader(entry.Item));
-        }
+            => TryGetBuyPrice(item, out var price, out var reason) ? price : throw new InvalidOperationException(reason);
+        public int GetPriceToBuyFromTrader(NpcInstance trader, ItemInstance item)
+            => TryGetBuyPrice(trader, item, out var price, out var reason) ? price : throw new InvalidOperationException(reason);
+        public int GetPriceFromBuyback(BuybackEntry entry) => GetPriceToBuyFromTrader(entry?.Item);
+        public int GetPriceFromBuyback(NpcInstance trader, BuybackEntry entry)
+            => TryGetBuybackPrice(trader, entry, out var price, out var reason) ? price : throw new InvalidOperationException(reason);
+        public int GetPriceWhenSellingToTrader(NpcInstance trader, ItemInstance item)
+            => TryGetSellPrice(trader, item, out var price, out var reason) ? price : throw new InvalidOperationException(reason);
 
         public bool TryGetSellQuote(
             NpcInstance trader,
@@ -70,12 +83,11 @@ namespace Godmist.Systems.NPC
             normalPrice = 0;
             payableGold = 0;
 
-            if (!CanSellItem(trader, item, out failureReason))
+            if (!TryGetSellPrice(trader, item, out normalPrice, out failureReason))
             {
                 return false;
             }
 
-            normalPrice = GetPriceWhenSellingToTrader(trader, item);
             if (normalPrice <= 0 && !IsFreeStarter(item))
             {
                 failureReason = "Nie można ustalić poprawnej ceny sprzedaży.";
@@ -90,56 +102,11 @@ namespace Godmist.Systems.NPC
             return true;
         }
 
-        public bool CanBuyItem(
-            NpcInstance trader,
-            ItemInstance item,
-            out string failureReason)
-        {
-            return CanTradeItem(trader, item, out failureReason);
-        }
+        public bool CanBuyItem(NpcInstance trader, ItemInstance item, out string failureReason)
+            => TryGetBuyPrice(trader, item, out _, out failureReason);
 
-        public bool CanSellItem(
-            NpcInstance trader,
-            ItemInstance item,
-            out string failureReason)
-        {
-            if (!CanTradeItem(trader, item, out failureReason)) return false;
-            if (item.IsSaleProtected)
-            {
-                failureReason = "Przedmiot jest zablokowany przed sprzedażą. Odblokuj go w menu PPM.";
-                return false;
-            }
-            return true;
-        }
-
-        private bool CanTradeItem(
-            NpcInstance trader,
-            ItemInstance item,
-            out string failureReason)
-        {
-            failureReason = string.Empty;
-            if (!CanTrade(trader) || item?.Definition == null)
-            {
-                failureReason = "Ten NPC nie oferuje poprawnej usługi handlu.";
-                return false;
-            }
-
-            return true;
-        }
-
-        public int GetPriceWhenSellingToTrader(
-            NpcInstance trader,
-            ItemInstance item)
-        {
-            if (!CanSellItem(trader, item, out _)) return 0;
-
-            var multiplier = IsRelevantForTrader(trader, item)
-                ? GameDefinesRuntime.GetFloat(GameDefineIds.TraderRelevantSellMultiplier, .5f)
-                : GameDefinesRuntime.GetFloat(GameDefineIds.TraderIrrelevantSellMultiplier, .25f);
-
-            return Mathf.FloorToInt(
-                GetBaseValue(item) * multiplier);
-        }
+        public bool CanSellItem(NpcInstance trader, ItemInstance item, out string failureReason)
+            => TryGetSellPrice(trader, item, out _, out failureReason);
 
         public bool TryBuyFromTrader(
             GameSession session,
@@ -159,7 +126,7 @@ namespace Godmist.Systems.NPC
             }
 
             var item = FindItem(trader.ShopInventory, itemInstanceId);
-            var price = GetPriceToBuyFromTrader(trader, item);
+            if (!TryGetBuyPrice(trader, item, out var price, out _)) return false;
 
             if (price <= 0 || session.Gold < price) return false;
 
@@ -197,20 +164,6 @@ namespace Godmist.Systems.NPC
         public static bool IsFreeStarter(ItemInstance item) =>
             item?.Definition is EquipmentItemDefinition { IsStarterEquipment: true };
 
-        private static int GetBaseValue(ItemInstance item)
-        {
-            if (IsFreeStarter(item)) return 0;
-            var runtimeValue = Mathf.Max(0, item?.BaseValue ?? 0);
-            if (runtimeValue > 0)
-            {
-                return runtimeValue;
-            }
-
-            return item?.Definition is CraftableItemDefinition craftable
-                ? craftable.CalculatedBaseValue
-                : runtimeValue;
-        }
-
         public bool TryBuyFromBuyback(
             GameSession session,
             NpcInstance trader,
@@ -229,7 +182,7 @@ namespace Godmist.Systems.NPC
             }
 
             var entry = FindBuybackEntry(trader.ShopInventory, itemInstanceId);
-            var price = GetPriceFromBuyback(trader, entry);
+            if (!TryGetBuybackPrice(trader, entry, out var price, out _)) return false;
 
             if (entry == null || price <= 0 && !IsFreeStarter(entry.Item) || session.Gold < price) return false;
 
@@ -292,8 +245,7 @@ namespace Godmist.Systems.NPC
             }
 
             var item = FindItem(seller.Inventory, itemInstanceId);
-            if (!CanSellItem(trader, item, out _)) return false;
-            var price = GetPriceWhenSellingToTrader(trader, item);
+            if (!TryGetSellPrice(trader, item, out var price, out _)) return false;
 
             if (price <= 0 && !IsFreeStarter(item)
                 || !acceptPartialPayment && trader.GoldBalance < price)
@@ -377,13 +329,19 @@ namespace Godmist.Systems.NPC
             if (items.Any(item => FindBuybackEntry(trader.ShopInventory, item.InstanceId) != null
                 || FindItem(trader.ShopInventory, item.InstanceId) != null))
             { reason = "Ten egzemplarz jest już w ofercie kupca."; return false; }
+            var prices = new Dictionary<ItemInstance, int>();
+            foreach (var item in items)
+            {
+                if (!TryGetSellPrice(trader, item, out var price, out reason)) return false;
+                prices.Add(item, price);
+            }
             // All mutations below are synchronous and have been fully validated.
             if (payable > 0 && !npcEconomyService.TrySpendGold(trader, payable)) return false;
             if (payable > 0) session.TryAddGold(payable);
             var remaining = payable;
             foreach (var item in items)
             {
-                var paid = Math.Min(remaining, GetPriceWhenSellingToTrader(trader, item));
+                var paid = Math.Min(remaining, prices[item]);
                 remaining -= paid;
                 seller.Inventory.Items.Remove(item);
                 trader.ShopInventory.BuybackStock.Add(new BuybackEntry(item, paid));
@@ -407,8 +365,7 @@ namespace Godmist.Systems.NPC
             long total = 0;
             foreach (var item in items)
             {
-                if (!CanBuyItem(trader, item, out reason)) return false;
-                var price = GetPriceToBuyFromTrader(trader, item);
+                if (!TryGetBuyPrice(trader, item, out var price, out reason)) return false;
                 if (price <= 0 && !(buyback && IsFreeStarter(item)))
                 { reason = "Brak poprawnej ceny zakupu."; return false; }
                 total += price;

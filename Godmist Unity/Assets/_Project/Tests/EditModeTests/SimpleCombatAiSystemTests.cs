@@ -403,7 +403,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
-        public void ExpectedCriticalDamageIsCalculatedBeforeNonlinearDefense()
+        public void ExpectedCriticalDamageIsCalculatedAfterNonlinearDefense()
         {
             var attack = PlannerAttack("critical-defense", 60, 10f);
             var session = PlannerSession(1, attack);
@@ -411,7 +411,7 @@ namespace Godmist.Tests.EditMode
             session.ActiveUnit.Character.Stats.CritDamage = new Stat(2f);
             session.Units[1].Character.Stats.PhysicalDefense = new Stat(200f);
             Assert.That(CombatSkillPreviewCalculator.CalculateExpectedTargetDamage(session,
-                session.ActiveUnit, session.Units[1], attack, 0), Is.EqualTo(67f));
+                session.ActiveUnit, session.Units[1], attack, 0), Is.EqualTo(51f));
         }
 
         [Test]
@@ -2037,7 +2037,7 @@ namespace Godmist.Tests.EditMode
             SetAutoProperty(buff, "SkillId", "archer.quiver");
             var active = new PassiveEffectRuntime
             {
-                EffectId = "archer.quiver.modify_stat.0",
+                EffectId = SkillEffectIdentity.RuntimeId(buff, 0, "modify_stat"),
                 Lifetime = PassiveEffectLifetime.Timed,
                 RemainingDuration = 3
             };
@@ -2082,7 +2082,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(Chosen(), Is.SameAs(quiver));
             archer.Character.PassiveEffects.Add(new PassiveEffectRuntime
             {
-                EffectId = "archer.quiver.modify_stat.0",
+                EffectId = SkillEffectIdentity.RuntimeId(quiver, 0, "modify_stat"),
                 Lifetime = PassiveEffectLifetime.Timed,
                 RemainingDuration = 3
             });

@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
-    public class CombatDamageResolutionTests
+    public partial class CombatDamageResolutionTests
     {
         private readonly List<CharacterDefinition> createdDefinitions = new();
 

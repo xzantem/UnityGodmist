@@ -255,7 +255,7 @@ namespace Godmist.Systems.Combat
             if (!skipCosts)
             {
                 var actionCost =
-                    PaladinCombatSystem.HealCost(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),CombatActionCostCalculator.CalculateSkillCost(caster, skill, recoveringKnife));
+                    CombatActionCostCalculator.CalculateSkillCostForTarget(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),recoveringKnife);
 
                 if(WarriorCombatSystem.RefundAp(caster,skill))actionCost=0;
                 caster.CurrentActionPoints -= actionCost;
@@ -331,9 +331,7 @@ namespace Godmist.Systems.Combat
             if (skill.SkillId == DeadKingBossSystem.BladeId)
                 CombatBossVfxFeedback.PublishArrival(feedbackBus, caster, beforeBossMovement, vfxActionId);
             SkeletonSlayerBossSystem.BeforeSkill(caster, skill, targetsByModeIndex);
-            for (var effectIndex = 0;
-                effectIndex < skill.Effects.Count;
-                effectIndex++)
+            foreach (var effectIndex in SkillEffectIdentity.ExecutionOrder(skill))
             {
                 var effect = PassiveEffectCombatExecutionSystem.ResolveEffect(caster, skill, skill.Effects[effectIndex]);
 
@@ -394,7 +392,7 @@ namespace Godmist.Systems.Combat
                     var selected = selectedPositionsByModeIndex != null && selectedPositionsByModeIndex.TryGetValue(effect.TargetModeIndex, out var position) ? position : null;
                     var obstacle = CombatObjectDamageSystem.Targets(session, caster, skill, effect.TargetModeIndex, selected).FirstOrDefault()
                         ?? session.ObjectDamageAction?.Barriers.FirstOrDefault(o => selected.HasValue && o.EnumerateOccupiedPositions().Contains(selected.Value));
-                    if (obstacle != null && ShouldExecuteObjectEffect(session, caster, effect, obstacle, objectResults, resultsByEffectIndex))
+                    if (obstacle != null && ShouldExecuteObjectEffect(session, skill, caster, effect, obstacle, objectResults, resultsByEffectIndex))
                         chargeSystem.TryChargeObject(session, caster, obstacle, skill, effect, effectIndex);
                     resultsByEffectIndex[effectIndex] = new();
                     continue;
@@ -407,7 +405,7 @@ namespace Godmist.Systems.Combat
                         rotationsByModeIndex != null && rotationsByModeIndex.TryGetValue(effect.TargetModeIndex, out var rotation) ? rotation : 0);
                     var succeeded = new HashSet<string>(); objectResults[effectIndex] = succeeded;
                     foreach (var obj in objectTargets)
-                        if (ShouldExecuteObjectEffect(session, caster, effect, obj, objectResults, resultsByEffectIndex)
+                        if (ShouldExecuteObjectEffect(session, skill, caster, effect, obj, objectResults, resultsByEffectIndex)
                             && CombatObjectDamageSystem.ApplyDamage(session, obj, effect.DamageHitCount)) succeeded.Add(obj.ObjectId);
                 }
 
@@ -424,6 +422,7 @@ namespace Godmist.Systems.Combat
 
                     if (!ShouldExecuteEffect(
                             session,
+                            skill,
                             effect,
                             caster,
                             target,
@@ -659,7 +658,7 @@ namespace Godmist.Systems.Combat
             var targets = ResolveScheduledTargets(session, caster, scheduled);
             if (scheduled.Effect.EffectType == EffectType.DealDamage)
                 foreach (var obj in CombatObjectDamageSystem.Targets(session, caster, scheduled.Skill, scheduled.Effect.TargetModeIndex, scheduled.TargetPosition))
-                    if (ShouldExecuteObjectEffect(session, caster, scheduled.Effect, obj, new(), new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>()))
+                    if (ShouldExecuteObjectEffect(session, scheduled.Skill, caster, scheduled.Effect, obj, new(), new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>()))
                         CombatObjectDamageSystem.ApplyDamage(session, obj, scheduled.Effect.DamageHitCount);
             var hitByTarget = new Dictionary<BattleUnit, bool>();
             var results = new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
@@ -668,7 +667,7 @@ namespace Godmist.Systems.Combat
             {
                 if (target?.Character == null
                     || target.Character.LifeState == CharacterLifeState.Dead
-                    || !ShouldExecuteEffect(session, scheduled.Effect, caster, target, results))
+                    || !ShouldExecuteEffect(session, scheduled.Skill, scheduled.Effect, caster, target, results))
                     continue;
 
                 var wasHit = scheduled.Effect.EffectType == EffectType.DealDamage
@@ -795,7 +794,7 @@ namespace Godmist.Systems.Combat
                 case EffectType.PaladinHeal:
                 case EffectType.PaladinRegeneration:
                 case EffectType.PaladinBlessing:
-                    return new EffectExecutionResult { Succeeded = PaladinCombatSystem.Execute(session,caster,target,skill,effect,recoverySystem) };
+                    return new EffectExecutionResult { Succeeded = PaladinCombatSystem.Execute(session,caster,target,skill,effect,recoverySystem,PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex)) };
                 case EffectType.MageSacrifice:
                 case EffectType.MageRitual:
                 case EffectType.MageFireAura:
@@ -1033,9 +1032,11 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.Heal:
                 {
-                    var restoredHealth = recoverySystem.Heal(target, CombatRecoverySystem.CalculateSkillHealing(caster, effect), new PassiveEffectCombatContext(
+                    var restoredHealth = recoverySystem.Heal(target, Mathf.RoundToInt(CombatRecoverySystem.CalculateSkillHealing(caster, effect) * (PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex) ? PaladinCombatSystem.SingleTargetHealingMultiplier(caster) : 1f)), new PassiveEffectCombatContext(
                         session: session, source: caster, target: target, skill: skill, skillId: skill.SkillId,
                         targetsByModeIndex: targetsByModeIndex, actionId: actionId, isPassiveDuplicate: isPassiveDuplicate));
+                    PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,target,
+                        PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex),restoredHealth);
                     return new EffectExecutionResult
                         { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
                 }
@@ -1049,12 +1050,14 @@ namespace Godmist.Systems.Combat
                 {
                     var maximumHealth = target.Character?.Stats == null
                         ? 0
-                        : Mathf.Max(0, Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()));
+                        : target.Character.MaximumHealth;
                     var restoredHealth = recoverySystem.Heal(
                         target,
-                        Mathf.CeilToInt(maximumHealth * effect.PercentageValue), new PassiveEffectCombatContext(
+                        Mathf.RoundToInt(Mathf.CeilToInt(maximumHealth * effect.PercentageValue) * (PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex) ? PaladinCombatSystem.SingleTargetHealingMultiplier(caster) : 1f)), new PassiveEffectCombatContext(
                             session: session, source: caster, target: target, skill: skill, skillId: skill.SkillId,
                             targetsByModeIndex: targetsByModeIndex, actionId: actionId, isPassiveDuplicate: isPassiveDuplicate));
+                    PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,target,
+                        PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex),restoredHealth);
                     return new EffectExecutionResult
                         { Succeeded = restoredHealth > 0, HealthRestored = restoredHealth };
                 }
@@ -1085,10 +1088,7 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.Shield:
                 {
-                    var shieldAmount = effect.BaseValue + Mathf.FloorToInt(
-                        CombatDamageValueCalculator.CalculateDamageValue(
-                            caster, DamageValueSource.AverageAttack, 1f)
-                        * effect.ShieldAverageAttackMultiplier);
+                    var shieldAmount=CombatShieldSystem.CalculateSkillShield(caster,effect);
                     var mageShield = skill.SkillId == CombatShieldSystem.MageShieldSourceId;
                     var grantedShield = shieldSystem.GrantShield(target, shieldAmount, skill.SkillId,
                         durationTurns: mageShield ? effect.DurationTurns : 0,
@@ -1158,7 +1158,7 @@ namespace Godmist.Systems.Combat
                 {
                     var maximumHealth = target.Character.Stats == null
                         ? 0
-                        : Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue());
+                        : target.Character.MaximumHealth;
                     var healthCost = Mathf.FloorToInt(maximumHealth * effect.HealthSacrificePercent);
                     healthCost = Mathf.Clamp(healthCost, 0, Mathf.Max(0, target.Character.CurrentHealth - 1));
                     if (healthCost <= 0 || effect.ResourceRestorePerSacrificedHealth <= 0f)
@@ -1209,7 +1209,7 @@ namespace Godmist.Systems.Combat
         private static bool PassesModifierChance(SkillEffectData effect) => effect.BaseChance >= 1f
             || effect.BaseChance > 0f && UnityEngine.Random.value < effect.BaseChance;
 
-        private static bool ShouldExecuteObjectEffect(CombatSession session, BattleUnit caster, SkillEffectData effect,
+        private static bool ShouldExecuteObjectEffect(CombatSession session, SkillData skill, BattleUnit caster, SkillEffectData effect,
             ObstacleCombatMapObject obj, Dictionary<int, HashSet<string>> objectResults,
             IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>> unitResults)
         {
@@ -1220,13 +1220,13 @@ namespace Godmist.Systems.Combat
                 if (condition.ConditionType == EffectConditionType.ReferencedEffectSucceeded
                     || condition.ConditionType == EffectConditionType.ReferencedEffectDealtHealthDamage)
                 {
-                    if (!objectResults.TryGetValue(condition.ReferencedEffectIndex, out var prior) || !prior.Contains(obj.ObjectId)) return false;
+                    if (!objectResults.TryGetValue(SkillEffectIdentity.ReferenceIndex(skill, condition), out var prior) || !prior.Contains(obj.ObjectId)) return false;
                 }
                 else if (condition.ConditionType == EffectConditionType.TargetHealthBelowPercent)
                 {
                     if (obj.Source.RemainingHits * 100f / obj.Source.MaxHits >= condition.HealthPercentThreshold) return false;
                 }
-                else if (!EvaluateCondition(session, condition, caster, null, unitResults)) return false;
+                else if (!EvaluateCondition(session, skill, condition, caster, null, unitResults)) return false;
             }
             return true;
         }
@@ -1240,18 +1240,19 @@ namespace Godmist.Systems.Combat
                 if (condition?.ConditionType == EffectConditionType.ReferencedEffectSucceeded
                     || condition?.ConditionType == EffectConditionType.ReferencedEffectDealtHealthDamage
                     || condition?.ConditionType == EffectConditionType.MinimumResourceSpent) continue;
-                if (!EvaluateCondition(session, condition, caster, target, null)) return false;
+                if (!EvaluateCondition(session, null, condition, caster, target, null)) return false;
             }
             return true;
         }
 
         private static bool ShouldExecuteEffect(
             CombatSession session,
+            SkillData skill,
             SkillEffectData effect,
             BattleUnit caster,
             BattleUnit target,
             IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>
-                resultsByEffectIndex)
+                resultsByEffectIndex, IReadOnlyList<SkillEffectData> scope = null)
         {
             if (effect?.Conditions == null || effect.Conditions.Count == 0)
             {
@@ -1262,10 +1263,11 @@ namespace Godmist.Systems.Combat
             {
                 if (!EvaluateCondition(
                         session,
+                        skill,
                         condition,
                         caster,
                         target,
-                        resultsByEffectIndex))
+                        resultsByEffectIndex, scope))
                 {
                     return false;
                 }
@@ -1276,11 +1278,12 @@ namespace Godmist.Systems.Combat
 
         private static bool EvaluateCondition(
             CombatSession session,
+            SkillData skill,
             SkillEffectConditionData condition,
             BattleUnit caster,
             BattleUnit target,
             IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>
-                resultsByEffectIndex)
+                resultsByEffectIndex, IReadOnlyList<SkillEffectData> scope = null)
         {
             if (condition == null)
             {
@@ -1294,18 +1297,20 @@ namespace Godmist.Systems.Combat
 
                 case EffectConditionType.ReferencedEffectSucceeded:
                     return TryGetReferencedEffectResult(
+                        skill,
                         condition,
                         target,
                         resultsByEffectIndex,
-                        out var successResult)
+                        out var successResult, scope)
                         && successResult.Succeeded;
 
                 case EffectConditionType.ReferencedEffectDealtHealthDamage:
                     return TryGetReferencedEffectResult(
+                        skill,
                         condition,
                         target,
                         resultsByEffectIndex,
-                        out var damageResult)
+                        out var damageResult, scope)
                         && damageResult.HealthDamage > 0;
 
                 case EffectConditionType.TargetHasStatus:
@@ -1353,18 +1358,19 @@ namespace Godmist.Systems.Combat
         }
 
         private static bool TryGetReferencedEffectResult(
+            SkillData skill,
             SkillEffectConditionData condition,
             BattleUnit target,
             IReadOnlyDictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>
                 resultsByEffectIndex,
-            out EffectExecutionResult result)
+            out EffectExecutionResult result, IReadOnlyList<SkillEffectData> scope = null)
         {
             result = EffectExecutionResult.None;
 
             if (condition == null
                 || resultsByEffectIndex == null
                 || !resultsByEffectIndex.TryGetValue(
-                    condition.ReferencedEffectIndex,
+                    SkillEffectIdentity.ReferenceIndex(skill, condition, scope),
                     out var resultsForEffect)
                 || resultsForEffect == null)
             {
@@ -1878,7 +1884,7 @@ namespace Godmist.Systems.Combat
             var recoveringKnife = ScoutCombatSystem.IsKnifeRecovery(session, caster, skill,
                 targetsByModeIndex, selectedPositionsByModeIndex);
             var actionCost =
-                PaladinCombatSystem.HealCost(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),CombatActionCostCalculator.CalculateSkillCost(caster, skill, recoveringKnife));
+                CombatActionCostCalculator.CalculateSkillCostForTarget(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),recoveringKnife);
 
             if (!skipCosts && caster.CurrentActionPoints < actionCost)
             {
@@ -1913,6 +1919,8 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            try { SkillEffectIdentity.ExecutionOrder(skill); }
+            catch (InvalidOperationException error) { Debug.LogWarning(error.Message); return false; }
             for (var effectIndex = 0;
                 effectIndex < skill.Effects.Count;
                 effectIndex++)
@@ -2094,12 +2102,13 @@ namespace Godmist.Systems.Combat
                     }
 
                     if (ConditionRequiresEffectReference(condition.ConditionType)
-                        && (condition.ReferencedEffectIndex < 0
-                            || condition.ReferencedEffectIndex >= effectIndex))
+                        && (SkillEffectIdentity.ReferenceIndex(skill, condition) < 0
+                            || SkillEffectIdentity.ReferenceIndex(skill, condition) >= skill.Effects.Count
+                            || SkillEffectIdentity.ReferenceIndex(skill, condition) == effectIndex))
                     {
                         Debug.LogWarning(
                             $"Skill '{skill.SkillId}' has an invalid referenced effect index " +
-                            $"{condition.ReferencedEffectIndex} in effect {effectIndex}.");
+                            $"{SkillEffectIdentity.ReferenceIndex(skill, condition)} in effect {effectIndex}.");
 
                         return false;
                     }
@@ -2159,19 +2168,24 @@ namespace Godmist.Systems.Combat
             if (healthDamage <= 0) return;
             if (effect.LifeStealPercent > 0f)
             {
-                var healed = recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * effect.LifeStealPercent));
+                var healed = recoverySystem.Heal(caster, Mathf.FloorToInt(healthDamage * PaladinCombatSystem.LifeStealCoefficient(caster,effect.LifeStealPercent,true)));
+                PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,caster,true,healed);
                 if (healed > 0 && skill.SkillId == "skill.paladin.transfusion")
                     feedbackBus?.Publish(new CombatFeedbackEvent(caster, CombatFeedbackType.TargetEffect,
                         source: caster, targetVfx: CombatTargetVfxKind.Heal, actionId: actionId));
             }
             if (effect.AllyLifeStealPercent > 0f && session?.Units != null)
             {
-                var amount = Mathf.FloorToInt(healthDamage * effect.AllyLifeStealPercent);
+                var recipients=session.Units.Where(ally=>ally?.Character!=null && ally.IsPlayerSide==caster.IsPlayerSide
+                    && ally.Character.LifeState!=CharacterLifeState.Dead).ToArray();
+                var single=recipients.Length==1;
+                var amount = Mathf.FloorToInt(healthDamage * PaladinCombatSystem.LifeStealCoefficient(caster,effect.AllyLifeStealPercent,single));
                 if (amount > 0)
                     foreach (var ally in session.Units)
                         if (ally != null && ally.IsPlayerSide == caster.IsPlayerSide)
                         {
                             var healed = recoverySystem.Heal(ally, amount);
+                            PaladinCombatSystem.CompleteDirectSkillHealing(session,caster,ally,single,healed);
                             if (healed > 0 && skill.SkillId == "skill.enemy.catacombs.life_drain")
                                 feedbackBus?.Publish(new CombatFeedbackEvent(ally, CombatFeedbackType.TargetEffect,
                                     source: caster, targetVfx: CombatTargetVfxKind.Heal,
@@ -2483,9 +2497,7 @@ namespace Godmist.Systems.Combat
             var resultsByEffectIndex =
                 new Dictionary<int, Dictionary<BattleUnit, EffectExecutionResult>>();
 
-            for (var effectIndex = 0;
-                effectIndex < reactionEffects.Count;
-                effectIndex++)
+            foreach (var effectIndex in SkillEffectIdentity.ExecutionOrder(reactionSkill, reactionEffects))
             {
                 var effect = reactionEffects[effectIndex];
                 if (effect == null
@@ -2494,7 +2506,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
-                if (!ShouldExecuteEffect(session, effect, defender, attacker, resultsByEffectIndex))
+                if (!ShouldExecuteEffect(session, reactionSkill, effect, defender, attacker, resultsByEffectIndex, reactionEffects))
                 {
                     resultsByEffectIndex[effectIndex] =
                         new Dictionary<BattleUnit, EffectExecutionResult>
@@ -2828,7 +2840,7 @@ namespace Godmist.Systems.Combat
             }
 
             caster.ActiveAuras ??= new List<CombatAuraRuntime>();
-            var auraId = $"{skill?.SkillId ?? "aura"}.aura.{effectIndex}.{caster.Character.CharacterId}";
+            var auraId = SkillEffectIdentity.RuntimeId(skill, effect, "aura")+"."+caster.Character.CharacterId;
             caster.ActiveAuras.RemoveAll(aura => string.Equals(aura?.AuraId,
                 auraId, StringComparison.OrdinalIgnoreCase));
             var statusDamageMultiplier = StatusEffectSystem.IsDamageOverTimeStatus(

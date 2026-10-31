@@ -77,9 +77,9 @@ namespace Godmist.Views.UI.Workspace
                 lifeStateText.gameObject.SetActive(state != CharacterLifeState.Alive
                     && !CombatDownedIndicatorView.ShouldShow(unit));
             }
-            var maximum = Mathf.Max(1f, shownCharacter.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maximum = shownCharacter.MaximumHealth;
             if (healthFill != null) healthFill.color = state == CharacterLifeState.Dead
-                ? new Color(.4f, .4f, .4f) : shownCharacter.CurrentHealth / maximum <= .25f
+                ? new Color(.4f, .4f, .4f) : (float)shownCharacter.CurrentHealth / maximum <= .25f
                 ? new Color(1f, .4f, .23f) : new Color(.8f, .22f, .2f);
             if (portraitHovered || resourceHovered) ShowPortraitTooltip();
         }
@@ -199,14 +199,14 @@ namespace Godmist.Views.UI.Workspace
         }
         internal static string BuildPortraitTooltipBody(CharacterInstance value)
         {
-            var maximum = Mathf.Max(1f, value.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maximum = value.MaximumHealth;
             var body = $"Zdrowie: {CombatHealthPresentation.Format(value)}";
             var resource = value.ResourcePool;
             if (resource != null && resource.MaxValue > 0)
                 body += $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}: {resource.CurrentValue}/{resource.MaxValue}";
             if (value.LifeState == CharacterLifeState.Downed) body += "\nPowalony";
             else if (value.LifeState == CharacterLifeState.Dead) body += "\nMartwy";
-            else if (value.CurrentHealth / maximum <= .25f) body += "\nNiskie zdrowie";
+            else if ((float)value.CurrentHealth / maximum <= .25f) body += "\nNiskie zdrowie";
             return body;
         }
         private CharacterInstance character;

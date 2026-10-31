@@ -323,6 +323,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5e99e1e669713534f957c9a7160a428d, type: 2}
   - {fileID: 11400000, guid: 2568c39fcd0b33b428a09bed66a03b31, type: 2}
   - {fileID: 11400000, guid: 62dfbb7c1178ef5439c4b47733cbedfc, type: 2}
+  - {fileID: 11400000, guid: e374b7ad133285542a0511ed0822b522, type: 2}
   <EquipmentPartDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 9cd20ed58af3e5f44965e26e28cb5bfc, type: 2}
   - {fileID: 11400000, guid: 7a98008e91b020c47bb638a534775d59, type: 2}

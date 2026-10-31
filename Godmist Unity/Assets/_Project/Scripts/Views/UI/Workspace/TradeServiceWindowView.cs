@@ -203,7 +203,8 @@ namespace Godmist.Views.UI.Workspace
                     ? trader.ShopInventory.BuybackStock.FirstOrDefault(entry => entry.Item.InstanceId == id)?.Item
                     : trader.ShopInventory.Items.FirstOrDefault(candidate => candidate.InstanceId == id);
                 if (item == null) return "Przedmiot nie jest już dostępny.";
-                total += tradeService.GetPriceToBuyFromTrader(trader, item);
+                if (!tradeService.TryGetBuyPrice(trader, item, out var quote, out var reason)) return reason;
+                total += quote;
             }
             return $"{ids.Count} szt. • {total} złota\nPosiadane złoto: {session.Gold}";
         }
@@ -389,50 +390,48 @@ namespace Godmist.Views.UI.Workspace
             }
             foreach (var stack in BuildItemStacks(tradingCharacter?.Inventory?.Items))
             {
-                var price = tradeService.GetPriceWhenSellingToTrader(trader, stack.Representative);
+                var valid = tradeService.TryGetSellPrice(trader, stack.Representative, out var price, out var reason);
                 SpawnSlot(
                     playerItemsContent,
                     stack.Representative,
                     stack.Count,
                     TradeItemSlotSource.PlayerInventory,
-                    BuildSellPriceTooltip(stack.Representative, price),
-                    stack.Representative.IsSaleProtected || price <= 0 && !TradeService.IsFreeStarter(stack.Representative),
+                    valid ? BuildSellPriceTooltip(stack.Representative, price) : reason,
+                    !valid || stack.Representative.IsSaleProtected || price <= 0 && !TradeService.IsFreeStarter(stack.Representative),
                     tradingCharacter,
                     null,
-                    stack.Representative.IsSaleProtected ? (int?)null : price);
+                    !valid || stack.Representative.IsSaleProtected ? (int?)null : price);
             }
 
             foreach (var stack in BuildItemStacks(trader?.ShopInventory?.Items))
             {
-                var price = tradeService.GetPriceToBuyFromTrader(
-                    trader,
-                    stack.Representative);
+                var valid = tradeService.TryGetBuyPrice(trader, stack.Representative, out var price, out var reason);
                 SpawnSlot(
                     traderItemsContent,
                     stack.Representative,
                     stack.Count,
                     TradeItemSlotSource.TraderOffer,
-                    BuildBuyPriceTooltip(stack.Representative, price),
-                    price <= 0 || session != null && session.Gold < price,
+                    valid ? BuildBuyPriceTooltip(stack.Representative, price) : reason,
+                    !valid || price <= 0 || session != null && session.Gold < price,
                     null,
                     null,
-                    price);
+                    valid ? price : (int?)null);
             }
 
             foreach (var stack in BuildItemStacks(trader?.ShopInventory?.BuybackStock.Select(entry => entry.Item)))
             {
                 var entry = trader.ShopInventory.BuybackStock.First(value => value.Item == stack.Representative);
-                var price = tradeService.GetPriceFromBuyback(trader, entry);
+                var valid = tradeService.TryGetBuybackPrice(trader, entry, out var price, out var reason);
                 SpawnSlot(
                     traderItemsContent,
                     entry.Item,
                     stack.Count,
                     TradeItemSlotSource.Buyback,
-                    BuildBuyPriceTooltip(entry.Item, price),
-                    price <= 0 && !TradeService.IsFreeStarter(entry.Item) || session != null && session.Gold < price,
+                    valid ? BuildBuyPriceTooltip(entry.Item, price) : reason,
+                    !valid || price <= 0 && !TradeService.IsFreeStarter(entry.Item) || session != null && session.Gold < price,
                     null,
                     entry,
-                    price);
+                    valid ? price : (int?)null);
             }
 
             Canvas.ForceUpdateCanvases();
@@ -652,7 +651,7 @@ namespace Godmist.Views.UI.Workspace
                 }
             }
 
-            return stacks;
+            return ItemDisplayOrder.Sort(stacks, stack => stack.Representative);
         }
     }
 }

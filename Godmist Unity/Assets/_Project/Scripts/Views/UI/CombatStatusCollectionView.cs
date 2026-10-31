@@ -39,7 +39,7 @@ namespace Godmist.Views.UI
             for (var i = maximumVisibleIcons; i < currentStatuses.Count; i++)
             {
                 var entry = currentStatuses[i];
-                lines.Add((string.IsNullOrWhiteSpace(entry.Effect.DisplayName) ? entry.Effect.EffectId : entry.Effect.DisplayName) +
+                lines.Add((string.IsNullOrWhiteSpace(entry.DisplayName) ? entry.Effect.EffectId : entry.DisplayName) +
                     (entry.ExplorationCharacter != null ? " · " + UIWorkspaceTooltipView.ExplorationStatusDuration(entry) : ""));
             }
             tooltipView?.ShowText("Pozostałe efekty", string.Join("\n", lines), this);

@@ -38,7 +38,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(UnityEngine.Random.state,Is.EqualTo(random));
             var modifiers=new ModifyResistanceSystem();modifiers.Apply(caster,target,skill,skill.Effects[1],1);
             modifiers.Apply(caster,target,skill,skill.Effects[1],1);
-            var key="skill.paladin.crushing_blow.modify_resistance.2";
+            var key=Godmist.Data.Skills.SkillEffectIdentity.RuntimeId(skill,1,"modify_resistance");
             Assert.That(target.Character.PassiveEffects.Count(e=>e.EffectId==key),Is.EqualTo(1));
             var refreshed=CombatSkillPreviewCalculator.CalculateTargetPreview(caster,target,skill,0);
             Assert.That(refreshed.StatusChance,Is.EqualTo(hit*StatusEffectSystem.CalculateStatusApplicationChance(caster,target,StatusEffectIds.Stun,.5f)).Within(.0001f));

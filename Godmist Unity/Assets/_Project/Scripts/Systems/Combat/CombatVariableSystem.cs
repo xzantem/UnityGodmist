@@ -12,7 +12,7 @@ namespace Godmist.Systems.Combat
         public float GetMultiplier(
             CharacterInstance character,
             GameplayVariableType variableType,
-            string referenceId = null, string excludedEffectId = null)
+            string referenceId = null, string excludedEffectId = null, CombatValueExplanation explanation = null)
         {
             if (character?.PassiveEffects == null)
             {
@@ -48,6 +48,8 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
+                    explanation?.Add(!string.IsNullOrWhiteSpace(effect.DisplayName)?effect.DisplayName:effect.EffectId,
+                        (modifier.Stacking==StatModifierStacking.Multiplicative?"×":"+")+(modifier.Stacking==StatModifierStacking.Multiplicative?1+modifier.Value:modifier.Value*100).ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))+(modifier.Stacking==StatModifierStacking.Multiplicative?"":"%"));
                     if (modifier.Stacking == StatModifierStacking.Multiplicative)
                     {
                         multiplicativePercent *= 1f + modifier.Value;
@@ -86,7 +88,7 @@ namespace Godmist.Systems.Combat
         public int ApplyDamageModifiers(
             BattleUnit source,
             BattleUnit target,
-            int requestedDamage)
+            int requestedDamage,CombatValueExplanation explanation=null,Godmist.Data.Skills.SkillData previewSkill=null)
         {
             if (requestedDamage <= 0)
             {
@@ -95,7 +97,9 @@ namespace Godmist.Systems.Combat
 
             var dealtMultiplier = GetMultiplier(
                 source?.Character,
-                GameplayVariableType.DamageDealtPercent);
+                GameplayVariableType.DamageDealtPercent,explanation:explanation);
+            if(previewSkill!=null)dealtMultiplier=WarriorCombatSystem.PreviewDealtMultiplier(source,previewSkill,dealtMultiplier);
+            explanation?.Add("damage_dealt",dealtMultiplier);
 
             var angerMultiplier = ScoutCombatSystem.ReceivedDamageMultiplier(source, target);
             var receivedMultiplier = GetMultiplier(

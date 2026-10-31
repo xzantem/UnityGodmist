@@ -545,12 +545,15 @@ namespace Godmist.Views.Exploration
         }
 
         public void Move(Vector2 offset)
+            => Move(offset, false);
+
+        private void Move(Vector2 offset, bool preciseCombatPresentation)
         {
             using var moveSample = MoveSample.Auto();
             if (transformation.IsPlaying) return;
             if (CombatUnit == null && RuntimeCharacter != null
                 && RuntimeCharacter.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive) return;
-            if (offset.sqrMagnitude < 0.0001f) return;
+            if (offset.sqrMagnitude < (preciseCombatPresentation ? 0.0000000001f : 0.0001f)) return;
             if (HasCombatPose) ClearCombatPose();
             if (UsesLayeredTraversal && CombatUnit == null && !noclipEnabled)
             {
@@ -772,7 +775,7 @@ namespace Godmist.Views.Exploration
                 if (from != to) crossingDepthEdge = terrainView.TryGetLowWallCrossing(current, destination, PresentationLevel, out var edge) ? edge : null;
             }
 
-            Move(nextPosition - current);
+            Move(nextPosition - current, CombatUnit != null);
             if (CombatUnit != null && Position == destination) crossingDepthEdge = null;
         }
 

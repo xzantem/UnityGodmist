@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
@@ -18,6 +19,7 @@ namespace Godmist.Views.UI.Workspace
     public sealed class CharacterInfoWindowView : MonoBehaviour
     {
         private static readonly HashSet<CharacterInfoWindowView> OpenWindows = new();
+        private readonly CharacterStatHoverController statHover = new();
 
         [SerializeField] private UIWorkspaceWindow window;
         [SerializeField] private TextMeshProUGUI headerTitleText;
@@ -110,6 +112,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void OnDisable()
         {
+            statHover.Clear();
             if (experienceSource != null) experienceSource.ExperienceGained -= OnExperienceGained;
             experienceSource = null;
             UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
@@ -181,7 +184,12 @@ namespace Godmist.Views.UI.Workspace
         private void LateUpdate()
         {
             RefreshProgressionButtons();
-            if (character != null) RefreshVitals();
+            if (character != null)
+            {
+                RefreshVitals();
+                RefreshStatTexts();
+                statHover.Tick(Input.mousePosition);
+            }
         }
 
         public void ClearInventorySearch()
@@ -274,10 +282,10 @@ namespace Godmist.Views.UI.Workspace
 
         private void RefreshVitals()
         {
-            var maximum = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
+            var maximum = character.MaximumHealth;
             var resource = character.ResourcePool;
-            healthResourceText.text = $"<line-height=44>Zdrowie<pos=180>{CombatHealthPresentation.Format(character)}"
-                + (resource == null ? string.Empty : $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}<pos=180>{resource.CurrentValue}/{resource.MaxValue}") + "</line-height>";
+            healthResourceText.text = $"<line-height=44>{UiTerms.Health}<pos=180>{CharacterStatValueLinks.Health(character)}"
+                + (resource == null ? string.Empty : $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}<pos=180>{CharacterStatValueLinks.Resource(character)}") + "</line-height>";
             if (healthFill != null) healthFill.fillAmount = maximum > 0 ? Mathf.Clamp01((float)character.CurrentHealth / maximum) : 0;
             CombatHealthPresentation.UpdateShieldOverlay(ref shieldOverlay, healthFill,
                 character.ShieldPool?.TotalShield ?? 0, maximum);
@@ -343,14 +351,20 @@ namespace Godmist.Views.UI.Workspace
                 ? 1 : Mathf.Clamp01((float)character.CurrentExperience / progressionSystem.GetExperienceRequiredForNextLevel(character.Level));
 
             RefreshVitals();
-            statsText.text = "<line-height=22>" + BuildStats(character) + "</line-height>";
-            resistancesText.text = "<line-height=22>" + BuildResistances(character.Resistances) + "</line-height>";
+            RefreshStatTexts();
             honorAvailabilityText.text = (honorValueText == null ? $"Honor<pos=180>{character.Honor}\n" : string.Empty)
                 + $"Stan: {LifeStateName(character.LifeState)}\n{AvailabilityName(character.AvailabilityState)}";
             if (honorValueText != null) honorValueText.text = character.Honor.ToString();
 
             RefreshInventory();
             RefreshEquipment();
+        }
+
+        private void RefreshStatTexts()
+        {
+            statsText.text="<line-height=22>"+CharacterStatValueLinks.Decorate(BuildStats(character),character)+"</line-height>";
+            resistancesText.text="<line-height=22>"+CharacterStatValueLinks.Decorate(BuildResistances(character.Resistances),character,true)+"</line-height>";
+            statHover.Bind(character,transform,UIWorkspaceTooltipView.ActiveInstance,statsText,resistancesText,healthResourceText);
         }
 
         private void OpenSkillLoadout()
@@ -678,7 +692,7 @@ namespace Godmist.Views.UI.Workspace
                 }
             }
 
-            return stacks;
+            return ItemDisplayOrder.Sort(stacks, stack => stack.Representative);
         }
 
         private sealed class ItemStackEntry
@@ -696,13 +710,13 @@ namespace Godmist.Views.UI.Workspace
         private static string BuildStats(CharacterInstance value)
         {
             var stats = value.Stats;
-            return $"Atak<pos=180>{stats.MinAttack.GetValue():0}–{stats.MaxAttack.GetValue():0}\nObrona fizyczna<pos=180>{stats.PhysicalDefense.GetValue():0}\nObrona magiczna<pos=180>{stats.MagicalDefense.GetValue():0}\nUnik<pos=180>{stats.Dodge.GetValue():0}\nSzansa krytyczna<pos=180>{stats.CritChance.GetValue() * 100f:0.#}%\nObrażenia krytyczne<pos=180>×{stats.CritDamage.GetValue():0.##}\nSzybkość<pos=180>{stats.Speed.GetValue():0}\nCelność<pos=180>{stats.WeaponAccuracy.GetValue():0}";
+            return $"{UiTerms.Attack}<pos=180>{stats.MinAttack.GetValue():0}–{stats.MaxAttack.GetValue():0}\n{UiTerms.Stat(CharacterStatType.PhysicalDefense)}<pos=180>{stats.PhysicalDefense.GetValue():0}\n{UiTerms.Stat(CharacterStatType.MagicalDefense)}<pos=180>{stats.MagicalDefense.GetValue():0}\n{UiTerms.Stat(CharacterStatType.Dodge)}<pos=180>{stats.Dodge.GetValue():0}\n{UiTerms.Stat(CharacterStatType.CritChance)}<pos=180>{stats.CritChance.GetValue() * 100f:0.#}%\n{UiTerms.Stat(CharacterStatType.CritDamage)}<pos=180>×{stats.CritDamage.GetValue():0.##}\n{UiTerms.Stat(CharacterStatType.Speed)}<pos=180>{stats.Speed.GetValue():0}\n{UiTerms.Stat(CharacterStatType.WeaponAccuracy)}<pos=180>{stats.WeaponAccuracy.GetValue():0}";
         }
 
         private static string BuildResistances(ResistanceSet value)
         {
             if (value == null) return "Odporności: -";
-            return $"Krwawienie<pos=180>{value.BleedResistance * 100f:0.#}%\nTrucizna<pos=180>{value.PoisonResistance * 100f:0.#}%\nOgień<pos=180>{value.FireResistance * 100f:0.#}%\nOsłabienie<pos=180>{value.WeakeningResistance * 100f:0.#}%\nKontrola<pos=180>{value.SuppressionResistance * 100f:0.#}%\nPrzemieszczenie<pos=180>{value.MoveResistance * 100f:0.#}%";
+            return $"{UiTerms.ResistanceRow(ResistanceType.Bleed)}<pos=180>{value.BleedResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Poison)}<pos=180>{value.PoisonResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Fire)}<pos=180>{value.FireResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Weakening)}<pos=180>{value.WeakeningResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Suppression)}<pos=180>{value.SuppressionResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Move)}<pos=180>{value.MoveResistance * 100f:0.#}%";
         }
         private static string LocalizeClass(string name) => name switch
         { "Scout" => "Zwiadowca", "Warrior" => "Wojownik", "Mage" => "Mag", "Paladin" => "Paladyn", _ => name ?? "—" };

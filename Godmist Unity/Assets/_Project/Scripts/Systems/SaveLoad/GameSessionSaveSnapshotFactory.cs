@@ -1,4 +1,5 @@
 using System;
+using Godmist.Systems.Combat;
 using System.Linq;
 using System.Collections.Generic;
 using Godmist.Core.Serialization;
@@ -856,105 +857,12 @@ namespace Godmist.Systems.SaveLoad
             return saveData;
         }
 
-        private static List<PassiveEffectPayloadSaveData>
-            CopyPassiveEffectPayloads(
-                List<PassiveEffectPayloadRuntime> payloads)
+        private static List<PassiveEffectPayloadSaveData> CopyPassiveEffectPayloads(List<PassiveEffectPayloadRuntime> payloads)
         {
-            var saveData = new List<PassiveEffectPayloadSaveData>();
-            if (payloads == null) return saveData;
-
-            foreach (var payload in payloads)
-            {
-                switch (payload)
-                {
-                    case DamageOverTimePayload damageOverTime:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            RemainingTotalDamage = damageOverTime.RemainingTotalDamage,
-                            DamagePerTurn = damageOverTime.DamagePerTurn
-                        });
-                        break;
-                    case SleepHealingPayload sleepHealing:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            MaxHealthPercent = sleepHealing.MaxHealthPercent
-                        });
-                        break;
-                    case UniqueCombatBuffPayload uniqueBuff:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            UniqueBuffType = uniqueBuff.BuffType,
-                            ActionPointModifier = uniqueBuff.ActionPointModifier
-                        });
-                        break;
-                    case ResourceRegenerationBlockPayload:
-                        saveData.Add(new PassiveEffectPayloadSaveData { Type = payload.Type });
-                        break;
-                    case DamageRedirectPayload redirect:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            DamageRedirectPercent = redirect.RedirectPercent,
-                            ProtectorCharacterId = redirect.ProtectorCharacterId,
-                            ProtectorDisplayName = redirect.ProtectorDisplayName,
-                            ProtectedCharacterId = redirect.ProtectedCharacterId,
-                            ProtectedCharacterDisplayName = redirect.ProtectedCharacterDisplayName
-                        });
-                        break;
-                    case OnHitStatusPayload onHit:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            OnHitStatusId = onHit.StatusId,
-                            OnHitStatusChance = onHit.Chance,
-                            OnHitStatusDurationTurns = onHit.DurationTurns,
-                            OnHitStatusDamageMultiplier = onHit.StatusDamageMultiplier,
-                            OnHitStatusDamagePerTurn = onHit.StatusDamagePerTurn
-                        });
-                        break;
-                    case CounterattackPayload:
-                        // Combat state is intentionally not saveable. Counterattacks
-                        // are combat-scoped and the session rejects saves in combat.
-                        break;
-                    case StatModifiersPayload statModifiers:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            StatModifiers = CopyStatModifiers(statModifiers.Modifiers)
-                        });
-                        break;
-                    case VariableModifiersPayload variableModifiers:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            VariableModifiers = CopyVariableModifiers(variableModifiers.Modifiers)
-                        });
-                        break;
-                    case ResistanceModifierPayload resistanceModifier:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            ResistanceType = resistanceModifier.ResistanceType,
-                            ResistanceModifierValue = resistanceModifier.Value
-                        });
-                        break;
-                    case PeriodicRecoveryPayload periodicRecovery:
-                        saveData.Add(new PassiveEffectPayloadSaveData
-                        {
-                            Type = payload.Type,
-                            HealthPercent = periodicRecovery.HealthPercent,
-                            ResourcePercent = periodicRecovery.ResourcePercent,
-                            HealthRoundingCarry = periodicRecovery.HealthRoundingCarry,
-                            ResourceRoundingCarry = periodicRecovery.ResourceRoundingCarry
-                        });
-                        break;
-                }
-            }
-
-            return saveData;
+            var result = new List<PassiveEffectPayloadSaveData>();
+            foreach (var payload in payloads ?? new List<PassiveEffectPayloadRuntime>())
+                if (payload != null && PassiveEffectPayloadCodec.IsPersistent(payload)) result.Add(PassiveEffectPayloadCodec.Write(payload));
+            return result;
         }
 
         private static bool TryCaptureInventory(

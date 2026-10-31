@@ -1,5 +1,7 @@
 using System;
 using Godmist.Core.Enums;
+using Godmist.Data.Effects;
+using UnityEngine;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
 
@@ -18,6 +20,12 @@ namespace Godmist.Systems.Combat
         {
             this.battleLog = battleLog;
             this.feedbackBus = feedbackBus;
+        }
+
+        public static int CalculateSkillShield(BattleUnit caster,SkillEffectData effect)
+        {
+            var average=CombatDamageValueCalculator.CalculateDamageValue(caster,DamageValueSource.AverageAttack,1f);
+            return effect.BaseValue+Mathf.FloorToInt(average*effect.ShieldAverageAttackMultiplier);
         }
 
         public int GrantShield(

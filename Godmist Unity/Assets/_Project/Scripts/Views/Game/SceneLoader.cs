@@ -182,6 +182,7 @@ namespace Godmist.Views.Game
             area.offsetMin = new Vector2(6, 3); area.offsetMax = new Vector2(-6, -3);
             var fill = ProgressImage("Fill", area, "fill_runtime", new Color(.8f, .64f, .28f));
             loadingProgress.fillRect = fill.rectTransform;
+            Godmist.Views.UI.UIBarFillMask.Install(track, fill, area);
             loadingProgress.SetValueWithoutNotify(0);
         }
 

@@ -24,9 +24,13 @@ namespace Godmist.Data.Effects
         private int integerThreshold;
 
 
+        public SkillEffectConditionData DeepCopy() => (SkillEffectConditionData)MemberwiseClone();
+
         public EffectConditionType ConditionType =>
             conditionType;
 
+        [SerializeField] private string referencedEffectId = string.Empty;
+        public string ReferencedEffectId => referencedEffectId;
         public int ReferencedEffectIndex => referencedEffectIndex;
 
         public string StatusId => statusId;

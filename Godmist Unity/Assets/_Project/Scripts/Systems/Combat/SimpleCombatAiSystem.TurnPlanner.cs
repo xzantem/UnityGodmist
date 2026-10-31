@@ -28,7 +28,7 @@ namespace Godmist.Systems.Combat
                     && string.Equals(e.StatusId, skill.RequiredCasterStatusId, StringComparison.OrdinalIgnoreCase)
                     && skill.TargetModes[e.TargetModeIndex].TargetType == TargetType.Caster)
                 && (e.EffectType is EffectType.DealDamage or EffectType.ApplyStatus or EffectType.RemoveStatus
-                    or EffectType.ModifyStat or EffectType.ModifyVar or EffectType.Heal or EffectType.HealPercent or EffectType.Shield
+                    or EffectType.ModifyStat or EffectType.ModifyVar or EffectType.Heal or EffectType.HealPercent or EffectType.PaladinHeal or EffectType.PaladinRegeneration or EffectType.Shield
                     || e.EffectType == EffectType.ApplyUniqueBuff && e.UniqueBuffType == UniqueBuffType.Hawkeye
                     || e.EffectType == EffectType.ModifyActionValue && e.ActionValuePercent <= 0f
                         && IsPreparationMode(skill.TargetModes[e.TargetModeIndex])
@@ -38,9 +38,9 @@ namespace Godmist.Systems.Combat
                 or EffectConditionType.TargetHasStatus or EffectConditionType.AnyOpponentHasStatus or EffectConditionType.NoOpponentHasStatus))
             && skill.Effects.Select((effect, index) => (effect, index)).All(pair => pair.effect.Conditions.All(condition =>
                 condition?.ConditionType != EffectConditionType.ReferencedEffectSucceeded
-                || condition.ReferencedEffectIndex >= 0 && condition.ReferencedEffectIndex < pair.index
-                    && skill.Effects[condition.ReferencedEffectIndex].EffectType == EffectType.DealDamage
-                    && skill.Effects[condition.ReferencedEffectIndex].TargetModeIndex == pair.effect.TargetModeIndex));
+                || SkillEffectIdentity.ReferenceIndex(skill, condition) >= 0 && SkillEffectIdentity.ReferenceIndex(skill, condition) < skill.Effects.Count
+                    && skill.Effects[SkillEffectIdentity.ReferenceIndex(skill, condition)].EffectType == EffectType.DealDamage
+                    && skill.Effects[SkillEffectIdentity.ReferenceIndex(skill, condition)].TargetModeIndex == pair.effect.TargetModeIndex));
 
         private static bool IsShortOffensivePreparation(SkillData skill) => skill?.Effects.Any(effect => effect != null
             && effect.DurationTurns == 1 && effect.ModifierValue > 0f
@@ -218,6 +218,7 @@ namespace Godmist.Systems.Combat
                 PreparationRecipients = new HashSet<int>(node.PreparationRecipients),
                 PreparationTurnDelays = new Dictionary<int, float>(node.PreparationTurnDelays),
                 Visited = new HashSet<GridPosition>(node.Visited), Used = new HashSet<SkillData>(node.Used),
+                PendingHealing = new Dictionary<int, float>(node.PendingHealing),
                 StatusConfidence = new Dictionary<(int, string), float>(node.StatusConfidence) };
     }
 }

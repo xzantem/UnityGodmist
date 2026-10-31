@@ -121,7 +121,7 @@ namespace Godmist.Systems.Combat
                 result.Action = new SimpleCombatAiAction(SimpleCombatAiActionType.Skill, vengeanceSkill);
                 yield break;
             }
-            if (aiUnit.CurrentActionPoints <= 0) yield break;
+            if (aiUnit.CurrentActionPoints <= 0 && !aiUnit.Character.GetActiveSkills().Any(skill => CanAffordSkill(aiUnit, skill))) yield break;
             var selection = new AiResult<AiSkillSelection>();
             var currentCandidates = new List<AiSkillSelection>();
             if (skillExecutionSystem != null)
@@ -185,13 +185,14 @@ namespace Godmist.Systems.Combat
                 {
                     yield return false;
                     var chosen = selection.Value;
+                    var chosenCost = CombatActionCostCalculator.CalculateSkillCostForTarget(aiUnit, chosen.Skill, chosen.TargetsByModeIndex.Values.SelectMany(value => value).FirstOrDefault());
                     bool executed;
                     using (ApplySample.Auto()) executed = skillExecutionSystem.TryExecute(session, aiUnit,
                         chosen.Skill, chosen.TargetsByModeIndex, teleportDestination: null,
                         objectPlacementDestination: chosen.SummonPlacementDestination);
                     if (executed)
                     {
-                        if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, chosen.Skill) == 0)
+                        if (chosenCost == 0)
                             turnState.UsedZeroActionSkills.Add(chosen.Skill);
                         result.Executed = true;
                         result.Action = new SimpleCombatAiAction(SimpleCombatAiActionType.Skill, chosen.Skill);

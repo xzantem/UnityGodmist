@@ -82,32 +82,30 @@ namespace Godmist.Runtime.Items
         {
             if (!UsesEquipmentProgression) return;
             BaseStatModifiers ??= new();
-            if (BaseStatModifiers.Count == 0)
-            {
-                // Legacy saves without a baseline used the old +100% primary-stat rule.
-                // Recover that baseline before applying the current balance; never
-                // invert the new rule against a payload produced by the old one.
-                BaseStatModifiers = (StatModifiers ?? new()).Where(x => x != null).Select(x =>
-                    CopyStat(x, IsPrimary(x.StatType) ? 1f / (1f + Math.Clamp(UpgradeProgress, 0f, 1f)) : 1f)).ToList();
-            }
-            var rarity = RarityMultiplier(CurrentRarity);
-            StatModifiers = BaseStatModifiers.Where(x => x != null).Select(x =>
-            {
-                var multiplier = IsPrimary(x.StatType)
-                    ? 1f + (Definition.ItemType == ItemType.Weapon ? .5f : 1.5f) * Math.Clamp(UpgradeProgress, 0f, 1f)
-                    : x.StatType is CharacterStatType.WeaponAccuracy or CharacterStatType.Dodge
-                        ? 1f + .3f * (rarity - 1f)
-                    : x.StatType is CharacterStatType.MaxResource or CharacterStatType.ResourceRegeneration
-                        ? 1f + .6f * (rarity - 1f)
-                    : x.StatType == CharacterStatType.CritDamage
-                        ? 1f + .5f * (rarity - 1f)
-                    : x.StatType is CharacterStatType.MaxHealth or CharacterStatType.CritChance
-                        ? rarity : 1f;
-                return CopyStat(x, multiplier);
-            }).ToList();
+            if (BaseStatModifiers.Count == 0 && StatModifiers?.Count > 0)
+                throw new InvalidOperationException("Equipment stat baseline is missing. Legacy saves must be migrated before recalculation.");
+            StatModifiers = BaseStatModifiers.Where(x => x != null)
+                .Select(x => CopyStat(x, GetStatProgressionMultiplier(x.StatType))).ToList();
         }
 
-        private bool IsPrimary(CharacterStatType stat) => Definition.ItemType == ItemType.Weapon
+        // Shared pure query: presentation must use the same progression as the item payload.
+        public float GetStatProgressionMultiplier(CharacterStatType stat)
+        {
+            if (!UsesEquipmentProgression) return 1f;
+            var rarity = RarityMultiplier(CurrentRarity);
+            return IsPrimaryStat(stat)
+                ? 1f + (Definition.ItemType == ItemType.Weapon ? .5f : 1.5f) * Math.Clamp(UpgradeProgress, 0f, 1f)
+                : stat is CharacterStatType.WeaponAccuracy or CharacterStatType.Dodge
+                    ? 1f + .3f * (rarity - 1f)
+                : stat is CharacterStatType.MaxResource or CharacterStatType.ResourceRegeneration
+                    ? 1f + .6f * (rarity - 1f)
+                : stat == CharacterStatType.CritDamage
+                    ? 1f + .5f * (rarity - 1f)
+                : stat is CharacterStatType.MaxHealth or CharacterStatType.CritChance
+                    ? rarity : 1f;
+        }
+
+        public bool IsPrimaryStat(CharacterStatType stat) => Definition.ItemType == ItemType.Weapon
             ? stat is CharacterStatType.MinAttack or CharacterStatType.MaxAttack
             : stat is CharacterStatType.PhysicalDefense or CharacterStatType.MagicalDefense;
 

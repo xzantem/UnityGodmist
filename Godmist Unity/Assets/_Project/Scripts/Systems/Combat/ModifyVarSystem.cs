@@ -139,12 +139,12 @@ namespace Godmist.Systems.Combat
                 PassiveEffectSourceFactory.FromSkill(
                     source,
                     skill,
-                    effectIndex)
+                    effectIndex, effect)
             };
             var isTimed = !skill.IsToggle && effect.DurationTurns > 0;
 
             return new PassiveEffectRuntime(
-                BuildEffectId(skill.SkillId, effectIndex),
+                SkillEffectIdentity.RuntimeId(skill, effect, "modify_var"),
                 sources,
                 stacks: 1,
                 remainingDuration: isTimed ? effect.DurationTurns : 0,
@@ -167,11 +167,6 @@ namespace Godmist.Systems.Combat
             };
         }
 
-        private static string BuildEffectId(
-            string skillId,
-            int effectIndex)
-        {
-            return $"{skillId}.modify_var.{effectIndex}";
-        }
+
     }
 }

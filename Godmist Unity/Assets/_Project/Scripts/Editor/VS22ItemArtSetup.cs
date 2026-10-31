@@ -278,6 +278,18 @@ public static class VS22ItemArtSetup
                 {
                     var gemSlug = GemSlug(gem?.CraftingMaterial?.DisplayName);
                     if (string.IsNullOrWhiteSpace(gemSlug)) continue;
+                    // Jade extends the committed atlas; it does not depend on local review sources.
+                    if (gemSlug == "jadeite")
+                    {
+                        var jadeSprite = AssetDatabase.LoadAssetAtPath<Sprite>(ArtRoot + "jewelry-" + slot + "-" + metalSlug + "-jadeite.png");
+                        if (jadeSprite == null) { unavailable.Add("jewelry " + slot + "/" + metalSlug + "/jadeite"); continue; }
+                        entries.Add(new ItemIconLibrary.Entry
+                        {
+                            Key = Godmist.Runtime.Items.ItemIconPresentation.BuildJewelryKey(definition.JewelrySlot, metal.Material.Id, gem.CraftingMaterial.Id),
+                            Icon = jadeSprite
+                        });
+                        continue;
+                    }
                     var metalSource = Path.Combine(ReviewRoot, "jewelry-metals", slot + "-" + metalSlug + "-v2-32.png");
                     var gemSource = Path.Combine(ReviewRoot, "jewelry-gems", slot + "-" + gemSlug + "-32.png");
                     var maskSource = Path.Combine(ReviewRoot, "jewelry-gems", slot + "-gem-mask.png");
@@ -336,6 +348,7 @@ public static class VS22ItemArtSetup
         if (value.Contains("szmaragd")) return "emerald";
         if (value.Contains("granat")) return "garnet";
         if (value.Contains("obsydian")) return "obsidian";
+        if (value.Contains("jadeit")) return "jadeite";
         if (value.Contains("onyks")) return "onyx";
         if (value.Contains("rubin")) return "ruby";
         if (value.Contains("szafir")) return "sapphire";

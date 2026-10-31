@@ -247,7 +247,7 @@ namespace Godmist.Systems.Items
             switch (runtimeEffect.EffectType)
             {
                 case ConsumableRuntimeEffectType.RestoreHealth:
-                    var maxHealth = Mathf.Max(0, Mathf.RoundToInt(character.Stats?.MaxHealth.GetValue() ?? 0f));
+                    var maxHealth = (character.Stats == null ? 0 : character.MaximumHealth);
                     if (character.CurrentHealth >= maxHealth) return false;
                     character.CurrentHealth = Mathf.Min(maxHealth, character.CurrentHealth + Mathf.CeilToInt(maxHealth * effectiveValue));
                     result = ExplorationConsumableEffect.RestoreHealthPercent;
@@ -269,7 +269,7 @@ namespace Godmist.Systems.Items
                     {
                         if (runtimeEffect.EffectType == ConsumableRuntimeEffectType.RegenHealth)
                         {
-                            var maximum = Mathf.Max(0, Mathf.RoundToInt(character.Stats?.MaxHealth.GetValue() ?? 0f));
+                            var maximum = (character.Stats == null ? 0 : character.MaximumHealth);
                             if (character.CurrentHealth >= maximum) return false;
                             character.CurrentHealth = Mathf.Min(maximum,
                                 character.CurrentHealth + Mathf.CeilToInt(maximum * effectiveValue));

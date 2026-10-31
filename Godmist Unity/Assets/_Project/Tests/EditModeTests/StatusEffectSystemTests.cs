@@ -224,7 +224,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(runtimeEffect.Stacks, Is.EqualTo(1));
             Assert.That(runtimeEffect.Lifetime, Is.EqualTo(PassiveEffectLifetime.Timed));
             Assert.That(runtimeEffect.Sources[0].SourceType, Is.EqualTo(PassiveEffectSourceType.Skill));
-            Assert.That(runtimeEffect.Sources[0].SourceId, Is.EqualTo("skill.test.bleed.effect.0"));
+            Assert.That(runtimeEffect.Sources[0].SourceId, Is.EqualTo(SkillEffectIdentity.RuntimeId(skill, effect, "effect")));
 
             Object.DestroyImmediate(skill);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Godmist.Core.Enums;
 using Godmist.Runtime.Combat;
 using Godmist.Runtime.Effects;
@@ -38,7 +38,7 @@ namespace Godmist.Systems.Combat
 
             if (stats == null) return 0;
 
-            var maxHealth = Mathf.Max(0, Mathf.RoundToInt(stats.MaxHealth.GetValue()));
+            var maxHealth = target.Character.MaximumHealth;
 
             if (maxHealth <= 0) return 0;
 

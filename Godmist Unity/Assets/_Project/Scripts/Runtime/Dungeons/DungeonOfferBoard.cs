@@ -85,45 +85,83 @@ namespace Godmist.Runtime.Dungeons
         public void CompleteExpedition() { offers.Clear(); Generation = unchecked(Generation + 1); SelectedIndex = 0; }
         public void InvalidateOffers() => CompleteExpedition();
         public bool TryRestore(int generation, int selectedIndex, IReadOnlyList<DungeonExpeditionOffer> next)
+            => TryRestore(generation, selectedIndex, next, out _, out _);
+
+        public bool TryRestore(int generation, int selectedIndex, IReadOnlyList<DungeonExpeditionOffer> next,
+            out string field, out string reason)
         {
-            if (next == null || (next.Count != 0 && next.Count != 6) || selectedIndex < 0 || selectedIndex >= Math.Max(1,next.Count)) return false;
+            field = "Offers"; reason = "Lista ofert musi zawierać 0 lub 6 pozycji.";
+            if (next == null || next.Count != 0 && next.Count != 6) return false;
+            field = "SelectedIndex"; reason = "Wybrany indeks znajduje się poza listą ofert.";
+            if (selectedIndex < 0 || selectedIndex >= Math.Max(1, next.Count)) return false;
             var seeds = new HashSet<int>();
-            for (var i=0;i<next.Count;i++)
+            for (var i = 0; i < next.Count; i++)
             {
-                var offer=next[i];
-                if (offer == null || string.IsNullOrWhiteSpace(offer.DefinitionId) || !seeds.Add(offer.Seed)
-                    || !Enum.IsDefined(typeof(DungeonLength), offer.Length)
-                    || offer.FixedLevel < 0 || offer.FixedLevel > 50
-                    || (offer.FixedLevel > 0 && offer.LevelOffset != 0)
-                    || (offer.FixedLevel == 0 && (i == 0 || i == 1 && next[0].FixedLevel > 0
-                        ? offer.LevelOffset != 0
-                        : Math.Abs((long)offer.LevelOffset) < 1 || Math.Abs((long)offer.LevelOffset) > 3))) return false;
+                var offer = next[i]; field = $"Offers[{i}]"; reason = "Pusta oferta.";
+                if (offer == null) return false;
+                field = $"Offers[{i}].DefinitionId"; reason = "Brak ID definicji lochu.";
+                if (string.IsNullOrWhiteSpace(offer.DefinitionId)) return false;
+                field = $"Offers[{i}].Seed"; reason = "Powtórzony seed oferty.";
+                if (!seeds.Add(offer.Seed)) return false;
+                field = $"Offers[{i}].Length"; reason = "Nieobsługiwana długość lochu.";
+                if (!Enum.IsDefined(typeof(DungeonLength), offer.Length)) return false;
+                field = $"Offers[{i}].FixedLevel"; reason = "Stały poziom musi mieścić się w zakresie 0–50.";
+                if (offer.FixedLevel < 0 || offer.FixedLevel > 50) return false;
+                field = $"Offers[{i}].LevelOffset"; reason = "Przesunięcie poziomu nie odpowiada rodzajowi i pozycji oferty.";
+                if (offer.FixedLevel > 0 && offer.LevelOffset != 0
+                    || offer.FixedLevel == 0 && (i == 0 || i == 1 && next[0].FixedLevel > 0
+                        ? offer.LevelOffset != 0 : Math.Abs((long)offer.LevelOffset) < 1 || Math.Abs((long)offer.LevelOffset) > 3)) return false;
             }
-            offers.Clear(); offers.AddRange(next); Generation=generation; SelectedIndex=selectedIndex; return true;
+            offers.Clear(); offers.AddRange(next); Generation = generation; SelectedIndex = selectedIndex;
+            field = reason = string.Empty; return true;
         }
+
         public bool TryRestoreProgression(int highestMilestoneProcessed,
             IReadOnlyDictionary<DungeonTheme, int> nextDanger,
             IReadOnlyList<DungeonBossOpportunity> nextBosses, int completedExpeditions = 0)
+            => TryRestoreProgression(highestMilestoneProcessed, nextDanger, nextBosses, completedExpeditions, out _, out _);
+
+        public bool TryRestoreProgression(int highestMilestoneProcessed,
+            IReadOnlyDictionary<DungeonTheme, int> nextDanger,
+            IReadOnlyList<DungeonBossOpportunity> nextBosses, int completedExpeditions,
+            out string field, out string reason)
         {
-            if (highestMilestoneProcessed < 0 || highestMilestoneProcessed > 50
-                || highestMilestoneProcessed % 10 != 0 || nextDanger == null || nextBosses == null || completedExpeditions < 0)
-                return false;
+            field = "HighestMilestoneProcessed"; reason = "Próg musi być wielokrotnością 10 w zakresie 0–50.";
+            if (highestMilestoneProcessed < 0 || highestMilestoneProcessed > 50 || highestMilestoneProcessed % 10 != 0) return false;
+            field = "CompletedExpeditions"; reason = "Liczba wypraw nie może być ujemna.";
+            if (completedExpeditions < 0) return false;
+            field = "Danger"; reason = "Brak tabeli zagrożenia.";
+            if (nextDanger == null) return false;
+            field = "BossOpportunities"; reason = "Brak listy okazji bossów.";
+            if (nextBosses == null) return false;
             foreach (var pair in nextDanger)
-                if (pair.Key == DungeonTheme.Story || !Enum.IsDefined(typeof(DungeonTheme), pair.Key)
-                    || pair.Value < 0 || pair.Value > 100) return false;
+            {
+                field = $"Danger[{pair.Key}].Theme"; reason = "Nieobsługiwany biom zagrożenia.";
+                if (pair.Key == DungeonTheme.Story || !Enum.IsDefined(typeof(DungeonTheme), pair.Key)) return false;
+                field = $"Danger[{pair.Key}].Value"; reason = "Zagrożenie musi mieścić się w zakresie 0–100.";
+                if (pair.Value < 0 || pair.Value > 100) return false;
+            }
             var keys = new HashSet<(string, int)>();
-            foreach (var boss in nextBosses)
-                if (boss == null || boss.Theme == DungeonTheme.Story
-                    || !Enum.IsDefined(typeof(DungeonTheme), boss.Theme)
-                    || !Enum.IsDefined(typeof(DungeonLength), boss.Length)
-                    || string.IsNullOrWhiteSpace(boss.DefinitionId) || boss.Level < 1 || boss.Level > 50
-                    || !keys.Add((boss.DefinitionId, boss.Level))) return false;
+            for (var i = 0; i < nextBosses.Count; i++)
+            {
+                var boss = nextBosses[i]; field = $"BossOpportunities[{i}]"; reason = "Pusta okazja bossa.";
+                if (boss == null) return false;
+                field = $"BossOpportunities[{i}].Theme"; reason = "Nieobsługiwany biom bossa.";
+                if (boss.Theme == DungeonTheme.Story || !Enum.IsDefined(typeof(DungeonTheme), boss.Theme)) return false;
+                field = $"BossOpportunities[{i}].Length"; reason = "Nieobsługiwana długość lochu bossa.";
+                if (!Enum.IsDefined(typeof(DungeonLength), boss.Length)) return false;
+                field = $"BossOpportunities[{i}].DefinitionId"; reason = "Brak ID definicji bossa.";
+                if (string.IsNullOrWhiteSpace(boss.DefinitionId)) return false;
+                field = $"BossOpportunities[{i}].Level"; reason = "Poziom bossa musi mieścić się w zakresie 1–50.";
+                if (boss.Level < 1 || boss.Level > 50) return false;
+                field = $"BossOpportunities[{i}].DefinitionId"; reason = "Powtórzona para ID bossa i poziomu.";
+                if (!keys.Add((boss.DefinitionId, boss.Level))) return false;
+            }
             dangerByTheme.Clear();
             foreach (var pair in nextDanger) dangerByTheme.Add(pair.Key, pair.Value);
             bossOpportunities.Clear(); bossOpportunities.AddRange(nextBosses);
-            HighestMilestoneProcessed = highestMilestoneProcessed;
-            CompletedExpeditions = completedExpeditions;
-            return true;
+            HighestMilestoneProcessed = highestMilestoneProcessed; CompletedExpeditions = completedExpeditions;
+            field = reason = string.Empty; return true;
         }
     }
 }

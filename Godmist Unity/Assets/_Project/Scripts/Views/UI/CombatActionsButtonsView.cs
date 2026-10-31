@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using Godmist.Views.Combat;
 using TMPro;
 using UnityEngine;
@@ -78,7 +79,7 @@ namespace Godmist.Views.UI
                 var reason = sandboxBootstrap.GetEscapeBlockReason();
                 SetEscapeButtonState(string.IsNullOrEmpty(reason));
                 escapeTooltip?.UpdateDescription(!string.IsNullOrEmpty(reason) ? reason
-                    : boundSession?.IsSeamless == true ? "Wycofaj się z walki.\nKoszt: 0 AP."
+                    : boundSession?.IsSeamless == true ? $"Wycofaj się z walki.\nKoszt: 0 {UiTerms.ActionPointsShort}."
                     : "Próbuje uciec z walki. Nieudana próba zwiększa szansę powodzenia następnej.");
             }
             if (consumablesButton != null)

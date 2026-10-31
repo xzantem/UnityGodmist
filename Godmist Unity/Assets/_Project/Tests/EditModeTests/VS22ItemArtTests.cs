@@ -173,7 +173,7 @@ namespace Godmist.Tests.EditMode
         {
             var library = Resources.Load<ItemIconLibrary>(ItemIconPresentation.LibraryResourcePath);
             Assert.That(library, Is.Not.Null);
-            Assert.That(library.Entries.Count(entry => entry != null && entry.Key.StartsWith("jewelry.")), Is.EqualTo(352));
+            Assert.That(library.Entries.Count(entry => entry != null && entry.Key.StartsWith("jewelry.")), Is.EqualTo(384));
         }
 
         [Test]

@@ -60,6 +60,7 @@ namespace Godmist.Editor
                     }
                 }
             }
+            BossGemLootSetup.ConfigureBossBag(d, true);
             var unique=d.FindProperty(F("BossUniqueDrop"));Sub(unique,"DropChance",.30f);var definitions=unique.FindPropertyRelative(F("EquipmentDefinitions"));definitions.ClearArray();
             foreach(var item in uniques)Add(definitions).objectReferenceValue=item;Save(d);
             var ent=Require<DungeonDefinition>(ForestExpeditionsSetup.BossPath);

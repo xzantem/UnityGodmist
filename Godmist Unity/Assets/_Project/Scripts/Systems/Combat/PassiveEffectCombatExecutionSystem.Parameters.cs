@@ -35,13 +35,25 @@ namespace Godmist.Systems.Combat
             return false;
         }
         // Pure queries: never roll a proc, spend resources or mutate a shared SkillData.
-        public static int ResolveResourceCost(BattleUnit owner, SkillData skill, bool recoveringKnife = false)
+        public static int ResolveResourceCost(BattleUnit owner, SkillData skill, bool recoveringKnife = false, CombatValueExplanation explanation = null)
         {
             if (skill == null) return 0;
             if (skill.SkillId == WarriorDischargeRules.SkillId) return WarriorDischargeRules.Cost(owner);
-            var cost = Mathf.CeilToInt((1 - Mathf.Clamp01(EquipmentEffectSystem.Sum(owner?.Character, GalduryteEffectType.ResourceCostReduction))) * MageCombatSystem.Cost(owner,skill,WarriorCombatSystem.Cost(owner,skill,Mathf.Max(0, Mathf.CeilToInt(ResolveParameter(owner, skill,
-                "resource_cost", skill.ResourceCost) - .00001f)))));
-            return ScoutCombatSystem.KnifeRecoveryCost(owner, skill, cost, recoveringKnife);
+            explanation?.Add("resource_base",skill.ResourceCost);
+            var parameter=ResolveParameter(owner,skill,"resource_cost",skill.ResourceCost,explanation:explanation);
+            var cost=Mathf.Max(0,Mathf.CeilToInt(parameter-.00001f));
+            explanation?.Add("parameter_rounding",cost);
+            cost=WarriorCombatSystem.Cost(owner,skill,cost);
+            explanation?.Add("warrior_cost",cost);
+            cost=MageCombatSystem.Cost(owner,skill,cost);
+            explanation?.Add("mage_cost",cost);
+            var equipment=1-Mathf.Clamp01(EquipmentEffectSystem.Sum(owner?.Character,GalduryteEffectType.ResourceCostReduction,explanation));
+            explanation?.Add("resource_equipment",equipment);
+            cost=Mathf.CeilToInt(cost*equipment);
+            explanation?.Add("equipment_rounding",cost);
+            cost=ScoutCombatSystem.KnifeRecoveryCost(owner,skill,cost,recoveringKnife);
+            explanation?.Add("resource_result",cost);
+            return cost;
         }
 
         public static SkillEffectData ResolveEffect(BattleUnit owner, SkillData skill, SkillEffectData effect)
@@ -71,7 +83,7 @@ namespace Godmist.Systems.Combat
         }
 
         public static float ResolveParameter(BattleUnit owner, SkillData skill,
-            string parameter, float baseValue, int effectIndex = -1, int modeIndex = -1)
+            string parameter, float baseValue, int effectIndex = -1, int modeIndex = -1, CombatValueExplanation explanation = null)
         {
             if (owner?.Character == null || skill == null) return baseValue;
             var context = new PassiveEffectCombatContext(source: owner, target: owner,
@@ -88,7 +100,7 @@ namespace Godmist.Systems.Combat
                 foreach (var operation in result.Operations)
                 {
                     if (operation == null || !TargetsOwner(operation.Target)) continue;
-                    if (!MatchesIndex(operation, "effect_index", effectIndex)
+                    if (!MatchesEffect(operation, skill, effectIndex)
                         || !MatchesIndex(operation, "target_mode_index", modeIndex)) continue;
                     var cost = operation.Type == PassiveEffectOperationType.ModifyResourceCost
                         && parameter == "resource_cost";
@@ -97,6 +109,12 @@ namespace Godmist.Systems.Combat
                     if (HasParameter(operation, "scope", "offensive")
                         && !IsOffensiveSkill(skill)) continue;
                     var value = ResolveValue(operation.Value, runtime);
+                    explanation?.Add(!string.IsNullOrWhiteSpace(runtime.DisplayName)?runtime.DisplayName:runtime.DefinitionId,
+                        operation.ModifierOperation==StatModifierOperation.Percent
+                            ? operation.ModifierStacking==StatModifierStacking.Multiplicative
+                                ? "×"+(1+value).ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))
+                                : (value*100).ToString("+0.####;-0.####;0",System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))+"%"
+                            : value.ToString("+0.####;-0.####;0",System.Globalization.CultureInfo.GetCultureInfo("pl-PL")));
                     if (operation.ModifierOperation == StatModifierOperation.Percent)
                     {
                         if (operation.ModifierStacking == StatModifierStacking.Multiplicative)
@@ -129,6 +147,21 @@ namespace Godmist.Systems.Combat
             && skill.TargetModes[effect.TargetModeIndex] != null
             && skill.TargetModes[effect.TargetModeIndex].TargetType != TargetType.Caster
             && skill.TargetModes[effect.TargetModeIndex].TargetingType == TargetingType.Enemies;
+
+        private static bool MatchesEffect(PassiveEffectOperationDefinition operation, SkillData skill, int actual)
+        {
+            foreach (var parameter in operation.Parameters ?? new List<PassiveEffectParameterDefinition>())
+            {
+                if (parameter?.Key == "effect_id" && (actual < 0 || actual >= skill.Effects.Count
+                    || parameter.StringValue != skill.Effects[actual].StableId)) return false;
+                if (parameter?.Key == "effect_index")
+                {
+                    var token = Godmist.Systems.SaveLoad.LegacyContentIdentities.EffectToken(skill.SkillId, parameter.IntegerValue);
+                    if (actual < 0 || actual >= skill.Effects.Count || skill.Effects[actual].StableId != token) return false;
+                }
+            }
+            return true;
+        }
 
         private static bool MatchesIndex(PassiveEffectOperationDefinition operation, string key, int actual)
         {
