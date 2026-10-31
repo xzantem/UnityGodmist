@@ -1,0 +1,3322 @@
+{
+  "actor:Aligator": {
+    "first_name": "Aligator",
+    "id": "enemy.swamp.alligator",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Chochlik": {
+    "first_name": "Chochlik",
+    "id": "enemy.elven_ruins.imp",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Człowiek-rekin": {
+    "first_name": "Człowiek-rekin",
+    "id": "enemy.sea.sharkman",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Demoniczny Czarownik": {
+    "first_name": "Demoniczny Czarownik",
+    "id": "enemy.elven_ruins.demon_warlock",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Demoniczny Iluzjonista": {
+    "first_name": "Demoniczny Iluzjonista",
+    "id": "enemy.elven_ruins.demon_illusionist",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Demoniczny Zbrojny": {
+    "first_name": "Demoniczny Zbrojny",
+    "id": "enemy.elven_ruins.demon_soldier",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Dezerter": {
+    "first_name": "Dezerter",
+    "id": "enemy.swamp.deserter",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Eayan'masakh": {
+    "first_name": "Eayan'masakh",
+    "id": "enemy.elven_ruins.eayan_masakh",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Hawia'kalb": {
+    "first_name": "Hawia'kalb",
+    "id": "enemy.elven_ruins.hawia_kalb",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Mięsożerna Roślina": {
+    "first_name": "Mięsożerna Roślina",
+    "id": "enemy.swamp.carnivorous_plant",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Niewolnik Demonów": {
+    "first_name": "Niewolnik Demonów",
+    "id": "enemy.elven_ruins.demon_slave",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Papuga": {
+    "first_name": "Papuga",
+    "id": "enemy.sea.parrot",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Pasożytnicza Roślina": {
+    "first_name": "Pasożytnicza Roślina",
+    "id": "enemy.swamp.parasitic_plant",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Piaszczysty Feniks": {
+    "first_name": "Piaszczysty Feniks",
+    "id": "enemy.sea.sand_phoenix",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Pirat Harpunnik": {
+    "first_name": "Pirat Harpunnik",
+    "id": "enemy.sea.pirate_harpooner",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Pirat Kanonier": {
+    "first_name": "Pirat Kanonier",
+    "id": "enemy.sea.pirate_gunner",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Pirat Kombatant": {
+    "first_name": "Pirat Kombatant",
+    "id": "enemy.sea.pirate_combatant",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Pirat Konsyliarz": {
+    "first_name": "Pirat Konsyliarz",
+    "id": "enemy.sea.pirate_counsellor",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Plująca Roślina": {
+    "first_name": "Plująca Roślina",
+    "id": "enemy.swamp.spitting_plant",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Strażnik Bagien": {
+    "first_name": "Strażnik Bagien",
+    "id": "enemy.swamp.swamp_guardian",
+    "status": "proposed_not_runtime"
+  },
+  "actor:Topielec": {
+    "first_name": "Topielec",
+    "id": "enemy.swamp.drowned",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_illusionist:1": {
+    "first_name": "[M] Zamieszanie [5 MP, 60% AP]",
+    "id": "skill.elven_ruins.demon_illusionist.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_illusionist:2": {
+    "first_name": "[N/A] Demoniczna Iluzja [80 MP, 35% AP]",
+    "id": "skill.elven_ruins.demon_illusionist.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_illusionist:3": {
+    "first_name": "[M] Implozja Iluzji [20 MP, 70 AP]",
+    "id": "skill.elven_ruins.demon_illusionist.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_slave:1": {
+    "first_name": "[F] Obrona Panów [0 MP, 60% AP]",
+    "id": "skill.elven_ruins.demon_slave.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_slave:2": {
+    "first_name": "[N/A] Nadludzkie Poświęcenie [30 MP, 40% AP]",
+    "id": "skill.elven_ruins.demon_slave.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_slave:3": {
+    "first_name": "[N/A] Dewocja [50 MP, 100% AP]",
+    "id": "skill.elven_ruins.demon_slave.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_soldier:1": {
+    "first_name": "[F] Demoniczny Cep [0 MP, 65% AP]",
+    "id": "skill.elven_ruins.demon_soldier.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_soldier:2": {
+    "first_name": "[F] Wzbudzenie Nienawiści [60 MP, 30% AP]",
+    "id": "skill.elven_ruins.demon_soldier.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_soldier:3": {
+    "first_name": "[F] Cios Tarczą [40 MP, 60% AP]",
+    "id": "skill.elven_ruins.demon_soldier.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_warlock:1": {
+    "first_name": "[N/A] Siły Mista [20 MP, 60% AP]",
+    "id": "skill.elven_ruins.demon_warlock.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_warlock:2": {
+    "first_name": "[M] Demoniczna Chłosta [5 MP, 30% AP, Macka]",
+    "id": "skill.elven_ruins.demon_warlock.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.demon_warlock:3": {
+    "first_name": "[M] Demoniczne Przyciągnięcie [30 MP, 30% AP, Macka]",
+    "id": "skill.elven_ruins.demon_warlock.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.eayan_masakh:1": {
+    "first_name": "[M] Laser z Oka [5 MP, 40% AP]",
+    "id": "skill.elven_ruins.eayan_masakh.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.eayan_masakh:2": {
+    "first_name": "[M] Paraliżujący Laser [60 MP, 60% AP]",
+    "id": "skill.elven_ruins.eayan_masakh.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.eayan_masakh:3": {
+    "first_name": "[N/A] Demoniczna Wyrwa [40 MP, 40% AP]",
+    "id": "skill.elven_ruins.eayan_masakh.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.hawia_kalb:1": {
+    "first_name": "[F] Zęby Demona [0 MP, 60% AP]",
+    "id": "skill.elven_ruins.hawia_kalb.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.hawia_kalb:2": {
+    "first_name": "[F] Demoniczny Oddech [40 MP, 60% AP]",
+    "id": "skill.elven_ruins.hawia_kalb.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.hawia_kalb:3": {
+    "first_name": "[F] Aport Demona [30 MP, 20% AP]",
+    "id": "skill.elven_ruins.hawia_kalb.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.imp:1": {
+    "first_name": "[F] Ostre Pazury [0 MP, 60% AP]",
+    "id": "skill.elven_ruins.imp.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.imp:2": {
+    "first_name": "[M] Kulki Ognia [10n MP, 60% AP]",
+    "id": "skill.elven_ruins.imp.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.elven_ruins.imp:3": {
+    "first_name": "[N/A] Czas na Psoty [20 MP, 30% AP]",
+    "id": "skill.elven_ruins.imp.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.parrot:1": {
+    "first_name": "[F] Szlachtowanie Pazurami [0 MP, 60% AP]",
+    "id": "skill.sea.parrot.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.parrot:2": {
+    "first_name": "[M] Przedrzeźnianie [20 MP, 20% AP]",
+    "id": "skill.sea.parrot.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.parrot:3": {
+    "first_name": "[N/A] Czas Karmienia [40 MP, 30% AP]",
+    "id": "skill.sea.parrot.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_combatant:1": {
+    "first_name": "[F] Piracka Szabla [0 MP, 65% AP]",
+    "id": "skill.sea.pirate_combatant.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_combatant:2": {
+    "first_name": "[N/A] Plugawy Trunek [40 MP, 35% AP]",
+    "id": "skill.sea.pirate_combatant.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_combatant:3": {
+    "first_name": "[F] Wystrzał Skałkowy [20 MP, 35% AP]",
+    "id": "skill.sea.pirate_combatant.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_counsellor:1": {
+    "first_name": "[F] Nacięcie Skalpelem [0 MP, 55% AP]",
+    "id": "skill.sea.pirate_counsellor.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_counsellor:2": {
+    "first_name": "[N/A] Opatrzenie Ran [20 MP, 40% AP]",
+    "id": "skill.sea.pirate_counsellor.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_counsellor:3": {
+    "first_name": "[N/A] Usuń Szkorbut [20 MP, 40% AP]",
+    "id": "skill.sea.pirate_counsellor.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_gunner:1": {
+    "first_name": "[F] Wystrzał z Armaty [0 MP, 70% AP]",
+    "id": "skill.sea.pirate_gunner.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_gunner:2": {
+    "first_name": "[N/A] Wycelowanie [50 MP, 30% AP]",
+    "id": "skill.sea.pirate_gunner.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_gunner:3": {
+    "first_name": "[F] Eksperymentalny Proch [60 MP, 70% AP]",
+    "id": "skill.sea.pirate_gunner.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_harpooner:1": {
+    "first_name": "[F] Przebicie Harpunem [0 MP, 60% AP]",
+    "id": "skill.sea.pirate_harpooner.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_harpooner:2": {
+    "first_name": "[N/A] Plugawy Trunek [40 MP, 35% AP]",
+    "id": "skill.sea.pirate_harpooner.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.pirate_harpooner:3": {
+    "first_name": "[F] Powrót Harpunu [30 MP, 40% AP, Wbity harpun]",
+    "id": "skill.sea.pirate_harpooner.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.sand_phoenix:1": {
+    "first_name": "[F] Pazury Feniksa [0 MP, 65% AP]",
+    "id": "skill.sea.sand_phoenix.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.sand_phoenix:2": {
+    "first_name": "[M] Piaszczysty Przelot [20 MP, 35% AP]",
+    "id": "skill.sea.sand_phoenix.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.sand_phoenix:3": {
+    "first_name": "[N/A] Odrodzenie [45 MP, 100% AP, Śmierć]",
+    "id": "skill.sea.sand_phoenix.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.sharkman:1": {
+    "first_name": "[F] Chrup [0 MP, 30% AP]",
+    "id": "skill.sea.sharkman.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.sharkman:2": {
+    "first_name": "[F] Rekinia Szarża [30 MP, 70% AP]",
+    "id": "skill.sea.sharkman.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.sea.sharkman:3": {
+    "first_name": "[M] Nadmorska Bryza [50 MP, 70% AP]",
+    "id": "skill.sea.sharkman.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.alligator:1": {
+    "first_name": "[F] Ostre Zęby [0 MP, 60% AP]",
+    "id": "skill.swamp.alligator.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.alligator:2": {
+    "first_name": "[N/A] Zanurzenie [60 MP, 90% AP]",
+    "id": "skill.swamp.alligator.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.alligator:3": {
+    "first_name": "[N/A] Ohydny Ryk [70 MP, 30% AP]",
+    "id": "skill.swamp.alligator.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.carnivorous_plant:1": {
+    "first_name": "[F] Chłosta [0 MP, 35% AP]",
+    "id": "skill.swamp.carnivorous_plant.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.carnivorous_plant:2": {
+    "first_name": "[F] Mięsożerny Chwyt [40 MP, 65% AP]",
+    "id": "skill.swamp.carnivorous_plant.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.carnivorous_plant:3": {
+    "first_name": "[N/A] Podróż Korzeniem [30 MP, 30% AP]",
+    "id": "skill.swamp.carnivorous_plant.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.deserter:1": {
+    "first_name": "[F] Desperackie Cięcie [0 MP, 60% AP]",
+    "id": "skill.swamp.deserter.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.deserter:2": {
+    "first_name": "[F] Rzut Bombą [50 MP, 60% AP]",
+    "id": "skill.swamp.deserter.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.deserter:3": {
+    "first_name": "[M] Demotywacja [60 MP, 30% AP]",
+    "id": "skill.swamp.deserter.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.drowned:1": {
+    "first_name": "[F] Pazury Topielca [0 MP, 60% AP]",
+    "id": "skill.swamp.drowned.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.drowned:2": {
+    "first_name": "[F] Duszący Uścisk [35 MP, 70% AP]",
+    "id": "skill.swamp.drowned.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.drowned:3": {
+    "first_name": "[F] Rzut Łajnem [20 MP, 40% AP]",
+    "id": "skill.swamp.drowned.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.parasitic_plant:1": {
+    "first_name": "[M] Chmura Trującego Gazu [5 MP, 70% AP]",
+    "id": "skill.swamp.parasitic_plant.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.parasitic_plant:2": {
+    "first_name": "[N/A] Pasożytowanie [30 MP, 25% AP]",
+    "id": "skill.swamp.parasitic_plant.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.parasitic_plant:3": {
+    "first_name": "[N/A] Podróż Korzeniem [30 MP, 30% AP]",
+    "id": "skill.swamp.parasitic_plant.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.spitting_plant:1": {
+    "first_name": "[M] Plucie Kwasem [0 MP, 60% AP]",
+    "id": "skill.swamp.spitting_plant.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.spitting_plant:2": {
+    "first_name": "[M] Przeżarcie Pancerza [40 MP, 60% AP]",
+    "id": "skill.swamp.spitting_plant.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.spitting_plant:3": {
+    "first_name": "[N/A] Podróż Korzeniem [30 MP, 30% AP]",
+    "id": "skill.swamp.spitting_plant.action3",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.swamp_guardian:1": {
+    "first_name": "[F] Przyssawka [0 MP, 70% AP]",
+    "id": "skill.swamp.swamp_guardian.action1",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.swamp_guardian:2": {
+    "first_name": "[N/A] Krwiożerczy Głód [30 MP, 10% AP]",
+    "id": "skill.swamp.swamp_guardian.action2",
+    "status": "proposed_not_runtime"
+  },
+  "actor_skill:enemy.swamp.swamp_guardian:3": {
+    "first_name": "[M] Straszliwy Pisk [25 MP, 30% AP]",
+    "id": "skill.swamp.swamp_guardian.action3",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Bagno": {
+    "first_name": "Bagno",
+    "id": "item.lootbag.swamp.resources",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Bagno - Bagnisty Ent": {
+    "first_name": "Bagno - Bagnisty Ent",
+    "id": "item.lootbag.swamp.bagnisty_ent",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Bagno - Ludożerna Roślina": {
+    "first_name": "Bagno - Ludożerna Roślina",
+    "id": "item.lootbag.swamp.ludozerna_roslina",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Elfie Ruiny": {
+    "first_name": "Elfie Ruiny",
+    "id": "item.lootbag.elven_ruins.resources",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Elfie Ruiny - Cerber": {
+    "first_name": "Elfie Ruiny - Cerber",
+    "id": "item.lootbag.elven_ruins.cerber",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Elfie Ruiny - Demoniczny Jarl": {
+    "first_name": "Elfie Ruiny - Demoniczny Jarl",
+    "id": "item.lootbag.elven_ruins.demoniczny_jarl",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Morze": {
+    "first_name": "Morze",
+    "id": "item.lootbag.sea.resources",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Morze - Alfa-Rekin": {
+    "first_name": "Morze - Alfa-Rekin",
+    "id": "item.lootbag.sea.alfa_rekin",
+    "status": "proposed_not_runtime"
+  },
+  "bag:Morze - Kapitan Piratów": {
+    "first_name": "Morze - Kapitan Piratów",
+    "id": "item.lootbag.sea.kapitan_piratow",
+    "status": "proposed_not_runtime"
+  },
+  "boss:Alfa-Rekin": {
+    "first_name": "Alfa-Rekin",
+    "id": "boss.sea.alpha_shark",
+    "status": "proposed_not_runtime"
+  },
+  "boss:Bagnisty Ent": {
+    "first_name": "Bagnisty Ent",
+    "id": "boss.swamp.swamp_ent",
+    "status": "proposed_not_runtime"
+  },
+  "boss:Cerber": {
+    "first_name": "Cerber",
+    "id": "boss.elven_ruins.cerberus",
+    "status": "proposed_not_runtime"
+  },
+  "boss:Demoniczny Jarl": {
+    "first_name": "Demoniczny Jarl",
+    "id": "boss.elven_ruins.demonic_jarl",
+    "status": "proposed_not_runtime"
+  },
+  "boss:Kapitan Piratów": {
+    "first_name": "Kapitan Piratów",
+    "id": "boss.sea.pirate_captain",
+    "status": "proposed_not_runtime"
+  },
+  "boss:Ludożerna Roślina": {
+    "first_name": "Ludożerna Roślina",
+    "id": "boss.swamp.carnivorous_plant",
+    "status": "proposed_not_runtime"
+  },
+  "boss_phase2:Alfa-Rekin": {
+    "first_name": "Alfa-Rekin F2",
+    "id": "boss.sea.alpha_shark.phase2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_phase2:Bagnisty Ent": {
+    "first_name": "Bagnisty Ent F2",
+    "id": "boss.swamp.swamp_ent.phase2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_phase2:Cerber": {
+    "first_name": "Cerber F2",
+    "id": "boss.elven_ruins.cerberus.phase2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_phase2:Demoniczny Jarl": {
+    "first_name": "Demoniczny Jarl F2",
+    "id": "boss.elven_ruins.demonic_jarl.phase2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_phase2:Kapitan Piratów": {
+    "first_name": "Kapitan Piratów F2",
+    "id": "boss.sea.pirate_captain.phase2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_phase2:Ludożerna Roślina": {
+    "first_name": "Ludożerna Roślina F2",
+    "id": "boss.swamp.carnivorous_plant.phase2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.cerberus:1:1": {
+    "first_name": "[F] Piekielne Kły",
+    "id": "skill.elven_ruins.cerberus.phase1.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.cerberus:1:2": {
+    "first_name": "[M] Demoniczny Szczek [10 MP, Akcja]",
+    "id": "skill.elven_ruins.cerberus.phase1.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.cerberus:1:3": {
+    "first_name": "[N/A] Piekielny Skowyt [15 MP, Akcja]",
+    "id": "skill.elven_ruins.cerberus.phase1.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.cerberus:2:1": {
+    "first_name": "[F] Trujące Kły [0 MP, 60% AP] Losowe obrażenia (F), 70% Zatrucie 50% [3], Cel: Jeden wróg, Zasięg: 1",
+    "id": "skill.elven_ruins.cerberus.phase2.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.cerberus:2:2": {
+    "first_name": "[M] Ognisty Oddech [30 MP, 30% AP] Losowe obrażenia (M), 90% Podpalenie 70% [2], Typ: Pół-obszarowy na wrogów [stożek 5], Zasięg: 1",
+    "id": "skill.elven_ruins.cerberus.phase2.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.cerberus:2:3": {
+    "first_name": "[N/A] Zwierzęca Furia [60 MP, 0% AP]",
+    "id": "skill.elven_ruins.cerberus.phase2.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.demonic_jarl:1:1": {
+    "first_name": "[F] Demoniczna Furia [0 MP, 60% AP]",
+    "id": "skill.elven_ruins.demonic_jarl.phase1.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.demonic_jarl:1:2": {
+    "first_name": "[N/A] Błogosławieństwo Demonerhina [30 MP, 80% AP]",
+    "id": "skill.elven_ruins.demonic_jarl.phase1.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.demonic_jarl:1:3": {
+    "first_name": "[M] Przeklęty Płomień [40 MP, 40% AP]",
+    "id": "skill.elven_ruins.demonic_jarl.phase1.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.demonic_jarl:2:1": {
+    "first_name": "[F] Miecz Zagłady [0 MP, 60% AP]",
+    "id": "skill.elven_ruins.demonic_jarl.phase2.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.demonic_jarl:2:2": {
+    "first_name": "[M] Łańcuch Chaosu [40 MP, 30% AP]",
+    "id": "skill.elven_ruins.demonic_jarl.phase2.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.elven_ruins.demonic_jarl:2:3": {
+    "first_name": "[M] Infernalne Uderzenie [80 MP, 80% AP]",
+    "id": "skill.elven_ruins.demonic_jarl.phase2.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.alpha_shark:1:1": {
+    "first_name": "[F] Szarpnięcie Szczekami [0 MP, 60% AP]",
+    "id": "skill.sea.alpha_shark.phase1.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.alpha_shark:1:2": {
+    "first_name": "[M] Wir Wodny [30 MP, 60% AP]",
+    "id": "skill.sea.alpha_shark.phase1.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.alpha_shark:1:3": {
+    "first_name": "[F] Wodny Grzmot [40 MP, 30% AP]",
+    "id": "skill.sea.alpha_shark.phase1.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.alpha_shark:2:1": {
+    "first_name": "[F] Rozszarpanie [0 MP, 70% AP]",
+    "id": "skill.sea.alpha_shark.phase2.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.alpha_shark:2:2": {
+    "first_name": "[M] Przywołanie Grzmotu [40 MP, 30% AP]",
+    "id": "skill.sea.alpha_shark.phase2.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.alpha_shark:2:3": {
+    "first_name": "[N/A] Zanurzenie [60 MP, 0% AP]",
+    "id": "skill.sea.alpha_shark.phase2.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.pirate_captain:1:1": {
+    "first_name": "[F] Cięcie Kapitańskie [0 MP, 60% AP]",
+    "id": "skill.sea.pirate_captain.phase1.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.pirate_captain:1:2": {
+    "first_name": "[N/A] Rozkaz Kapitański [20 MP, 30% AP]",
+    "id": "skill.sea.pirate_captain.phase1.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.pirate_captain:1:3": {
+    "first_name": "[F] Alkoholowy Mołotow [30 MP, 65% AP]",
+    "id": "skill.sea.pirate_captain.phase1.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.pirate_captain:2:1": {
+    "first_name": "[F] Karmazynowe Ostrze [0 MP, 60% AP]",
+    "id": "skill.sea.pirate_captain.phase2.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.pirate_captain:2:2": {
+    "first_name": "[N/A] Rozkaz Abordażu [40 MP, 30% AP]",
+    "id": "skill.sea.pirate_captain.phase2.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.sea.pirate_captain:2:3": {
+    "first_name": "[N/A] Przywołanie Sztormu [50 MP, 30% AP]",
+    "id": "skill.sea.pirate_captain.phase2.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.carnivorous_plant:1:1": {
+    "first_name": "[F] Koronny Uścisk [0 MP, 60% AP]",
+    "id": "skill.swamp.carnivorous_plant.phase1.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.carnivorous_plant:1:2": {
+    "first_name": "[M] Zatrute Żniwa [30 MP, 30% AP]",
+    "id": "skill.swamp.carnivorous_plant.phase1.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.carnivorous_plant:1:3": {
+    "first_name": "[M] Trauma Korzenia [40 MP, 30% AP]",
+    "id": "skill.swamp.carnivorous_plant.phase1.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.carnivorous_plant:2:1": {
+    "first_name": "[F] Koronny Uścisk [0 MP, 60% AP]",
+    "id": "skill.swamp.carnivorous_plant.phase2.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.carnivorous_plant:2:2": {
+    "first_name": "[N/A] Starożytny Głód [30 MP, 30% AP]",
+    "id": "skill.swamp.carnivorous_plant.phase2.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.carnivorous_plant:2:3": {
+    "first_name": "[F] Pożarcie [80 MP, 100% AP]",
+    "id": "skill.swamp.carnivorous_plant.phase2.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.swamp_ent:1:1": {
+    "first_name": "[F] Zamach Gałęzią [0 MP, 60% AP]",
+    "id": "skill.swamp.swamp_ent.phase1.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.swamp_ent:1:2": {
+    "first_name": "[F] Bagienne Korzenie [40 MP, 70% AP]",
+    "id": "skill.swamp.swamp_ent.phase1.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.swamp_ent:1:3": {
+    "first_name": "[N/A] Błotnista Kora [60 MP, 20% AP]",
+    "id": "skill.swamp.swamp_ent.phase1.action3",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.swamp_ent:2:1": {
+    "first_name": "[F] Błotnisty Rozgrom [0 MP, 60% AP]",
+    "id": "skill.swamp.swamp_ent.phase2.action1",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.swamp_ent:2:2": {
+    "first_name": "[M] Rozlewisko Bagna [50 MP, 30% AP]",
+    "id": "skill.swamp.swamp_ent.phase2.action2",
+    "status": "proposed_not_runtime"
+  },
+  "boss_skill:boss.swamp.swamp_ent:2:3": {
+    "first_name": "[(N/A)/M] Gniew Bagien [60 MP, 100% AP]",
+    "id": "skill.swamp.swamp_ent.phase2.action3",
+    "status": "proposed_not_runtime"
+  },
+  "item:annodytowa blacha": {
+    "first_name": "Annodytowa blacha",
+    "id": "item.material.annodytowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:annodytowy łańcuch": {
+    "first_name": "Annodytowy łańcuch",
+    "id": "item.material.annodytowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:bagienna kolczuga": {
+    "first_name": "Bagienna Kolczuga",
+    "id": "item.unique.bagienna_kolczuga",
+    "status": "proposed_not_runtime"
+  },
+  "item:bukowa deska": {
+    "first_name": "Bukowa deska",
+    "id": "item.material.bukowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:bukowy patyk": {
+    "first_name": "Bukowy patyk",
+    "id": "item.material.bukowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:bzowa deska": {
+    "first_name": "Bzowa deska",
+    "id": "item.material.bzowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:bzowy patyk": {
+    "first_name": "Bzowy patyk",
+    "id": "item.material.bzowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:błyszczący piasek": {
+    "first_name": "Błyszczący piasek",
+    "id": "item.material.blyszczacy_piasek",
+    "status": "proposed_not_runtime"
+  },
+  "item:demoniczna kolczuga bitewna": {
+    "first_name": "Demoniczna Kolczuga Bitewna",
+    "id": "item.unique.demoniczna_kolczuga_bitewna",
+    "status": "proposed_not_runtime"
+  },
+  "item:demoniczny róg królewski": {
+    "first_name": "Demoniczny róg królewski",
+    "id": "item.material.demoniczny_rog_krolewski",
+    "status": "proposed_not_runtime"
+  },
+  "item:dobra igła do nici": {
+    "first_name": "Dobra igła do nici",
+    "id": "item.material.dobra_igla_do_nici",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno bukowe": {
+    "first_name": "Drewno bukowe",
+    "id": "item.material.drewno_bukowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno bzowe": {
+    "first_name": "Drewno bzowe",
+    "id": "item.material.drewno_bzowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno dębowe": {
+    "first_name": "Drewno dębowe",
+    "id": "item.material.drewno_debowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno grabowe": {
+    "first_name": "Drewno grabowe",
+    "id": "item.material.drewno_grabowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno jodłowe": {
+    "first_name": "Drewno jodłowe",
+    "id": "item.material.drewno_jodlowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno sekwojowe": {
+    "first_name": "Drewno sekwojowe",
+    "id": "item.material.drewno_sekwojowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno wiązowe": {
+    "first_name": "Drewno wiązowe",
+    "id": "item.material.drewno_wiazowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:drewno świerkowe": {
+    "first_name": "Drewno świerkowe",
+    "id": "item.material.drewno_swierkowe",
+    "status": "proposed_not_runtime"
+  },
+  "item:dębowa deska": {
+    "first_name": "Dębowa deska",
+    "id": "item.material.debowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:dębowy patyk": {
+    "first_name": "Dębowy patyk",
+    "id": "item.material.debowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:ektoplazma": {
+    "first_name": "Ektoplazma",
+    "id": "item.material.ektoplazma",
+    "status": "proposed_not_runtime"
+  },
+  "item:energia malada": {
+    "first_name": "Energia Malada",
+    "id": "item.material.energia_malada",
+    "status": "proposed_not_runtime"
+  },
+  "item:grabowa deska": {
+    "first_name": "Grabowa deska",
+    "id": "item.material.grabowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:grabowy patyk": {
+    "first_name": "Grabowy patyk",
+    "id": "item.material.grabowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:histyna": {
+    "first_name": "Histyna",
+    "id": "item.material.histyna",
+    "status": "proposed_not_runtime"
+  },
+  "item:jaspis": {
+    "first_name": "Jaspis",
+    "id": "item.runic.jasper",
+    "status": "proposed_not_runtime"
+  },
+  "item:jodłowa deska": {
+    "first_name": "Jodłowa deska",
+    "id": "item.material.jodlowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:jodłowy patyk": {
+    "first_name": "Jodłowy patyk",
+    "id": "item.material.jodlowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:jukowa nitka": {
+    "first_name": "Jukowa nitka",
+    "id": "item.material.jukowa_nitka",
+    "status": "proposed_not_runtime"
+  },
+  "item:jukowa tkanina": {
+    "first_name": "Jukowa tkanina",
+    "id": "item.material.jukowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "item:kamuflująca tunika": {
+    "first_name": "Kamuflująca Tunika",
+    "id": "item.unique.kamuflujaca_tunika",
+    "status": "proposed_not_runtime"
+  },
+  "item:katana kapitańska": {
+    "first_name": "Katana Kapitańska",
+    "id": "item.unique.katana_kapitanska",
+    "status": "proposed_not_runtime"
+  },
+  "item:kieł cerbera": {
+    "first_name": "Kieł Cerbera",
+    "id": "item.unique.kiel_cerbera",
+    "status": "proposed_not_runtime"
+  },
+  "item:klejnot pustyni": {
+    "first_name": "Klejnot pustyni",
+    "id": "item.material.klejnot_pustyni",
+    "status": "proposed_not_runtime"
+  },
+  "item:kobaltowa blacha": {
+    "first_name": "Kobaltowa blacha",
+    "id": "item.material.kobaltowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:kobaltowy łańcuch": {
+    "first_name": "Kobaltowy łańcuch",
+    "id": "item.material.kobaltowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:konopna nitka": {
+    "first_name": "Konopna nitka",
+    "id": "item.material.konopna_nitka",
+    "status": "proposed_not_runtime"
+  },
+  "item:konopna tkanina": {
+    "first_name": "Konopna tkanina",
+    "id": "item.material.konopna_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "item:kostur nawłnicy": {
+    "first_name": "Kostur Nawłnicy",
+    "id": "item.unique.kostur_nawlnicy",
+    "status": "proposed_not_runtime"
+  },
+  "item:kość ogonowa cerbera": {
+    "first_name": "Kość Ogonowa Cerbera",
+    "id": "item.unique.kosc_ogonowa_cerbera",
+    "status": "proposed_not_runtime"
+  },
+  "item:krasnoludzki mech": {
+    "first_name": "Krasnoludzki mech",
+    "id": "item.material.krasnoludzki_mech",
+    "status": "proposed_not_runtime"
+  },
+  "item:krew berserka": {
+    "first_name": "Krew berserka",
+    "id": "item.material.krew_berserka",
+    "status": "proposed_not_runtime"
+  },
+  "item:kryferytowa blacha": {
+    "first_name": "Kryferytowa blacha",
+    "id": "item.material.kryferytowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:kryferytowy łańcuch": {
+    "first_name": "Kryferytowy łańcuch",
+    "id": "item.material.kryferytowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:księżycowy pył": {
+    "first_name": "Księżycowy pył",
+    "id": "item.material.ksiezycowy_pyl",
+    "status": "proposed_not_runtime"
+  },
+  "item:kwiat rissa": {
+    "first_name": "Kwiat rissa",
+    "id": "item.material.kwiat_rissa",
+    "status": "proposed_not_runtime"
+  },
+  "item:kwiat tulipanu": {
+    "first_name": "Kwiat tulipanu",
+    "id": "item.material.kwiat_tulipanu",
+    "status": "proposed_not_runtime"
+  },
+  "item:liść bananowca": {
+    "first_name": "Liść bananowca",
+    "id": "item.material.lisc_bananowca",
+    "status": "proposed_not_runtime"
+  },
+  "item:lniana nitka": {
+    "first_name": "Lniana nitka",
+    "id": "item.material.lniana_nitka",
+    "status": "proposed_not_runtime"
+  },
+  "item:lniana tkanina": {
+    "first_name": "Lniana tkanina",
+    "id": "item.material.lniana_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "item:lodowe prętki": {
+    "first_name": "Lodowe prętki",
+    "id": "item.material.lodowe_pretki",
+    "status": "proposed_not_runtime"
+  },
+  "item:malachit": {
+    "first_name": "Malachit",
+    "id": "item.runic.malachite",
+    "status": "proposed_not_runtime"
+  },
+  "item:melenowa nitka": {
+    "first_name": "Melenowa nitka",
+    "id": "item.material.melenowa_nitka",
+    "status": "proposed_not_runtime"
+  },
+  "item:melenowa tkanina": {
+    "first_name": "Melenowa tkanina",
+    "id": "item.material.melenowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "item:miecz transfuzji": {
+    "first_name": "Miecz Transfuzji",
+    "id": "item.unique.miecz_transfuzji",
+    "status": "proposed_not_runtime"
+  },
+  "item:mieczokrzew": {
+    "first_name": "Mieczokrzew",
+    "id": "item.material.mieczokrzew",
+    "status": "proposed_not_runtime"
+  },
+  "item:mikstura oczyszczenia": {
+    "first_name": "Mikstura Oczyszczenia",
+    "id": "item.potion.cleansing",
+    "status": "proposed_not_runtime"
+  },
+  "item:mosiężna blacha": {
+    "first_name": "Mosiężna blacha",
+    "id": "item.material.mosiezna_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:mosiężny łańcuch": {
+    "first_name": "Mosiężny łańcuch",
+    "id": "item.material.mosiezny_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:motyl królewski": {
+    "first_name": "Motyl królewski",
+    "id": "item.material.motyl_krolewski",
+    "status": "proposed_not_runtime"
+  },
+  "item:młot zdobywcy piekieł": {
+    "first_name": "Młot Zdobywcy Piekieł",
+    "id": "item.unique.mlot_zdobywcy_piekiel",
+    "status": "proposed_not_runtime"
+  },
+  "item:nitka z wielbłądziej wełny": {
+    "first_name": "Nitka z wielbłądziej wełny",
+    "id": "item.material.nitka_z_wielbladziej_welny",
+    "status": "proposed_not_runtime"
+  },
+  "item:obłocona różga": {
+    "first_name": "Obłocona Różga",
+    "id": "item.unique.oblocona_rozga",
+    "status": "proposed_not_runtime"
+  },
+  "item:ogon cerbera": {
+    "first_name": "Ogon Cerbera",
+    "id": "item.unique.ogon_cerbera",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry aligatora": {
+    "first_name": "Paski ze skóry aligatora",
+    "id": "item.material.paski_ze_skory_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry bawoła": {
+    "first_name": "Paski ze skóry bawoła",
+    "id": "item.material.paski_ze_skory_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry geparda": {
+    "first_name": "Paski ze skóry geparda",
+    "id": "item.material.paski_ze_skory_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry leoparda": {
+    "first_name": "Paski ze skóry leoparda",
+    "id": "item.material.paski_ze_skory_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry niedźwiedzia": {
+    "first_name": "Paski ze skóry niedźwiedzia",
+    "id": "item.material.paski_ze_skory_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry trolla": {
+    "first_name": "Paski ze skóry trolla",
+    "id": "item.material.paski_ze_skory_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry wielbłąda": {
+    "first_name": "Paski ze skóry wielbłąda",
+    "id": "item.material.paski_ze_skory_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "item:paski ze skóry wilka": {
+    "first_name": "Paski ze skóry wilka",
+    "id": "item.material.paski_ze_skory_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "item:pazur ghula": {
+    "first_name": "Pazur ghula",
+    "id": "item.material.pazur_ghula",
+    "status": "proposed_not_runtime"
+  },
+  "item:perła": {
+    "first_name": "Perła",
+    "id": "item.runic.pearl",
+    "status": "proposed_not_runtime"
+  },
+  "item:pióro ruka": {
+    "first_name": "Pióro ruka",
+    "id": "item.material.pioro_ruka",
+    "status": "proposed_not_runtime"
+  },
+  "item:pozawymiarowa macka": {
+    "first_name": "Pozawymiarowa macka",
+    "id": "item.material.pozawymiarowa_macka",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: boskość": {
+    "first_name": "Proch ziołowy: Boskość",
+    "id": "item.material.proch_ziolowy_boskosc",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: ciemność": {
+    "first_name": "Proch ziołowy: Ciemność",
+    "id": "item.material.proch_ziolowy_ciemnosc",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: człowiek": {
+    "first_name": "Proch ziołowy: Człowiek",
+    "id": "item.material.proch_ziolowy_czlowiek",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: demon": {
+    "first_name": "Proch ziołowy: Demon",
+    "id": "item.material.proch_ziolowy_demon",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: elf": {
+    "first_name": "Proch ziołowy: Elf",
+    "id": "item.material.proch_ziolowy_elf",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: jaszczurolud": {
+    "first_name": "Proch ziołowy: Jaszczurolud",
+    "id": "item.material.proch_ziolowy_jaszczurolud",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: krasnolud": {
+    "first_name": "Proch ziołowy: Krasnolud",
+    "id": "item.material.proch_ziolowy_krasnolud",
+    "status": "proposed_not_runtime"
+  },
+  "item:proch ziołowy: światło": {
+    "first_name": "Proch ziołowy: Światło",
+    "id": "item.material.proch_ziolowy_swiatlo",
+    "status": "proposed_not_runtime"
+  },
+  "item:prętki doragafury": {
+    "first_name": "Prętki doragafury",
+    "id": "item.material.pretki_doragafury",
+    "status": "proposed_not_runtime"
+  },
+  "item:płetwa alfa-rekina": {
+    "first_name": "Płetwa alfa-rekina",
+    "id": "item.material.pletwa_alfa_rekina",
+    "status": "proposed_not_runtime"
+  },
+  "item:płetwa rekina": {
+    "first_name": "Płetwa rekina",
+    "id": "item.material.pletwa_rekina",
+    "status": "proposed_not_runtime"
+  },
+  "item:płonące pnącza": {
+    "first_name": "Płonące pnącza",
+    "id": "item.material.plonace_pnacza",
+    "status": "proposed_not_runtime"
+  },
+  "item:płuco topielca": {
+    "first_name": "Płuco topielca",
+    "id": "item.material.pluco_topielca",
+    "status": "proposed_not_runtime"
+  },
+  "item:ruda annodytu": {
+    "first_name": "Ruda annodytu",
+    "id": "item.material.ruda_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "item:ruda kobaltu": {
+    "first_name": "Ruda kobaltu",
+    "id": "item.material.ruda_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "item:ruda srebra": {
+    "first_name": "Ruda srebra",
+    "id": "item.material.ruda_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "item:ruda złota": {
+    "first_name": "Ruda złota",
+    "id": "item.material.ruda_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "item:rutyl": {
+    "first_name": "Rutyl",
+    "id": "item.material.rutyl",
+    "status": "proposed_not_runtime"
+  },
+  "item:sekwojowa deska": {
+    "first_name": "Sekwojowa deska",
+    "id": "item.material.sekwojowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:sekwojowy patyk": {
+    "first_name": "Sekwojowy patyk",
+    "id": "item.material.sekwojowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:sfaleryt": {
+    "first_name": "Sfaleryt",
+    "id": "item.material.sfaleryt",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany biały proszek": {
+    "first_name": "Skondensowany biały proszek",
+    "id": "item.material.skondensowany_bialy_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany bursztynowy proszek": {
+    "first_name": "Skondensowany bursztynowy proszek",
+    "id": "item.material.skondensowany_bursztynowy_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany cytrynowy proszek": {
+    "first_name": "Skondensowany cytrynowy proszek",
+    "id": "item.material.skondensowany_cytrynowy_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany czarny proszek": {
+    "first_name": "Skondensowany czarny proszek",
+    "id": "item.material.skondensowany_czarny_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany czerwony proszek": {
+    "first_name": "Skondensowany czerwony proszek",
+    "id": "item.material.skondensowany_czerwony_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany niebieski proszek": {
+    "first_name": "Skondensowany niebieski proszek",
+    "id": "item.material.skondensowany_niebieski_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany purpurowy proszek": {
+    "first_name": "Skondensowany purpurowy proszek",
+    "id": "item.material.skondensowany_purpurowy_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany różowy proszek": {
+    "first_name": "Skondensowany różowy proszek",
+    "id": "item.material.skondensowany_rozowy_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany szmaragdowy proszek": {
+    "first_name": "Skondensowany szmaragdowy proszek",
+    "id": "item.material.skondensowany_szmaragdowy_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skondensowany złoty proszek": {
+    "first_name": "Skondensowany złoty proszek",
+    "id": "item.material.skondensowany_zloty_proszek",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra aligatora": {
+    "first_name": "Skóra aligatora",
+    "id": "item.material.skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra bawoła": {
+    "first_name": "Skóra bawoła",
+    "id": "item.material.skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra geparda": {
+    "first_name": "Skóra geparda",
+    "id": "item.material.skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra leoparda": {
+    "first_name": "Skóra leoparda",
+    "id": "item.material.skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra niedźwiedzia": {
+    "first_name": "Skóra niedźwiedzia",
+    "id": "item.material.skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra trolla": {
+    "first_name": "Skóra trolla",
+    "id": "item.material.skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra wielbłąda": {
+    "first_name": "Skóra wielbłąda",
+    "id": "item.material.skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "item:skóra wilka": {
+    "first_name": "Skóra wilka",
+    "id": "item.material.skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowana sułtańska stal": {
+    "first_name": "Sproszkowana sułtańska stal",
+    "id": "item.material.sproszkowana_sultanska_stal",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowane srebro": {
+    "first_name": "Sproszkowane srebro",
+    "id": "item.material.sproszkowane_srebro",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowane złoto": {
+    "first_name": "Sproszkowane złoto",
+    "id": "item.material.sproszkowane_zloto",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowany annodyt": {
+    "first_name": "Sproszkowany annodyt",
+    "id": "item.material.sproszkowany_annodyt",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowany kobalt": {
+    "first_name": "Sproszkowany kobalt",
+    "id": "item.material.sproszkowany_kobalt",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowany kryferyt": {
+    "first_name": "Sproszkowany kryferyt",
+    "id": "item.material.sproszkowany_kryferyt",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowany mosiądz": {
+    "first_name": "Sproszkowany mosiądz",
+    "id": "item.material.sproszkowany_mosiadz",
+    "status": "proposed_not_runtime"
+  },
+  "item:sproszkowany tytan": {
+    "first_name": "Sproszkowany tytan",
+    "id": "item.material.sproszkowany_tytan",
+    "status": "proposed_not_runtime"
+  },
+  "item:srebrna blacha": {
+    "first_name": "Srebrna blacha",
+    "id": "item.material.srebrna_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:srebrnoszponowa nitka": {
+    "first_name": "Srebrnoszponowa nitka",
+    "id": "item.material.srebrnoszponowa_nitka",
+    "status": "proposed_not_runtime"
+  },
+  "item:srebrnoszponowa tkanina": {
+    "first_name": "Srebrnoszponowa tkanina",
+    "id": "item.material.srebrnoszponowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "item:srebrny łańcuch": {
+    "first_name": "Srebrny łańcuch",
+    "id": "item.material.srebrny_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:ssawka komara": {
+    "first_name": "Ssawka komara",
+    "id": "item.material.ssawka_komara",
+    "status": "proposed_not_runtime"
+  },
+  "item:starożytna skóra": {
+    "first_name": "Starożytna skóra",
+    "id": "item.material.starozytna_skora",
+    "status": "proposed_not_runtime"
+  },
+  "item:sułtańska blacha": {
+    "first_name": "Sułtańska blacha",
+    "id": "item.material.sultanska_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:sułtański łańcuch": {
+    "first_name": "Sułtański łańcuch",
+    "id": "item.material.sultanski_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:szata z demonicznej peleryny": {
+    "first_name": "Szata z Demonicznej Peleryny",
+    "id": "item.unique.szata_z_demonicznej_peleryny",
+    "status": "proposed_not_runtime"
+  },
+  "item:szata żwawości": {
+    "first_name": "Szata Żwawości",
+    "id": "item.unique.szata_zwawosci",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka annodytu": {
+    "first_name": "Sztabka annodytu",
+    "id": "item.material.sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka kobaltu": {
+    "first_name": "Sztabka kobaltu",
+    "id": "item.material.sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka kryferytu": {
+    "first_name": "Sztabka kryferytu",
+    "id": "item.material.sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka mosiądzu": {
+    "first_name": "Sztabka mosiądzu",
+    "id": "item.material.sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka srebra": {
+    "first_name": "Sztabka srebra",
+    "id": "item.material.sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka sułtańskiej stali": {
+    "first_name": "Sztabka sułtańskiej stali",
+    "id": "item.material.sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka tytanu": {
+    "first_name": "Sztabka tytanu",
+    "id": "item.material.sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztabka złota": {
+    "first_name": "Sztabka złota",
+    "id": "item.material.sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztuczny ząb": {
+    "first_name": "Sztuczny ząb",
+    "id": "item.material.sztuczny_zab",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztylet grabieży": {
+    "first_name": "Sztylet Grabieży",
+    "id": "item.unique.sztylet_grabiezy",
+    "status": "proposed_not_runtime"
+  },
+  "item:sztylet życia": {
+    "first_name": "Sztylet Życia",
+    "id": "item.unique.sztylet_zycia",
+    "status": "proposed_not_runtime"
+  },
+  "item:tatarak płaski": {
+    "first_name": "Tatarak płaski",
+    "id": "item.material.tatarak_plaski",
+    "status": "proposed_not_runtime"
+  },
+  "item:tkanina z wielbłądziej wełny": {
+    "first_name": "Tkanina z wielbłądziej wełny",
+    "id": "item.material.tkanina_z_wielbladziej_welny",
+    "status": "proposed_not_runtime"
+  },
+  "item:trójprętowa nitka": {
+    "first_name": "Trójprętowa nitka",
+    "id": "item.material.trojpretowa_nitka",
+    "status": "proposed_not_runtime"
+  },
+  "item:trójprętowa tkanina": {
+    "first_name": "Trójprętowa tkanina",
+    "id": "item.material.trojpretowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "item:tunika manii": {
+    "first_name": "Tunika Manii",
+    "id": "item.unique.tunika_manii",
+    "status": "proposed_not_runtime"
+  },
+  "item:tunika wilka morksiego": {
+    "first_name": "Tunika Wilka Morksiego",
+    "id": "item.unique.tunika_wilka_morksiego",
+    "status": "proposed_not_runtime"
+  },
+  "item:tytanowa blacha": {
+    "first_name": "Tytanowa blacha",
+    "id": "item.material.tytanowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:tytanowy łańcuch": {
+    "first_name": "Tytanowy łańcuch",
+    "id": "item.material.tytanowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:utumenowa nitka": {
+    "first_name": "Utumenowa nitka",
+    "id": "item.material.utumenowa_nitka",
+    "status": "proposed_not_runtime"
+  },
+  "item:utumenowa tkanina": {
+    "first_name": "Utumenowa tkanina",
+    "id": "item.material.utumenowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka annodytu": {
+    "first_name": "Wielka sztabka annodytu",
+    "id": "item.material.wielka_sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka kobaltu": {
+    "first_name": "Wielka sztabka kobaltu",
+    "id": "item.material.wielka_sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka kryferytu": {
+    "first_name": "Wielka sztabka kryferytu",
+    "id": "item.material.wielka_sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka mosiądzu": {
+    "first_name": "Wielka sztabka mosiądzu",
+    "id": "item.material.wielka_sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka srebra": {
+    "first_name": "Wielka sztabka srebra",
+    "id": "item.material.wielka_sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka sułtańskiej stali": {
+    "first_name": "Wielka sztabka sułtańskiej stali",
+    "id": "item.material.wielka_sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka tytanu": {
+    "first_name": "Wielka sztabka tytanu",
+    "id": "item.material.wielka_sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "item:wielka sztabka złota": {
+    "first_name": "Wielka sztabka złota",
+    "id": "item.material.wielka_sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "item:wiązowa deska": {
+    "first_name": "Wiązowa deska",
+    "id": "item.material.wiazowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:wiązowy patyk": {
+    "first_name": "Wiązowy patyk",
+    "id": "item.material.wiazowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:wspaniała igła do nici": {
+    "first_name": "Wspaniała igła do nici",
+    "id": "item.material.wspaniala_igla_do_nici",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra aligatora": {
+    "first_name": "Wyprawiona skóra aligatora",
+    "id": "item.material.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra bawoła": {
+    "first_name": "Wyprawiona skóra bawoła",
+    "id": "item.material.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra geparda": {
+    "first_name": "Wyprawiona skóra geparda",
+    "id": "item.material.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra leoparda": {
+    "first_name": "Wyprawiona skóra leoparda",
+    "id": "item.material.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra niedźwiedzia": {
+    "first_name": "Wyprawiona skóra niedźwiedzia",
+    "id": "item.material.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra trolla": {
+    "first_name": "Wyprawiona skóra trolla",
+    "id": "item.material.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra wielbłąda": {
+    "first_name": "Wyprawiona skóra wielbłąda",
+    "id": "item.material.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "item:wyprawiona skóra wilka": {
+    "first_name": "Wyprawiona skóra wilka",
+    "id": "item.material.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno juki": {
+    "first_name": "Włókno juki",
+    "id": "item.material.wlokno_juki",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno konopi": {
+    "first_name": "Włókno konopii",
+    "id": "item.material.wlokno_konopi",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno lnu": {
+    "first_name": "Włókno lnu",
+    "id": "item.material.wlokno_lnu",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno meleny": {
+    "first_name": "Włókno meleny",
+    "id": "item.material.wlokno_meleny",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno srebrnoszponu": {
+    "first_name": "Włókno srebrnoszponu",
+    "id": "item.material.wlokno_srebrnoszponu",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno trójprętu": {
+    "first_name": "Włókno trójprętu",
+    "id": "item.material.wlokno_trojpretu",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno utumeny": {
+    "first_name": "Włókno utumeny",
+    "id": "item.material.wlokno_utumeny",
+    "status": "proposed_not_runtime"
+  },
+  "item:włókno wielbłądziej wełny": {
+    "first_name": "Włókno wielbłądziej wełny",
+    "id": "item.material.wlokno_wielbladziej_welny",
+    "status": "proposed_not_runtime"
+  },
+  "item:zaczarowana dłoń": {
+    "first_name": "Zaczarowana dłoń",
+    "id": "item.material.zaczarowana_dlon",
+    "status": "proposed_not_runtime"
+  },
+  "item:zbroja lwa morskiego": {
+    "first_name": "Zbroja Lwa Morskiego",
+    "id": "item.unique.zbroja_lwa_morskiego",
+    "status": "proposed_not_runtime"
+  },
+  "item:zbroja pretendenta": {
+    "first_name": "Zbroja Pretendenta",
+    "id": "item.unique.zbroja_pretendenta",
+    "status": "proposed_not_runtime"
+  },
+  "item:złota blacha": {
+    "first_name": "Złota blacha",
+    "id": "item.material.zlota_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "item:złoty łańcuch": {
+    "first_name": "Złoty łańcuch",
+    "id": "item.material.zloty_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "item:łuski wiwerny": {
+    "first_name": "Łuski wiwerny",
+    "id": "item.material.luski_wiwerny",
+    "status": "proposed_not_runtime"
+  },
+  "item:świerkowa deska": {
+    "first_name": "Świerkowa deska",
+    "id": "item.material.swierkowa_deska",
+    "status": "proposed_not_runtime"
+  },
+  "item:świerkowy patyk": {
+    "first_name": "Świerkowy patyk",
+    "id": "item.material.swierkowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "item:żmijowiec": {
+    "first_name": "Żmijowiec",
+    "id": "item.material.zmijowiec",
+    "status": "proposed_not_runtime"
+  },
+  "item:żniwiarz pustynny": {
+    "first_name": "Żniwiarz pustynny",
+    "id": "item.material.zniwiarz_pustynny",
+    "status": "proposed_not_runtime"
+  },
+  "item:żyjąca gałąź": {
+    "first_name": "Żyjąca gałąź",
+    "id": "item.material.zyjaca_galaz",
+    "status": "proposed_not_runtime"
+  },
+  "item:żyjący kwiat": {
+    "first_name": "Żyjący kwiat",
+    "id": "item.material.zyjacy_kwiat",
+    "status": "proposed_not_runtime"
+  },
+  "item:żywioł wiatru": {
+    "first_name": "Żywioł wiatru",
+    "id": "item.material.zywiol_wiatru",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.fire:T5:1": {
+    "first_name": "Strzała Bólu",
+    "id": "node.mage.fire.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.fire:T5:2": {
+    "first_name": "Unieszkodliwienie",
+    "id": "node.mage.fire.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.fire:T5:3": {
+    "first_name": "Podtrzymywanie Ognia",
+    "id": "node.mage.fire.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.fire:T5:4": {
+    "first_name": "Słup Lawy",
+    "id": "node.mage.fire.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.fire:T5:5": {
+    "first_name": "Słup Ognia",
+    "id": "node.mage.fire.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:Pasyw": {
+    "first_name": "+1.5% Szansy na cios krytyczny na przeciwniku zamrożonym",
+    "id": "passive.mage.frost.pasyw",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T1:1": {
+    "first_name": "Siła Mrozu",
+    "id": "node.mage.frost.t1_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T1:2": {
+    "first_name": "Hipotermia",
+    "id": "node.mage.frost.t1_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T1:3": {
+    "first_name": "Ostry Sopel",
+    "id": "node.mage.frost.t1_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T1:4": {
+    "first_name": "Sopel Lodu",
+    "id": "node.mage.frost.t1_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T1:5": {
+    "first_name": "Odmrożenie",
+    "id": "node.mage.frost.t1_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T2:1": {
+    "first_name": "Mrożenie",
+    "id": "node.mage.frost.t2_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T2:2": {
+    "first_name": "Śnieżny Duch",
+    "id": "node.mage.frost.t2_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T2:3": {
+    "first_name": "Parzący Mróz",
+    "id": "node.mage.frost.t2_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T2:4": {
+    "first_name": "Ciężka Kontuzja",
+    "id": "node.mage.frost.t2_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T2:5": {
+    "first_name": "Podtrzymywanie Lodu",
+    "id": "node.mage.frost.t2_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T3:1": {
+    "first_name": "Soplowa Tarcza Awaryjna",
+    "id": "node.mage.frost.t3_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T3:2": {
+    "first_name": "Wrażliwość na Bodźce",
+    "id": "node.mage.frost.t3_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T3:3": {
+    "first_name": "Śnieżny Duch",
+    "id": "node.mage.frost.t3_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T3:4": {
+    "first_name": "Aura Mrozu",
+    "id": "node.mage.frost.t3_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T3:5": {
+    "first_name": "Lodowiec",
+    "id": "node.mage.frost.t3_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T4:1": {
+    "first_name": "Wytrzymała Tarcza",
+    "id": "node.mage.frost.t4_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T4:2": {
+    "first_name": "Ochronny Lód",
+    "id": "node.mage.frost.t4_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T4:3": {
+    "first_name": "Roztrzaskanie",
+    "id": "node.mage.frost.t4_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T4:4": {
+    "first_name": "Aura Lodu",
+    "id": "node.mage.frost.t4_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T4:5": {
+    "first_name": "Prawdziwy Lód",
+    "id": "node.mage.frost.t4_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T5:1": {
+    "first_name": "Niebiański Bunt",
+    "id": "node.mage.frost.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T5:2": {
+    "first_name": "Wieczna Śnieżyca",
+    "id": "node.mage.frost.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T5:3": {
+    "first_name": "Brutalne Roztrzaskanie",
+    "id": "node.mage.frost.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T5:4": {
+    "first_name": "Lodowisko",
+    "id": "node.mage.frost.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.frost:T5:5": {
+    "first_name": "Mroźna Adaptacja",
+    "id": "node.mage.frost.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.warlock:T5:1": {
+    "first_name": "Nadludzkie Bodźce",
+    "id": "node.mage.warlock.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.warlock:T5:2": {
+    "first_name": "Siła Wyładowania",
+    "id": "node.mage.warlock.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.warlock:T5:3": {
+    "first_name": "Absorbcja mocy",
+    "id": "node.mage.warlock.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.warlock:T5:4": {
+    "first_name": "Teleportacja",
+    "id": "node.mage.warlock.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.mage.warlock:T5:5": {
+    "first_name": "Magiczna Gotowość",
+    "id": "node.mage.warlock.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.paladin.priest:T5:1": {
+    "first_name": "Cykl Życia",
+    "id": "node.paladin.priest.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.paladin.priest:T5:2": {
+    "first_name": "Poświęcona Broń",
+    "id": "node.paladin.priest.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.paladin.priest:T5:3": {
+    "first_name": "Błogosławienie Cierpliwych",
+    "id": "node.paladin.priest.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.paladin.priest:T5:4": {
+    "first_name": "Święta Ziemia",
+    "id": "node.paladin.priest.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.paladin.priest:T5:5": {
+    "first_name": "Wytrwały Uzdrowiciel",
+    "id": "node.paladin.priest.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.assassin:T5:1": {
+    "first_name": "Kondycja",
+    "id": "node.scout.assassin.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.assassin:T5:2": {
+    "first_name": "Przewrót w Przód",
+    "id": "node.scout.assassin.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.assassin:T5:3": {
+    "first_name": "Przewidywanie",
+    "id": "node.scout.assassin.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.assassin:T5:4": {
+    "first_name": "Cios Poniżej Pasa",
+    "id": "node.scout.assassin.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.assassin:T5:5": {
+    "first_name": "Cięcie bez Honoru",
+    "id": "node.scout.assassin.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.blade_dancer:T5:1": {
+    "first_name": "Jad w Butelce",
+    "id": "node.scout.blade_dancer.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.blade_dancer:T5:2": {
+    "first_name": "Odzyskana Siła",
+    "id": "node.scout.blade_dancer.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.blade_dancer:T5:3": {
+    "first_name": "Sokoli Wzrok",
+    "id": "node.scout.blade_dancer.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.blade_dancer:T5:4": {
+    "first_name": "Klątwa Schorowanych",
+    "id": "node.scout.blade_dancer.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.blade_dancer:T5:5": {
+    "first_name": "Worek na Sztylety",
+    "id": "node.scout.blade_dancer.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:Pasyw": {
+    "first_name": "+2% Szansy na skrócenie czasu trwania każdego efektu statusu o 1 turę",
+    "id": "passive.scout.guardian.pasyw",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T1:1": {
+    "first_name": "Osłona",
+    "id": "node.scout.guardian.t1_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T1:2": {
+    "first_name": "Ochrona Słabych Punktów",
+    "id": "node.scout.guardian.t1_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T1:3": {
+    "first_name": "Rozwiany Płaszcz",
+    "id": "node.scout.guardian.t1_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T1:4": {
+    "first_name": "Prowokacja",
+    "id": "node.scout.guardian.t1_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T1:5": {
+    "first_name": "Odwrócenie",
+    "id": "node.scout.guardian.t1_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T2:1": {
+    "first_name": "Złagodzenie",
+    "id": "node.scout.guardian.t2_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T2:2": {
+    "first_name": "Refleks",
+    "id": "node.scout.guardian.t2_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T2:3": {
+    "first_name": "Kontuzjowanie",
+    "id": "node.scout.guardian.t2_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T2:4": {
+    "first_name": "Zaślepienie Wściekłością",
+    "id": "node.scout.guardian.t2_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T2:5": {
+    "first_name": "Neutralizacja",
+    "id": "node.scout.guardian.t2_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T3:1": {
+    "first_name": "Mistrzostwo Sztuk Walki",
+    "id": "node.scout.guardian.t3_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T3:2": {
+    "first_name": "Taneczny Krok",
+    "id": "node.scout.guardian.t3_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T3:3": {
+    "first_name": "Trwałe Rany",
+    "id": "node.scout.guardian.t3_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T3:4": {
+    "first_name": "Okaleczenie",
+    "id": "node.scout.guardian.t3_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T3:5": {
+    "first_name": "Blokada Zaklęcia",
+    "id": "node.scout.guardian.t3_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T4:1": {
+    "first_name": "Szybki Odwet",
+    "id": "node.scout.guardian.t4_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T4:2": {
+    "first_name": "Przypływ Adrenaliny",
+    "id": "node.scout.guardian.t4_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T4:3": {
+    "first_name": "Głębokie Rany",
+    "id": "node.scout.guardian.t4_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T4:4": {
+    "first_name": "Trzeźwość Umysłu",
+    "id": "node.scout.guardian.t4_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T4:5": {
+    "first_name": "Odskok",
+    "id": "node.scout.guardian.t4_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T5:1": {
+    "first_name": "Odepchnięcie",
+    "id": "node.scout.guardian.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T5:2": {
+    "first_name": "Witalność",
+    "id": "node.scout.guardian.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T5:3": {
+    "first_name": "Ochrona Sztyletu",
+    "id": "node.scout.guardian.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T5:4": {
+    "first_name": "Kontratak",
+    "id": "node.scout.guardian.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.scout.guardian:T5:5": {
+    "first_name": "Koncentracja",
+    "id": "node.scout.guardian.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.brawler:T5:1": {
+    "first_name": "Trening Skupienia",
+    "id": "node.warrior.brawler.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.brawler:T5:2": {
+    "first_name": "Szał Bitewny",
+    "id": "node.warrior.brawler.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.brawler:T5:3": {
+    "first_name": "Furia Bitewna",
+    "id": "node.warrior.brawler.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.brawler:T5:4": {
+    "first_name": "Powrót do Żywych",
+    "id": "node.warrior.brawler.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.brawler:T5:5": {
+    "first_name": "Nieśmiertelna Furia",
+    "id": "node.warrior.brawler.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.commander:T5:1": {
+    "first_name": "Egida",
+    "id": "node.warrior.commander.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.commander:T5:2": {
+    "first_name": "Egzekucja",
+    "id": "node.warrior.commander.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.commander:T5:3": {
+    "first_name": "Pojedynek",
+    "id": "node.warrior.commander.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.commander:T5:4": {
+    "first_name": "Szermierka",
+    "id": "node.warrior.commander.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.commander:T5:5": {
+    "first_name": "Oko Dowódcy",
+    "id": "node.warrior.commander.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:Pasyw": {
+    "first_name": "+15 Zdrowia",
+    "id": "passive.warrior.man_at_arms.pasyw",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T1:1": {
+    "first_name": "Osłona",
+    "id": "node.warrior.man_at_arms.t1_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T1:2": {
+    "first_name": "Postawa Defensywna",
+    "id": "node.warrior.man_at_arms.t1_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T1:3": {
+    "first_name": "Wzmocniona Defensywa",
+    "id": "node.warrior.man_at_arms.t1_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T1:4": {
+    "first_name": "Wytrwałość",
+    "id": "node.warrior.man_at_arms.t1_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T1:5": {
+    "first_name": "Odwrócenie",
+    "id": "node.warrior.man_at_arms.t1_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T2:1": {
+    "first_name": "Odbicie",
+    "id": "node.warrior.man_at_arms.t2_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T2:2": {
+    "first_name": "Defensywne Odbicie",
+    "id": "node.warrior.man_at_arms.t2_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T2:3": {
+    "first_name": "Cios Rękojeścią",
+    "id": "node.warrior.man_at_arms.t2_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T2:4": {
+    "first_name": "Dezorientacja",
+    "id": "node.warrior.man_at_arms.t2_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T2:5": {
+    "first_name": "Rozproszenie",
+    "id": "node.warrior.man_at_arms.t2_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T3:1": {
+    "first_name": "Zwinność",
+    "id": "node.warrior.man_at_arms.t3_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T3:2": {
+    "first_name": "Zbroja Płytowa",
+    "id": "node.warrior.man_at_arms.t3_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T3:3": {
+    "first_name": "Odebranie Żywiołu",
+    "id": "node.warrior.man_at_arms.t3_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T3:4": {
+    "first_name": "Odporność Nabyta",
+    "id": "node.warrior.man_at_arms.t3_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T3:5": {
+    "first_name": "Adaptywny",
+    "id": "node.warrior.man_at_arms.t3_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T4:1": {
+    "first_name": "Przewidywanie",
+    "id": "node.warrior.man_at_arms.t4_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T4:2": {
+    "first_name": "Przewidywanie Magiczne",
+    "id": "node.warrior.man_at_arms.t4_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T4:3": {
+    "first_name": "Witalność",
+    "id": "node.warrior.man_at_arms.t4_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T4:4": {
+    "first_name": "Bez Granic",
+    "id": "node.warrior.man_at_arms.t4_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T4:5": {
+    "first_name": "Wampiryzm",
+    "id": "node.warrior.man_at_arms.t4_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T5:1": {
+    "first_name": "Wigor",
+    "id": "node.warrior.man_at_arms.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T5:2": {
+    "first_name": "Skupienie",
+    "id": "node.warrior.man_at_arms.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T5:3": {
+    "first_name": "Odnowienie Energii",
+    "id": "node.warrior.man_at_arms.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T5:4": {
+    "first_name": "Nieugiętość",
+    "id": "node.warrior.man_at_arms.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T5:5": {
+    "first_name": "Smak Krwi",
+    "id": "node.warrior.man_at_arms.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T6:2": {
+    "first_name": "Pełne Odnowienie",
+    "id": "node.warrior.man_at_arms.t6_2",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T6:3": {
+    "first_name": "Wyrwanie Się",
+    "id": "node.warrior.man_at_arms.t6_3",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T6:4": {
+    "first_name": "Wieczny Żywot",
+    "id": "node.warrior.man_at_arms.t6_4",
+    "status": "proposed_not_runtime"
+  },
+  "node:tree.warrior.man_at_arms:T7": {
+    "first_name": "Żelazna Ostoja",
+    "id": "node.warrior.man_at_arms.t7",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.mage.fire:T5:5": {
+    "first_name": "Słup Ognia",
+    "id": "skill.mage.fire.t5_5",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.mage.frost:T1:4": {
+    "first_name": "Sopel Lodu",
+    "id": "skill.mage.frost.t1_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.mage.frost:T3:4": {
+    "first_name": "Aura Mrozu",
+    "id": "skill.mage.frost.t3_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.mage.frost:T5:4": {
+    "first_name": "Lodowisko",
+    "id": "skill.mage.frost.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.mage.warlock:T5:4": {
+    "first_name": "Teleportacja",
+    "id": "skill.mage.warlock.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.paladin.priest:T5:4": {
+    "first_name": "Święta Ziemia",
+    "id": "skill.paladin.priest.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.scout.assassin:T5:2": {
+    "first_name": "Przewrót w Przód",
+    "id": "skill.scout.assassin.t5_2",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.scout.blade_dancer:T5:1": {
+    "first_name": "Jad w Butelce",
+    "id": "skill.scout.blade_dancer.t5_1",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.scout.blade_dancer:T5:4": {
+    "first_name": "Klątwa Schorowanych",
+    "id": "skill.scout.blade_dancer.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.scout.guardian:T1:4": {
+    "first_name": "Prowokacja",
+    "id": "skill.scout.guardian.t1_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.scout.guardian:T2:3": {
+    "first_name": "Kontuzjowanie",
+    "id": "skill.scout.guardian.t2_3",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.scout.guardian:T5:4": {
+    "first_name": "Kontratak",
+    "id": "skill.scout.guardian.t5_4",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.warrior.man_at_arms:T1:2": {
+    "first_name": "Postawa Defensywna",
+    "id": "skill.warrior.man_at_arms.t1_2",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.warrior.man_at_arms:T2:3": {
+    "first_name": "Cios Rękojeścią",
+    "id": "skill.warrior.man_at_arms.t2_3",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.warrior.man_at_arms:T4:1": {
+    "first_name": "Przewidywanie",
+    "id": "skill.warrior.man_at_arms.t4_1",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.warrior.man_at_arms:T5:3": {
+    "first_name": "Odnowienie Energii",
+    "id": "skill.warrior.man_at_arms.t5_3",
+    "status": "proposed_not_runtime"
+  },
+  "node_skill:tree.warrior.man_at_arms:T7": {
+    "first_name": "Żelazna Ostoja",
+    "id": "skill.warrior.man_at_arms.t7",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra aligatora",
+    "id": "part.mage.armor.base.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra leoparda",
+    "id": "part.mage.armor.base.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra niedźwiedzia",
+    "id": "part.mage.armor.base.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra trolla",
+    "id": "part.mage.armor.base.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra bawoła",
+    "id": "part.mage.armor.base.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra geparda",
+    "id": "part.mage.armor.base.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra wielbłąda",
+    "id": "part.mage.armor.base.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:base:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Szata / Koszula / Wyprawiona skóra wilka",
+    "id": "part.mage.armor.base.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:25:item.material.paski_ze_skory_aligatora": {
+    "first_name": "Szata / Pas / Paski ze skóry aligatora",
+    "id": "part.mage.armor.binder.l25.paski_ze_skory_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:25:item.material.paski_ze_skory_leoparda": {
+    "first_name": "Szata / Pas / Paski ze skóry leoparda",
+    "id": "part.mage.armor.binder.l25.paski_ze_skory_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:25:item.material.paski_ze_skory_niedzwiedzia": {
+    "first_name": "Szata / Pas / Paski ze skóry niedźwiedzia",
+    "id": "part.mage.armor.binder.l25.paski_ze_skory_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:25:item.material.paski_ze_skory_trolla": {
+    "first_name": "Szata / Pas / Paski ze skóry trolla",
+    "id": "part.mage.armor.binder.l25.paski_ze_skory_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:35:item.material.paski_ze_skory_bawola": {
+    "first_name": "Szata / Pas / Paski ze skóry bawoła",
+    "id": "part.mage.armor.binder.l35.paski_ze_skory_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:35:item.material.paski_ze_skory_geparda": {
+    "first_name": "Szata / Pas / Paski ze skóry geparda",
+    "id": "part.mage.armor.binder.l35.paski_ze_skory_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:35:item.material.paski_ze_skory_wielblada": {
+    "first_name": "Szata / Pas / Paski ze skóry wielbłąda",
+    "id": "part.mage.armor.binder.l35.paski_ze_skory_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:binder:35:item.material.paski_ze_skory_wilka": {
+    "first_name": "Szata / Pas / Paski ze skóry wilka",
+    "id": "part.mage.armor.binder.l35.paski_ze_skory_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:25:item.material.lniana_tkanina": {
+    "first_name": "Szata / Materiał / Lniana tkanina",
+    "id": "part.mage.armor.plate.l25.lniana_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:25:item.material.melenowa_tkanina": {
+    "first_name": "Szata / Materiał / Melenowa tkanina",
+    "id": "part.mage.armor.plate.l25.melenowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:25:item.material.srebrnoszponowa_tkanina": {
+    "first_name": "Szata / Materiał / Srebrnoszponowa tkanina",
+    "id": "part.mage.armor.plate.l25.srebrnoszponowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:25:item.material.tkanina_z_wielbladziej_welny": {
+    "first_name": "Szata / Materiał / Tkanina z wielbłądziej wełny",
+    "id": "part.mage.armor.plate.l25.tkanina_z_wielbladziej_welny",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:35:item.material.jukowa_tkanina": {
+    "first_name": "Szata / Materiał / Jukowa tkanina",
+    "id": "part.mage.armor.plate.l35.jukowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:35:item.material.konopna_tkanina": {
+    "first_name": "Szata / Materiał / Konopna tkanina",
+    "id": "part.mage.armor.plate.l35.konopna_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:35:item.material.trojpretowa_tkanina": {
+    "first_name": "Szata / Materiał / Trójprętowa tkanina",
+    "id": "part.mage.armor.plate.l35.trojpretowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:armor:plate:35:item.material.utumenowa_tkanina": {
+    "first_name": "Szata / Materiał / Utumenowa tkanina",
+    "id": "part.mage.armor.plate.l35.utumenowa_tkanina",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra aligatora",
+    "id": "part.mage.weapon.binder.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra leoparda",
+    "id": "part.mage.weapon.binder.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra niedźwiedzia",
+    "id": "part.mage.weapon.binder.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra trolla",
+    "id": "part.mage.weapon.binder.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra bawoła",
+    "id": "part.mage.weapon.binder.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra geparda",
+    "id": "part.mage.weapon.binder.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra wielbłąda",
+    "id": "part.mage.weapon.binder.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:binder:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Kostur / Osłona / Wyprawiona skóra wilka",
+    "id": "part.mage.weapon.binder.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:25:item.material.bzowy_patyk": {
+    "first_name": "Kostur / Trzon / Bzowy patyk",
+    "id": "part.mage.weapon.handle.l25.bzowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:25:item.material.grabowy_patyk": {
+    "first_name": "Kostur / Trzon / Grabowy patyk",
+    "id": "part.mage.weapon.handle.l25.grabowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:25:item.material.swierkowy_patyk": {
+    "first_name": "Kostur / Trzon / Świerkowy patyk",
+    "id": "part.mage.weapon.handle.l25.swierkowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:25:item.material.wiazowy_patyk": {
+    "first_name": "Kostur / Trzon / Wiązowy patyk",
+    "id": "part.mage.weapon.handle.l25.wiazowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:35:item.material.bukowy_patyk": {
+    "first_name": "Kostur / Trzon / Bukowy patyk",
+    "id": "part.mage.weapon.handle.l35.bukowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:35:item.material.debowy_patyk": {
+    "first_name": "Kostur / Trzon / Dębowy patyk",
+    "id": "part.mage.weapon.handle.l35.debowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:35:item.material.jodlowy_patyk": {
+    "first_name": "Kostur / Trzon / Jodłowy patyk",
+    "id": "part.mage.weapon.handle.l35.jodlowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:handle:35:item.material.sekwojowy_patyk": {
+    "first_name": "Kostur / Trzon / Sekwojowy patyk",
+    "id": "part.mage.weapon.handle.l35.sekwojowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:25:item.material.sztabka_annodytu": {
+    "first_name": "Kostur / Katalizator / Sztabka annodytu",
+    "id": "part.mage.weapon.head.l25.sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:25:item.material.sztabka_kobaltu": {
+    "first_name": "Kostur / Katalizator / Sztabka kobaltu",
+    "id": "part.mage.weapon.head.l25.sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:25:item.material.sztabka_srebra": {
+    "first_name": "Kostur / Katalizator / Sztabka srebra",
+    "id": "part.mage.weapon.head.l25.sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:25:item.material.sztabka_zlota": {
+    "first_name": "Kostur / Katalizator / Sztabka złota",
+    "id": "part.mage.weapon.head.l25.sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:35:item.material.sztabka_kryferytu": {
+    "first_name": "Kostur / Katalizator / Sztabka kryferytu",
+    "id": "part.mage.weapon.head.l35.sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:35:item.material.sztabka_mosiadzu": {
+    "first_name": "Kostur / Katalizator / Sztabka mosiądzu",
+    "id": "part.mage.weapon.head.l35.sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:35:item.material.sztabka_sultanskiej_stali": {
+    "first_name": "Kostur / Katalizator / Sztabka sułtańskiej stali",
+    "id": "part.mage.weapon.head.l35.sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "part:mage:weapon:head:35:item.material.sztabka_tytanu": {
+    "first_name": "Kostur / Katalizator / Sztabka tytanu",
+    "id": "part.mage.weapon.head.l35.sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra aligatora",
+    "id": "part.paladin.armor.base.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra leoparda",
+    "id": "part.paladin.armor.base.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra niedźwiedzia",
+    "id": "part.paladin.armor.base.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra trolla",
+    "id": "part.paladin.armor.base.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra bawoła",
+    "id": "part.paladin.armor.base.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra geparda",
+    "id": "part.paladin.armor.base.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra wielbłąda",
+    "id": "part.paladin.armor.base.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:base:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Kirys / Naplecznik / Wyprawiona skóra wilka",
+    "id": "part.paladin.armor.base.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:25:item.material.paski_ze_skory_aligatora": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry aligatora",
+    "id": "part.paladin.armor.binder.l25.paski_ze_skory_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:25:item.material.paski_ze_skory_leoparda": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry leoparda",
+    "id": "part.paladin.armor.binder.l25.paski_ze_skory_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:25:item.material.paski_ze_skory_niedzwiedzia": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry niedźwiedzia",
+    "id": "part.paladin.armor.binder.l25.paski_ze_skory_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:25:item.material.paski_ze_skory_trolla": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry trolla",
+    "id": "part.paladin.armor.binder.l25.paski_ze_skory_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:35:item.material.paski_ze_skory_bawola": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry bawoła",
+    "id": "part.paladin.armor.binder.l35.paski_ze_skory_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:35:item.material.paski_ze_skory_geparda": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry geparda",
+    "id": "part.paladin.armor.binder.l35.paski_ze_skory_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:35:item.material.paski_ze_skory_wielblada": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry wielbłąda",
+    "id": "part.paladin.armor.binder.l35.paski_ze_skory_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:binder:35:item.material.paski_ze_skory_wilka": {
+    "first_name": "Kirys / Rzemienie / Paski ze skóry wilka",
+    "id": "part.paladin.armor.binder.l35.paski_ze_skory_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:25:item.material.annodytowa_blacha": {
+    "first_name": "Kirys / Napierśnik / Annodytowa blacha",
+    "id": "part.paladin.armor.plate.l25.annodytowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:25:item.material.kobaltowa_blacha": {
+    "first_name": "Kirys / Napierśnik / Kobaltowa blacha",
+    "id": "part.paladin.armor.plate.l25.kobaltowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:25:item.material.srebrna_blacha": {
+    "first_name": "Kirys / Napierśnik / Srebrna blacha",
+    "id": "part.paladin.armor.plate.l25.srebrna_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:25:item.material.zlota_blacha": {
+    "first_name": "Kirys / Napierśnik / Złota blacha",
+    "id": "part.paladin.armor.plate.l25.zlota_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:35:item.material.kryferytowa_blacha": {
+    "first_name": "Kirys / Napierśnik / Kryferytowa blacha",
+    "id": "part.paladin.armor.plate.l35.kryferytowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:35:item.material.mosiezna_blacha": {
+    "first_name": "Kirys / Napierśnik / Mosiężna blacha",
+    "id": "part.paladin.armor.plate.l35.mosiezna_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:35:item.material.sultanska_blacha": {
+    "first_name": "Kirys / Napierśnik / Sułtańska blacha",
+    "id": "part.paladin.armor.plate.l35.sultanska_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:armor:plate:35:item.material.tytanowa_blacha": {
+    "first_name": "Kirys / Napierśnik / Tytanowa blacha",
+    "id": "part.paladin.armor.plate.l35.tytanowa_blacha",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra aligatora",
+    "id": "part.paladin.weapon.binder.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra leoparda",
+    "id": "part.paladin.weapon.binder.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra niedźwiedzia",
+    "id": "part.paladin.weapon.binder.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra trolla",
+    "id": "part.paladin.weapon.binder.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra bawoła",
+    "id": "part.paladin.weapon.binder.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra geparda",
+    "id": "part.paladin.weapon.binder.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra wielbłąda",
+    "id": "part.paladin.weapon.binder.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:binder:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Młot / Owicie / Wyprawiona skóra wilka",
+    "id": "part.paladin.weapon.binder.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:25:item.material.bzowy_patyk": {
+    "first_name": "Młot / Rękojeść / Bzowy patyk",
+    "id": "part.paladin.weapon.handle.l25.bzowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:25:item.material.grabowy_patyk": {
+    "first_name": "Młot / Rękojeść / Grabowy patyk",
+    "id": "part.paladin.weapon.handle.l25.grabowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:25:item.material.swierkowy_patyk": {
+    "first_name": "Młot / Rękojeść / Świerkowy patyk",
+    "id": "part.paladin.weapon.handle.l25.swierkowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:25:item.material.wiazowy_patyk": {
+    "first_name": "Młot / Rękojeść / Wiązowy patyk",
+    "id": "part.paladin.weapon.handle.l25.wiazowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:35:item.material.bukowy_patyk": {
+    "first_name": "Młot / Rękojeść / Bukowy patyk",
+    "id": "part.paladin.weapon.handle.l35.bukowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:35:item.material.debowy_patyk": {
+    "first_name": "Młot / Rękojeść / Dębowy patyk",
+    "id": "part.paladin.weapon.handle.l35.debowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:35:item.material.jodlowy_patyk": {
+    "first_name": "Młot / Rękojeść / Jodłowy patyk",
+    "id": "part.paladin.weapon.handle.l35.jodlowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:handle:35:item.material.sekwojowy_patyk": {
+    "first_name": "Młot / Rękojeść / Sekwojowy patyk",
+    "id": "part.paladin.weapon.handle.l35.sekwojowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:25:item.material.wielka_sztabka_annodytu": {
+    "first_name": "Młot / Głownia / Wielka sztabka annodytu",
+    "id": "part.paladin.weapon.head.l25.wielka_sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:25:item.material.wielka_sztabka_kobaltu": {
+    "first_name": "Młot / Głownia / Wielka sztabka kobaltu",
+    "id": "part.paladin.weapon.head.l25.wielka_sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:25:item.material.wielka_sztabka_srebra": {
+    "first_name": "Młot / Głownia / Wielka sztabka srebra",
+    "id": "part.paladin.weapon.head.l25.wielka_sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:25:item.material.wielka_sztabka_zlota": {
+    "first_name": "Młot / Głownia / Wielka sztabka złota",
+    "id": "part.paladin.weapon.head.l25.wielka_sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:35:item.material.wielka_sztabka_kryferytu": {
+    "first_name": "Młot / Głownia / Wielka sztabka kryferytu",
+    "id": "part.paladin.weapon.head.l35.wielka_sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:35:item.material.wielka_sztabka_mosiadzu": {
+    "first_name": "Młot / Głownia / Wielka sztabka mosiądzu",
+    "id": "part.paladin.weapon.head.l35.wielka_sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:35:item.material.wielka_sztabka_sultanskiej_stali": {
+    "first_name": "Młot / Głownia / Wielka sztabka sułtańskiej stali",
+    "id": "part.paladin.weapon.head.l35.wielka_sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "part:paladin:weapon:head:35:item.material.wielka_sztabka_tytanu": {
+    "first_name": "Młot / Głownia / Wielka sztabka tytanu",
+    "id": "part.paladin.weapon.head.l35.wielka_sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:25:item.material.sztabka_annodytu": {
+    "first_name": "Tunika / Umocnienia / Sztabka annodytu",
+    "id": "part.scout.armor.base.l25.sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:25:item.material.sztabka_kobaltu": {
+    "first_name": "Tunika / Umocnienia / Sztabka kobaltu",
+    "id": "part.scout.armor.base.l25.sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:25:item.material.sztabka_srebra": {
+    "first_name": "Tunika / Umocnienia / Sztabka srebra",
+    "id": "part.scout.armor.base.l25.sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:25:item.material.sztabka_zlota": {
+    "first_name": "Tunika / Umocnienia / Sztabka złota",
+    "id": "part.scout.armor.base.l25.sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:35:item.material.sztabka_kryferytu": {
+    "first_name": "Tunika / Umocnienia / Sztabka kryferytu",
+    "id": "part.scout.armor.base.l35.sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:35:item.material.sztabka_mosiadzu": {
+    "first_name": "Tunika / Umocnienia / Sztabka mosiądzu",
+    "id": "part.scout.armor.base.l35.sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:35:item.material.sztabka_sultanskiej_stali": {
+    "first_name": "Tunika / Umocnienia / Sztabka sułtańskiej stali",
+    "id": "part.scout.armor.base.l35.sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:base:35:item.material.sztabka_tytanu": {
+    "first_name": "Tunika / Umocnienia / Sztabka tytanu",
+    "id": "part.scout.armor.base.l35.sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:25:item.material.paski_ze_skory_aligatora": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry aligatora",
+    "id": "part.scout.armor.binder.l25.paski_ze_skory_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:25:item.material.paski_ze_skory_leoparda": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry leoparda",
+    "id": "part.scout.armor.binder.l25.paski_ze_skory_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:25:item.material.paski_ze_skory_niedzwiedzia": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry niedźwiedzia",
+    "id": "part.scout.armor.binder.l25.paski_ze_skory_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:25:item.material.paski_ze_skory_trolla": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry trolla",
+    "id": "part.scout.armor.binder.l25.paski_ze_skory_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:35:item.material.paski_ze_skory_bawola": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry bawoła",
+    "id": "part.scout.armor.binder.l35.paski_ze_skory_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:35:item.material.paski_ze_skory_geparda": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry geparda",
+    "id": "part.scout.armor.binder.l35.paski_ze_skory_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:35:item.material.paski_ze_skory_wielblada": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry wielbłąda",
+    "id": "part.scout.armor.binder.l35.paski_ze_skory_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:binder:35:item.material.paski_ze_skory_wilka": {
+    "first_name": "Tunika / Rzemienie / Paski ze skóry wilka",
+    "id": "part.scout.armor.binder.l35.paski_ze_skory_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra aligatora",
+    "id": "part.scout.armor.plate.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra leoparda",
+    "id": "part.scout.armor.plate.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra niedźwiedzia",
+    "id": "part.scout.armor.plate.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra trolla",
+    "id": "part.scout.armor.plate.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra bawoła",
+    "id": "part.scout.armor.plate.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra geparda",
+    "id": "part.scout.armor.plate.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra wielbłąda",
+    "id": "part.scout.armor.plate.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:armor:plate:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Tunika / Materiał / Wyprawiona skóra wilka",
+    "id": "part.scout.armor.plate.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra aligatora",
+    "id": "part.scout.weapon.binder.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra leoparda",
+    "id": "part.scout.weapon.binder.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra niedźwiedzia",
+    "id": "part.scout.weapon.binder.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra trolla",
+    "id": "part.scout.weapon.binder.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra bawoła",
+    "id": "part.scout.weapon.binder.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra geparda",
+    "id": "part.scout.weapon.binder.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra wielbłąda",
+    "id": "part.scout.weapon.binder.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:binder:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Miecz i Sztylet / Jelec / Wyprawiona skóra wilka",
+    "id": "part.scout.weapon.binder.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:25:item.material.bzowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Bzowy patyk",
+    "id": "part.scout.weapon.handle.l25.bzowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:25:item.material.grabowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Grabowy patyk",
+    "id": "part.scout.weapon.handle.l25.grabowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:25:item.material.swierkowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Świerkowy patyk",
+    "id": "part.scout.weapon.handle.l25.swierkowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:25:item.material.wiazowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Wiązowy patyk",
+    "id": "part.scout.weapon.handle.l25.wiazowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:35:item.material.bukowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Bukowy patyk",
+    "id": "part.scout.weapon.handle.l35.bukowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:35:item.material.debowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Dębowy patyk",
+    "id": "part.scout.weapon.handle.l35.debowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:35:item.material.jodlowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Jodłowy patyk",
+    "id": "part.scout.weapon.handle.l35.jodlowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:handle:35:item.material.sekwojowy_patyk": {
+    "first_name": "Miecz i Sztylet / Rękojeść / Sekwojowy patyk",
+    "id": "part.scout.weapon.handle.l35.sekwojowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:25:item.material.sztabka_annodytu": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka annodytu",
+    "id": "part.scout.weapon.head.l25.sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:25:item.material.sztabka_kobaltu": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka kobaltu",
+    "id": "part.scout.weapon.head.l25.sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:25:item.material.sztabka_srebra": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka srebra",
+    "id": "part.scout.weapon.head.l25.sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:25:item.material.sztabka_zlota": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka złota",
+    "id": "part.scout.weapon.head.l25.sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:35:item.material.sztabka_kryferytu": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka kryferytu",
+    "id": "part.scout.weapon.head.l35.sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:35:item.material.sztabka_mosiadzu": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka mosiądzu",
+    "id": "part.scout.weapon.head.l35.sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:35:item.material.sztabka_sultanskiej_stali": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka sułtańskiej stali",
+    "id": "part.scout.weapon.head.l35.sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "part:scout:weapon:head:35:item.material.sztabka_tytanu": {
+    "first_name": "Miecz i Sztylet / Głownia / Sztabka tytanu",
+    "id": "part.scout.weapon.head.l35.sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra aligatora",
+    "id": "part.warrior.armor.base.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra leoparda",
+    "id": "part.warrior.armor.base.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra niedźwiedzia",
+    "id": "part.warrior.armor.base.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra trolla",
+    "id": "part.warrior.armor.base.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra bawoła",
+    "id": "part.warrior.armor.base.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra geparda",
+    "id": "part.warrior.armor.base.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra wielbłąda",
+    "id": "part.warrior.armor.base.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:base:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Kolczuga / Skóra / Wyprawiona skóra wilka",
+    "id": "part.warrior.armor.base.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:25:item.material.annodytowy_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Annodytowy łańcuch",
+    "id": "part.warrior.armor.binder.l25.annodytowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:25:item.material.kobaltowy_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Kobaltowy łańcuch",
+    "id": "part.warrior.armor.binder.l25.kobaltowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:25:item.material.srebrny_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Srebrny łańcuch",
+    "id": "part.warrior.armor.binder.l25.srebrny_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:25:item.material.zloty_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Złoty łańcuch",
+    "id": "part.warrior.armor.binder.l25.zloty_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:35:item.material.kryferytowy_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Kryferytowy łańcuch",
+    "id": "part.warrior.armor.binder.l35.kryferytowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:35:item.material.mosiezny_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Mosiężny łańcuch",
+    "id": "part.warrior.armor.binder.l35.mosiezny_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:35:item.material.sultanski_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Sułtański łańcuch",
+    "id": "part.warrior.armor.binder.l35.sultanski_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:binder:35:item.material.tytanowy_lancuch": {
+    "first_name": "Kolczuga / Kolcza / Tytanowy łańcuch",
+    "id": "part.warrior.armor.binder.l35.tytanowy_lancuch",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:25:item.material.sztabka_annodytu": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka annodytu",
+    "id": "part.warrior.armor.plate.l25.sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:25:item.material.sztabka_kobaltu": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka kobaltu",
+    "id": "part.warrior.armor.plate.l25.sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:25:item.material.sztabka_srebra": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka srebra",
+    "id": "part.warrior.armor.plate.l25.sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:25:item.material.sztabka_zlota": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka złota",
+    "id": "part.warrior.armor.plate.l25.sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:35:item.material.sztabka_kryferytu": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka kryferytu",
+    "id": "part.warrior.armor.plate.l35.sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:35:item.material.sztabka_mosiadzu": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka mosiądzu",
+    "id": "part.warrior.armor.plate.l35.sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:35:item.material.sztabka_sultanskiej_stali": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka sułtańskiej stali",
+    "id": "part.warrior.armor.plate.l35.sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:armor:plate:35:item.material.sztabka_tytanu": {
+    "first_name": "Kolczuga / Napierśnik / Sztabka tytanu",
+    "id": "part.warrior.armor.plate.l35.sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:25:item.material.wyprawiona_skora_aligatora": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra aligatora",
+    "id": "part.warrior.weapon.binder.l25.wyprawiona_skora_aligatora",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:25:item.material.wyprawiona_skora_leoparda": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra leoparda",
+    "id": "part.warrior.weapon.binder.l25.wyprawiona_skora_leoparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:25:item.material.wyprawiona_skora_niedzwiedzia": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra niedźwiedzia",
+    "id": "part.warrior.weapon.binder.l25.wyprawiona_skora_niedzwiedzia",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:25:item.material.wyprawiona_skora_trolla": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra trolla",
+    "id": "part.warrior.weapon.binder.l25.wyprawiona_skora_trolla",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:35:item.material.wyprawiona_skora_bawola": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra bawoła",
+    "id": "part.warrior.weapon.binder.l35.wyprawiona_skora_bawola",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:35:item.material.wyprawiona_skora_geparda": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra geparda",
+    "id": "part.warrior.weapon.binder.l35.wyprawiona_skora_geparda",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:35:item.material.wyprawiona_skora_wielblada": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra wielbłąda",
+    "id": "part.warrior.weapon.binder.l35.wyprawiona_skora_wielblada",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:binder:35:item.material.wyprawiona_skora_wilka": {
+    "first_name": "Długi Miecz / Jelec / Wyprawiona skóra wilka",
+    "id": "part.warrior.weapon.binder.l35.wyprawiona_skora_wilka",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:25:item.material.bzowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Bzowy patyk",
+    "id": "part.warrior.weapon.handle.l25.bzowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:25:item.material.grabowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Grabowy patyk",
+    "id": "part.warrior.weapon.handle.l25.grabowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:25:item.material.swierkowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Świerkowy patyk",
+    "id": "part.warrior.weapon.handle.l25.swierkowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:25:item.material.wiazowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Wiązowy patyk",
+    "id": "part.warrior.weapon.handle.l25.wiazowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:35:item.material.bukowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Bukowy patyk",
+    "id": "part.warrior.weapon.handle.l35.bukowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:35:item.material.debowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Dębowy patyk",
+    "id": "part.warrior.weapon.handle.l35.debowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:35:item.material.jodlowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Jodłowy patyk",
+    "id": "part.warrior.weapon.handle.l35.jodlowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:handle:35:item.material.sekwojowy_patyk": {
+    "first_name": "Długi Miecz / Rękojeść / Sekwojowy patyk",
+    "id": "part.warrior.weapon.handle.l35.sekwojowy_patyk",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:25:item.material.sztabka_annodytu": {
+    "first_name": "Długi Miecz / Głownia / Sztabka annodytu",
+    "id": "part.warrior.weapon.head.l25.sztabka_annodytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:25:item.material.sztabka_kobaltu": {
+    "first_name": "Długi Miecz / Głownia / Sztabka kobaltu",
+    "id": "part.warrior.weapon.head.l25.sztabka_kobaltu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:25:item.material.sztabka_srebra": {
+    "first_name": "Długi Miecz / Głownia / Sztabka srebra",
+    "id": "part.warrior.weapon.head.l25.sztabka_srebra",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:25:item.material.sztabka_zlota": {
+    "first_name": "Długi Miecz / Głownia / Sztabka złota",
+    "id": "part.warrior.weapon.head.l25.sztabka_zlota",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:35:item.material.sztabka_kryferytu": {
+    "first_name": "Długi Miecz / Głownia / Sztabka kryferytu",
+    "id": "part.warrior.weapon.head.l35.sztabka_kryferytu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:35:item.material.sztabka_mosiadzu": {
+    "first_name": "Długi Miecz / Głownia / Sztabka mosiądzu",
+    "id": "part.warrior.weapon.head.l35.sztabka_mosiadzu",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:35:item.material.sztabka_sultanskiej_stali": {
+    "first_name": "Długi Miecz / Głownia / Sztabka sułtańskiej stali",
+    "id": "part.warrior.weapon.head.l35.sztabka_sultanskiej_stali",
+    "status": "proposed_not_runtime"
+  },
+  "part:warrior:weapon:head:35:item.material.sztabka_tytanu": {
+    "first_name": "Długi Miecz / Głownia / Sztabka tytanu",
+    "id": "part.warrior.weapon.head.l35.sztabka_tytanu",
+    "status": "proposed_not_runtime"
+  },
+  "tree:Mag Mrozu": {
+    "first_name": "Mag Mrozu",
+    "id": "tree.mage.frost",
+    "status": "proposed_not_runtime"
+  },
+  "tree:Zbrojny": {
+    "first_name": "Zbrojny",
+    "id": "tree.warrior.man_at_arms",
+    "status": "proposed_not_runtime"
+  }
+}

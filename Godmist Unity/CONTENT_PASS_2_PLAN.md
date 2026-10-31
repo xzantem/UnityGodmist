@@ -14,6 +14,7 @@ Celem jest kompletna, grywalna progresja do L40 z pięcioma biomami, rozwinięty
 6. Każda karta implementacyjna obejmuje potrzebną prezentację, lokalizację/nazwy, ikony lub wskazany zestaw istniejących assetów oraz własny smoke. Karta 55 domyka jakość, nie zastępuje brakującej prezentacji całych systemów.
 7. Nową mechanikę realizować w jej istniejącym systemie odpowiedzialnym za stan. Widoki prezentują wynik; nie liczą ponownie kosztów, szans ani efektów. Rozszerzać wspólne kontrakty tylko w zakresie rzeczywistych potrzeb zatwierdzonego contentu.
 8. Każda karta kończy się self-review, adekwatnymi testami, opisem wyniku i handoffem, jeśli potrzebny. `READY_FOR_SMOKE` nie oznacza akceptacji użytkownika. Commit i push dopiero po jego `git`.
+9. Katalog i mapa źródeł CP2-02: `CONTENT_PASS_2_CATALOG.md` oraz `Tools/ContentPass2/content-manifest.json`. Właściwe karty używają zarezerwowanych ID i jawnych decyzji źródłowych, a zmiany arkusza porównują z hashem manifestu. Nie generować nowego ID tylko dlatego, że poprawiono polską nazwę.
 
 ### Wspólne kryteria ukończenia
 
@@ -67,6 +68,8 @@ Duże karty, zwłaszcza 06, 11, 19, 25 i karty bossów, dzielić wykonawczo na: 
 **Odbiór:** bazowa gra działa jak przyjęte v0.1.2; brak zgubionych poprawek i unrelated zmian w diffie; stare zapisy ładują się. Wynik to jednoznaczna baza, nie samo porównanie branchy.
 
 ### CP2-02 Zamknąć katalog contentu i mapę źródeł L1–40
+
+**Stan 2026-10-31: ZAAKCEPTOWANA — przegląd katalogu zakończony, commit/push zlecony przez `git`.** Manifest, rejestr proponowanych ID, tabela `|` i niezależny walidator przygotowane. Pokrycie planu: 406/406 pozycji, w tym 370 materiałów; 30 kontroli PASS. Zapisano decyzje użytkownika: tylko skóra leoparda w Ruinach, Dobry/Mocny proch w pięciu biomach, nowe kamienie bossów L1–40. Brak zmian XLSX, kodu C# i serialized state. Projekty Paladyna, Strażnika, T6/T7, efekty unikatów i wskazane szczegóły receptur pozostają u właścicieli swoich kart. Podsumowanie: `CONTENT_PASS_2_CATALOG.md`.
 
 **Zależności:** 01.
 
@@ -769,4 +772,4 @@ Nazwy, odporności, ceny i receptury już opisane w aktualnym arkuszu nie są py
 
 Na początku realizacji dopisać w karcie Trello: przyjętą wersję arkusza, wynik punktowego context passu, zamknięte decyzje i konkretne podzadania wynikające z audytu. W opisie zostawić numer CP2 jako stały identyfikator. Każda zmiana zakresu aktualizuje ten plan i odpowiednią kartę; nie rozszerza sąsiednich kart po cichu.
 
-Status początkowy kart: **planowane**, z wyjątkiem zaakceptowanej CP2-01 po **smoke PASS**; macOS i X360 są odłożone do późniejszej integracji. Karty projektowe 08, 13, 47 kończą się zamkniętą specyfikacją/decyzją; nie wymagają pozornej implementacji. Karty 48–51 mają dodatkowo status **warunkowe** do decyzji 47. Ten plan nie tworzy i nie aktualizuje kart w zewnętrznym Trello.
+Status początkowy kart: **planowane**, z wyjątkiem zaakceptowanej CP2-01 po **smoke PASS** i zaakceptowanej CP2-02 po przeglądzie katalogu; macOS i X360 są odłożone do późniejszej integracji. Karty projektowe 08, 13, 47 kończą się zamkniętą specyfikacją/decyzją; nie wymagają pozornej implementacji. Karty 48–51 mają dodatkowo status **warunkowe** do decyzji 47. Ten plan nie tworzy i nie aktualizuje kart w zewnętrznym Trello.

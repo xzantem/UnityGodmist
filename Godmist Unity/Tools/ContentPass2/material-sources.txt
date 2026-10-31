@@ -1,0 +1,415 @@
+﻿ID|Nazwa|Stan|Zakres|Poziom w arkuszu|Dostęp w planie od|Biomy naturalne także przyszłe|Naturalne torby bossów z arkusza|Źródła bezpośrednie w pass 2|Receptury - składniki|Odbiorcy|Referencje
+item.runic.solid_marble|Lity marmur|existing|above_40|||||||item.runic.galduryte_stone.marble|
+item.runic.galduryte_stone.marble|Marmurowy kamień galdurytu|existing|above_40||||||Lity marmur||
+item.alchemy.perfect_alcohol|Perfekcyjny alkohol|existing|above_40||||||||
+item.alchemy.perfect_gunpowder|Perfekcyjny proch strzelniczy|existing|above_40||||||||
+item.smithing.red_energy_dust|Czerwony pył energetyczny|legacy_keep_saves_no_new_sources|legacy||||||||
+item.material.bandit_leader_blood|Krew przywódcy|legacy_keep_saves_no_new_sources|legacy||||||||
+item.material.elf_ear|Ucho elfa|legacy_keep_saves_no_new_sources|legacy||||||||
+item.smithing.yellow_energy_dust|Żółty pył energetyczny|legacy_keep_saves_no_new_sources|legacy||||||||
+item.alchemy.alcohol|Alkohol|existing|pass_2||11|Bagno; Elfie Ruiny; Katakumby; Las; Morze||Katakumby: Torba zasobów L11-20; Las: Torba zasobów L11-20; Elfie Ruiny: Torba zasobów L11-20; Morze: Torba zasobów L11-20; Bagno: Torba zasobów L11-20; Handel NPC: Alchemik — dodatkowe źródło L11-40||item.vs10.proch_ziolowy_pomaranczowy; item.vs10.proch_ziolowy_rozowy; item.vs10.proch_ziolowy_zielony; item.vs10.proch_ziolowy_zolty|Lootbagi!F19; Lootbagi!F36; Lootbagi!F56; Lootbagi!F74; Lootbagi!F90; Lootbagi!F114
+item.vs10.aloe_meda|Aloe meda|existing|pass_2||1|Pustynia||Morze: Zastępcza torba zasobów L1-40||item.vs10.proch_ziolowy_lepki; item.vs10.proch_ziolowy_zielony|Lootbagi!F67
+item.vs10.ametyst|Ametyst|existing|pass_2||1|Świątynia||Elfie Ruiny: Zastępcza torba zasobów L11-40||item.vs10.purpurowy_proszek|Lootbagi!F52
+item.material.annodytowa_blacha|Annodytowa blacha|proposed_not_runtime|pass_2|21|21||||Sztabka annodytu|equipment_part|Nowe przedmioty!C42; Nowe wyposażenie!N75
+item.material.annodytowy_lancuch|Annodytowy łańcuch|proposed_not_runtime|pass_2|21|21||||Sztabka annodytu|equipment_part|Nowe przedmioty!C34; Nowe wyposażenie!N11
+item.unique.bagienna_kolczuga|Bagienna Kolczuga|proposed_not_runtime|pass_2||1|Bagno||Bagno - Bagnisty Ent: Torba bossa - unikat L1-40|||Lootbagi!F111
+item.smithing.cotton_thread|Bawełniana nitka|existing|pass_2||1||||Włókno bawełny|item.smithing.cotton_fabric|
+item.smithing.cotton_fabric|Bawełniana tkanina|existing|pass_2||1||||Bawełniana nitka + Słaba igła do nici||
+item.vs10.bialy_proszek|Biały proszek|existing|pass_2||1||||Diament|item.material.skondensowany_bialy_proszek|Nowe przedmioty!D170
+item.vs10.brzozowa_deska|Brzozowa deska|existing|pass_2||11||||Drewno brzozowe|item.vs10.brzozowy_patyk|
+item.vs10.brzozowy_patyk|Brzozowy patyk|existing|pass_2||11||||Brzozowa deska||
+item.vs10.brazowa_blacha|Brązowa blacha|existing|pass_2||11||||Sztabka brązu||
+item.vs10.brazowy_lancuch|Brązowy łańcuch|existing|pass_2||11||||Sztabka brązu||
+item.vs10.bukominowa_nitka|Bukominowa nitka|existing|pass_2||1||||Włókno bukominy|item.vs10.bukominowa_tkanina|
+item.vs10.bukominowa_tkanina|Bukominowa tkanina|existing|pass_2||1||||Bukominowa nitka + Słaba igła do nici||
+item.material.bukowa_deska|Bukowa deska|proposed_not_runtime|pass_2|31|31||||Drewno bukowe|item.material.bukowy_patyk|Nowe przedmioty!C87; Nowe przedmioty!D95
+item.material.bukowy_patyk|Bukowy patyk|proposed_not_runtime|pass_2|31|31||||Bukowa deska|equipment_part|Nowe przedmioty!C95; Nowe wyposażenie!E24; Nowe wyposażenie!E48; Nowe wyposażenie!E72; Nowe wyposażenie!E96
+item.runic.amber|Bursztyn|existing|pass_2||1|Katakumby; Morze; Pustynia; Świątynia||Katakumby: Torba zasobów L11-40; Morze: Torba zasobów L11-40||item.vs10.bursztynowy_proszek|Lootbagi!F14; Lootbagi!F69
+item.vs10.bursztynowy_proszek|Bursztynowy proszek|existing|pass_2||1||||Bursztyn|item.material.skondensowany_bursztynowy_proszek|Nowe przedmioty!D172
+item.material.bzowa_deska|Bzowa deska|proposed_not_runtime|pass_2|21|21||||Drewno bzowe|item.material.bzowy_patyk|Nowe przedmioty!C85; Nowe przedmioty!D93
+item.material.bzowy_patyk|Bzowy patyk|proposed_not_runtime|pass_2|21|21||||Bzowa deska|equipment_part|Nowe przedmioty!C93; Nowe wyposażenie!E22; Nowe wyposażenie!E46; Nowe wyposażenie!E70; Nowe wyposażenie!E94
+item.material.blyszczacy_piasek|Błyszczący piasek|proposed_not_runtime|pass_2||21|Morze||Morze: Torba zasobów L21-40||alchemy_B|Lootbagi!F64; Nowe przedmioty!U8; Nowe przedmioty!U23
+item.vs10.cedrowa_deska|Cedrowa deska|existing|pass_2||11||||Drewno cedrowe|item.vs10.cedrowy_patyk|
+item.vs10.cedrowy_patyk|Cedrowy patyk|existing|pass_2||11||||Cedrowa deska||
+item.smithing.chromium|Chrom|existing|pass_2||11|Góry; Morze||Morze: Torba zasobów L11-20||item.vs10.sztabka_inwaru; item.vs10.wielka_sztabka_inwaru|Lootbagi!F60
+item.vs10.cynowa_blacha|Cynowa blacha|existing|pass_2||1||||Sztabka cyny||
+item.vs10.cynowy_lancuch|Cynowy łańcuch|existing|pass_2||1||||Sztabka cyny||
+item.vs10.cyprysowa_deska|Cyprysowa deska|existing|pass_2||11||||Drewno cyprysowe|item.vs10.cyprysowy_patyk|
+item.vs10.cyprysowy_patyk|Cyprysowy patyk|existing|pass_2||11||||Cyprysowa deska||
+item.vs10.cytryn|Cytryn|existing|pass_2||1|Pustynia||Morze: Zastępcza torba zasobów L11-40||item.vs10.cytrynowy_proszek|Lootbagi!F70
+item.vs10.cytrynowy_proszek|Cytrynowy proszek|existing|pass_2||1||||Cytryn|item.material.skondensowany_cytrynowy_proszek|Nowe przedmioty!D166
+item.vs10.czarny_proszek|Czarny proszek|existing|pass_2||1||||Onyks|item.material.skondensowany_czarny_proszek|Nowe przedmioty!D168
+item.vs10.czerwony_proszek|Czerwony proszek|existing|pass_2||1||||Granat|item.material.skondensowany_czerwony_proszek|Nowe przedmioty!D163
+item.runic.galduryte_powder.red|Czerwony proszek galdurytu|existing|pass_2||11|||Handel NPC: Zaklinacz — uzupełnienie oferty L11-40|||Lootbagi!F117
+item.unique.demoniczna_kolczuga_bitewna|Demoniczna Kolczuga Bitewna|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Demoniczny Jarl: Torba bossa - unikat L1-40|||Lootbagi!F107
+item.material.demoniczny_rog_krolewski|Demoniczny róg królewski|proposed_not_runtime|pass_2|31|11|Elfie Ruiny|Torba Cerbera, Torba Demonicznego Jarla|Elfie Ruiny - Demoniczny Jarl: Torba Demonicznego Jarla L11-40; Elfie Ruiny - Cerber: Torba Cerbera L11-40||alchemy_C|Nowe przedmioty!C127; Lootbagi!F97; Lootbagi!F98; Nowe przedmioty!V7; Nowe przedmioty!V22
+item.vs10.diament|Diament|existing|pass_2||1|Góry||Katakumby: Zastępcza torba zasobów L11-40||item.vs10.bialy_proszek|Lootbagi!F15
+item.vs10.dmuchawiec_tregandzki|Dmuchawiec tregandzki|existing|pass_2||1|Góry||Las: Zastępcza torba zasobów L1-40||item.vs10.proch_ziolowy_luzny; item.vs10.proch_ziolowy_zolty|Lootbagi!F30
+item.material.dobra_igla_do_nici|Dobra igła do nici|proposed_not_runtime|pass_2|21|21||||Sztabka annodytu; Sztabka srebra; Sztabka kobaltu; Sztabka złota|item.material.lniana_tkanina; item.material.melenowa_tkanina; item.material.srebrnoszponowa_tkanina; item.material.tkanina_z_wielbladziej_welny|Nowe przedmioty!C98; Nowe przedmioty!D116; Nowe przedmioty!D117; Nowe przedmioty!D118; Nowe przedmioty!D119
+item.alchemy.good_alcohol|Dobry alkohol|existing|pass_2|21|21|Bagno; Elfie Ruiny; Katakumby; Las; Morze||Katakumby: Torba zasobów L21-30; Las: Torba zasobów L21-30; Elfie Ruiny: Torba zasobów L21-30; Morze: Torba zasobów L21-30; Bagno: Torba zasobów L21-30; Handel NPC: Alchemik — rozszerzenie oferty L21-40||item.material.proch_ziolowy_czlowiek; item.material.proch_ziolowy_elf; item.material.proch_ziolowy_jaszczurolud; item.material.proch_ziolowy_krasnolud; item.potion.cleansing|Nowe przedmioty!D148; Nowe przedmioty!D149; Nowe przedmioty!D150; Nowe przedmioty!D151; Nowe przedmioty!C156; Nowe przedmioty!D160; Lootbagi!F20; Lootbagi!F37; Lootbagi!F57; Lootbagi!F75; Lootbagi!F91; Lootbagi!F115
+item.alchemy.good_gunpowder|Dobry proch strzelniczy|existing|pass_2|21|21|Bagno; Elfie Ruiny; Katakumby; Las; Morze||Katakumby: Torba zasobów L21-30; Handel NPC: Alchemik — rozszerzenie oferty L21-40; Bagno: Torba zasobów L21-30; Elfie Ruiny: Torba zasobów L21-30; Las: Torba zasobów L21-30; Morze: Torba zasobów L21-30|||Nowe przedmioty!C158; Lootbagi!F20; Lootbagi!F115
+item.smithing.birch_wood|Drewno brzozowe|existing|pass_2||11|Katakumby; Las||Katakumby: Torba zasobów L11-20; Las: Torba zasobów L11-20||item.vs10.brzozowa_deska|Lootbagi!F4; Lootbagi!F23
+item.material.drewno_bukowe|Drewno bukowe|proposed_not_runtime|pass_2|31|31|Góry; Morze||Morze: Torba zasobów L31-40||item.material.bukowa_deska|Nowe przedmioty!C79; Nowe przedmioty!D87; Lootbagi!F62
+item.material.drewno_bzowe|Drewno bzowe|proposed_not_runtime|pass_2|21|21|Bagno; Elfie Ruiny||Elfie Ruiny: Torba zasobów L21-30; Bagno: Torba zasobów L21-30||item.material.bzowa_deska|Nowe przedmioty!C77; Nowe przedmioty!D85; Lootbagi!F42; Lootbagi!F79
+item.smithing.cedar_wood|Drewno cedrowe|existing|pass_2||11|Góry; Świątynia||Elfie Ruiny: Zastępcza torba zasobów L11-20||item.vs10.cedrowa_deska|Lootbagi!F41
+item.smithing.cypress_wood|Drewno cyprysowe|existing|pass_2||11|Morze; Pustynia||Morze: Torba zasobów L11-20||item.vs10.cyprysowa_deska|Lootbagi!F60
+item.material.drewno_debowe|Drewno dębowe|proposed_not_runtime|pass_2|31|31|Bagno; Katakumby||Katakumby: Torba zasobów L31-40; Bagno: Torba zasobów L31-40||item.material.debowa_deska|Nowe przedmioty!C78; Nowe przedmioty!D86; Lootbagi!F6; Lootbagi!F80
+item.material.drewno_grabowe|Drewno grabowe|proposed_not_runtime|pass_2|21|21|Góry; Las||Las: Torba zasobów L21-30||item.material.grabowa_deska|Nowe przedmioty!C74; Nowe przedmioty!D82; Lootbagi!F24
+item.smithing.hawthorn_wood|Drewno głogowe|existing|pass_2||11|Bagno; Elfie Ruiny||Elfie Ruiny: Torba zasobów L11-20; Bagno: Torba zasobów L11-20||item.vs10.glogowa_deska|Lootbagi!F40; Lootbagi!F78
+item.material.drewno_jodlowe|Drewno jodłowe|proposed_not_runtime|pass_2|31|31|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L31-40||item.material.jodlowa_deska|Nowe przedmioty!C81; Nowe przedmioty!D89; Lootbagi!F43
+item.smithing.linden_wood|Drewno lipowe|existing|pass_2||1|Las; Morze||Las: Torba zasobów L1-10; Morze: Torba zasobów L1-10||item.vs10.lipowa_deska|Lootbagi!F22; Lootbagi!F59
+item.smithing.larch_wood|Drewno modrzewiowe|existing|pass_2||1|Katakumby; Pustynia||Katakumby: Torba zasobów L1-10||item.smithing.larch_plank|Lootbagi!F3
+item.smithing.alder_wood|Drewno olchowe|existing|pass_2||1|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L1-10||item.vs10.olchowa_deska|Lootbagi!F39
+item.material.drewno_sekwojowe|Drewno sekwojowe|proposed_not_runtime|pass_2|31|31|Las; Pustynia||Las: Torba zasobów L31-40||item.material.sekwojowa_deska|Nowe przedmioty!C80; Nowe przedmioty!D88; Lootbagi!F25
+item.smithing.poplar_wood|Drewno topolowe|existing|pass_2||1|Bagno; Góry||Bagno: Torba zasobów L1-10||item.vs10.topolowa_deska|Lootbagi!F77
+item.material.drewno_wiazowe|Drewno wiązowe|proposed_not_runtime|pass_2|21|21|Katakumby; Pustynia||Katakumby: Torba zasobów L21-30||item.material.wiazowa_deska|Nowe przedmioty!C75; Nowe przedmioty!D83; Lootbagi!F5
+item.material.drewno_swierkowe|Drewno świerkowe|proposed_not_runtime|pass_2|21|21|Morze; Świątynia||Morze: Torba zasobów L21-30||item.material.swierkowa_deska|Nowe przedmioty!C76; Nowe przedmioty!D84; Lootbagi!F61
+item.material.debowa_deska|Dębowa deska|proposed_not_runtime|pass_2|31|31||||Drewno dębowe|item.material.debowy_patyk|Nowe przedmioty!C86; Nowe przedmioty!D94
+item.material.debowy_patyk|Dębowy patyk|proposed_not_runtime|pass_2|31|31||||Dębowa deska|equipment_part|Nowe przedmioty!C94; Nowe wyposażenie!E23; Nowe wyposażenie!E47; Nowe wyposażenie!E71; Nowe wyposażenie!E95
+item.material.ektoplazma|Ektoplazma|proposed_not_runtime|pass_2||21|Katakumby||Katakumby: Torba zasobów L21-40||alchemy_B|Lootbagi!F9; Nowe przedmioty!U4; Nowe przedmioty!U19
+unique.forest.ent.hammer|Elficki Młot Życia|existing|pass_2||1|Las||Las - Zarażony Ent: Torba bossa - unikat L1-40|||Lootbagi!F105
+item.material.energia_malada|Energia Malada|proposed_not_runtime|pass_2|31|31||Torba Hierofanty, Torba Jawy|Elfie Ruiny - Demoniczny Jarl: Torba Demonicznego Jarla L31-40||alchemy_C|Nowe przedmioty!C131; Lootbagi!F97; Nowe przedmioty!V11; Nowe przedmioty!V26
+item.material.grabowa_deska|Grabowa deska|proposed_not_runtime|pass_2|21|21||||Drewno grabowe|item.material.grabowy_patyk|Nowe przedmioty!C82; Nowe przedmioty!D90
+item.material.grabowy_patyk|Grabowy patyk|proposed_not_runtime|pass_2|21|21||||Grabowa deska|equipment_part|Nowe przedmioty!C90; Nowe wyposażenie!E19; Nowe wyposażenie!E43; Nowe wyposażenie!E67; Nowe wyposażenie!E91
+item.vs10.granat|Granat|existing|pass_2||1|Katakumby||Katakumby: Torba zasobów L11-40||item.vs10.czerwony_proszek|Lootbagi!F14
+item.runic.galduryte_stone.granite|Granitowy kamień galdurytu|existing|pass_2|21|21||||Lity granit||Nowe przedmioty!C162
+unique.bandit_leader.armor.paladin|Gruboskórność Kłusownika|existing|pass_2||1|Las||Las - Przywódca Bandytów: Torba bossa - unikat L1-40|||Lootbagi!F106
+item.vs10.glogowa_deska|Głogowa deska|existing|pass_2||11||||Drewno głogowe|item.vs10.glogowy_patyk|
+item.vs10.glogowy_patyk|Głogowy patyk|existing|pass_2||11||||Głogowa deska||
+item.material.histyna|Histyna|proposed_not_runtime|pass_2||21|Góry||Katakumby: Zastępcza torba zasobów L21-40||alchemy_B|Lootbagi!F13; Nowe przedmioty!U12; Nowe przedmioty!U27
+item.vs10.igla_do_nici|Igła do nici|existing|pass_2||11||||Sztabka stali; Sztabka inwaru; Sztabka żelaza meteorytowego; Sztabka brązu|item.vs10.palmowa_tkanina; item.vs10.tkanina_z_lamiej_welny; item.vs10.tkanina_z_owczej_welny; item.vs10.wasminowa_tkanina|
+item.vs10.inwarowa_blacha|Inwarowa blacha|existing|pass_2||11||||Sztabka inwaru||
+item.vs10.inwarowy_lancuch|Inwarowy łańcuch|existing|pass_2||11||||Sztabka inwaru||
+item.runic.jadeite|Jadeit|existing|pass_2|11|1|Las||Las - Zarażony Ent: Torba bossa L1-10; Las - Zarażony Ent: Torba bossa L11-20; Las - Zarażony Ent: Torba bossa L21-40; Las - Przywódca Bandytów: Torba bossa L1-10; Las - Przywódca Bandytów: Torba bossa L11-20; Las - Przywódca Bandytów: Torba bossa L21-40|||Nowe przedmioty!C173; Biżuterie i Galduryty!O2:Q2
+item.runic.jasper|Jaspis|proposed_not_runtime|pass_2|11|1|Elfie Ruiny||Elfie Ruiny - Demoniczny Jarl: Torba bossa L1-40; Elfie Ruiny - Cerber: Torba bossa L1-40|||Nowe przedmioty!C174; Biżuterie i Galduryty!O3:Q3
+item.material.jodlowa_deska|Jodłowa deska|proposed_not_runtime|pass_2|31|31||||Drewno jodłowe|item.material.jodlowy_patyk|Nowe przedmioty!C89; Nowe przedmioty!D97
+item.material.jodlowy_patyk|Jodłowy patyk|proposed_not_runtime|pass_2|31|31||||Jodłowa deska|equipment_part|Nowe przedmioty!C97; Nowe wyposażenie!E26; Nowe wyposażenie!E50; Nowe wyposażenie!E74; Nowe wyposażenie!E98
+item.material.jukowa_nitka|Jukowa nitka|proposed_not_runtime|pass_2|31|31||||Włókno juki|item.material.jukowa_tkanina|Nowe przedmioty!C113; Nowe przedmioty!D121
+item.material.jukowa_tkanina|Jukowa tkanina|proposed_not_runtime|pass_2|31|31||||Jukowa nitka + Wspaniała igła do nici|equipment_part|Nowe przedmioty!C121; Nowe wyposażenie!N56
+item.vs10.jutowa_nitka|Jutowa nitka|existing|pass_2||1||||Włókno juty|item.vs10.jutowa_tkanina|
+item.vs10.jutowa_tkanina|Jutowa tkanina|existing|pass_2||1||||Jutowa nitka + Słaba igła do nici||
+item.unique.kamuflujaca_tunika|Kamuflująca Tunika|proposed_not_runtime|pass_2||1|Bagno||Bagno - Bagnisty Ent: Torba bossa - unikat L1-40|||Lootbagi!F111
+item.unique.katana_kapitanska|Katana Kapitańska|proposed_not_runtime|pass_2||1|Morze||Morze - Kapitan Piratów: Torba bossa - unikat L1-40|||Lootbagi!F110
+item.smithing.zinc_piece|Kawałek cynku|existing|pass_2||11|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L11-20||item.vs10.sztabka_brazu; item.vs10.wielka_sztabka_brazu|Lootbagi!F40
+item.vs10.kiel_aligatora|Kieł aligatora|existing|pass_2||1|Bagno||Bagno: Torba zasobów L1-40|||Lootbagi!F81
+item.unique.kiel_cerbera|Kieł Cerbera|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Cerber: Torba bossa - unikat L1-40|||Lootbagi!F108
+item.material.wolf_fang|Kieł wilka|existing|pass_2||21|Las||Las: Torba zasobów L21-40||alchemy_B|Lootbagi!F27; Nowe przedmioty!U6; Nowe przedmioty!U21
+item.material.klejnot_pustyni|Klejnot pustyni|proposed_not_runtime|pass_2|31|31|Pustynia; Świątynia||Katakumby: Zastępcza torba zasobów L31-40||item.material.sztabka_sultanskiej_stali; item.material.wielka_sztabka_sultanskiej_stali|Nowe przedmioty!C8; Nowe przedmioty!D16; Nowe przedmioty!D24; Lootbagi!F7
+item.material.kobaltowa_blacha|Kobaltowa blacha|proposed_not_runtime|pass_2|21|21||||Sztabka kobaltu|equipment_part|Nowe przedmioty!C44; Nowe wyposażenie!N77
+item.material.kobaltowy_lancuch|Kobaltowy łańcuch|proposed_not_runtime|pass_2|21|21||||Sztabka kobaltu|equipment_part|Nowe przedmioty!C36; Nowe wyposażenie!N13
+unique.bandit_leader.armor.warrior|Kolczuga Dowódcy|existing|pass_2||1|Las||Las - Przywódca Bandytów: Torba bossa - unikat L1-40|||Lootbagi!F106
+unique.skeleton_slayer.armor.warrior|Kolczuga Furiata|existing|pass_2||1|Katakumby||Katakumby - Szkielet Zabójca: Torba bossa - unikat L1-40|||Lootbagi!F103
+item.material.konopna_nitka|Konopna nitka|proposed_not_runtime|pass_2|31|31||||Włókno konopii|item.material.konopna_tkanina|Nowe przedmioty!C112; Nowe przedmioty!D120
+item.material.konopna_tkanina|Konopna tkanina|proposed_not_runtime|pass_2|31|31||||Konopna nitka + Wspaniała igła do nici|equipment_part|Nowe przedmioty!C120; Nowe wyposażenie!N55
+item.alchemy.common_reaper|Kosarz pospolity|existing|pass_2||1|Katakumby||Katakumby: Torba zasobów L1-40||item.alchemy.herbal_powder_normal; item.vs10.proch_ziolowy_zolty|Lootbagi!F10
+item.unique.kostur_nawlnicy|Kostur Nawłnicy|proposed_not_runtime|pass_2||1|Morze||Morze - Alfa-Rekin: Torba bossa - unikat L1-40|||Lootbagi!F109
+unique.deadking.staff.mage|Kostur Umarłych|existing|pass_2||1|Katakumby||Katakumby - Duch Umarłego Króla: Torba bossa - unikat L1-40|||Lootbagi!F104
+item.unique.kosc_ogonowa_cerbera|Kość Ogonowa Cerbera|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Cerber: Torba bossa - unikat L1-40|||Lootbagi!F108
+item.alchemy.skeleton_bone|Kość szkieleta|existing|pass_2||1|Katakumby||Katakumby: Torba zasobów L1-40|||Lootbagi!F8
+item.material.skeleton_slayer_bone|Kość Zabójcy|existing|pass_2|31|11|Katakumby|Torba Szkieleta Zabójcy|Katakumby - Szkielet Zabójca: Torba Szkieleta Zabójcy L11-40||alchemy_C|Nowe przedmioty!C124; Lootbagi!F93; Nowe przedmioty!V4; Nowe przedmioty!V19
+item.material.krasnoludzki_mech|Krasnoludzki mech|proposed_not_runtime|pass_2|21|21|Katakumby||Katakumby: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_ciemnosc; item.material.proch_ziolowy_krasnolud|Nowe przedmioty!C136; Nowe przedmioty!D150; Nowe przedmioty!D154; Lootbagi!F11; Nowe przedmioty!T4; Nowe przedmioty!T19
+item.material.krew_berserka|Krew berserka|proposed_not_runtime|pass_2|31|31||Torba Barbarzyńcy|Katakumby - Szkielet Zabójca: Torba Szkieleta Zabójcy L31-40||alchemy_C|Nowe przedmioty!C132; Lootbagi!F93; Nowe przedmioty!V12; Nowe przedmioty!V27
+item.material.kryferytowa_blacha|Kryferytowa blacha|proposed_not_runtime|pass_2|31|31||||Sztabka kryferytu|equipment_part|Nowe przedmioty!C46; Nowe wyposażenie!N79
+item.material.kryferytowy_lancuch|Kryferytowy łańcuch|proposed_not_runtime|pass_2|31|31||||Sztabka kryferytu|equipment_part|Nowe przedmioty!C38; Nowe wyposażenie!N15
+item.material.dead_king_ectoplasm|Królewska ektoplazma|existing|pass_2|31|11|Katakumby|Torba Ducha Umarłego Króla|Katakumby - Duch Umarłego Króla: Torba Ducha Umarłego Króla L11-40||alchemy_C|Nowe przedmioty!C125; Lootbagi!F94; Nowe przedmioty!V5; Nowe przedmioty!V20
+item.material.ksiezycowy_pyl|Księżycowy pył|proposed_not_runtime|pass_2|31|31|Elfie Ruiny; Katakumby||Katakumby: Torba zasobów L31-40; Elfie Ruiny: Torba zasobów L31-40||item.material.sztabka_kryferytu; item.material.wielka_sztabka_kryferytu|Nowe przedmioty!C6; Nowe przedmioty!D14; Nowe przedmioty!D22; Lootbagi!F6; Lootbagi!F43
+item.vs10.kwiat_byliny|Kwiat byliny|existing|pass_2||1|Góry||Las: Zastępcza torba zasobów L1-40||item.alchemy.herbal_powder_normal; item.vs10.proch_ziolowy_rozowy|Lootbagi!F30
+item.material.kwiat_rissa|Kwiat rissa|proposed_not_runtime|pass_2|21|21|Pustynia||Morze: Zastępcza torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_czlowiek; item.material.proch_ziolowy_demon|Nowe przedmioty!C142; Nowe przedmioty!D148; Nowe przedmioty!D155; Lootbagi!F68; Nowe przedmioty!T10; Nowe przedmioty!T25
+item.material.kwiat_tulipanu|Kwiat tulipanu|proposed_not_runtime|pass_2|21|21|Las||Las: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_boskosc; item.material.proch_ziolowy_elf|Nowe przedmioty!C138; Nowe przedmioty!D149; Nowe przedmioty!D153; Lootbagi!F29; Nowe przedmioty!T6; Nowe przedmioty!T21
+item.vs10.kwitnaca_wisnia|Kwitnąca wiśnia|existing|pass_2||1|Morze||Morze: Torba zasobów L1-40||item.alchemy.herbal_powder_normal; item.vs10.proch_ziolowy_rozowy|Lootbagi!F65
+item.vs10.lipowa_deska|Lipowa deska|existing|pass_2||1||||Drewno lipowe|item.vs10.lipowy_patyk|
+item.vs10.lipowy_patyk|Lipowy patyk|existing|pass_2||1||||Lipowa deska||
+item.runic.solid_granite|Lity granit|existing|pass_2|21|21|Bagno; Elfie Ruiny; Góry; Katakumby; Las; Morze; Pustynia; Świątynia||Katakumby: Torba zasobów L21-40; Las: Torba zasobów L21-40; Elfie Ruiny: Torba zasobów L21-40; Morze: Torba zasobów L21-40; Bagno: Torba zasobów L21-40||item.runic.galduryte_stone.granite|Nowe przedmioty!C161; Nowe przedmioty!D162; Lootbagi!F17; Lootbagi!F34; Lootbagi!F54; Lootbagi!F72; Lootbagi!F88
+item.runic.solid_limestone|Lity wapień|existing|pass_2||11|Bagno; Elfie Ruiny; Góry; Katakumby; Las; Morze; Pustynia; Świątynia||Katakumby: Torba zasobów L11-40; Las: Torba zasobów L11-40; Elfie Ruiny: Torba zasobów L11-40; Morze: Torba zasobów L11-40; Bagno: Torba zasobów L11-40||item.runic.galduryte_stone.limestone|Lootbagi!F16; Lootbagi!F33; Lootbagi!F53; Lootbagi!F71; Lootbagi!F87
+unique.forest.ent.tunic|Liściasta Tunika|existing|pass_2||1|Las||Las - Zarażony Ent: Torba bossa - unikat L1-40|||Lootbagi!F105
+item.material.lisc_bananowca|Liść bananowca|proposed_not_runtime|pass_2|21|21|Morze||Morze: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_czlowiek; item.material.proch_ziolowy_swiatlo|Nowe przedmioty!C141; Nowe przedmioty!D148; Nowe przedmioty!D152; Lootbagi!F66; Nowe przedmioty!T9; Nowe przedmioty!T24
+item.material.lniana_nitka|Lniana nitka|proposed_not_runtime|pass_2|21|21||||Włókno lnu|item.material.lniana_tkanina|Nowe przedmioty!C108; Nowe przedmioty!D116
+item.material.lniana_tkanina|Lniana tkanina|proposed_not_runtime|pass_2|21|21||||Lniana nitka + Dobra igła do nici|equipment_part|Nowe przedmioty!C116; Nowe wyposażenie!N51
+item.material.lodowe_pretki|Lodowe prętki|proposed_not_runtime|pass_2|21|21|Góry||Las: Zastępcza torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_ciemnosc; item.material.proch_ziolowy_krasnolud|Nowe przedmioty!C144; Nowe przedmioty!D150; Nowe przedmioty!D154; Lootbagi!F31; Nowe przedmioty!T12; Nowe przedmioty!T27
+item.runic.malachite|Malachit|proposed_not_runtime|pass_2|11|1|Bagno||Bagno - Bagnisty Ent: Torba bossa L1-40; Bagno - Ludożerna Roślina: Torba bossa L1-40|||Nowe przedmioty!C176; Biżuterie i Galduryty!O5:Q5
+item.material.melenowa_nitka|Melenowa nitka|proposed_not_runtime|pass_2|21|21||||Włókno meleny|item.material.melenowa_tkanina|Nowe przedmioty!C111; Nowe przedmioty!D119
+item.material.melenowa_tkanina|Melenowa tkanina|proposed_not_runtime|pass_2|21|21||||Melenowa nitka + Dobra igła do nici|equipment_part|Nowe przedmioty!C119; Nowe wyposażenie!N54
+item.vs10.meteorytowa_blacha|Meteorytowa blacha|existing|pass_2||11||||Sztabka żelaza meteorytowego||
+item.vs10.meteorytowy_lancuch|Meteorytowy łańcuch|existing|pass_2||11||||Sztabka żelaza meteorytowego||
+unique.deadking.sword.warrior|Miecz Legionu Szkieletów|existing|pass_2||1|Katakumby||Katakumby - Duch Umarłego Króla: Torba bossa - unikat L1-40|||Lootbagi!F104
+item.unique.miecz_transfuzji|Miecz Transfuzji|proposed_not_runtime|pass_2||1|Bagno||Bagno - Ludożerna Roślina: Torba bossa - unikat L1-40|||Lootbagi!F112
+item.material.mieczokrzew|Mieczokrzew|proposed_not_runtime|pass_2|21|21|Katakumby||Katakumby: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_jaszczurolud; item.material.proch_ziolowy_swiatlo|Nowe przedmioty!C137; Nowe przedmioty!D151; Nowe przedmioty!D152; Lootbagi!F11; Nowe przedmioty!T5; Nowe przedmioty!T20
+item.vs10.miedziana_blacha|Miedziana blacha|existing|pass_2||1||||Sztabka miedzi||
+item.vs10.miedziany_lancuch|Miedziany łańcuch|existing|pass_2||1||||Sztabka miedzi||
+item.potion.cleansing|Mikstura Oczyszczenia|proposed_not_runtime|pass_2|31|31||||Dobry alkohol + Proch ziołowy: Światło||Nowe przedmioty!C160
+item.alchemy.strong_alcohol|Mocny alkohol|existing|pass_2|31|31|Bagno; Elfie Ruiny; Katakumby; Las; Morze||Katakumby: Torba zasobów L31-40; Las: Torba zasobów L31-40; Elfie Ruiny: Torba zasobów L31-40; Morze: Torba zasobów L31-40; Bagno: Torba zasobów L31-40; Handel NPC: Alchemik — rozszerzenie oferty L31-40||item.material.proch_ziolowy_boskosc; item.material.proch_ziolowy_ciemnosc; item.material.proch_ziolowy_demon; item.material.proch_ziolowy_swiatlo|Nowe przedmioty!D152; Nowe przedmioty!D153; Nowe przedmioty!D154; Nowe przedmioty!D155; Nowe przedmioty!C157; Lootbagi!F21; Lootbagi!F38; Lootbagi!F58; Lootbagi!F76; Lootbagi!F92; Lootbagi!F116
+item.alchemy.strong_gunpowder|Mocny proch strzelniczy|existing|pass_2|31|31|Bagno; Elfie Ruiny; Katakumby; Las; Morze||Katakumby: Torba zasobów L31-40; Handel NPC: Alchemik — rozszerzenie oferty L31-40; Bagno: Torba zasobów L31-40; Elfie Ruiny: Torba zasobów L31-40; Las: Torba zasobów L31-40; Morze: Torba zasobów L31-40|||Nowe przedmioty!C159; Lootbagi!F21; Lootbagi!F116
+item.smithing.larch_plank|Modrzewiowa deska|existing|pass_2||1||||Drewno modrzewiowe|item.smithing.larch_stick|
+item.smithing.larch_stick|Modrzewiowy patyk|existing|pass_2||1||||Modrzewiowa deska||
+item.material.mosiezna_blacha|Mosiężna blacha|proposed_not_runtime|pass_2|31|31||||Sztabka mosiądzu|equipment_part|Nowe przedmioty!C47; Nowe wyposażenie!N80
+item.material.mosiezny_lancuch|Mosiężny łańcuch|proposed_not_runtime|pass_2|31|31||||Sztabka mosiądzu|equipment_part|Nowe przedmioty!C39; Nowe wyposażenie!N16
+item.material.motyl_krolewski|Motyl królewski|proposed_not_runtime|pass_2|21|21|Góry||Las: Zastępcza torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_boskosc; item.material.proch_ziolowy_czlowiek|Nowe przedmioty!C145; Nowe przedmioty!D148; Nowe przedmioty!D153; Lootbagi!F31; Nowe przedmioty!T13; Nowe przedmioty!T28
+item.vs10.mucha_zwyczajna|Mucha zwyczajna|existing|pass_2||1|Bagno||Bagno: Torba zasobów L1-40||item.vs10.proch_ziolowy_lepki; item.vs10.proch_ziolowy_zolty|Lootbagi!F83
+item.alchemy.undead_brain|Mózg umarlaka|existing|pass_2||1|Katakumby||Katakumby: Torba zasobów L1-40|||Lootbagi!F8
+unique.skeleton_slayer.hammer.paladin|Młot Zabójcy|existing|pass_2||1|Katakumby||Katakumby - Szkielet Zabójca: Torba bossa - unikat L1-40|||Lootbagi!F103
+item.unique.mlot_zdobywcy_piekiel|Młot Zdobywcy Piekieł|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Cerber: Torba bossa - unikat L1-40|||Lootbagi!F108
+item.vs10.nerka_trolla|Nerka trolla|existing|pass_2||1|Góry||Bagno: Zastępcza torba zasobów L1-40|||Lootbagi!F85
+item.vs10.niebieski_proszek|Niebieski proszek|existing|pass_2||1||||Szafir|item.material.skondensowany_niebieski_proszek|Nowe przedmioty!D164
+item.runic.galduryte_powder.blue|Niebieski proszek galdurytu|existing|pass_2||11|||Handel NPC: Zaklinacz — uzupełnienie oferty L11-40|||Lootbagi!F117
+unique.deadking.dagger.scout|Niematerialny Sztylet|existing|pass_2||1|Katakumby||Katakumby - Duch Umarłego Króla: Torba bossa - unikat L1-40|||Lootbagi!F104
+item.vs10.niklowa_blacha|Niklowa blacha|existing|pass_2||1||||Sztabka niklu||
+item.vs10.niklowy_lancuch|Niklowy łańcuch|existing|pass_2||1||||Sztabka niklu||
+item.vs10.nitka_z_koziej_welny|Nitka z koziej wełny|existing|pass_2||1||||Włókno koziej wełny|item.vs10.tkanina_z_koziej_welny|
+item.vs10.nitka_z_lamiej_welny|Nitka z lamiej wełny|existing|pass_2||11||||Włókno lamiej wełny|item.vs10.tkanina_z_lamiej_welny|
+item.vs10.nitka_z_owczej_welny|Nitka z owczej wełny|existing|pass_2||11||||Włókno owczej wełny|item.vs10.tkanina_z_owczej_welny|
+item.material.nitka_z_wielbladziej_welny|Nitka z wielbłądziej wełny|proposed_not_runtime|pass_2|21|21||||Włókno wielbłądziej wełny|item.material.tkanina_z_wielbladziej_welny|Nowe przedmioty!C110; Nowe przedmioty!D118
+item.runic.obsidian|Obsydian|existing|pass_2||1|Katakumby||Handel NPC: Zaklinacz — uzupełnienie oferty L11-40; Katakumby - Szkielet Zabójca: Torba bossa L1-10; Katakumby - Szkielet Zabójca: Torba bossa L11-20; Katakumby - Szkielet Zabójca: Torba bossa L21-40; Katakumby - Duch Umarłego Króla: Torba bossa L1-10; Katakumby - Duch Umarłego Króla: Torba bossa L11-20; Katakumby - Duch Umarłego Króla: Torba bossa L21-40|||Lootbagi!F117
+item.unique.oblocona_rozga|Obłocona Różga|proposed_not_runtime|pass_2||1|Bagno||Bagno - Bagnisty Ent: Torba bossa - unikat L1-40|||Lootbagi!F111
+item.smithing.meteorite_shard|Odłamek meteorytu|existing|pass_2||11|Las; Pustynia||Las: Torba zasobów L11-20||item.vs10.sztabka_zelaza_meteorytowego; item.vs10.wielka_sztabka_zelaza_meteorytowego|Lootbagi!F23
+item.unique.ogon_cerbera|Ogon Cerbera|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Cerber: Torba bossa - unikat L1-40|||Lootbagi!F108
+item.vs10.oko_pirata|Oko pirata|existing|pass_2||1|Morze||Morze: Torba zasobów L1-40|||Lootbagi!F63
+item.vs10.olchowa_deska|Olchowa deska|existing|pass_2||1||||Drewno olchowe|item.vs10.olchowy_patyk|
+item.vs10.olchowy_patyk|Olchowy patyk|existing|pass_2||1||||Olchowa deska||
+item.vs10.onyks|Onyks|existing|pass_2||1|Elfie Ruiny||Elfie Ruiny: Torba zasobów L11-40||item.vs10.czarny_proszek|Lootbagi!F51
+item.vs10.owoc_kaktusa|Owoc kaktusa|existing|pass_2||1|Pustynia||Morze: Zastępcza torba zasobów L1-40|||Lootbagi!F67
+unique.forest.ent.finger|Palec Enta|existing|pass_2||1|Las||Las - Zarażony Ent: Torba bossa - unikat L1-40|||Lootbagi!F105
+item.vs10.palmowa_nitka|Palmowa nitka|existing|pass_2||11||||Włókno palmy|item.vs10.palmowa_tkanina|
+item.vs10.palmowa_tkanina|Palmowa tkanina|existing|pass_2||11||||Palmowa nitka + Igła do nici||
+item.material.paski_ze_skory_aligatora|Paski ze skóry aligatora|proposed_not_runtime|pass_2|21|21||||Wyprawiona skóra aligatora|equipment_part|Nowe przedmioty!C68; Nowe wyposażenie!N37; Nowe wyposażenie!N61; Nowe wyposażenie!N85
+item.material.paski_ze_skory_bawola|Paski ze skóry bawoła|proposed_not_runtime|pass_2|31|31||||Wyprawiona skóra bawoła|equipment_part|Nowe przedmioty!C71; Nowe wyposażenie!N40; Nowe wyposażenie!N64; Nowe wyposażenie!N88
+item.vs10.paski_ze_skory_dzika|Paski ze skóry dzika|existing|pass_2||11||||Wyprawiona skóra dzika||
+item.vs10.paski_ze_skory_dzikiego_psa|Paski ze skóry dzikiego psa|existing|pass_2||1||||Wyprawiona skóra dzikiego psa||
+item.material.paski_ze_skory_geparda|Paski ze skóry geparda|proposed_not_runtime|pass_2|31|31||||Wyprawiona skóra geparda|equipment_part|Nowe przedmioty!C73; Nowe wyposażenie!N42; Nowe wyposażenie!N66; Nowe wyposażenie!N90
+item.vs10.paski_ze_skory_jelenia|Paski ze skóry jelenia|existing|pass_2||11||||Wyprawiona skóra jelenia||
+item.smithing.goat_hide_strips|Paski ze skóry kozy|existing|pass_2||1||||Wyprawiona skóra kozy||
+item.vs10.paski_ze_skory_krolika|Paski ze skóry królika|existing|pass_2||1||||Wyprawiona skóra królika||
+item.material.paski_ze_skory_leoparda|Paski ze skóry leoparda|proposed_not_runtime|pass_2|21|21||||Wyprawiona skóra leoparda|equipment_part|Nowe przedmioty!C69; Nowe wyposażenie!N38; Nowe wyposażenie!N62; Nowe wyposażenie!N86
+item.vs10.paski_ze_skory_lisa|Paski ze skóry lisa|existing|pass_2||1||||Wyprawiona skóra lisa||
+item.material.paski_ze_skory_niedzwiedzia|Paski ze skóry niedźwiedzia|proposed_not_runtime|pass_2|21|21||||Wyprawiona skóra niedźwiedzia|equipment_part|Nowe przedmioty!C66; Nowe wyposażenie!N35; Nowe wyposażenie!N59; Nowe wyposażenie!N83
+item.material.paski_ze_skory_trolla|Paski ze skóry trolla|proposed_not_runtime|pass_2|21|21||||Wyprawiona skóra trolla|equipment_part|Nowe przedmioty!C67; Nowe wyposażenie!N36; Nowe wyposażenie!N60; Nowe wyposażenie!N84
+item.vs10.paski_ze_skory_tygrysa|Paski ze skóry tygrysa|existing|pass_2||11||||Wyprawiona skóra tygrysa||
+item.vs10.paski_ze_skory_warana|Paski ze skóry warana|existing|pass_2||11||||Wyprawiona skóra warana||
+item.material.paski_ze_skory_wielblada|Paski ze skóry wielbłąda|proposed_not_runtime|pass_2|31|31||||Wyprawiona skóra wielbłąda|equipment_part|Nowe przedmioty!C72; Nowe wyposażenie!N41; Nowe wyposażenie!N65; Nowe wyposażenie!N89
+item.material.paski_ze_skory_wilka|Paski ze skóry wilka|proposed_not_runtime|pass_2|31|31||||Wyprawiona skóra wilka|equipment_part|Nowe przedmioty!C70; Nowe wyposażenie!N39; Nowe wyposażenie!N63; Nowe wyposażenie!N87
+item.material.pazur_ghula|Pazur ghula|proposed_not_runtime|pass_2||21|Katakumby||Katakumby: Torba zasobów L21-40||alchemy_B|Lootbagi!F9; Nowe przedmioty!U5; Nowe przedmioty!U20
+item.runic.pearl|Perła|proposed_not_runtime|pass_2|11|1|Morze||Morze - Alfa-Rekin: Torba bossa L1-40; Morze - Kapitan Piratów: Torba bossa L1-40|||Nowe przedmioty!C175; Biżuterie i Galduryty!O4:Q4
+item.vs10.pioro_ptaka|Pióro ptaka|existing|pass_2||1|Morze||Morze: Torba zasobów L1-40|||Lootbagi!F63
+item.material.pioro_ruka|Pióro ruka|proposed_not_runtime|pass_2||21|Góry||Las: Zastępcza torba zasobów L21-40||alchemy_B|Lootbagi!F31; Nowe przedmioty!U13; Nowe przedmioty!U28
+item.vs10.pnacza_alzif|Pnącza alzif|existing|pass_2||1|Świątynia||Elfie Ruiny: Zastępcza torba zasobów L1-40||item.vs10.proch_ziolowy_luzny; item.vs10.proch_ziolowy_rozowy|Lootbagi!F49
+item.material.pozawymiarowa_macka|Pozawymiarowa macka|proposed_not_runtime|pass_2||21|Elfie Ruiny||Elfie Ruiny: Torba zasobów L21-40||alchemy_B|Lootbagi!F46; Nowe przedmioty!U7; Nowe przedmioty!U22
+unique.forest.ent.glaive|Praelficka Glewia Wojenna|existing|pass_2||1|Las||Las - Zarażony Ent: Torba bossa - unikat L1-40|||Lootbagi!F105
+item.alchemy.gunpowder|Proch strzelniczy|existing|pass_2||11|Katakumby||Katakumby: Torba zasobów L11-20; Handel NPC: Alchemik — dodatkowe źródło L11-40|||Lootbagi!F19; Lootbagi!F114
+item.material.proch_ziolowy_boskosc|Proch ziołowy: Boskość|proposed_not_runtime|pass_2|31|31||||Mocny alkohol + Motyl królewski + Prętki doragafury + Kwiat tulipanu||Nowe przedmioty!C153
+item.material.proch_ziolowy_ciemnosc|Proch ziołowy: Ciemność|proposed_not_runtime|pass_2|31|31||||Mocny alkohol + Krasnoludzki mech + Żmijowiec + Lodowe prętki||Nowe przedmioty!C154
+item.material.proch_ziolowy_czlowiek|Proch ziołowy: Człowiek|proposed_not_runtime|pass_2|21|21||||Dobry alkohol + Liść bananowca + Kwiat rissa + Motyl królewski||Nowe przedmioty!C148
+item.material.proch_ziolowy_demon|Proch ziołowy: Demon|proposed_not_runtime|pass_2|31|31||||Mocny alkohol + Płonące pnącza + Żniwiarz pustynny + Kwiat rissa||Nowe przedmioty!C155
+item.material.proch_ziolowy_elf|Proch ziołowy: Elf|proposed_not_runtime|pass_2|21|21||||Dobry alkohol + Kwiat tulipanu + Płonące pnącza + Żmijowiec||Nowe przedmioty!C149
+item.vs10.proch_ziolowy_grudkowaty|Proch ziołowy: Grudkowaty|existing|pass_2||1||||Słaby alkohol + Purchawka + Szyszka + Sitowie||
+item.material.proch_ziolowy_jaszczurolud|Proch ziołowy: Jaszczurolud|proposed_not_runtime|pass_2|21|21||||Dobry alkohol + Prętki doragafury + Tatarak płaski + Mieczokrzew||Nowe przedmioty!C151
+item.material.proch_ziolowy_krasnolud|Proch ziołowy: Krasnolud|proposed_not_runtime|pass_2|21|21||||Dobry alkohol + Krasnoludzki mech + Lodowe prętki + Żniwiarz pustynny||Nowe przedmioty!C150
+item.vs10.proch_ziolowy_lepki|Proch ziołowy: Lepki|existing|pass_2||1||||Słaby alkohol + Aloe meda + Mucha zwyczajna + Wodorosty||
+item.vs10.proch_ziolowy_luzny|Proch ziołowy: Luźny|existing|pass_2||1||||Słaby alkohol + Pnącza alzif + Dmuchawiec tregandzki + Trawa dusicielska||
+item.vs10.proch_ziolowy_pomaranczowy|Proch ziołowy: Pomarańczowy|existing|pass_2||11||||Alkohol + Sitowie + Szyszka + Purchawka||
+item.vs10.proch_ziolowy_rozowy|Proch ziołowy: Różowy|existing|pass_2||11||||Alkohol + Kwitnąca wiśnia + Pnącza alzif + Kwiat byliny||
+item.vs10.proch_ziolowy_zielony|Proch ziołowy: Zielony|existing|pass_2||11||||Alkohol + Wodorosty + Aloe meda + Trawa dusicielska||
+item.alchemy.herbal_powder_normal|Proch ziołowy: Zwykły|existing|pass_2||1||||Słaby alkohol + Kosarz pospolity + Kwitnąca wiśnia + Kwiat byliny||
+item.material.proch_ziolowy_swiatlo|Proch ziołowy: Światło|proposed_not_runtime|pass_2|31|31||||Mocny alkohol + Mieczokrzew + Tatarak płaski + Liść bananowca|item.potion.cleansing|Nowe przedmioty!C152; Nowe przedmioty!D160
+item.vs10.proch_ziolowy_zolty|Proch ziołowy: Żółty|existing|pass_2||11||||Alkohol + Kosarz pospolity + Mucha zwyczajna + Dmuchawiec tregandzki||
+item.material.pretki_doragafury|Prętki doragafury|proposed_not_runtime|pass_2|21|21|Morze||Morze: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_boskosc; item.material.proch_ziolowy_jaszczurolud|Nowe przedmioty!C140; Nowe przedmioty!D151; Nowe przedmioty!D153; Lootbagi!F66; Nowe przedmioty!T8; Nowe przedmioty!T23
+item.alchemy.puffball|Purchawka|existing|pass_2||1|Katakumby||Katakumby: Torba zasobów L1-40||item.vs10.proch_ziolowy_grudkowaty; item.vs10.proch_ziolowy_pomaranczowy|Lootbagi!F10
+item.vs10.purpurowy_proszek|Purpurowy proszek|existing|pass_2||1||||Ametyst|item.material.skondensowany_purpurowy_proszek|Nowe przedmioty!D165
+item.runic.galduryte_powder.purple|Purpurowy proszek galdurytu|existing|pass_2||11|||Handel NPC: Zaklinacz — uzupełnienie oferty L11-40|||Lootbagi!F117
+unique.bandit_leader.armor.mage|Płaszcz Przemytnika|existing|pass_2||1|Las||Las - Przywódca Bandytów: Torba bossa - unikat L1-40|||Lootbagi!F106
+item.material.pletwa_alfa_rekina|Płetwa alfa-rekina|proposed_not_runtime|pass_2|31|11|Morze|Torba Alfa-Rekina|Morze - Alfa-Rekin: Torba Alfa-Rekina L11-40||alchemy_C|Nowe przedmioty!C128; Lootbagi!F99; Nowe przedmioty!V8; Nowe przedmioty!V23
+item.material.pletwa_rekina|Płetwa rekina|proposed_not_runtime|pass_2||21|Morze||Morze: Torba zasobów L21-40||alchemy_B|Lootbagi!F64; Nowe przedmioty!U9; Nowe przedmioty!U24
+item.material.plonace_pnacza|Płonące pnącza|proposed_not_runtime|pass_2|21|21|Elfie Ruiny||Elfie Ruiny: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_demon; item.material.proch_ziolowy_elf|Nowe przedmioty!C139; Nowe przedmioty!D149; Nowe przedmioty!D155; Lootbagi!F48; Nowe przedmioty!T7; Nowe przedmioty!T22
+item.material.pluco_topielca|Płuco topielca|proposed_not_runtime|pass_2||21|Bagno||Bagno: Torba zasobów L21-40||alchemy_B|Lootbagi!F82; Nowe przedmioty!U15; Nowe przedmioty!U30
+item.vs10.rubin|Rubin|existing|pass_2||1|Bagno||Bagno: Torba zasobów L11-40||item.vs10.rozowy_proszek|Lootbagi!F86
+item.material.ruda_annodytu|Ruda annodytu|proposed_not_runtime|pass_2|21|21|Bagno; Elfie Ruiny||Elfie Ruiny: Torba zasobów L21-30; Elfie Ruiny: Torba zasobów L31-40; Bagno: Torba zasobów L21-30; Bagno: Torba zasobów L31-40||item.material.sztabka_annodytu; item.material.sztabka_kryferytu; item.material.wielka_sztabka_annodytu; item.material.wielka_sztabka_kryferytu|Nowe przedmioty!C2; Nowe przedmioty!D10; Nowe przedmioty!D14; Nowe przedmioty!D18; Nowe przedmioty!D22; Lootbagi!F42; Lootbagi!F43; Lootbagi!F79; Lootbagi!F80
+item.smithing.tin_ore|Ruda cyny|existing|pass_2||1|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L1-10; Elfie Ruiny: Torba zasobów L11-20||item.vs10.sztabka_brazu; item.vs10.sztabka_cyny; item.vs10.wielka_sztabka_brazu; item.vs10.wielka_sztabka_cyny|Lootbagi!F39; Lootbagi!F40
+item.material.ruda_kobaltu|Ruda kobaltu|proposed_not_runtime|pass_2|21|21|Morze; Pustynia||Morze: Torba zasobów L21-30; Morze: Torba zasobów L31-40||item.material.sztabka_kobaltu; item.material.sztabka_sultanskiej_stali; item.material.wielka_sztabka_kobaltu; item.material.wielka_sztabka_sultanskiej_stali|Nowe przedmioty!C4; Nowe przedmioty!D12; Nowe przedmioty!D16; Nowe przedmioty!D20; Nowe przedmioty!D24; Lootbagi!F61; Lootbagi!F62
+item.smithing.copper_ore|Ruda miedzi|existing|pass_2||1|Bagno; Góry||Bagno: Torba zasobów L1-10; Bagno: Torba zasobów L11-20||item.material.sztabka_mosiadzu; item.material.wielka_sztabka_mosiadzu; item.vs10.sztabka_brazu; item.vs10.sztabka_miedzi; item.vs10.wielka_sztabka_brazu; item.vs10.wielka_sztabka_miedzi|Nowe przedmioty!D15; Nowe przedmioty!D23; Lootbagi!F77; Lootbagi!F78
+item.smithing.nickel_ore|Ruda niklu|existing|pass_2||1|Las; Morze||Las: Torba zasobów L1-10; Las: Torba zasobów L11-20; Morze: Torba zasobów L1-10; Morze: Torba zasobów L11-20||item.vs10.sztabka_inwaru; item.vs10.sztabka_niklu; item.vs10.wielka_sztabka_inwaru; item.vs10.wielka_sztabka_niklu|Lootbagi!F22; Lootbagi!F23; Lootbagi!F59; Lootbagi!F60
+item.material.ruda_srebra|Ruda srebra|proposed_not_runtime|pass_2|21|21|Katakumby; Las||Katakumby: Torba zasobów L21-30; Katakumby: Torba zasobów L31-40; Las: Torba zasobów L21-30; Las: Torba zasobów L31-40||item.material.sztabka_srebra; item.material.sztabka_tytanu; item.material.wielka_sztabka_srebra; item.material.wielka_sztabka_tytanu|Nowe przedmioty!C3; Nowe przedmioty!D11; Nowe przedmioty!D17; Nowe przedmioty!D19; Nowe przedmioty!D25; Lootbagi!F5; Lootbagi!F6; Lootbagi!F24; Lootbagi!F25
+item.material.ruda_zlota|Ruda złota|proposed_not_runtime|pass_2|21|21|Góry; Świątynia||Elfie Ruiny: Zastępcza torba zasobów L21-40||item.material.sztabka_sultanskiej_stali; item.material.sztabka_zlota; item.material.wielka_sztabka_sultanskiej_stali; item.material.wielka_sztabka_zlota|Nowe przedmioty!C5; Nowe przedmioty!D13; Nowe przedmioty!D16; Nowe przedmioty!D21; Nowe przedmioty!D24; Lootbagi!F44
+item.smithing.iron_ore|Ruda żelaza|existing|pass_2||1|Katakumby; Pustynia||Katakumby: Torba zasobów L1-10; Katakumby: Torba zasobów L11-20||item.smithing.huge_iron_ingot; item.smithing.iron_ingot; item.vs10.sztabka_inwaru; item.vs10.sztabka_stali; item.vs10.sztabka_zelaza_meteorytowego; item.vs10.wielka_sztabka_inwaru; item.vs10.wielka_sztabka_stali; item.vs10.wielka_sztabka_zelaza_meteorytowego|Lootbagi!F3; Lootbagi!F4
+item.material.rutyl|Rutyl|proposed_not_runtime|pass_2|31|31|Las; Morze||Las: Torba zasobów L31-40; Morze: Torba zasobów L31-40||item.material.sztabka_tytanu; item.material.wielka_sztabka_tytanu|Nowe przedmioty!C9; Nowe przedmioty!D17; Nowe przedmioty!D25; Lootbagi!F25; Lootbagi!F62
+item.vs10.rog_demona|Róg demona|existing|pass_2||1|Elfie Ruiny||Elfie Ruiny: Torba zasobów L1-40|||Lootbagi!F45
+item.vs10.rozowy_proszek|Różowy proszek|existing|pass_2||1||||Rubin|item.material.skondensowany_rozowy_proszek|Nowe przedmioty!D169
+item.material.sekwojowa_deska|Sekwojowa deska|proposed_not_runtime|pass_2|31|31||||Drewno sekwojowe|item.material.sekwojowy_patyk|Nowe przedmioty!C88; Nowe przedmioty!D96
+item.material.sekwojowy_patyk|Sekwojowy patyk|proposed_not_runtime|pass_2|31|31||||Sekwojowa deska|equipment_part|Nowe przedmioty!C96; Nowe wyposażenie!E25; Nowe wyposażenie!E49; Nowe wyposażenie!E73; Nowe wyposażenie!E97
+item.material.sfaleryt|Sfaleryt|proposed_not_runtime|pass_2|31|31|Bagno; Góry||Bagno: Torba zasobów L31-40||item.material.sztabka_mosiadzu; item.material.wielka_sztabka_mosiadzu|Nowe przedmioty!C7; Nowe przedmioty!D15; Nowe przedmioty!D23; Lootbagi!F80
+item.vs10.sitowie|Sitowie|existing|pass_2||1|Bagno||Bagno: Torba zasobów L1-40||item.vs10.proch_ziolowy_grudkowaty; item.vs10.proch_ziolowy_pomaranczowy|Lootbagi!F83
+item.material.skondensowany_bialy_proszek|Skondensowany biały proszek|proposed_not_runtime|pass_2|21|21||||Biały proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C170
+item.material.skondensowany_bursztynowy_proszek|Skondensowany bursztynowy proszek|proposed_not_runtime|pass_2|21|21||||Bursztynowy proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C172
+item.material.skondensowany_cytrynowy_proszek|Skondensowany cytrynowy proszek|proposed_not_runtime|pass_2|21|21||||Cytrynowy proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C166
+item.material.skondensowany_czarny_proszek|Skondensowany czarny proszek|proposed_not_runtime|pass_2|21|21||||Czarny proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C168
+item.material.skondensowany_czerwony_proszek|Skondensowany czerwony proszek|proposed_not_runtime|pass_2|21|21||||Czerwony proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C163
+item.material.skondensowany_niebieski_proszek|Skondensowany niebieski proszek|proposed_not_runtime|pass_2|21|21||||Niebieski proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C164
+item.material.skondensowany_purpurowy_proszek|Skondensowany purpurowy proszek|proposed_not_runtime|pass_2|21|21||||Purpurowy proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C165
+item.material.skondensowany_rozowy_proszek|Skondensowany różowy proszek|proposed_not_runtime|pass_2|21|21||||Różowy proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C169
+item.material.skondensowany_szmaragdowy_proszek|Skondensowany szmaragdowy proszek|proposed_not_runtime|pass_2|21|21||||Szmaragdowy proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C167
+item.material.skondensowany_zloty_proszek|Skondensowany złoty proszek|proposed_not_runtime|pass_2|21|21||||Złoty proszek + Jeden ze sproszkowanych metali L21||Nowe przedmioty!C171
+item.vs10.skruszona_czaszka|Skruszona czaszka|existing|pass_2||1|Góry||Katakumby: Zastępcza torba zasobów L1-40|||Lootbagi!F12
+item.material.skora_aligatora|Skóra aligatora|proposed_not_runtime|pass_2|21|21|Morze; Świątynia||Morze: Torba zasobów L21-30||item.material.wyprawiona_skora_aligatora|Nowe przedmioty!C52; Nowe przedmioty!D60; Lootbagi!F61
+item.material.skora_bawola|Skóra bawoła|proposed_not_runtime|pass_2|31|31|Góry; Morze||Morze: Torba zasobów L31-40||item.material.wyprawiona_skora_bawola|Nowe przedmioty!C55; Nowe przedmioty!D63; Lootbagi!F62
+item.smithing.boar_skin|Skóra dzika|existing|pass_2||11|Morze; Pustynia||Morze: Torba zasobów L11-20||item.vs10.wyprawiona_skora_dzika|Lootbagi!F60
+item.smithing.wild_dog_skin|Skóra dzikiego psa|existing|pass_2||1|Las; Morze||Las: Torba zasobów L1-10; Morze: Torba zasobów L1-10||item.vs10.wyprawiona_skora_dzikiego_psa|Lootbagi!F22; Lootbagi!F59
+item.material.skora_geparda|Skóra geparda|proposed_not_runtime|pass_2|31|31|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L31-40||item.material.wyprawiona_skora_geparda|Nowe przedmioty!C57; Nowe przedmioty!D65; Lootbagi!F43
+item.smithing.deer_skin|Skóra jelenia|existing|pass_2||11|Katakumby; Las||Katakumby: Torba zasobów L11-20; Las: Torba zasobów L11-20||item.vs10.wyprawiona_skora_jelenia|Lootbagi!F4; Lootbagi!F23
+item.smithing.goat_skin|Skóra kozy|existing|pass_2||1|Katakumby; Pustynia||Katakumby: Torba zasobów L1-10||item.smithing.goat_hide|Lootbagi!F3
+item.smithing.rabbit_skin|Skóra królika|existing|pass_2||1|Bagno; Góry||Bagno: Torba zasobów L1-10||item.vs10.wyprawiona_skora_krolika|Lootbagi!F77
+item.material.skora_leoparda|Skóra leoparda|proposed_not_runtime|pass_2|21|21|Bagno; Elfie Ruiny||Elfie Ruiny: Torba zasobów L21-30; Bagno: Torba zasobów L21-30||item.material.wyprawiona_skora_leoparda|Nowe przedmioty!C53; Nowe przedmioty!D61; Lootbagi!F42; Lootbagi!F79
+item.smithing.fox_skin|Skóra lisa|existing|pass_2||1|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L1-10||item.vs10.wyprawiona_skora_lisa|Lootbagi!F39
+item.material.skora_niedzwiedzia|Skóra niedźwiedzia|proposed_not_runtime|pass_2|21|21|Góry; Las||Las: Torba zasobów L21-30||item.material.wyprawiona_skora_niedzwiedzia|Nowe przedmioty!C50; Nowe przedmioty!D58; Lootbagi!F24
+item.material.skora_trolla|Skóra trolla|proposed_not_runtime|pass_2|21|21|Katakumby; Pustynia||Katakumby: Torba zasobów L21-30||item.material.wyprawiona_skora_trolla|Nowe przedmioty!C51; Nowe przedmioty!D59; Lootbagi!F5
+item.smithing.tiger_skin|Skóra tygrysa|existing|pass_2||11|Bagno; Elfie Ruiny||Elfie Ruiny: Torba zasobów L11-20; Bagno: Torba zasobów L11-20||item.vs10.wyprawiona_skora_tygrysa|Lootbagi!F40; Lootbagi!F78
+item.smithing.monitor_skin|Skóra warana|existing|pass_2||11|Góry; Świątynia||Elfie Ruiny: Zastępcza torba zasobów L11-20||item.vs10.wyprawiona_skora_warana|Lootbagi!F41
+item.material.skora_wielblada|Skóra wielbłąda|proposed_not_runtime|pass_2|31|31|Las; Pustynia||Las: Torba zasobów L31-40||item.material.wyprawiona_skora_wielblada|Nowe przedmioty!C56; Nowe przedmioty!D64; Lootbagi!F25
+item.material.skora_wilka|Skóra wilka|proposed_not_runtime|pass_2|31|31|Bagno; Katakumby||Katakumby: Torba zasobów L31-40; Bagno: Torba zasobów L31-40||item.material.wyprawiona_skora_wilka|Nowe przedmioty!C54; Nowe przedmioty!D62; Lootbagi!F6; Lootbagi!F80
+item.vs10.spaczone_serce|Spaczone serce|existing|pass_2||1|Świątynia||Elfie Ruiny: Zastępcza torba zasobów L1-40|||Lootbagi!F49
+item.vs10.sproszkowana_cyna|Sproszkowana cyna|existing|pass_2||1||||Sztabka cyny||
+item.vs10.sproszkowana_miedz|Sproszkowana miedź|existing|pass_2||1||||Sztabka miedzi||
+item.vs10.sproszkowana_stal|Sproszkowana stal|existing|pass_2||11||||Sztabka stali||
+item.material.sproszkowana_sultanska_stal|Sproszkowana sułtańska stal|proposed_not_runtime|pass_2|31|31||||Sztabka sułtańskiej stali||Nowe przedmioty!C32
+item.material.sproszkowane_srebro|Sproszkowane srebro|proposed_not_runtime|pass_2|21|21||||Sztabka srebra||Nowe przedmioty!C27
+item.material.sproszkowane_zloto|Sproszkowane złoto|proposed_not_runtime|pass_2|21|21||||Sztabka złota||Nowe przedmioty!C29
+item.vs10.sproszkowane_zelazo|Sproszkowane żelazo|existing|pass_2||1||||Sztabka żelaza||
+item.vs10.sproszkowane_zelazo_meteorytowe|Sproszkowane żelazo meteorytowe|existing|pass_2||11||||Sztabka żelaza meteorytowego||
+item.material.sproszkowany_annodyt|Sproszkowany annodyt|proposed_not_runtime|pass_2|21|21||||Sztabka annodytu||Nowe przedmioty!C26
+item.vs10.sproszkowany_braz|Sproszkowany brąz|existing|pass_2||11||||Sztabka brązu||
+item.vs10.sproszkowany_inwar|Sproszkowany inwar|existing|pass_2||11||||Sztabka inwaru||
+item.material.sproszkowany_kobalt|Sproszkowany kobalt|proposed_not_runtime|pass_2|21|21||||Sztabka kobaltu||Nowe przedmioty!C28
+item.material.sproszkowany_kryferyt|Sproszkowany kryferyt|proposed_not_runtime|pass_2|31|31||||Sztabka kryferytu||Nowe przedmioty!C30
+item.material.sproszkowany_mosiadz|Sproszkowany mosiądz|proposed_not_runtime|pass_2|31|31||||Sztabka mosiądzu||Nowe przedmioty!C31
+item.vs10.sproszkowany_nikiel|Sproszkowany nikiel|existing|pass_2||1||||Sztabka niklu||
+item.material.sproszkowany_tytan|Sproszkowany tytan|proposed_not_runtime|pass_2|31|31||||Sztabka tytanu||Nowe przedmioty!C33
+item.material.srebrna_blacha|Srebrna blacha|proposed_not_runtime|pass_2|21|21||||Sztabka srebra|equipment_part|Nowe przedmioty!C43; Nowe wyposażenie!N76
+item.material.srebrnoszponowa_nitka|Srebrnoszponowa nitka|proposed_not_runtime|pass_2|21|21||||Włókno srebrnoszponu|item.material.srebrnoszponowa_tkanina|Nowe przedmioty!C109; Nowe przedmioty!D117
+item.material.srebrnoszponowa_tkanina|Srebrnoszponowa tkanina|proposed_not_runtime|pass_2|21|21||||Srebrnoszponowa nitka + Dobra igła do nici|equipment_part|Nowe przedmioty!C117; Nowe wyposażenie!N52
+item.material.srebrny_lancuch|Srebrny łańcuch|proposed_not_runtime|pass_2|21|21||||Sztabka srebra|equipment_part|Nowe przedmioty!C35; Nowe wyposażenie!N12
+item.material.ssawka_komara|Ssawka komara|proposed_not_runtime|pass_2||21|Bagno||Bagno: Torba zasobów L21-40||alchemy_B|Lootbagi!F82; Nowe przedmioty!U14; Nowe przedmioty!U29
+item.vs10.stalowa_blacha|Stalowa blacha|existing|pass_2||11||||Sztabka stali||
+item.vs10.stalowy_lancuch|Stalowy łańcuch|existing|pass_2||11||||Sztabka stali||
+item.material.starozytna_skora|Starożytna skóra|proposed_not_runtime|pass_2||21|Świątynia||Katakumby: Zastępcza torba zasobów L21-40||alchemy_B|Lootbagi!F13; Nowe przedmioty!U11; Nowe przedmioty!U26
+item.material.sultanska_blacha|Sułtańska blacha|proposed_not_runtime|pass_2|31|31||||Sztabka sułtańskiej stali|equipment_part|Nowe przedmioty!C48; Nowe wyposażenie!N81
+item.material.sultanski_lancuch|Sułtański łańcuch|proposed_not_runtime|pass_2|31|31||||Sztabka sułtańskiej stali|equipment_part|Nowe przedmioty!C40; Nowe wyposażenie!N17
+item.vs10.szafir|Szafir|existing|pass_2||1|Morze||Morze: Torba zasobów L11-40||item.vs10.niebieski_proszek|Lootbagi!F69
+item.unique.szata_z_demonicznej_peleryny|Szata z Demonicznej Peleryny|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Demoniczny Jarl: Torba bossa - unikat L1-40|||Lootbagi!F107
+item.unique.szata_zwawosci|Szata Żwawości|proposed_not_runtime|pass_2||1|Bagno||Bagno - Ludożerna Roślina: Torba bossa - unikat L1-40|||Lootbagi!F112
+unique.skeleton_slayer.armor.mage|Szaty Runiczne|existing|pass_2||1|Katakumby||Katakumby - Szkielet Zabójca: Torba bossa - unikat L1-40|||Lootbagi!F103
+item.vs10.szmaragd|Szmaragd|existing|pass_2||1|Las||Las: Torba zasobów L11-40||item.vs10.szmaragdowy_proszek|Lootbagi!F32
+item.vs10.szmaragdowy_proszek|Szmaragdowy proszek|existing|pass_2||1||||Szmaragd|item.material.skondensowany_szmaragdowy_proszek|Nowe przedmioty!D167
+item.material.sztabka_annodytu|Sztabka annodytu|proposed_not_runtime|pass_2|21|21||||Ruda annodytu|equipment_part; item.material.annodytowa_blacha; item.material.annodytowy_lancuch; item.material.dobra_igla_do_nici; item.material.sproszkowany_annodyt; jewelry_metals_four_slots|Nowe przedmioty!C10; Nowe przedmioty!D26; Nowe przedmioty!D34; Nowe przedmioty!D42; Nowe przedmioty!D98; Nowe wyposażenie!E3; Nowe wyposażenie!N3; Nowe wyposażenie!E27; Nowe wyposażenie!N43; Nowe wyposażenie!E51; Biżuterie i Galduryty!H2:M2
+item.vs10.sztabka_brazu|Sztabka brązu|existing|pass_2||11||||Ruda miedzi + Ruda cyny + Kawałek cynku|item.vs10.brazowa_blacha; item.vs10.brazowy_lancuch; item.vs10.igla_do_nici; item.vs10.sproszkowany_braz|
+item.vs10.sztabka_cyny|Sztabka cyny|existing|pass_2||1||||Ruda cyny|item.smithing.weak_thread_needle; item.vs10.cynowa_blacha; item.vs10.cynowy_lancuch; item.vs10.sproszkowana_cyna|
+item.vs10.sztabka_inwaru|Sztabka inwaru|existing|pass_2||11||||Ruda żelaza + Ruda niklu + Chrom|item.vs10.igla_do_nici; item.vs10.inwarowa_blacha; item.vs10.inwarowy_lancuch; item.vs10.sproszkowany_inwar|
+item.material.sztabka_kobaltu|Sztabka kobaltu|proposed_not_runtime|pass_2|21|21||||Ruda kobaltu|equipment_part; item.material.dobra_igla_do_nici; item.material.kobaltowa_blacha; item.material.kobaltowy_lancuch; item.material.sproszkowany_kobalt; jewelry_metals_four_slots|Nowe przedmioty!C12; Nowe przedmioty!D28; Nowe przedmioty!D36; Nowe przedmioty!D44; Nowe przedmioty!D98; Nowe wyposażenie!E5; Nowe wyposażenie!N5; Nowe wyposażenie!E29; Nowe wyposażenie!N45; Nowe wyposażenie!E53; Biżuterie i Galduryty!H4:M4
+item.material.sztabka_kryferytu|Sztabka kryferytu|proposed_not_runtime|pass_2|31|31||||Ruda annodytu + Księżycowy pył|equipment_part; item.material.kryferytowa_blacha; item.material.kryferytowy_lancuch; item.material.sproszkowany_kryferyt; item.material.wspaniala_igla_do_nici; jewelry_metals_four_slots|Nowe przedmioty!C14; Nowe przedmioty!D30; Nowe przedmioty!D38; Nowe przedmioty!D46; Nowe przedmioty!D99; Nowe wyposażenie!E7; Nowe wyposażenie!N7; Nowe wyposażenie!E31; Nowe wyposażenie!N47; Nowe wyposażenie!E55; Biżuterie i Galduryty!H6:M6
+item.vs10.sztabka_miedzi|Sztabka miedzi|existing|pass_2||1||||Ruda miedzi|item.smithing.weak_thread_needle; item.vs10.miedziana_blacha; item.vs10.miedziany_lancuch; item.vs10.sproszkowana_miedz|
+item.material.sztabka_mosiadzu|Sztabka mosiądzu|proposed_not_runtime|pass_2|31|31||||Ruda miedzi + Sfaleryt|equipment_part; item.material.mosiezna_blacha; item.material.mosiezny_lancuch; item.material.sproszkowany_mosiadz; item.material.wspaniala_igla_do_nici; jewelry_metals_four_slots|Nowe przedmioty!C15; Nowe przedmioty!D31; Nowe przedmioty!D39; Nowe przedmioty!D47; Nowe przedmioty!D99; Nowe wyposażenie!E8; Nowe wyposażenie!N8; Nowe wyposażenie!E32; Nowe wyposażenie!N48; Nowe wyposażenie!E56; Biżuterie i Galduryty!H7:M7
+item.vs10.sztabka_niklu|Sztabka niklu|existing|pass_2||1||||Ruda niklu|item.smithing.weak_thread_needle; item.vs10.niklowa_blacha; item.vs10.niklowy_lancuch; item.vs10.sproszkowany_nikiel|
+item.material.sztabka_srebra|Sztabka srebra|proposed_not_runtime|pass_2|21|21||||Ruda srebra|equipment_part; item.material.dobra_igla_do_nici; item.material.sproszkowane_srebro; item.material.srebrna_blacha; item.material.srebrny_lancuch; jewelry_metals_four_slots|Nowe przedmioty!C11; Nowe przedmioty!D27; Nowe przedmioty!D35; Nowe przedmioty!D43; Nowe przedmioty!D98; Nowe wyposażenie!E4; Nowe wyposażenie!N4; Nowe wyposażenie!E28; Nowe wyposażenie!N44; Nowe wyposażenie!E52; Biżuterie i Galduryty!H3:M3
+item.vs10.sztabka_stali|Sztabka stali|existing|pass_2||11||||Ruda żelaza + Węgiel|item.vs10.igla_do_nici; item.vs10.sproszkowana_stal; item.vs10.stalowa_blacha; item.vs10.stalowy_lancuch|
+item.material.sztabka_sultanskiej_stali|Sztabka sułtańskiej stali|proposed_not_runtime|pass_2|31|31||||Ruda kobaltu + Ruda złota + Klejnot pustyni|equipment_part; item.material.sproszkowana_sultanska_stal; item.material.sultanska_blacha; item.material.sultanski_lancuch; item.material.wspaniala_igla_do_nici; jewelry_metals_four_slots|Nowe przedmioty!C16; Nowe przedmioty!D32; Nowe przedmioty!D40; Nowe przedmioty!D48; Nowe przedmioty!D99; Nowe wyposażenie!E9; Nowe wyposażenie!N9; Nowe wyposażenie!E33; Nowe wyposażenie!N49; Nowe wyposażenie!E57; Biżuterie i Galduryty!H8:M8
+item.material.sztabka_tytanu|Sztabka tytanu|proposed_not_runtime|pass_2|31|31||||Ruda srebra + Rutyl|equipment_part; item.material.sproszkowany_tytan; item.material.tytanowa_blacha; item.material.tytanowy_lancuch; item.material.wspaniala_igla_do_nici; jewelry_metals_four_slots|Nowe przedmioty!C17; Nowe przedmioty!D33; Nowe przedmioty!D41; Nowe przedmioty!D49; Nowe przedmioty!D99; Nowe wyposażenie!E10; Nowe wyposażenie!N10; Nowe wyposażenie!E34; Nowe wyposażenie!N50; Nowe wyposażenie!E58; Biżuterie i Galduryty!H9:M9
+item.material.sztabka_zlota|Sztabka złota|proposed_not_runtime|pass_2|21|21||||Ruda złota|equipment_part; item.material.dobra_igla_do_nici; item.material.sproszkowane_zloto; item.material.zlota_blacha; item.material.zloty_lancuch; jewelry_metals_four_slots|Nowe przedmioty!C13; Nowe przedmioty!D29; Nowe przedmioty!D37; Nowe przedmioty!D45; Nowe przedmioty!D98; Nowe wyposażenie!E6; Nowe wyposażenie!N6; Nowe wyposażenie!E30; Nowe wyposażenie!N46; Nowe wyposażenie!E54; Biżuterie i Galduryty!H5:M5
+item.smithing.iron_ingot|Sztabka żelaza|existing|pass_2||1||||Ruda żelaza|item.smithing.iron_chain; item.smithing.iron_plate; item.smithing.weak_thread_needle; item.vs10.sproszkowane_zelazo|
+item.vs10.sztabka_zelaza_meteorytowego|Sztabka żelaza meteorytowego|existing|pass_2||11||||Ruda żelaza + Odłamek meteorytu|item.vs10.igla_do_nici; item.vs10.meteorytowa_blacha; item.vs10.meteorytowy_lancuch; item.vs10.sproszkowane_zelazo_meteorytowe|
+item.material.sztuczny_zab|Sztuczny ząb|proposed_not_runtime|pass_2|31|11|Morze|Torba Kapitana Piratów|Morze - Kapitan Piratów: Torba Kapitana Piratów L11-40||alchemy_C|Nowe przedmioty!C129; Lootbagi!F100; Nowe przedmioty!V9; Nowe przedmioty!V24
+item.unique.sztylet_grabiezy|Sztylet Grabieży|proposed_not_runtime|pass_2||1|Morze||Morze - Kapitan Piratów: Torba bossa - unikat L1-40|||Lootbagi!F110
+unique.bandit_leader.dagger.scout|Sztylet z Kłami|existing|pass_2||1|Las||Las - Przywódca Bandytów: Torba bossa - unikat L1-40|||Lootbagi!F106
+item.unique.sztylet_zycia|Sztylet Życia|proposed_not_runtime|pass_2||1|Bagno||Bagno - Ludożerna Roślina: Torba bossa - unikat L1-40|||Lootbagi!F112
+item.vs10.szyszka|Szyszka|existing|pass_2||1|Las||Las: Torba zasobów L1-40||item.vs10.proch_ziolowy_grudkowaty; item.vs10.proch_ziolowy_pomaranczowy|Lootbagi!F28
+item.smithing.weak_thread_needle|Słaba igła do nici|existing|pass_2||1||||Sztabka żelaza; Sztabka niklu; Sztabka miedzi; Sztabka cyny|item.smithing.cotton_fabric; item.vs10.bukominowa_tkanina; item.vs10.jutowa_tkanina; item.vs10.tkanina_z_koziej_welny|
+item.alchemy.weak_alcohol|Słaby alkohol|existing|pass_2||1|Bagno; Elfie Ruiny; Katakumby; Las; Morze||Katakumby: Torba zasobów L1-10; Las: Torba zasobów L1-10; Elfie Ruiny: Torba zasobów L1-10; Morze: Torba zasobów L1-10; Bagno: Torba zasobów L1-10; Handel NPC: Alchemik — dodatkowe źródło L1-40||item.alchemy.herbal_powder_normal; item.vs10.proch_ziolowy_grudkowaty; item.vs10.proch_ziolowy_lepki; item.vs10.proch_ziolowy_luzny|Lootbagi!F18; Lootbagi!F35; Lootbagi!F55; Lootbagi!F73; Lootbagi!F89; Lootbagi!F113
+item.alchemy.weak_gunpowder|Słaby proch strzelniczy|existing|pass_2||1|Katakumby||Katakumby: Torba zasobów L1-10; Handel NPC: Alchemik — dodatkowe źródło L1-40|||Lootbagi!F18; Lootbagi!F113
+item.material.tatarak_plaski|Tatarak płaski|proposed_not_runtime|pass_2|21|21|Bagno||Bagno: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_jaszczurolud; item.material.proch_ziolowy_swiatlo|Nowe przedmioty!C146; Nowe przedmioty!D151; Nowe przedmioty!D152; Lootbagi!F84; Nowe przedmioty!T14; Nowe przedmioty!T29
+item.vs10.tkanina_z_koziej_welny|Tkanina z koziej wełny|existing|pass_2||1||||Nitka z koziej wełny + Słaba igła do nici||
+item.vs10.tkanina_z_lamiej_welny|Tkanina z lamiej wełny|existing|pass_2||11||||Nitka z lamiej wełny + Igła do nici||
+item.vs10.tkanina_z_owczej_welny|Tkanina z owczej wełny|existing|pass_2||11||||Nitka z owczej wełny + Igła do nici||
+item.material.tkanina_z_wielbladziej_welny|Tkanina z wielbłądziej wełny|proposed_not_runtime|pass_2|21|21||||Nitka z wielbłądziej wełny + Dobra igła do nici|equipment_part|Nowe przedmioty!C118; Nowe wyposażenie!N53
+item.runic.topaz|Topaz|existing|pass_2||1|Bagno; Elfie Ruiny; Góry; Las||Las: Torba zasobów L11-40; Elfie Ruiny: Torba zasobów L11-40; Bagno: Torba zasobów L11-40||item.vs10.zloty_proszek|Lootbagi!F32; Lootbagi!F51; Lootbagi!F86
+item.vs10.topolowa_deska|Topolowa deska|existing|pass_2||1||||Drewno topolowe|item.vs10.topolowy_patyk|
+item.vs10.topolowy_patyk|Topolowy patyk|existing|pass_2||1||||Topolowa deska||
+item.vs10.trawa_dusicielska|Trawa dusicielska|existing|pass_2||1|Elfie Ruiny||Elfie Ruiny: Torba zasobów L1-40||item.vs10.proch_ziolowy_luzny; item.vs10.proch_ziolowy_zielony|Lootbagi!F47
+item.material.trojpretowa_nitka|Trójprętowa nitka|proposed_not_runtime|pass_2|31|31||||Włókno trójprętu|item.material.trojpretowa_tkanina|Nowe przedmioty!C115; Nowe przedmioty!D123
+item.material.trojpretowa_tkanina|Trójprętowa tkanina|proposed_not_runtime|pass_2|31|31||||Trójprętowa nitka + Wspaniała igła do nici|equipment_part|Nowe przedmioty!C123; Nowe wyposażenie!N58
+item.unique.tunika_manii|Tunika Manii|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Demoniczny Jarl: Torba bossa - unikat L1-40|||Lootbagi!F107
+item.unique.tunika_wilka_morksiego|Tunika Wilka Morksiego|proposed_not_runtime|pass_2||1|Morze||Morze - Alfa-Rekin: Torba bossa - unikat L1-40|||Lootbagi!F109
+item.material.tytanowa_blacha|Tytanowa blacha|proposed_not_runtime|pass_2|31|31||||Sztabka tytanu|equipment_part|Nowe przedmioty!C49; Nowe wyposażenie!N82
+item.material.tytanowy_lancuch|Tytanowy łańcuch|proposed_not_runtime|pass_2|31|31||||Sztabka tytanu|equipment_part|Nowe przedmioty!C41; Nowe wyposażenie!N18
+item.vs10.ucho_elfa|Ucho elfa|existing|pass_2||1|Las||Las: Torba zasobów L1-40|||Lootbagi!F26
+item.material.utumenowa_nitka|Utumenowa nitka|proposed_not_runtime|pass_2|31|31||||Włókno utumeny|item.material.utumenowa_tkanina|Nowe przedmioty!C114; Nowe przedmioty!D122
+item.material.utumenowa_tkanina|Utumenowa tkanina|proposed_not_runtime|pass_2|31|31||||Utumenowa nitka + Wspaniała igła do nici|equipment_part|Nowe przedmioty!C122; Nowe wyposażenie!N57
+item.runic.galduryte_stone.limestone|Wapienny kamień galdurytu|existing|pass_2||11||||Lity wapień||
+item.vs10.wasminowa_nitka|Wasminowa nitka|existing|pass_2||11||||Włókno wasminy|item.vs10.wasminowa_tkanina|
+item.vs10.wasminowa_tkanina|Wasminowa tkanina|existing|pass_2||11||||Wasminowa nitka + Igła do nici||
+item.material.wielka_sztabka_annodytu|Wielka sztabka annodytu|proposed_not_runtime|pass_2|21|21||||Ruda annodytu|equipment_part|Nowe przedmioty!C18; Nowe wyposażenie!E75
+item.vs10.wielka_sztabka_brazu|Wielka sztabka brązu|existing|pass_2||11||||Ruda miedzi + Ruda cyny + Kawałek cynku||
+item.vs10.wielka_sztabka_cyny|Wielka sztabka cyny|existing|pass_2||1||||Ruda cyny||
+item.vs10.wielka_sztabka_inwaru|Wielka sztabka inwaru|existing|pass_2||11||||Ruda żelaza + Ruda niklu + Chrom||
+item.material.wielka_sztabka_kobaltu|Wielka sztabka kobaltu|proposed_not_runtime|pass_2|21|21||||Ruda kobaltu|equipment_part|Nowe przedmioty!C20; Nowe wyposażenie!E77
+item.material.wielka_sztabka_kryferytu|Wielka sztabka kryferytu|proposed_not_runtime|pass_2|31|31||||Ruda annodytu + Księżycowy pył|equipment_part|Nowe przedmioty!C22; Nowe wyposażenie!E79
+item.vs10.wielka_sztabka_miedzi|Wielka sztabka miedzi|existing|pass_2||1||||Ruda miedzi||
+item.material.wielka_sztabka_mosiadzu|Wielka sztabka mosiądzu|proposed_not_runtime|pass_2|31|31||||Ruda miedzi + Sfaleryt|equipment_part|Nowe przedmioty!C23; Nowe wyposażenie!E80
+item.vs10.wielka_sztabka_niklu|Wielka sztabka niklu|existing|pass_2||1||||Ruda niklu||
+item.material.wielka_sztabka_srebra|Wielka sztabka srebra|proposed_not_runtime|pass_2|21|21||||Ruda srebra|equipment_part|Nowe przedmioty!C19; Nowe wyposażenie!E76
+item.vs10.wielka_sztabka_stali|Wielka sztabka stali|existing|pass_2||11||||Ruda żelaza + Węgiel||
+item.material.wielka_sztabka_sultanskiej_stali|Wielka sztabka sułtańskiej stali|proposed_not_runtime|pass_2|31|31||||Ruda kobaltu + Ruda złota + Klejnot pustyni|equipment_part|Nowe przedmioty!C24; Nowe wyposażenie!E81
+item.material.wielka_sztabka_tytanu|Wielka sztabka tytanu|proposed_not_runtime|pass_2|31|31||||Ruda srebra + Rutyl|equipment_part|Nowe przedmioty!C25; Nowe wyposażenie!E82
+item.material.wielka_sztabka_zlota|Wielka sztabka złota|proposed_not_runtime|pass_2|21|21||||Ruda złota|equipment_part|Nowe przedmioty!C21; Nowe wyposażenie!E78
+item.smithing.huge_iron_ingot|Wielka sztabka żelaza|existing|pass_2||1||||Ruda żelaza||
+item.vs10.wielka_sztabka_zelaza_meteorytowego|Wielka sztabka żelaza meteorytowego|existing|pass_2||11||||Ruda żelaza + Odłamek meteorytu||
+item.material.wiazowa_deska|Wiązowa deska|proposed_not_runtime|pass_2|21|21||||Drewno wiązowe|item.material.wiazowy_patyk|Nowe przedmioty!C83; Nowe przedmioty!D91
+item.material.wiazowy_patyk|Wiązowy patyk|proposed_not_runtime|pass_2|21|21||||Wiązowa deska|equipment_part|Nowe przedmioty!C91; Nowe wyposażenie!E20; Nowe wyposażenie!E44; Nowe wyposażenie!E68; Nowe wyposażenie!E92
+item.vs10.wodorosty|Wodorosty|existing|pass_2||1|Morze||Morze: Torba zasobów L1-40||item.vs10.proch_ziolowy_lepki; item.vs10.proch_ziolowy_zielony|Lootbagi!F65
+item.material.wspaniala_igla_do_nici|Wspaniała igła do nici|proposed_not_runtime|pass_2|31|31||||Sztabka kryferytu; Sztabka mosiądzu; Sztabka sułtańskiej stali; Sztabka tytanu|item.material.jukowa_tkanina; item.material.konopna_tkanina; item.material.trojpretowa_tkanina; item.material.utumenowa_tkanina|Nowe przedmioty!C99; Nowe przedmioty!D120; Nowe przedmioty!D121; Nowe przedmioty!D122; Nowe przedmioty!D123
+item.material.wyprawiona_skora_aligatora|Wyprawiona skóra aligatora|proposed_not_runtime|pass_2|21|21||||Skóra aligatora|equipment_part; item.material.paski_ze_skory_aligatora|Nowe przedmioty!C60; Nowe przedmioty!D68; Nowe wyposażenie!E13; Nowe wyposażenie!N21; Nowe wyposażenie!N29; Nowe wyposażenie!E37; Nowe wyposażenie!E61; Nowe wyposażenie!N69; Nowe wyposażenie!E85; Nowe wyposażenie!N93
+item.material.wyprawiona_skora_bawola|Wyprawiona skóra bawoła|proposed_not_runtime|pass_2|31|31||||Skóra bawoła|equipment_part; item.material.paski_ze_skory_bawola|Nowe przedmioty!C63; Nowe przedmioty!D71; Nowe wyposażenie!E16; Nowe wyposażenie!N24; Nowe wyposażenie!N32; Nowe wyposażenie!E40; Nowe wyposażenie!E64; Nowe wyposażenie!N72; Nowe wyposażenie!E88; Nowe wyposażenie!N96
+item.vs10.wyprawiona_skora_dzika|Wyprawiona skóra dzika|existing|pass_2||11||||Skóra dzika|item.vs10.paski_ze_skory_dzika|
+item.vs10.wyprawiona_skora_dzikiego_psa|Wyprawiona skóra dzikiego psa|existing|pass_2||1||||Skóra dzikiego psa|item.vs10.paski_ze_skory_dzikiego_psa|
+item.material.wyprawiona_skora_geparda|Wyprawiona skóra geparda|proposed_not_runtime|pass_2|31|31||||Skóra geparda|equipment_part; item.material.paski_ze_skory_geparda|Nowe przedmioty!C65; Nowe przedmioty!D73; Nowe wyposażenie!E18; Nowe wyposażenie!N26; Nowe wyposażenie!N34; Nowe wyposażenie!E42; Nowe wyposażenie!E66; Nowe wyposażenie!N74; Nowe wyposażenie!E90; Nowe wyposażenie!N98
+item.vs10.wyprawiona_skora_jelenia|Wyprawiona skóra jelenia|existing|pass_2||11||||Skóra jelenia|item.vs10.paski_ze_skory_jelenia|
+item.smithing.goat_hide|Wyprawiona skóra kozy|existing|pass_2||1||||Skóra kozy|item.smithing.goat_hide_strips|
+item.vs10.wyprawiona_skora_krolika|Wyprawiona skóra królika|existing|pass_2||1||||Skóra królika|item.vs10.paski_ze_skory_krolika|
+item.material.wyprawiona_skora_leoparda|Wyprawiona skóra leoparda|proposed_not_runtime|pass_2|21|21||||Skóra leoparda|equipment_part; item.material.paski_ze_skory_leoparda|Nowe przedmioty!C61; Nowe przedmioty!D69; Nowe wyposażenie!E14; Nowe wyposażenie!N22; Nowe wyposażenie!N30; Nowe wyposażenie!E38; Nowe wyposażenie!E62; Nowe wyposażenie!N70; Nowe wyposażenie!E86; Nowe wyposażenie!N94
+item.vs10.wyprawiona_skora_lisa|Wyprawiona skóra lisa|existing|pass_2||1||||Skóra lisa|item.vs10.paski_ze_skory_lisa|
+item.material.wyprawiona_skora_niedzwiedzia|Wyprawiona skóra niedźwiedzia|proposed_not_runtime|pass_2|21|21||||Skóra niedźwiedzia|equipment_part; item.material.paski_ze_skory_niedzwiedzia|Nowe przedmioty!C58; Nowe przedmioty!D66; Nowe wyposażenie!E11; Nowe wyposażenie!N19; Nowe wyposażenie!N27; Nowe wyposażenie!E35; Nowe wyposażenie!E59; Nowe wyposażenie!N67; Nowe wyposażenie!E83; Nowe wyposażenie!N91
+item.material.wyprawiona_skora_trolla|Wyprawiona skóra trolla|proposed_not_runtime|pass_2|21|21||||Skóra trolla|equipment_part; item.material.paski_ze_skory_trolla|Nowe przedmioty!C59; Nowe przedmioty!D67; Nowe wyposażenie!E12; Nowe wyposażenie!N20; Nowe wyposażenie!N28; Nowe wyposażenie!E36; Nowe wyposażenie!E60; Nowe wyposażenie!N68; Nowe wyposażenie!E84; Nowe wyposażenie!N92
+item.vs10.wyprawiona_skora_tygrysa|Wyprawiona skóra tygrysa|existing|pass_2||11||||Skóra tygrysa|item.vs10.paski_ze_skory_tygrysa|
+item.vs10.wyprawiona_skora_warana|Wyprawiona skóra warana|existing|pass_2||11||||Skóra warana|item.vs10.paski_ze_skory_warana|
+item.material.wyprawiona_skora_wielblada|Wyprawiona skóra wielbłąda|proposed_not_runtime|pass_2|31|31||||Skóra wielbłąda|equipment_part; item.material.paski_ze_skory_wielblada|Nowe przedmioty!C64; Nowe przedmioty!D72; Nowe wyposażenie!E17; Nowe wyposażenie!N25; Nowe wyposażenie!N33; Nowe wyposażenie!E41; Nowe wyposażenie!E65; Nowe wyposażenie!N73; Nowe wyposażenie!E89; Nowe wyposażenie!N97
+item.material.wyprawiona_skora_wilka|Wyprawiona skóra wilka|proposed_not_runtime|pass_2|31|31||||Skóra wilka|equipment_part; item.material.paski_ze_skory_wilka|Nowe przedmioty!C62; Nowe przedmioty!D70; Nowe wyposażenie!E15; Nowe wyposażenie!N23; Nowe wyposażenie!N31; Nowe wyposażenie!E39; Nowe wyposażenie!E63; Nowe wyposażenie!N71; Nowe wyposażenie!E87; Nowe wyposażenie!N95
+item.smithing.coal|Węgiel|existing|pass_2||11|Bagno; Katakumby||Katakumby: Torba zasobów L11-20; Bagno: Torba zasobów L11-20||item.vs10.sztabka_stali; item.vs10.wielka_sztabka_stali|Lootbagi!F4; Lootbagi!F78
+item.smithing.cotton_fibre|Włókno bawełny|existing|pass_2||1|Katakumby; Pustynia||Katakumby: Torba zasobów L1-10||item.smithing.cotton_thread|Lootbagi!F3
+item.smithing.bukomina_fibre|Włókno bukominy|existing|pass_2||1|Las; Morze||Las: Torba zasobów L1-10; Morze: Torba zasobów L1-10||item.vs10.bukominowa_nitka|Lootbagi!F22; Lootbagi!F59
+item.material.wlokno_juki|Włókno juki|proposed_not_runtime|pass_2|31|31|Góry; Morze||Morze: Torba zasobów L31-40||item.material.jukowa_nitka|Nowe przedmioty!C105; Nowe przedmioty!D113; Lootbagi!F62
+item.smithing.jute_fibre|Włókno juty|existing|pass_2||1|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L1-10||item.vs10.jutowa_nitka|Lootbagi!F39
+item.material.wlokno_konopi|Włókno konopii|proposed_not_runtime|pass_2|31|31|Bagno; Katakumby||Katakumby: Torba zasobów L31-40; Bagno: Torba zasobów L31-40||item.material.konopna_nitka|Nowe przedmioty!C104; Nowe przedmioty!D112; Lootbagi!F6; Lootbagi!F80
+item.smithing.goat_wool_fibre|Włókno koziej wełny|existing|pass_2||1|Bagno; Góry||Bagno: Torba zasobów L1-10||item.vs10.nitka_z_koziej_welny|Lootbagi!F77
+item.smithing.llama_wool_fibre|Włókno lamiej wełny|existing|pass_2||11|Morze; Pustynia||Morze: Torba zasobów L11-20||item.vs10.nitka_z_lamiej_welny|Lootbagi!F60
+item.material.wlokno_lnu|Włókno lnu|proposed_not_runtime|pass_2|21|21|Góry; Las||Las: Torba zasobów L21-30||item.material.lniana_nitka|Nowe przedmioty!C100; Nowe przedmioty!D108; Lootbagi!F24
+item.material.wlokno_meleny|Włókno meleny|proposed_not_runtime|pass_2|21|21|Bagno; Elfie Ruiny||Elfie Ruiny: Torba zasobów L21-30; Bagno: Torba zasobów L21-30||item.material.melenowa_nitka|Nowe przedmioty!C103; Nowe przedmioty!D111; Lootbagi!F42; Lootbagi!F79
+item.smithing.sheep_wool_fibre|Włókno owczej wełny|existing|pass_2||11|Bagno; Elfie Ruiny||Elfie Ruiny: Torba zasobów L11-20; Bagno: Torba zasobów L11-20||item.vs10.nitka_z_owczej_welny|Lootbagi!F40; Lootbagi!F78
+item.smithing.palm_fibre|Włókno palmy|existing|pass_2||11|Katakumby; Las||Katakumby: Torba zasobów L11-20; Las: Torba zasobów L11-20||item.vs10.palmowa_nitka|Lootbagi!F4; Lootbagi!F23
+item.material.wlokno_srebrnoszponu|Włókno srebrnoszponu|proposed_not_runtime|pass_2|21|21|Katakumby; Pustynia||Katakumby: Torba zasobów L21-30||item.material.srebrnoszponowa_nitka|Nowe przedmioty!C101; Nowe przedmioty!D109; Lootbagi!F5
+item.material.wlokno_trojpretu|Włókno trójprętu|proposed_not_runtime|pass_2|31|31|Elfie Ruiny; Świątynia||Elfie Ruiny: Torba zasobów L31-40||item.material.trojpretowa_nitka|Nowe przedmioty!C107; Nowe przedmioty!D115; Lootbagi!F43
+item.material.wlokno_utumeny|Włókno utumeny|proposed_not_runtime|pass_2|31|31|Las; Pustynia||Las: Torba zasobów L31-40||item.material.utumenowa_nitka|Nowe przedmioty!C106; Nowe przedmioty!D114; Lootbagi!F25
+item.smithing.wasmina_fibre|Włókno wasminy|existing|pass_2||11|Góry; Świątynia||Elfie Ruiny: Zastępcza torba zasobów L11-20||item.vs10.wasminowa_nitka|Lootbagi!F41
+item.material.wlokno_wielbladziej_welny|Włókno wielbłądziej wełny|proposed_not_runtime|pass_2|21|21|Morze; Świątynia||Morze: Torba zasobów L21-30||item.material.nitka_z_wielbladziej_welny|Nowe przedmioty!C102; Nowe przedmioty!D110; Lootbagi!F61
+item.material.zaczarowana_dlon|Zaczarowana dłoń|proposed_not_runtime|pass_2|31|31||Torba Przywódcy Awazarów, Torba Jeźdźca Alfa-wielbłąda|Katakumby - Duch Umarłego Króla: Torba Ducha Umarłego Króla L31-40||alchemy_C|Nowe przedmioty!C130; Lootbagi!F94; Nowe przedmioty!V10; Nowe przedmioty!V25
+item.unique.zbroja_lwa_morskiego|Zbroja Lwa Morskiego|proposed_not_runtime|pass_2||1|Morze||Morze - Alfa-Rekin: Torba bossa - unikat L1-40|||Lootbagi!F109
+item.unique.zbroja_pretendenta|Zbroja Pretendenta|proposed_not_runtime|pass_2||1|Elfie Ruiny||Elfie Ruiny - Demoniczny Jarl: Torba bossa - unikat L1-40|||Lootbagi!F107
+unique.deadking.armor.paladin|Zbroja Umarłego Króla|existing|pass_2||1|Katakumby||Katakumby - Duch Umarłego Króla: Torba bossa - unikat L1-40|||Lootbagi!F104
+item.material.zlota_blacha|Złota blacha|proposed_not_runtime|pass_2|21|21||||Sztabka złota|equipment_part|Nowe przedmioty!C45; Nowe wyposażenie!N78
+item.vs10.zloty_proszek|Złoty proszek|existing|pass_2||1||||Topaz|item.material.skondensowany_zloty_proszek|Nowe przedmioty!D171
+item.material.zloty_lancuch|Złoty łańcuch|proposed_not_runtime|pass_2|21|21||||Sztabka złota|equipment_part|Nowe przedmioty!C37; Nowe wyposażenie!N14
+item.material.luski_wiwerny|Łuski wiwerny|proposed_not_runtime|pass_2|31|31||Torba Wiwerny|Morze - Alfa-Rekin: Torba Alfa-Rekina L31-40||alchemy_C|Nowe przedmioty!C133; Lootbagi!F99; Nowe przedmioty!V13; Nowe przedmioty!V28
+item.material.swierkowa_deska|Świerkowa deska|proposed_not_runtime|pass_2|21|21||||Drewno świerkowe|item.material.swierkowy_patyk|Nowe przedmioty!C84; Nowe przedmioty!D92
+item.material.swierkowy_patyk|Świerkowy patyk|proposed_not_runtime|pass_2|21|21||||Świerkowa deska|equipment_part|Nowe przedmioty!C92; Nowe wyposażenie!E21; Nowe wyposażenie!E45; Nowe wyposażenie!E69; Nowe wyposażenie!E93
+unique.skeleton_slayer.armor.scout|Żebrowana Tunika|existing|pass_2||1|Katakumby||Katakumby - Szkielet Zabójca: Torba bossa - unikat L1-40|||Lootbagi!F103
+item.smithing.iron_plate|Żelazna blacha|existing|pass_2||1||||Sztabka żelaza||
+item.smithing.iron_chain|Żelazny łańcuch|existing|pass_2||1||||Sztabka żelaza||
+item.material.zmijowiec|Żmijowiec|proposed_not_runtime|pass_2|21|21|Bagno||Bagno: Torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_ciemnosc; item.material.proch_ziolowy_elf|Nowe przedmioty!C147; Nowe przedmioty!D149; Nowe przedmioty!D154; Lootbagi!F84; Nowe przedmioty!T15; Nowe przedmioty!T30
+item.material.zniwiarz_pustynny|Żniwiarz pustynny|proposed_not_runtime|pass_2|21|21|Świątynia||Elfie Ruiny: Zastępcza torba zasobów L21-40||alchemy_B; item.material.proch_ziolowy_demon; item.material.proch_ziolowy_krasnolud|Nowe przedmioty!C143; Nowe przedmioty!D150; Nowe przedmioty!D155; Lootbagi!F50; Nowe przedmioty!T11; Nowe przedmioty!T26
+item.material.zyjaca_galaz|Żyjąca gałąź|proposed_not_runtime|pass_2|31|11|Bagno|Torba Bagnistego Enta|Bagno - Bagnisty Ent: Torba Bagnistego Enta L11-40||alchemy_C|Nowe przedmioty!C134; Lootbagi!F101; Nowe przedmioty!V14; Nowe przedmioty!V29
+item.material.zyjacy_kwiat|Żyjący kwiat|proposed_not_runtime|pass_2|31|11|Bagno|Torba Ludożernej Rośliny|Bagno - Ludożerna Roślina: Torba Ludożerna Roślina L11-40||alchemy_C|Nowe przedmioty!C135; Lootbagi!F102; Nowe przedmioty!V15; Nowe przedmioty!V30
+item.vs10.zyjacy_lisc|Żyjący liść|existing|pass_2||1|Bagno||Bagno: Torba zasobów L1-40|||Lootbagi!F81
+item.alchemy.forest_spirit|Żywioł lasu|existing|pass_2|31|11|Las|Torba Zarażonego Enta, Torba Przywódcy Bandytów|Las - Zarażony Ent: Torba Zarażonego Enta L11-40; Las - Przywódca Bandytów: Torba Przywódcy Bandytów L11-40||alchemy_C|Nowe przedmioty!C126; Lootbagi!F95; Lootbagi!F96; Nowe przedmioty!V6; Nowe przedmioty!V21
+item.material.zywiol_wiatru|Żywioł wiatru|proposed_not_runtime|pass_2||21|Pustynia||Morze: Zastępcza torba zasobów L21-40||alchemy_B|Lootbagi!F68; Nowe przedmioty!U10; Nowe przedmioty!U25

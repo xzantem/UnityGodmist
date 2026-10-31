@@ -1,3 +1,13 @@
+## CP2-02 — katalog contentu i źródła L1–40 — 2026-10-31 — ZAAKCEPTOWANA
+
+Użytkownik zaakceptował przegląd katalogu, polecił commit/push i przejście do CP2-03.
+
+Przygotowano manifest JSON, jawny rejestr 664 proponowanych ID, tabelę źródeł z separatorem `|` oraz generator i niezależny walidator planu. Pokrycie 406/406 pozycji L1–40: 370 materiałów, 35 nazwanych unikatów i Mikstura Oczyszczenia; osobno 4 legacy i 4 poza limitem. 192 części L25/L35, 21 zwykłych przeciwników, 6 bossów z fazami i jawnie odłożone projekty. Wszystkie 28 materiałów przyszłych biomów mają zastępczy drop, nie wyłącznie sklep. Decyzje użytkownika: w Elfich Ruinach tylko skóra leoparda; Dobry/Mocny proch strzelniczy we wszystkich pięciu biomach; Jaspis/Perła/Malachit z bossów L1–40. Zachowano bossowe dropy Obsydianu/Jadeitu z L1–10 i L11–20. Dane arkusza i override'y rozdzielone.
+
+30 kontroli PASS, zero FAIL; testy kontrolne grafu AND/OR/cyklu PASS. Trzy nieobecne referencje ustalone historycznie jako stare TestGalduryte/TestPotion/TestValuable i jawnie raportowane do późniejszego porządkowania przez Editor API. Szczegóły brakujących wydajności receptur, projektów Paladyna/Strażnika/unikatów i zakresu T6/T7 przypisane do właściwych kart. To walidacja planu, nie istniejącej progresji runtime L40. Bez zmian XLSX, C#, serialized Unity state i zapisów; bez uruchamiania Unity, commita i pusha. Odbiór: przegląd katalogu i tabeli źródeł.
+
+Źródła i wynik: `CONTENT_PASS_2_CATALOG.md`, `Tools/ContentPass2/content-manifest.json`, `material-sources.txt`, `validation.json`. SHA256 arkusza i adresy komórek zapisane w manifeście.
+
 ## CP2-01 — integracja bazy Windows do v0.2.0 — 2026-10-31 — ZAAKCEPTOWANA
 
 Smoke użytkownika PASS; polecenie `git` autoryzuje commit/push wyłącznie tej karty. Poniższe wyniki opisują weryfikację przed odbiorem.

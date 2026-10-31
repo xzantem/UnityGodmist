@@ -1,0 +1,130 @@
+{
+  "passed": 30,
+  "failed": 0,
+  "checks": [
+    {
+      "check": "no duplicate item IDs",
+      "passed": true
+    },
+    {
+      "check": "no duplicate IDs across all content categories",
+      "passed": true
+    },
+    {
+      "check": "stable ID syntax",
+      "passed": true
+    },
+    {
+      "check": "no unresolved blocking extraction issues",
+      "passed": true
+    },
+    {
+      "check": "all sources reference known items",
+      "passed": true
+    },
+    {
+      "check": "all explicit source level ranges inside 1-40",
+      "passed": true
+    },
+    {
+      "check": "all in-scope items reachable in planning graph",
+      "passed": true
+    },
+    {
+      "check": "stored levels equal independently recomputed levels",
+      "passed": true
+    },
+    {
+      "check": "every ingredient and selector resolves",
+      "passed": true
+    },
+    {
+      "check": "no missing source for any recipe alternative",
+      "passed": true
+    },
+    {
+      "check": "all equipment-part inputs reachable before L25/L35",
+      "passed": true
+    },
+    {
+      "check": "complete equipment grid: 4 classes x 2 sides x 2 levels x 12 parts",
+      "passed": true
+    },
+    {
+      "check": "all B/C alchemy inputs reachable at their tier",
+      "passed": true
+    },
+    {
+      "check": "four late fallback boss materials only L31-40",
+      "passed": true
+    },
+    {
+      "check": "no new sources for legacy dust/ear/blood",
+      "passed": true
+    },
+    {
+      "check": "forest ear points at crafting canonical ID",
+      "passed": true
+    },
+    {
+      "check": "both forest bosses have forest element",
+      "passed": true
+    },
+    {
+      "check": "user decision: leopard only in Ruins",
+      "passed": true
+    },
+    {
+      "check": "user decision: high-tier gunpowder in five biomes",
+      "passed": true
+    },
+    {
+      "check": "Obsydian: preserve both original boss brackets and extend plan to 40",
+      "passed": true
+    },
+    {
+      "check": "Jadeit: preserve both original boss brackets and extend plan to 40",
+      "passed": true
+    },
+    {
+      "check": "user decision: Jasper/Pearl/Malachite from both biome bosses L1-40",
+      "passed": true
+    },
+    {
+      "check": "40 unique slots including 5 explicitly deferred",
+      "passed": true
+    },
+    {
+      "check": "Paladin placeholders remain deferred without fabricated IDs",
+      "passed": true
+    },
+    {
+      "check": "21 ordinary enemies and 6 two-phase bosses",
+      "passed": true
+    },
+    {
+      "check": "galduryte and jewelry tiers retained",
+      "passed": true
+    },
+    {
+      "check": "jewelry uses existing material-based identities",
+      "passed": true
+    },
+    {
+      "check": "natural sources preserved except explicit user replacement",
+      "passed": true
+    },
+    {
+      "check": "all 28 future-biome ingredients have fallback drops, not only shops",
+      "passed": true
+    },
+    {
+      "check": "workbook unchanged since generation",
+      "passed": true
+    }
+  ],
+  "graph_unit_checks": "PASS",
+  "manifest_sha256": "382070c8c8826172f34e88d2324d4a44d41435279995b51e4d8a1d0c74662c24",
+  "planning_only": true,
+  "runtime_reachability": "NOT IMPLEMENTED / NOT VERIFIED"
+}

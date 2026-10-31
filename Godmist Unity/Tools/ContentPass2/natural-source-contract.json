@@ -1,0 +1,1125 @@
+{
+  "origin": "Accepted natural-source contract from content-pass-2-20261027; newer workbook/user decisions override it",
+  "assignments": [
+    {
+      "name": "Aloe meda",
+      "level": 1,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Ametyst",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Bursztyn",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Bursztyn",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Bursztyn",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Bursztyn",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Błyszczący piasek",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Chrom",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Chrom",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Cytryn",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Diament",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Dmuchawiec tregandzki",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Drewno brzozowe",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Drewno brzozowe",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Drewno bukowe",
+      "level": 31,
+      "owner": "Góry"
+    },
+    {
+      "name": "Drewno bukowe",
+      "level": 31,
+      "owner": "Morze"
+    },
+    {
+      "name": "Drewno bzowe",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Drewno bzowe",
+      "level": 21,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Drewno cedrowe",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Drewno cedrowe",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Drewno cyprysowe",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Drewno cyprysowe",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Drewno dębowe",
+      "level": 31,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Drewno dębowe",
+      "level": 31,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Drewno grabowe",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Drewno grabowe",
+      "level": 21,
+      "owner": "Las"
+    },
+    {
+      "name": "Drewno głogowe",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Drewno głogowe",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Drewno jodłowe",
+      "level": 31,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Drewno jodłowe",
+      "level": 31,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Drewno lipowe",
+      "level": 1,
+      "owner": "Las"
+    },
+    {
+      "name": "Drewno lipowe",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Drewno modrzewiowe",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Drewno modrzewiowe",
+      "level": 1,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Drewno olchowe",
+      "level": 1,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Drewno olchowe",
+      "level": 1,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Drewno sekwojowe",
+      "level": 31,
+      "owner": "Las"
+    },
+    {
+      "name": "Drewno sekwojowe",
+      "level": 31,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Drewno topolowe",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Drewno topolowe",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Drewno wiązowe",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Drewno wiązowe",
+      "level": 21,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Drewno świerkowe",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Drewno świerkowe",
+      "level": 21,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Ektoplazma",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Granat",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Histyna",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Kawałek cynku",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Kawałek cynku",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Kieł aligatora",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Kieł wilka",
+      "level": 21,
+      "owner": "Las"
+    },
+    {
+      "name": "Klejnot pustyni",
+      "level": 31,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Klejnot pustyni",
+      "level": 31,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Kosarz pospolity",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Kość szkieleta",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Krasnoludzki mech",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Księżycowy pył",
+      "level": 31,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Księżycowy pył",
+      "level": 31,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Kwiat byliny",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Kwiat rissa",
+      "level": 21,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Kwiat tulipanu",
+      "level": 21,
+      "owner": "Las"
+    },
+    {
+      "name": "Kwitnąca wiśnia",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Las"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Lity granit",
+      "level": 21,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Lity wapień",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Liść bananowca",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Lodowe prętki",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Mieczokrzew",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Motyl królewski",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Mucha zwyczajna",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Mózg umarlaka",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Nerka trolla",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Odłamek meteorytu",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Odłamek meteorytu",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Oko pirata",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Onyks",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Owoc kaktusa",
+      "level": 1,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Pazur ghula",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Pióro ptaka",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Pióro ruka",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Pnącza alzif",
+      "level": 1,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Pozawymiarowa macka",
+      "level": 21,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Prętki doragafury",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Purchawka",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Płetwa rekina",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Płonące pnącza",
+      "level": 21,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Płuco topielca",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Rubin",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Ruda annodytu",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Ruda annodytu",
+      "level": 31,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Ruda annodytu",
+      "level": 21,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Ruda annodytu",
+      "level": 31,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Ruda cyny",
+      "level": 1,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Ruda cyny",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Ruda cyny",
+      "level": 1,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Ruda cyny",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Ruda kobaltu",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Ruda kobaltu",
+      "level": 31,
+      "owner": "Morze"
+    },
+    {
+      "name": "Ruda kobaltu",
+      "level": 21,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Ruda kobaltu",
+      "level": 31,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Ruda miedzi",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Ruda miedzi",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Ruda miedzi",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Ruda miedzi",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Ruda niklu",
+      "level": 1,
+      "owner": "Las"
+    },
+    {
+      "name": "Ruda niklu",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Ruda niklu",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Ruda niklu",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Ruda srebra",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Ruda srebra",
+      "level": 31,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Ruda srebra",
+      "level": 21,
+      "owner": "Las"
+    },
+    {
+      "name": "Ruda srebra",
+      "level": 31,
+      "owner": "Las"
+    },
+    {
+      "name": "Ruda złota",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Ruda złota",
+      "level": 31,
+      "owner": "Góry"
+    },
+    {
+      "name": "Ruda złota",
+      "level": 21,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Ruda złota",
+      "level": 31,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Ruda żelaza",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Ruda żelaza",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Ruda żelaza",
+      "level": 1,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Ruda żelaza",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Rutyl",
+      "level": 31,
+      "owner": "Las"
+    },
+    {
+      "name": "Rutyl",
+      "level": 31,
+      "owner": "Morze"
+    },
+    {
+      "name": "Róg demona",
+      "level": 1,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Sfaleryt",
+      "level": 31,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Sfaleryt",
+      "level": 31,
+      "owner": "Góry"
+    },
+    {
+      "name": "Sitowie",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Skruszona czaszka",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Skóra aligatora",
+      "level": 21,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Skóra aligatora",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Skóra aligatora",
+      "level": 21,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Skóra bawoła",
+      "level": 31,
+      "owner": "Góry"
+    },
+    {
+      "name": "Skóra bawoła",
+      "level": 31,
+      "owner": "Morze"
+    },
+    {
+      "name": "Skóra dzika",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Skóra dzika",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Skóra dzikiego psa",
+      "level": 1,
+      "owner": "Las"
+    },
+    {
+      "name": "Skóra dzikiego psa",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Skóra geparda",
+      "level": 31,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Skóra geparda",
+      "level": 31,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Skóra jelenia",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Skóra jelenia",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Skóra kozy",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Skóra kozy",
+      "level": 1,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Skóra królika",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Skóra królika",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Skóra leoparda",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Skóra lisa",
+      "level": 1,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Skóra lisa",
+      "level": 1,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Skóra niedźwiedzia",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Skóra niedźwiedzia",
+      "level": 21,
+      "owner": "Las"
+    },
+    {
+      "name": "Skóra skorpiona",
+      "level": 31,
+      "owner": "Las"
+    },
+    {
+      "name": "Skóra skorpiona",
+      "level": 31,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Skóra trolla",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Skóra trolla",
+      "level": 21,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Skóra tygrysa",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Skóra tygrysa",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Skóra warana",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Skóra warana",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Skóra wilka",
+      "level": 31,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Skóra wilka",
+      "level": 31,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Spaczone serce",
+      "level": 1,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Ssawka komara",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Starożytna skóra",
+      "level": 21,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Szafir",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Szmaragd",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Szyszka",
+      "level": 1,
+      "owner": "Las"
+    },
+    {
+      "name": "Tatarak płaski",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Topaz",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Topaz",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Topaz",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Topaz",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Trawa dusicielska",
+      "level": 1,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Ucho elfa",
+      "level": 1,
+      "owner": "Las"
+    },
+    {
+      "name": "Wodorosty",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Węgiel",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Węgiel",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Włókno bawełny",
+      "level": 1,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Włókno bawełny",
+      "level": 1,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Włókno bukominy",
+      "level": 1,
+      "owner": "Las"
+    },
+    {
+      "name": "Włókno bukominy",
+      "level": 1,
+      "owner": "Morze"
+    },
+    {
+      "name": "Włókno juki",
+      "level": 31,
+      "owner": "Góry"
+    },
+    {
+      "name": "Włókno juki",
+      "level": 31,
+      "owner": "Morze"
+    },
+    {
+      "name": "Włókno juty",
+      "level": 1,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Włókno juty",
+      "level": 1,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Włókno konopi",
+      "level": 31,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Włókno konopi",
+      "level": 31,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Włókno koziej wełny",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Włókno koziej wełny",
+      "level": 1,
+      "owner": "Góry"
+    },
+    {
+      "name": "Włókno lamiej wełny",
+      "level": 11,
+      "owner": "Morze"
+    },
+    {
+      "name": "Włókno lamiej wełny",
+      "level": 11,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Włókno lnu",
+      "level": 21,
+      "owner": "Góry"
+    },
+    {
+      "name": "Włókno lnu",
+      "level": 21,
+      "owner": "Las"
+    },
+    {
+      "name": "Włókno meleny",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Włókno meleny",
+      "level": 21,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Włókno owczej wełny",
+      "level": 11,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Włókno owczej wełny",
+      "level": 11,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Włókno palmy",
+      "level": 11,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Włókno palmy",
+      "level": 11,
+      "owner": "Las"
+    },
+    {
+      "name": "Włókno srebrnoszponu",
+      "level": 21,
+      "owner": "Katakumby"
+    },
+    {
+      "name": "Włókno srebrnoszponu",
+      "level": 21,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Włókno trójprętu",
+      "level": 31,
+      "owner": "Elfie Ruiny"
+    },
+    {
+      "name": "Włókno trójprętu",
+      "level": 31,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Włókno utumeny",
+      "level": 31,
+      "owner": "Las"
+    },
+    {
+      "name": "Włókno utumeny",
+      "level": 31,
+      "owner": "Pustynia"
+    },
+    {
+      "name": "Włókno wasminy",
+      "level": 11,
+      "owner": "Góry"
+    },
+    {
+      "name": "Włókno wasminy",
+      "level": 11,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Włókno wielbłądziej wełny",
+      "level": 21,
+      "owner": "Morze"
+    },
+    {
+      "name": "Włókno wielbłądziej wełny",
+      "level": 21,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Żmijowiec",
+      "level": 21,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Żniwiarz pustynny",
+      "level": 21,
+      "owner": "Świątynia"
+    },
+    {
+      "name": "Żyjący liść",
+      "level": 1,
+      "owner": "Bagno"
+    },
+    {
+      "name": "Żywioł wiatru",
+      "level": 21,
+      "owner": "Pustynia"
+    }
+  ]
+}
