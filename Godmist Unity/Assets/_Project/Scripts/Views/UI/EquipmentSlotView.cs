@@ -15,7 +15,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI slotNameText;
         [SerializeField] private TextMeshProUGUI itemNameText;
         [SerializeField] private Color normalColor = new(0.11f, 0.15f, 0.2f, 1f);
-        [SerializeField] private Color selectedColor = new(0.35f, 0.28f, 0.12f, 1f);
+        private Color selectedColor => HighlightStyle.SelectionSurface(normalColor);
 
         private EquipmentItemInstance item;
         private Action<EquipmentItemInstance> selectionCallback;

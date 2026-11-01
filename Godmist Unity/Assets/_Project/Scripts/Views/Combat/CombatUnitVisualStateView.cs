@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godmist.Runtime.Combat;
 using Godmist.Systems.Combat;
 using UnityEngine;
@@ -7,11 +8,11 @@ namespace Godmist.Views.Combat
     [DefaultExecutionOrder(11001)]
     public class CombatUnitVisualStateView : MonoBehaviour
     {
-        [SerializeField] private Color activeTurnColor = new(1f, .78f, .22f, 1f);
-        [SerializeField] private Color inspectColor = new(.5f, .86f, 1f, 1f);
-        [SerializeField] private Color targetColor = new(1f, .34f, .28f, 1f);
-        [SerializeField, Min(0.001f)] private float outlineWidth = .06f;
-        [SerializeField, Min(0f)] private float pulseSpeed = 2.5f;
+        private static Color activeTurnColor => HighlightStyle.Selection;
+        private static Color inspectColor => HighlightStyle.Hover;
+        private static Color targetColor => HighlightStyle.Hostile;
+        private float outlineWidth = 1f / 32f;
+        private bool customOutlineWidth;
         private SpriteRenderer[] renderers;
         private Color[] defaults;
         private SpriteRenderer[] outlineRenderers;
@@ -21,6 +22,10 @@ namespace Godmist.Views.Combat
         private MeshRenderer enemyFootMarker;
         private Material enemyFootMaterial;
         private BattleUnit enemyFootUnit;
+        private bool hasActiveTurn;
+        private Mesh activeFootMesh;
+        private MeshRenderer activeFootMarker;
+        private Material activeFootMaterial;
         private static readonly Vector2[] OutlineOffsets =
         {
             Vector2.left, Vector2.right, Vector2.up, Vector2.down,
@@ -61,11 +66,17 @@ namespace Godmist.Views.Combat
             }
         }
 
-        public void SetPulseSpeed(float speed) => pulseSpeed = Mathf.Max(0f, speed);
-
         public void SetOutlineWidth(float width)
         {
-            outlineWidth = Mathf.Max(0.001f, width);
+            customOutlineWidth = true;
+            ApplyOutlineWidth(width);
+        }
+
+        private void ApplyOutlineWidth(float width)
+        {
+            width = Mathf.Max(0.001f, width);
+            if (Mathf.Approximately(outlineWidth, width)) return;
+            outlineWidth = width;
             if (outlineRenderers == null) return;
             for (var index = 0; index < outlineRenderers.Length; index++)
                 if (outlineRenderers[index] != null)
@@ -74,6 +85,8 @@ namespace Godmist.Views.Combat
 
         private void OnDestroy()
         {
+            if (activeFootMesh != null) Release(activeFootMesh);
+            if (activeFootMaterial != null) Release(activeFootMaterial);
             if (enemyFootMesh != null) Release(enemyFootMesh);
             if (enemyFootMaterial != null) Release(enemyFootMaterial);
             if (outlineMaterial != null)
@@ -85,6 +98,8 @@ namespace Godmist.Views.Combat
 
         public void ClearHighlight()
         {
+            hasActiveTurn = false;
+            if (activeFootMarker != null) activeFootMarker.enabled = false;
             enemyFootUnit = null;
             if (enemyFootMarker != null) enemyFootMarker.enabled = false;
             if (outlineRenderers == null) return;
@@ -92,11 +107,20 @@ namespace Godmist.Views.Combat
                 if (renderer != null) renderer.enabled = false;
         }
 
+        private void OnDisable() => ClearHighlight();
+
+        private static bool CanRenderFeedback(SpriteRenderer source) => source != null
+            && source.enabled && !source.forceRenderingOff && source.color.a > .01f;
+
         private void LateUpdate()
         {
             // Awareness/fog and depth sorting settle in the actor's LateUpdate.
             // Recheck afterward so a marker cannot linger for a frame in fog.
-            if (renderers != null) RefreshEnemyFootMarker(enemyFootUnit);
+            if (renderers != null)
+            {
+                RefreshEnemyFootMarker(enemyFootUnit);
+                RefreshActiveFootMarker(enemyFootUnit);
+            }
             if (outlineRenderers == null || renderers == null || renderers.Length == 0)
                 return;
             var source = renderers[0];
@@ -105,26 +129,30 @@ namespace Godmist.Views.Combat
             {
                 var outline = outlineRenderers[index];
                 if (outline == null) continue;
-                if (StatusEffectSystem.IsInvisibleToPlayer(enemyFootUnit) || !source.enabled || source.forceRenderingOff)
+                if (StatusEffectSystem.IsInvisibleToPlayer(enemyFootUnit) || !CanRenderFeedback(source))
                     outline.enabled = false;
                 outline.sortingLayerID = source.sortingLayerID;
                 outline.sortingOrder = source.sortingOrder - 1;
             }
         }
 
-        public void Refresh(BattleUnit unit, bool isActive, bool isHovered, bool isTargeting, bool preserveBodyColors = false)
+        public void Refresh(BattleUnit unit, bool isActive, bool isHovered, bool isTargeting, bool preserveBodyColors = false, Color? targetAccent = null)
         {
+            if (!isActiveAndEnabled) { ClearHighlight(); return; }
             if (renderers == null) Awake();
+            if (!customOutlineWidth && renderers.Length > 0 && renderers[0].sprite != null)
+                ApplyOutlineWidth(1f / Mathf.Max(1f, renderers[0].sprite.pixelsPerUnit));
             enemyFootUnit = unit;
             RefreshEnemyFootMarker(unit);
             // A downed unit can remain in the view while its persistent downed pose
             // is playing, and a turn transition can briefly leave ActiveUnit stale.
             // Neither case is an active-turn visual state. Hover/target feedback is
             // still allowed to identify a downed revive target.
-            var hasActiveTurn = isActive
+            hasActiveTurn = isActive
                 && !StatusEffectSystem.IsInvisibleToPlayer(unit)
                 && unit?.Character?.LifeState == Godmist.Core.Enums.CharacterLifeState.Alive;
-            var accent = isHovered ? (isTargeting ? targetColor : inspectColor) : hasActiveTurn ? activeTurnColor : Color.clear;
+            RefreshActiveFootMarker(unit);
+            var accent = isHovered ? (isTargeting ? targetAccent ?? targetColor : inspectColor) : Color.clear;
             if (StatusEffectSystem.IsInvisibleToPlayer(unit)) accent = Color.clear;
             for (var i = 0; i < renderers.Length; i++)
             {
@@ -132,14 +160,8 @@ namespace Godmist.Views.Combat
                 if (!preserveBodyColors) renderers[i].color = defaults[i];
             }
             if (outlineRenderers == null) return;
-            // The colour deliberately reaches the unmodified accent.  The easing keeps it
-            // there longer than at the black end, so the unit reads as gold/blue/red rather
-            // than as a permanently dim outline.
-            var rawPulse = .5f + .5f * Mathf.Sin(Time.unscaledTime * pulseSpeed);
-            var pulse = Mathf.Pow(rawPulse, .45f);
-            var outlineColor = Color.Lerp(Color.black, accent, pulse);
-            if (unit != null && StatusEffectSystem.IsHardCrowdControlled(unit))
-                outlineColor = Color.Lerp(Color.black, outlineColor, .55f);
+            // Hover and target colours stay readable; control effects have their own icons.
+            var outlineColor = accent;
             for (var index = 0; index < outlineRenderers.Length; index++)
             {
                 var outlineRenderer = outlineRenderers[index];
@@ -148,7 +170,7 @@ namespace Godmist.Views.Combat
                 outlineRenderer.flipY = renderers[0].flipY;
                 outlineRenderer.sortingLayerID = renderers[0].sortingLayerID;
                 outlineRenderer.sortingOrder = renderers[0].sortingOrder - 1;
-                outlineRenderer.enabled = accent.a > 0f && renderers[0].enabled && !renderers[0].forceRenderingOff;
+                outlineRenderer.enabled = accent.a > 0f && CanRenderFeedback(renderers[0]);
                 if (!outlineRenderer.enabled) continue;
 
                 var properties = outlineProperties[index];
@@ -162,52 +184,89 @@ namespace Godmist.Views.Combat
             if (Application.isPlaying) Destroy(resource); else DestroyImmediate(resource);
         }
 
+        private void RefreshActiveFootMarker(BattleUnit unit)
+        {
+            var source = renderers.Length > 0 ? renderers[0] : null;
+            var show = hasActiveTurn && unit?.Character?.LifeState == Godmist.Core.Enums.CharacterLifeState.Alive
+                && !StatusEffectSystem.IsInvisibleToPlayer(unit)
+                && CanRenderFeedback(source);
+            if (!show) { if (activeFootMarker != null) activeFootMarker.enabled = false; return; }
+            if (activeFootMarker == null)
+                activeFootMarker = CreateFootMarker("Active turn foot ring", true, out activeFootMesh, out activeFootMaterial);
+            activeFootMarker.sortingLayerID = source.sortingLayerID;
+            activeFootMarker.sortingOrder = source.sortingOrder - 1;
+            activeFootMarker.enabled = true;
+        }
+
         private void RefreshEnemyFootMarker(BattleUnit unit)
         {
             var source = renderers.Length > 0 ? renderers[0] : null;
             var show = unit != null && !unit.IsPlayerSide
                 && !StatusEffectSystem.IsInvisibleToPlayer(unit)
                 && unit.Character?.LifeState == Godmist.Core.Enums.CharacterLifeState.Alive
-                && source != null && source.enabled && !source.forceRenderingOff && source.color.a > .01f;
+                && CanRenderFeedback(source);
             if (!show) { if (enemyFootMarker != null) enemyFootMarker.enabled = false; return; }
             if (enemyFootMarker == null)
-            {
-                // A small, static lower arc at the feet; no full ring, pulse,
-                // extra texture or per-frame mesh rebuild.
-                var node = new GameObject("Enemy foot arc", typeof(MeshFilter), typeof(MeshRenderer));
-                node.layer = gameObject.layer;
-                node.transform.SetParent(transform, false);
-                const int segments = 12;
-                var vertices = new Vector3[(segments + 1) * 2];
-                var colors = new Color[vertices.Length];
-                var indices = new int[segments * 6];
-                for (var i = 0; i <= segments; i++)
-                {
-                    var angle = Mathf.Lerp(200f, 340f, i / (float)segments) * Mathf.Deg2Rad;
-                    var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-                    vertices[i * 2] = Vector2.Scale(direction, new Vector2(.34f, .14f));
-                    vertices[i * 2 + 1] = Vector2.Scale(direction, new Vector2(.31f, .11f));
-                    colors[i * 2] = colors[i * 2 + 1] = new Color(.70f, .21f, .17f, .7f);
-                    if (i == segments) continue;
-                    var t = i * 6; var v = i * 2;
-                    indices[t] = v; indices[t + 1] = v + 1; indices[t + 2] = v + 2;
-                    indices[t + 3] = v + 2; indices[t + 4] = v + 1; indices[t + 5] = v + 3;
-                }
-                enemyFootMesh = new Mesh { name = "Enemy foot arc" };
-                enemyFootMesh.vertices = vertices; enemyFootMesh.colors = colors;
-                enemyFootMesh.uv = new Vector2[vertices.Length];
-                enemyFootMesh.triangles = indices; enemyFootMesh.RecalculateBounds();
-                node.GetComponent<MeshFilter>().sharedMesh = enemyFootMesh;
-                enemyFootMaterial = new Material(Shader.Find("Sprites/Default")) { mainTexture = Texture2D.whiteTexture };
-                enemyFootMarker = node.GetComponent<MeshRenderer>();
-                enemyFootMarker.sharedMaterial = enemyFootMaterial;
-                enemyFootMarker.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                enemyFootMarker.receiveShadows = false;
-            }
+                enemyFootMarker = CreateFootMarker("Enemy foot arc", false, out enemyFootMesh, out enemyFootMaterial);
             enemyFootMarker.sortingLayerID = source.sortingLayerID;
             enemyFootMarker.sortingOrder = source.sortingOrder - 1;
             enemyFootMarker.forceRenderingOff = false;
             enemyFootMarker.enabled = true;
+        }
+
+        // Pixel geometry at the same 32-pixel cell scale as floor feedback. Built once,
+        // with a dark keyline and restrained metal highlights; no glowing smooth ring.
+        private MeshRenderer CreateFootMarker(string name, bool active, out Mesh mesh, out Material material)
+        {
+            var pixels = new HashSet<Vector2Int>();
+            for (var y = -6; y <= 5; y++)
+            for (var x = -12; x <= 12; x++)
+            {
+                var ax = Mathf.Abs(x); var ay = Mathf.Abs(y);
+                var outer = ax <= 12 && ay <= 5 && ax + 2 * ay <= 19;
+                var inner = ax <= 11 && ay <= 4 && ax + 2 * ay <= 17;
+                if (active ? outer && !inner && !(y > 1 && ax < 6)
+                    : y < -1 && outer && !inner)
+                    pixels.Add(new Vector2Int(x, y));
+            }
+            if (active)
+            {
+                pixels.Add(new Vector2Int(0, -7)); pixels.Add(new Vector2Int(-1, -6));
+                pixels.Add(new Vector2Int(0, -6)); pixels.Add(new Vector2Int(1, -6));
+            }
+            var shadow = new HashSet<Vector2Int>();
+            foreach (var pixel in pixels)
+                for (var y = -1; y <= 1; y++) for (var x = -1; x <= 1; x++)
+                {
+                    var neighbour = pixel + new Vector2Int(x, y);
+                    if (!pixels.Contains(neighbour)) shadow.Add(neighbour);
+                }
+            var vertices = new List<Vector3>(); var colors = new List<Color>(); var indices = new List<int>();
+            void Pixel(Vector2Int pixel, Color color)
+            {
+                const float size = 1f / 32f;
+                var left = (pixel.x - .5f) * size; var bottom = (pixel.y - .5f) * size;
+                var index = vertices.Count;
+                vertices.Add(new Vector3(left, bottom)); vertices.Add(new Vector3(left, bottom + size));
+                vertices.Add(new Vector3(left + size, bottom + size)); vertices.Add(new Vector3(left + size, bottom));
+                for (var i = 0; i < 4; i++) colors.Add(color);
+                indices.Add(index); indices.Add(index + 1); indices.Add(index + 2);
+                indices.Add(index); indices.Add(index + 2); indices.Add(index + 3);
+            }
+            foreach (var pixel in shadow) Pixel(pixel, HighlightStyle.Ink);
+            var tint = active ? HighlightStyle.Selection : HighlightStyle.Hostile;
+            foreach (var pixel in pixels)
+                Pixel(pixel, pixel.y <= -4 ? tint : Color.Lerp(HighlightStyle.Ink, tint, .8f));
+            mesh = new Mesh { name = name };
+            mesh.SetVertices(vertices); mesh.SetColors(colors); mesh.SetTriangles(indices, 0);
+            mesh.uv = new Vector2[vertices.Count]; mesh.RecalculateBounds();
+            var node = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer));
+            node.layer = gameObject.layer; node.transform.SetParent(transform, false);
+            node.GetComponent<MeshFilter>().sharedMesh = mesh;
+            material = new Material(Shader.Find("Sprites/Default")) { mainTexture = Texture2D.whiteTexture };
+            var renderer = node.GetComponent<MeshRenderer>(); renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; renderer.receiveShadows = false;
+            return renderer;
         }
     }
 }

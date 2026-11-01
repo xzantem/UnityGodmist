@@ -53,7 +53,7 @@ namespace Godmist.Views.UI.Workspace
             if (selectedMarker != null)
             {
                 selectedMarker.enabled = selected;
-                selectedMarker.color = unit != null ? new Color(.35f,.85f,1f) : new Color(1f,.81f,.4f);
+                selectedMarker.color = HighlightStyle.Selection;
             }
             if (memberView != null)
             {
@@ -63,8 +63,8 @@ namespace Godmist.Views.UI.Workspace
             var shownCharacter = unit?.Character ?? character;
             if (shownCharacter == null) return;
             RefreshProgressionBadge();
-            if (nameText != null) nameText.color = hasTurn ? new Color(1f,.81f,.4f)
-                : selected ? unit != null ? new Color(.35f,.85f,1f) : new Color(1f,.81f,.4f)
+            if (nameText != null) nameText.color = hasTurn ? HighlightStyle.Selection
+                : selected ? HighlightStyle.Selection
                 : new Color(.91f, .875f, .78f);
             var state = shownCharacter.LifeState;
             if (portrait != null) portrait.color = state == CharacterLifeState.Dead

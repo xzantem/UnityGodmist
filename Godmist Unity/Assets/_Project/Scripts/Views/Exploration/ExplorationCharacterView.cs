@@ -446,12 +446,12 @@ namespace Godmist.Views.Exploration
             if (body != null) body.position = transform.position;
         }
 
-        public void RefreshCombatPresentation(bool isActive, bool isHovered, bool isTargeting)
+        public void RefreshCombatPresentation(bool isActive, bool isHovered, bool isTargeting, Color? targetAccent = null)
         {
             Godmist.Views.UI.CombatDownedIndicatorView.UpdateWorld(ref downedIndicator, bodyRenderer, CombatUnit, awarenessStyle);
             if (CombatUnit == null) { combatVisualState?.ClearHighlight(); return; }
             if (nameLabel != null) nameLabel.gameObject.SetActive(false);
-            combatVisualState?.Refresh(CombatUnit, isActive, isHovered, isTargeting, true);
+            combatVisualState?.Refresh(CombatUnit, isActive, isHovered, isTargeting, true, targetAccent);
         }
 
         public bool IsPointerHit(Vector2 point) => isActiveAndEnabled && bodyRenderer != null

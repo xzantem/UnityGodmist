@@ -19,8 +19,8 @@ namespace Godmist.Views.UI
         [SerializeField] private Transform actionPointPipRoot;
         [SerializeField] private GameObject actionPointPipTemplate;
         [SerializeField] private CombatStatusCollectionView statusCollection;
-        [SerializeField] private Color playerAccentColor = new(0.88f, 0.67f, 0.24f, 1f);
-        [SerializeField] private Color enemyAccentColor = new(0.78f, 0.20f, 0.18f, 1f);
+        private static Color playerAccentColor => HighlightStyle.Selection;
+        private static Color enemyAccentColor => HighlightStyle.Hostile;
         [SerializeField] private Color inactivePipColor = new(0.12f, 0.15f, 0.19f, 0.95f);
 
         [SerializeField] private TextMeshProUGUI unitNameText;

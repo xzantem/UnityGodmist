@@ -124,7 +124,7 @@ namespace Godmist.Tests.EditMode
                 var uv = renderer.GetComponent<MeshFilter>().sharedMesh.uv;
                 float Alpha(float x) => texture.GetPixelBilinear(Mathf.Lerp(uv[0].x, uv[3].x, x),
                     Mathf.Lerp(uv[0].y, uv[1].y, .5f)).a;
-                Assert.That(Alpha(.07f), Is.GreaterThan(.02f), "Contour still needs to be readable.");
+                Assert.That(Alpha(.04f), Is.GreaterThan(.02f), "The feathered pigment rim still needs to be readable.");
                 Assert.That(Alpha(.21f), Is.LessThan(.005f), "No broad glowing strip inside the range.");
                 Assert.That(Alpha(.99f), Is.LessThan(.005f), "No internal edge between adjacent cells.");
             }

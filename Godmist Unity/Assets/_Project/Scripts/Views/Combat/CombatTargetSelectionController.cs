@@ -36,18 +36,19 @@ namespace Godmist.Views.Combat
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
-        [SerializeField] private Color targetHighlightColor = new(1f, 0.72f, 0.2f, 0.65f);
-        [SerializeField] private Color absoluteRangeHighlightColor = new(0.25f, 0.55f, 1f, 0.25f);
+        private static Color targetHighlightColor => HighlightStyle.Hover;
+        private static Color absoluteRangeHighlightColor => HighlightStyle.WithAlpha(HighlightStyle.Range, .75f);
 
-        [SerializeField] private Color relativeRangeHighlightColor = new(1f, 0.3f, 0.12f, 0.42f);
+        private static Color relativeRangeHighlightColor => HighlightStyle.WithAlpha(HighlightStyle.Range, .85f);
 
-        [SerializeField] private Color affectedTargetHighlightColor = new(1f, 0.45f, 0.15f, 0.8f);
+        private static Color affectedTargetHighlightColor => HighlightStyle.Hover;
 
         private readonly HashSet<GridPosition> absoluteRangePositions = new();
 
         private readonly HashSet<GridPosition> selectablePositions = new();
 
         private readonly HashSet<GridPosition> eligibleTargetPositions = new();
+        private readonly HashSet<GridPosition> affectedTargetPositions = new();
 
         private GridPosition? previewedRelativeCenter;
         private int directionalRotationQuarterTurns;
@@ -332,6 +333,7 @@ namespace Godmist.Views.Combat
 
             if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
             {
+                ClearRelativeRangeHighlights();
                 HoveredUnit = null;
                 HoveredPosition = null;
                 targetPreview?.Hide();
@@ -526,22 +528,19 @@ namespace Godmist.Views.Combat
                     selectablePositions.Add(position);
             }
 
-            if (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain)
-            {
-                foreach (var position in sandboxBootstrap.GetEligibleSkillTargetPositions(
-                             selectedSkill, CurrentTargetMode, currentTargetModeIndex))
-                    eligibleTargetPositions.Add(position);
-            }
+            foreach (var position in sandboxBootstrap.GetEligibleSkillTargetPositions(
+                         selectedSkill, CurrentTargetMode, currentTargetModeIndex))
+                eligibleTargetPositions.Add(position);
 
             if (chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var selectedCells))
             {
-                feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.9f));
-                feedbackRenderer.ShowFill(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.4f));
+                feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.ChosenSkillTargets, selectedCells, HighlightStyle.Hover, TargetCellColor);
             }
             if (!usesRedDirectionalFootprintOnly)
             {
                 SpawnHighlights(
-                    selectablePositions.ToList(),
+                    (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain
+                        ? selectablePositions : eligibleTargetPositions).ToList(),
                     targetHighlightColor,
                     CombatGridFeedbackLayer.SkillTarget);
                 feedbackRenderer.ShowFill(
@@ -569,8 +568,8 @@ namespace Godmist.Views.Combat
                 for(var y=Math.Max(0,field.Position.Y-radius);y<=Math.Min(session.Grid.Height-1,field.Position.Y+radius);y++)
                     foreach(var cell in session.Grid.GetPositionsAt(x,y))
                         if(PaladinCombatSystem.FieldContains(session,field,cell))cells.Add(cell);
-            feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.8f));
-            feedbackRenderer.ShowFill(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.12f));
+            feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.JudgementField,cells,HighlightStyle.WithAlpha(HighlightStyle.Selection, .8f));
+            feedbackRenderer.ShowFill(CombatGridFeedbackLayer.JudgementField,cells,HighlightStyle.WithAlpha(HighlightStyle.Selection, .12f));
         }
         private void UpdateRelativeRangePreview()
         {
@@ -586,7 +585,11 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (!TryGetGridPositionUnderMouse(out var hoveredPosition)) return;
+            if (!TryGetGridPositionUnderMouse(out var hoveredPosition))
+            {
+                ClearRelativeRangeHighlights();
+                return;
+            }
 
             if (previewedRelativeCenter.HasValue && previewedRelativeCenter.Value == hoveredPosition) return;
 
@@ -626,7 +629,11 @@ namespace Godmist.Views.Combat
                 IsRotatableShape(CurrentTargetMode)
                     ? directionalRotationQuarterTurns
                     : 0))
-                if (sandboxBootstrap.IsUnitVisible(target)) affectedPositions.Add(target.Position);
+                if (sandboxBootstrap.IsUnitVisible(target))
+                {
+                    affectedPositions.Add(target.Position);
+                    affectedTargetPositions.Add(target.Position);
+                }
 
             SpawnHighlights(affectedPositions, affectedTargetHighlightColor, CombatGridFeedbackLayer.AffectedArea);
             feedbackRenderer.ShowFill(
@@ -784,12 +791,31 @@ namespace Godmist.Views.Combat
             return false;
         }
 
+        private Color TargetCellColor(GridPosition position)
+        {
+            var session = sandboxBootstrap?.Session;
+            var caster = session?.ActiveUnit;
+            if (caster != null)
+                foreach (var unit in session.Units)
+                    if (unit != null && unit.Position == position && sandboxBootstrap.IsUnitVisible(unit))
+                        return HighlightStyle.Target(caster.IsPlayerSide, unit.IsPlayerSide);
+            return HighlightStyle.Hover;
+        }
+
+        public bool IsHighlightedSkillTarget(BattleUnit unit) => unit != null && IsSelectingTarget
+            && (eligibleTargetPositions.Contains(unit.Position) || affectedTargetPositions.Contains(unit.Position));
+
+        public Color HoverTargetColor(BattleUnit unit) => IsHighlightedSkillTarget(unit)
+            ? TargetCellColor(unit.Position) : HighlightStyle.Hover;
+
         private void SpawnHighlights(
             IReadOnlyList<GridPosition> positions,
             Color color,
             CombatGridFeedbackLayer layer)
         {
-            feedbackRenderer?.ShowOutline(layer, positions, color);
+            feedbackRenderer?.ShowOutline(layer, positions, color,
+                layer is CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.AffectedArea
+                    ? TargetCellColor : null);
         }
         private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
@@ -977,6 +1003,7 @@ namespace Godmist.Views.Combat
 
         private void ClearRelativeRangeHighlights()
         {
+            affectedTargetPositions.Clear();
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.RelativeRange);
             feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.RelativeRange);
             previewedRelativeCenter = null;

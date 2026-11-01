@@ -19,7 +19,7 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private Button depart, abandon;
         [SerializeField] private Transform partyRoot;
         [SerializeField] private Godmist.Views.UI.CombatPartyMemberView partyTemplate;
-        [SerializeField] private Color selectedColor = new(.85f,.65f,.25f);
+        private static Color selectedColor => HighlightStyle.Selection;
         [SerializeField] private Color normalColor = new(.24f,.32f,.36f);
         private readonly System.Collections.Generic.List<Godmist.Views.UI.CombatPartyMemberView> portraits = new();
         private GameBootstrap bootstrap;

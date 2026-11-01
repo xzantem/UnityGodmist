@@ -87,7 +87,6 @@ namespace Godmist.Views.Dungeons
             {
                 hoverOutline = bodyRenderer.GetComponent<Godmist.Views.Combat.CombatUnitVisualStateView>()
                     ?? bodyRenderer.gameObject.AddComponent<Godmist.Views.Combat.CombatUnitVisualStateView>();
-                hoverOutline.SetPulseSpeed(0f);
                 hoverOutline.SetOutlineWidth(1f / Mathf.Max(1f, bodyRenderer.sprite?.pixelsPerUnit ?? 32f));
             }
             hoverOutline.Refresh(null, false, true, false, true);

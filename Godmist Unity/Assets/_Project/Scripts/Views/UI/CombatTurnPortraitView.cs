@@ -16,8 +16,8 @@ namespace Godmist.Views.UI
         [SerializeField] private Image activeHighlight;
         [SerializeField] private Graphic hoverHighlight;
         [SerializeField] private Sprite playerHighlightSprite, enemyHighlightSprite;
-        [SerializeField] private Color playerActiveColor = new(0.88f, 0.67f, 0.24f, 1f);
-        [SerializeField] private Color enemyActiveColor = new(0.78f, 0.20f, 0.18f, 1f);
+        private static Color playerActiveColor => HighlightStyle.Selection;
+        private static Color enemyActiveColor => HighlightStyle.Hostile;
 
         [SerializeField] private Image[] activeEdges;
         [SerializeField] private CombatSimpleTooltipTrigger turnTooltip;

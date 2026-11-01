@@ -132,7 +132,6 @@ namespace Godmist.Views.Exploration
                 {
                     if (!visible) continue;
                     visual = renderer.GetComponent<CombatUnitVisualStateView>() ?? renderer.gameObject.AddComponent<CombatUnitVisualStateView>();
-                    visual.SetPulseSpeed(0);
                     visual.SetOutlineWidth(1f / Mathf.Max(1, renderer.sprite.pixelsPerUnit));
                     outlines.Add(renderer, visual);
                     firstHighlight = true;
