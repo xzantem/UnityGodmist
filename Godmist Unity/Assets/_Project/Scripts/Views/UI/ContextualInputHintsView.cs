@@ -205,7 +205,9 @@ namespace Godmist.Views.UI
             if (!pointerOverUi && combatMovement?.IsMovementRangeInspectionAvailable == true)
                 Append("Ctrl – zasięg ruchu");
 
-            if (combatCamera?.CanAcceptManualInput == true)
+            if (combatBootstrap?.IsOpeningPreview == true)
+                AppendExplorationCameraHints(pointerOverUi);
+            else if (combatCamera?.CanAcceptManualInput == true)
             {
                 Append("F – skup na aktywnej jednostce");
                 Append("Home – arena");
@@ -234,20 +236,20 @@ namespace Godmist.Views.UI
             if (GameBootstrap.Instance?.QuestService != null)
                 Append("J – dziennik");
             if(explorationParty.DungeonMinimap!=null)Append("M – mapa odkrytego terenu");
-            if (explorationCamera != null)
-            {
-                Append("F – tryb kamery");
-                if (!pointerOverUi)
-                {
-                    Append("Scroll – zoom");
-                    if (!explorationCamera.IsFollowingLeader)
-                        Append("PPM – przesuwanie");
-                }
-            }
+            AppendExplorationCameraHints(pointerOverUi);
             if (explorationParty.HasAvailableInteraction)
                 Append("E – interakcja");
 
             SetText(builder.ToString());
+        }
+
+        private void AppendExplorationCameraHints(bool pointerOverUi)
+        {
+            if (explorationCamera == null) return;
+            Append("F – tryb kamery");
+            if (pointerOverUi) return;
+            Append("Scroll – zoom");
+            Append(explorationCamera.IsFollowingLeader ? "PPM + ruch – odblokuj kamerę" : "MMB / PPM – przesuwanie");
         }
 
         private void Append(string hint)

@@ -1447,6 +1447,7 @@ Current goal:
 
 - The game should support both mouse and keyboard.
 - Combat is mainly mouse-driven.
+- In exploration, `F` toggles camera follow/free mode. Dragging RMB beyond the 6-pixel threshold unlocks follow mode and immediately pans; a press or pointer jitter alone does not unlock it. When free, dragging MMB also pans the camera using screen-space displacement at the current zoom, constrained to the existing camera bounds; the actor and selected opening skill are not moved or confirmed by this gesture. Starting over UI/tooltips does not begin a drag. Release, crossing UI, focus loss, modal windows and camera ownership/mode changes cancel the gesture and require a new press. The existing RMB exploration drag remains available. Combat retains its existing MMB camera control and action/movement camera ownership.
 - Skills can also be triggered through hotkeys such as `1-5` or more if the character supports more active skill slots.
 
 ### Loading / Persistence

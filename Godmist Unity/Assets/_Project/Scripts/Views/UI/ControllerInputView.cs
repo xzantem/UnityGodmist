@@ -148,7 +148,8 @@ namespace Godmist.Views.UI
             {
                 mouseTime = physicalMouse.lastUpdateTime;
                 if (physicalMouse.delta.ReadValue().sqrMagnitude > 4 || physicalMouse.leftButton.wasPressedThisFrame
-                    || physicalMouse.rightButton.wasPressedThisFrame || physicalMouse.scroll.ReadValue().sqrMagnitude > 0)
+                    || physicalMouse.rightButton.wasPressedThisFrame || physicalMouse.middleButton.wasPressedThisFrame
+                    || physicalMouse.scroll.ReadValue().sqrMagnitude > 0)
                 {
                     if (physicalMouse.lastUpdateTime > activityTime) { activityTime = physicalMouse.lastUpdateTime; controllerWasLast = false; }
                 }
