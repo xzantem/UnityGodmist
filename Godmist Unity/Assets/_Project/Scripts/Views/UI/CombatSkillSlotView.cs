@@ -38,6 +38,8 @@ namespace Godmist.Views.UI
         private int actionCost;
         private Color defaultIconColor = Color.white;
         private bool capturedIconColor;
+        private Material originalIconMaterial;
+        private Material unavailableIconMaterial;
         private int displayedActionCost = int.MinValue;
         private static readonly Color ActiveToggleColor = new(0.35f, 1f, 0.65f, 1f);
 
@@ -60,7 +62,13 @@ namespace Godmist.Views.UI
 
             if (icon != null)
             {
-                if (!capturedIconColor) { defaultIconColor = icon.color; capturedIconColor = true; }
+                if (!capturedIconColor)
+                {
+                    defaultIconColor = icon.color;
+                    originalIconMaterial = icon.material;
+                    capturedIconColor = true;
+                }
+                icon.material = originalIconMaterial;
                 icon.color = defaultIconColor;
                 icon.sprite = skill?.Icon;
                 icon.enabled = skill?.Icon != null;
@@ -119,6 +127,8 @@ namespace Godmist.Views.UI
 
             if (icon != null)
             {
+                var material = isAvailable || skill == null ? originalIconMaterial : GetUnavailableIconMaterial();
+                if (icon.material != material) icon.material = material;
                 icon.color = isActiveToggle
                     ? ActiveToggleColor
                     : defaultIconColor;
@@ -132,6 +142,27 @@ namespace Godmist.Views.UI
                 return;
             }
 
+        }
+
+        private Material GetUnavailableIconMaterial()
+        {
+            if (unavailableIconMaterial == null)
+            {
+                // Resources retains the shader in player builds, including masked UI variants.
+                var shader = Resources.Load<Shader>("Godmist/UnavailableSkillIcon");
+                if (shader == null) throw new InvalidOperationException("Unavailable skill icon shader is missing.");
+                unavailableIconMaterial = new Material(shader)
+                { name = "Godmist unavailable skill icon", hideFlags = HideFlags.HideAndDontSave };
+            }
+            return unavailableIconMaterial;
+        }
+
+        private void OnDestroy()
+        {
+            if (unavailableIconMaterial == null) return;
+            if (icon != null && icon.material == unavailableIconMaterial) icon.material = originalIconMaterial;
+            if (Application.isPlaying) Destroy(unavailableIconMaterial);
+            else DestroyImmediate(unavailableIconMaterial);
         }
 
         public bool TryActivate()
