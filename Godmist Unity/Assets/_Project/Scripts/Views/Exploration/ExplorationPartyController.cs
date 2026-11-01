@@ -48,12 +48,15 @@ namespace Godmist.Views.Exploration
         private Camera worldCamera;
         private Vector2? movementDestination;
         private Godmist.Views.Dungeons.DungeonCombatCoordinator combatCoordinator;
-        public bool CanAcceptExplorationInput => gameSession != null && !gameSession.IsDefeated
+        private bool HasExplorationInputContext => gameSession != null && !gameSession.IsDefeated
             && !IsMapOverviewBlockingInput
             && gameSession.CurrentMode == GameModeState.Exploration
-            && combatCoordinator?.IsPreparingOpening != true
             && (inventoryEquipmentPanel == null || !inventoryEquipmentPanel.IsOpen)
             && !DevConsoleView.IsOpen && !UIWorkspaceInputRouter.HasFocusedTextInput();
+        public bool CanAcceptExplorationInput => HasExplorationInputContext && combatCoordinator?.IsPreparingOpening != true;
+        public bool CanMoveWhileTargeting => HasExplorationInputContext
+            && combatCoordinator?.CanMoveDuringOpeningSelection == true
+            && gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) == null;
         public bool CanCycleLeader => gameSession?.PlayerParty?.ActiveMemberIds?.Count >= 2;
         public bool HasAvailableInteraction
         {
@@ -116,7 +119,7 @@ namespace Godmist.Views.Exploration
             IsSeparated = true;
             if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
         }
-        public void CancelMovement() { meshRoutes.Clear(); pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
+        public void CancelMovement() { IsSkillApproachInProgress = false; meshRoutes.Clear(); pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -290,9 +293,15 @@ namespace Godmist.Views.Exploration
             if(IsMapOverviewBlockingInput)return;
             if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) return;
 
+            if (IsSkillApproachInProgress && gameSession?.CurrentMode == GameModeState.Exploration
+                && combatCoordinator?.IsPreparingOpening == true)
+            {
+                TickSkillApproach();
+                return;
+            }
             if (gameSession == null
                 || gameSession.CurrentMode != GameModeState.Exploration
-                || combatCoordinator?.IsPreparingOpening == true
+                || combatCoordinator?.IsPreparingOpening == true && !CanMoveWhileTargeting
                 || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null)
             {
                 destroyTarget = null; pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null;

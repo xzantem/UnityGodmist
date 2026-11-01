@@ -80,7 +80,9 @@ namespace Godmist.Views.Combat
         public int CurrentTargetModeIndex => currentTargetModeIndex;
         public bool IsControllerTarget(BattleUnit unit) => unit != null && IsSelectingTarget
             && (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain
-                ? eligibleTargetPositions.Contains(unit.Position) : selectablePositions.Contains(unit.Position));
+                ? eligibleTargetPositions.Contains(unit.Position)
+                    || CanApproach(unit.Position) && sandboxBootstrap.IsPotentialApproachTarget(selectedSkill, currentTargetModeIndex, unit)
+                : selectablePositions.Contains(unit.Position));
         public System.Func<Vector3, BattleUnit> ResolvePointerUnit { get; set; }
         private SkillData hoveredSkill;
         private BattleUnit hoverActor;
@@ -293,6 +295,7 @@ namespace Godmist.Views.Combat
 
         public void CancelTargetSelection()
         {
+            InvalidateSkillApproach();
             selectedSkill = null;
             selectedConsumable = null;
             selectedConsumableActor = null;
@@ -323,16 +326,24 @@ namespace Godmist.Views.Combat
         {
             ConsumedPrimaryClickThisFrame = false;
             if (sandboxBootstrap?.IsGameplaySuspended == true) { targetPreview?.Hide(); return; }
+            if (skillApproachRunning)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel
+                    || Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context) CancelTargetSelection();
+                return;
+            }
             RefreshSkillHover();
             RefreshJudgementField();
 
             if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedContextMenu() || !IsSelectingTarget)
             {
+                ClearSkillApproachPreview();
                 return;
             }
 
             if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
             {
+                ClearSkillApproachPreview();
                 ClearRelativeRangeHighlights();
                 HoveredUnit = null;
                 HoveredPosition = null;
@@ -362,6 +373,7 @@ namespace Godmist.Views.Combat
                 UpdateRelativeRangePreview();
                 UpdateHoveredUnit(session);
                 UpdateCombatTargetPreview(session);
+                RefreshSkillApproachPreview();
             }
             else
             {
@@ -431,6 +443,13 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            ConfirmTargetAt(targetPosition);
+        }
+
+        public void ConfirmTargetAt(GridPosition targetPosition)
+        {
+            var session = sandboxBootstrap?.Session;
+            if (session?.ActiveUnit == null || !IsSelectingTarget || skillApproachRunning) return;
             var targetMode = CurrentTargetMode;
 
             if (UsesGridClickOnlyAsConfirmation(targetMode))
@@ -448,6 +467,7 @@ namespace Godmist.Views.Combat
 
             if (!selectablePositions.Contains(targetPosition))
             {
+                TryBeginSkillApproach(targetPosition);
                 return;
             }
 
@@ -483,14 +503,20 @@ namespace Godmist.Views.Combat
 
         public void RefreshOpeningHighlights()
         {
-            if (IsSelectingTarget && !isSelectingTeleportDestination && !isSelectingObjectPlacement
-                && currentTargetModeIndex < selectedSkill.TargetModes.Count) RebuildTargetHighlights();
+            if (!IsSelectingTarget || skillApproachRunning) return;
+            if (isSelectingTeleportDestination) { TryBeginTeleportDestinationSelection(); return; }
+            if (isSelectingObjectPlacement) { TryBeginObjectPlacementSelection(); return; }
+            if (currentTargetModeIndex < selectedSkill.TargetModes.Count)
+            {
+                RebuildTargetHighlights(preserveApproachPreview: true);
+                RefreshSkillApproachPreview();
+            }
         }
 
-        private void RebuildTargetHighlights()
+        private void RebuildTargetHighlights(bool preserveApproachPreview = false)
         {
             using var sample = HighlightsSample.Auto();
-            ClearAllHighlights();
+            ClearAllHighlights(clearApproachPreview: !preserveApproachPreview);
 
             if (feedbackRenderer == null
                 || selectedSkill == null)
@@ -803,7 +829,8 @@ namespace Godmist.Views.Combat
         }
 
         public bool IsHighlightedSkillTarget(BattleUnit unit) => unit != null && IsSelectingTarget
-            && (eligibleTargetPositions.Contains(unit.Position) || affectedTargetPositions.Contains(unit.Position));
+            && (eligibleTargetPositions.Contains(unit.Position) || affectedTargetPositions.Contains(unit.Position)
+                || approachPreviewPath != null && approachPreviewTarget == unit.Position);
 
         public Color HoverTargetColor(BattleUnit unit) => IsHighlightedSkillTarget(unit)
             ? TargetCellColor(unit.Position) : HighlightStyle.Hover;
@@ -986,8 +1013,9 @@ namespace Godmist.Views.Combat
                 : null;
         }
 
-        private void ClearAllHighlights()
+        private void ClearAllHighlights(bool clearApproachPreview = true)
         {
+            if (clearApproachPreview) ClearSkillApproachPreview();
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.ChosenSkillTargets);
             feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.ChosenSkillTargets);
             targetPreview?.Hide();
@@ -1019,6 +1047,7 @@ namespace Godmist.Views.Combat
 
         private void OnDisable()
         {
+            InvalidateSkillApproach();
             hoveredSkill = null;
             PresentSkillHover(null);
             judgementFieldSignature=null;

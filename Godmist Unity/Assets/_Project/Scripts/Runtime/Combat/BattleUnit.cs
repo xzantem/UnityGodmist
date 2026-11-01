@@ -21,6 +21,14 @@ namespace Godmist.Runtime.Combat
     [Serializable]
     public class BattleUnit
     {
+        // Read-only action queries may change scalar position/budget on this projection.
+        // Referenced character and effect data must never be mutated by a query.
+        public BattleUnit ProjectActionQuery(GridPosition position, int actionPoints)
+        {
+            var copy = (BattleUnit)MemberwiseClone();
+            copy.Position = position; copy.CurrentActionPoints = actionPoints;
+            return copy;
+        }
         [NonSerialized] public ForestEntCombatState ForestEntState;
         [NonSerialized] public DeadKingCombatState DeadKingState;
         [NonSerialized] public SkeletonSlayerCombatState SkeletonSlayerState;

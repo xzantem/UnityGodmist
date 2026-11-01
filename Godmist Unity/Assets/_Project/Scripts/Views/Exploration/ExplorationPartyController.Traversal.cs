@@ -1323,12 +1323,17 @@ namespace Godmist.Views.Exploration
                     || DungeonEnemyBodyView.IsPointerOverBody(world)) return false;
             if (!FindTraversalPathWithTargetWorld(leader, target, out var path, world)) return false;
             using (TargetSmoothingSample.Auto()) SmoothTraversalPath(leader, target, world, path);
+            CommitTraversalRoute(leader, path, world);
+            return true;
+        }
+
+        private void CommitTraversalRoute(ExplorationCharacterView leader, IReadOnlyList<DungeonTraversalPosition> path, Vector2 world)
+        {
             meshRoutes.TryGetValue(leader, out var plannedMeshRoute);
             CancelMovement();
             if (plannedMeshRoute != null) meshRoutes[leader] = plannedMeshRoute;
             movementDestination = world; leaderStalledTime = 0; lastLeaderNavigationPosition = leader.Position;
             foreach (var position in path.Skip(1)) traversalPath.Enqueue(position);
-            return true;
         }
 
         private void TickTraversalMovement(ExplorationCharacterView leader)

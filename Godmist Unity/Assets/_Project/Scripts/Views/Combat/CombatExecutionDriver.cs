@@ -23,7 +23,7 @@ using Godmist.Systems.Quests;
 
 namespace Godmist.Views.Combat
 {
-    public sealed class CombatExecutionDriver : IDisposable
+    public sealed partial class CombatExecutionDriver : IDisposable
     {
         private Godmist.Systems.Items.SandboxConsumableSnapshot sandboxConsumables = new();
         private bool usesStandaloneSandbox;
@@ -1556,17 +1556,18 @@ namespace Godmist.Views.Combat
             }
 
             var unit = Session.ActiveUnit;
-            if (!movementSystem.TryMoveAlongPath(
+            var completed = movementSystem.TryMoveAlongPath(
                 Session,
                 unit,
-                path))
+                path, out var completedPath);
+            if (completedPath.Count == 0)
             {
                 return false;
             }
 
             activePlayerMovementPresentationCoroutine = host.StartCoroutine(
-                PlayPlayerMovementPath(unit, path));
-            return true;
+                PlayPlayerMovementPath(unit, completedPath));
+            return completed;
         }
         public bool TryExecuteSkill(
             SkillData skill,

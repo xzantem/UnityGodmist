@@ -492,6 +492,15 @@ namespace Godmist.Views.UI
                 position.y = Mathf.Clamp(position.y, 0, Screen.height);
                 return;
             }
+            if (party?.CanMoveWhileTargeting == true)
+            {
+                // Outside combat the stick keeps its exploration movement role.
+                // D-pad target cycling and L3 precise aiming retain separate ownership.
+                if (selectedWorldUnit != null && unitViews != null
+                    && unitViews.TryGetWorldPosition(selectedWorldUnit, out var selectedPosition))
+                    position = worldCamera.WorldToScreenPoint(selectedPosition);
+                return;
+            }
             var move = ControllerInput.Movement;
             var direction = move.sqrMagnitude > .25f
                 ? new Vector2Int(Mathf.Abs(move.x) > .35f ? move.x > 0 ? 1 : -1 : 0,

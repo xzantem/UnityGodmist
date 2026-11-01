@@ -99,6 +99,32 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void IdleSkillTargetingDoesNotEraseTheMovementControllersPath()
+        {
+            var go = new GameObject("movement preview ownership");
+            try
+            {
+                var view = go.AddComponent<CombatGridFeedbackRenderer>();
+                var targeting = go.AddComponent<CombatTargetSelectionController>();
+                Set(targeting, "feedbackRenderer", view);
+                view.ShowMovementPreview(new[] { new GridPosition(3, 0) }, new GridPosition(0, 0), 100,
+                    HighlightStyle.Selection, showCost: false);
+                var markers = go.GetComponentsInChildren<SpriteRenderer>()
+                    .Where(r => r.name == "Combat pixel path gem").ToArray();
+                Assert.That(markers, Is.Not.Empty);
+                for (var frame = 0; frame < 5; frame++)
+                {
+                    Call(targeting, "Update");
+                    Assert.That(markers.All(r => r.enabled && r.gameObject.activeSelf), Is.True,
+                        "An idle targeting controller must not clear the movement owner's preview.");
+                }
+                targeting.CancelTargetSelection();
+                Assert.That(markers.All(r => r.enabled && r.gameObject.activeSelf), Is.True);
+            }
+            finally { Object.DestroyImmediate(go); }
+        }
+
+        [Test]
         public void LeavingResolvableMapClearsMovementPreview()
         {
             var go = new GameObject("movement");

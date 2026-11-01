@@ -374,13 +374,14 @@ namespace Godmist.Views.Combat
             EnsurePixelSprites();
             for (var index = 0; index < path.Count; index++)
             {
-                for (var pip = 1; pip <= 2; pip++)
+                var pipCount = Mathf.Max(2, Mathf.CeilToInt(new Vector2(path[index].X - previous.X, path[index].Y - previous.Y).magnitude * 2f));
+                for (var pip = 1; pip <= pipCount; pip++)
                 {
                     var marker = CreateSpriteRenderer("Combat pixel path gem");
                     marker.sprite = pathGemSprite;
                     marker.sortingOrder = SortingOrder(CombatGridFeedbackLayer.MovementPreview) + 1;
                     marker.color = !danger && stepColor != null ? stepColor(previous, path[index]) : color;
-                    marker.transform.localPosition = Vector3.Lerp(GridToLocal(previous), GridToLocal(path[index]), pip / 2f);
+                    marker.transform.localPosition = Vector3.Lerp(GridToLocal(previous), GridToLocal(path[index]), pip / (float)pipCount);
                     ScaleSprite(marker.transform, marker.sprite, Vector2.one * cellSize * (3f / 32f));
                     marker.gameObject.SetActive(CanPresent(CombatGridFeedbackLayer.MovementPreview, path[index]));
                     pathMarkers.Add(marker);

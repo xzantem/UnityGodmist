@@ -136,7 +136,9 @@ namespace Godmist.Views.UI
                 else
                 {
                     Append("A – wybierz   X – akcje   L3 – tryb kursora");
-                    Append(combatBootstrap?.Session != null ? "Lewy drążek – pole   Prawy – kamera   R3 – środek" : "Lewy drążek – ruch   Prawy – kamera   R3 – środek");
+                    var stickRole = ControllerInput.PrecisePointer ? "kursor"
+                        : combatBootstrap?.Session != null && explorationParty?.CanMoveWhileTargeting != true ? "pole" : "ruch";
+                    Append($"Lewy drążek – {stickRole}   Prawy – kamera   R3 – środek");
                     if (combatTargeting?.IsSelectingTarget == true)
                     {
                         if (combatTargeting.CanRotateCurrentSelection) Append("LB / RB – obrót");

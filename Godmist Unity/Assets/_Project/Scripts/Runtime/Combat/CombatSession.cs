@@ -8,6 +8,15 @@ namespace Godmist.Runtime.Combat
     [Serializable]
     public class CombatSession
     {
+        // Query-only world: preserve all targeting/environment rules without changing live actors.
+        public CombatSession ProjectActionQuery(GridPosition position, int actionPoints)
+        {
+            var copy = (CombatSession)MemberwiseClone();
+            copy.Units = new List<BattleUnit>(Units);
+            copy.ActiveUnit = ActiveUnit.ProjectActionQuery(position, actionPoints);
+            copy.Units[Units.IndexOf(ActiveUnit)] = copy.ActiveUnit;
+            return copy;
+        }
         [NonSerialized] public Action<BattleUnit, BattleUnit, int, DamageType, string> DamageApplied;
         [NonSerialized] public Action<BattleUnit, Godmist.Data.Skills.SkillData, string> SkillResolved;
         [NonSerialized] public Func<BattleUnit, Godmist.Data.Skills.SkillData, bool> CanUseBossSkill;

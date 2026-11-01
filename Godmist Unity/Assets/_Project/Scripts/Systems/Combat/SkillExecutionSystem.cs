@@ -1648,6 +1648,51 @@ namespace Godmist.Systems.Combat
                 && CanExecute(session, caster, skill, targets,
                 teleport, placement, IsToggleActive(caster, skill), false, positions);
 
+        public bool CanAfford(CombatSession session, BattleUnit caster, SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
+        {
+            if (session == null || caster?.Character == null || skill == null || targetsByModeIndex == null) return false;
+            var recoveringKnife = ScoutCombatSystem.IsKnifeRecovery(session, caster, skill,
+                targetsByModeIndex, selectedPositionsByModeIndex);
+            var actionCost =
+                CombatActionCostCalculator.CalculateSkillCostForTarget(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),recoveringKnife);
+
+            if (caster.CurrentActionPoints < actionCost)
+            {
+                battleLog?.Invoke("Not enough AP.");
+                return false;
+            }
+
+            if (PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife) > 0
+                && caster.Character.ResourcePool == null)
+            {
+                Debug.LogWarning(
+                    $"Skill '{skill.SkillId}' requires a resource pool.");
+
+                return false;
+            }
+
+            if (PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife) > 0
+                && caster.Character.ResourcePool.ResourceType != skill.ResourceType)
+            {
+                Debug.LogWarning(
+                    $"Skill '{skill.SkillId}' uses an incompatible resource type.");
+
+                return false;
+            }
+
+            if (caster.Character.ResourcePool != null
+                && caster.Character.ResourcePool.CurrentValue < PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife)
+                && !WarriorCombatSystem.CanOverspend(caster,skill,PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill,recoveringKnife)))
+            {
+                battleLog?.Invoke("Not enough resource.");
+                return false;
+            }
+
+            return true;
+        }
+
         private bool CanExecute(
             CombatSession session,
             BattleUnit caster,
@@ -1881,43 +1926,7 @@ namespace Godmist.Systems.Combat
                 }
             }
 
-            var recoveringKnife = ScoutCombatSystem.IsKnifeRecovery(session, caster, skill,
-                targetsByModeIndex, selectedPositionsByModeIndex);
-            var actionCost =
-                CombatActionCostCalculator.CalculateSkillCostForTarget(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),recoveringKnife);
-
-            if (!skipCosts && caster.CurrentActionPoints < actionCost)
-            {
-                battleLog?.Invoke("Not enough AP.");
-                return false;
-            }
-
-            if (!skipCosts && PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife) > 0
-                && caster.Character.ResourcePool == null)
-            {
-                Debug.LogWarning(
-                    $"Skill '{skill.SkillId}' requires a resource pool.");
-
-                return false;
-            }
-
-            if (!skipCosts && PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife) > 0
-                && caster.Character.ResourcePool.ResourceType != skill.ResourceType)
-            {
-                Debug.LogWarning(
-                    $"Skill '{skill.SkillId}' uses an incompatible resource type.");
-
-                return false;
-            }
-
-            if (!skipCosts
-                && caster.Character.ResourcePool != null
-                && caster.Character.ResourcePool.CurrentValue < PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife)
-                && !WarriorCombatSystem.CanOverspend(caster,skill,PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill,recoveringKnife)))
-            {
-                battleLog?.Invoke("Not enough resource.");
-                return false;
-            }
+            if (!skipCosts && !CanAfford(session, caster, skill, targetsByModeIndex, selectedPositionsByModeIndex)) return false;
 
             try { SkillEffectIdentity.ExecutionOrder(skill); }
             catch (InvalidOperationException error) { Debug.LogWarning(error.Message); return false; }
