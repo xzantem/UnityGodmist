@@ -20,7 +20,7 @@ using UnityEngine.UI;
 
 namespace Godmist.Tests.EditMode
 {
-    public class SkillTreePresentationTests
+    public partial class SkillTreePresentationTests
     {
         const string Prefab = "Assets/_Project/Prefabs/UI/Workspace/PF_UIW_SkillTreeWindow Variant.prefab";
         const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -104,7 +104,7 @@ namespace Godmist.Tests.EditMode
                 Assert.That(tabs.GetComponentsInChildren<Button>().Last().GetComponentInChildren<TMP_Text>().text,Does.Contain(character.ClassData.SkillTrees[1].DisplayName));
                 yield return null;yield return null;yield return null;
                 var detailScroll=(ScrollRect)Field(view,"detailsScroll");
-                Assert.That(detailScroll.verticalScrollbar.gameObject.activeSelf,Is.False,"Short details must not show a scrollbar.");
+                Assert.That(detailScroll.verticalScrollbar.gameObject.activeSelf,Is.EqualTo(detailScroll.content.rect.height > detailScroll.viewport.rect.height + .01f),"Scrollbar visibility must match actual detail overflow.");
                 Assert.That(((ScrollRect)Field(view,"treeScroll")).verticalScrollbar.gameObject.activeSelf,Is.False,"Four tiers fit the default window.");
             }
             finally{Object.DestroyImmediate(root);}
@@ -368,7 +368,7 @@ namespace Godmist.Tests.EditMode
             var node=new SkillTreeNodeDefinition();Set(node,"MaxRanks",2);Set(node,"Description","Premia 10%/20%");
             var body=SkillTreeNodeView.BuildDetails(node,rank);
             if (current && next)
-                Assert.That(body, Is.EqualTo("<b>Aktualne → następne:</b>\nPremia 10% → 20%"));
+                Assert.That(body, Is.EqualTo("<b>Aktualne:</b>\nPremia 10%\n\n<b>Następne:</b>\nPremia 20%"));
             else
             {
                 Assert.That(body.Contains("Aktualne:"),Is.EqualTo(current));Assert.That(body.Contains("Następne:"),Is.EqualTo(next));
@@ -428,7 +428,7 @@ namespace Godmist.Tests.EditMode
                 Canvas.ForceUpdateCanvases();
                 Assert.That(((Image)Field(view,"experienceFill")).fillAmount,Is.EqualTo(.25f).Within(.001f));
                 var passive=((TMP_Text)Field(view,"globalPassiveText")).text;
-                Assert.That(passive,Does.Contain("Premia za punkt"));Assert.That(passive,Does.Contain("Aktualnie:"));Assert.That(passive,Does.Contain("szansy krytycznej"));
+                Assert.That(passive,Does.Contain("Premia za punkt"));Assert.That(passive,Does.Contain("Aktualnie:"));Assert.That(passive,Does.Contain("szansę krytyczną"));
                 var tab=(Transform)Field(view,"treeTabRoot");foreach(var button in tab.GetComponentsInChildren<Button>())
                     Assert.That(button.transform.Find("Label").GetSiblingIndex(),Is.EqualTo(button.transform.childCount-1),"State frames must not cover tab text.");
                 var card=Card(view,node.Id);var neutral=((Image)Field(card,"rankAccent")).color;

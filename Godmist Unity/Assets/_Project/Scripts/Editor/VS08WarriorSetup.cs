@@ -199,6 +199,7 @@ public static partial class VS08WarriorSetup
                 var req=p.FindPropertyRelative(F("Requirements"));req.ClearArray();foreach(var id in node[4].Split(',')){if(id.Length==0)continue;req.InsertArrayElementAtIndex(req.arraySize);var q=req.GetArrayElementAtIndex(req.arraySize-1);Set(q.FindPropertyRelative(F("NodeId")),"node.warrior."+treeName+"."+id);Set(q.FindPropertyRelative(F("MinimumRanks")),1);}
             }
             so.ApplyModifiedPropertiesWithoutUndo();
+            Godmist.Editor.ContentPass2WarriorT5Setup.ApplyToTree(tree);
         }
     }
 }

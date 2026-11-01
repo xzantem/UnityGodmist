@@ -16,7 +16,7 @@ using UnityEditor;
 using UnityEngine;
 namespace Godmist.Tests.EditMode
 {
-    public class WarriorContentTests
+    public partial class WarriorContentTests
     {
         const string Root="Assets/_Project/ScriptableObjects/";
         static T Load<T>(string path) where T:UnityEngine.Object=>AssetDatabase.LoadAssetAtPath<T>(Root+path);
@@ -37,11 +37,11 @@ namespace Godmist.Tests.EditMode
             p.NodeInvestments.Add(new SkillTreeNodeInvestment{NodeId="node.warrior."+(commander?"commander.":"brawler.")+id,Ranks=rank});
         }
         static CombatSession Session(params BattleUnit[] units){var s=new CombatSession{Grid=new BattleGrid(10,8),Units=units.ToList(),ActiveUnit=units[0]};foreach(var u in units)u.WarriorState.Session=s;return s;}
-        [Test] public void ProductionContentHasFiveStartersFortyNodesAndResolvableRequirements()
+        [Test] public void ProductionContentHasFiveStartersFiftyNodesAndResolvableRequirements()
         {
             var u=Unit();Assert.That(u.Character.Skills.Count,Is.EqualTo(5));Assert.That(u.Character.GetBasicAttackSkill(),Is.EqualTo(Skill("Cut")));
             Assert.That(u.Character.ClassData.SkillTrees.Count,Is.EqualTo(2));
-            foreach(var t in u.Character.ClassData.SkillTrees){Assert.That(t.Nodes.Count,Is.EqualTo(20));foreach(var n in t.Nodes){Assert.That(n.Tier,Is.InRange(1,4));foreach(var r in n.Requirements)Assert.That(t.Nodes.Any(v=>v.Id==r.NodeId),Is.True,n.Id);}}
+            foreach(var t in u.Character.ClassData.SkillTrees){Assert.That(t.Nodes.Count,Is.EqualTo(25));foreach(var n in t.Nodes){Assert.That(n.Tier,Is.InRange(1,5));foreach(var r in n.Requirements)Assert.That(t.Nodes.Any(v=>v.Id==r.NodeId),Is.True,n.Id);}}
             foreach(var skill in u.Character.Skills)Assert.That(CombatDataValidator.ValidateSkill(skill).Errors,Is.Empty,skill.name);
         }
         [Test] public void OffensiveCostReductionLeavesSupportCostUnchanged()

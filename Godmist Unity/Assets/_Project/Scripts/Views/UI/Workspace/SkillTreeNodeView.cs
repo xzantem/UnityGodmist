@@ -345,7 +345,7 @@ namespace Godmist.Views.UI.Workspace
             return UiTerms.Present(text, character?.ResourcePool?.ResourceType ?? ResourceType.None);
         }
 
-        private static readonly Regex RankValues = new(@"[+-]?\d+(?:[.,]\d+)?%?(?:\s*/\s*[+-]?\d+(?:[.,]\d+)?%?)+");
+        private static readonly Regex RankValues = new(@"[+-]?\d+(?:[.,]\d+)?(?:%|x)?(?:\s*/\s*[+-]?\d+(?:[.,]\d+)?(?:%|x)?)+");
 
         public static string BuildRankDescription(SkillTreeNodeDefinition node, int rank)
         {
@@ -363,7 +363,8 @@ namespace Godmist.Views.UI.Workspace
             var values = match.Value.Split('/').Select(value => value.Trim()).ToArray();
             var value = values[index];
             if(match.Value.StartsWith("+",StringComparison.Ordinal) && !value.StartsWith("+",StringComparison.Ordinal) && !value.StartsWith("-",StringComparison.Ordinal))value="+"+value;
-            return values[^1].EndsWith("%") && !value.EndsWith("%") ? value + "%" : value;
+            var unit = values[^1].EndsWith("%") ? "%" : values[^1].EndsWith("x") ? "x" : string.Empty;
+            return unit.Length > 0 && !value.EndsWith(unit) ? value + unit : value;
         }
 
         private static string GetPassiveDescription(SkillTreeNodeDefinition node)

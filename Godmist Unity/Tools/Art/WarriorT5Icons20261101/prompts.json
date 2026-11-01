@@ -1,0 +1,95 @@
+{
+  "method": "built-in image_gen one source per passive; original full-canvas nearest32 Aseprite pipeline",
+  "entries": [
+    {
+      "tree": "commander",
+      "column": 1,
+      "slug": "aegis",
+      "name": "Egida",
+      "id": "node.warrior.commander.t5_1",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Commander tree uniform background: dark STEEL NAVY #182534 with subdued #26394c planes. Do not copy the red background or sword composition of reference. Silver physical, gold command, muted blue sight. Passive: Egida. Subject/composition: A large upright steel SWORD held before a broad muted GOLD protective arch. The sword is dominant and brightly empowered: this passive empowers an ally's DAMAGE after a readiness order, not just a defensive shield. One simple gold arch and one blade, no person or shield. One opaque square image."
+    },
+    {
+      "tree": "commander",
+      "column": 2,
+      "slug": "execution",
+      "name": "Egzekucja",
+      "id": "node.warrior.commander.t5_2",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Commander tree uniform background: dark STEEL NAVY #182534 with subdued #26394c planes. Do not copy the red background or sword composition of reference. Silver physical, gold command, muted blue sight. Passive: Egzekucja. Subject/composition: One large heavy steel EXECUTION AXE descending diagonally toward a small dark enemy helmet below. A single restrained crimson decisive impact wedge behind axe. Axe head dominates, helmet secondary. No anatomy, gore or blood spray. One opaque square image."
+    },
+    {
+      "tree": "commander",
+      "column": 3,
+      "slug": "duel",
+      "name": "Pojedynek",
+      "id": "node.warrior.commander.t5_3",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Commander tree uniform background: dark STEEL NAVY #182534 with subdued #26394c planes. Do not copy the red background or sword composition of reference. Silver physical, gold command, muted blue sight. Passive: Pojedynek. Subject/composition: Exactly TWO large opposing straight steel swords face inward, tips meeting at center with one compact warm gold contact glint. One sword enters from lower-left, other from upper-right. Clear dark gap between blades except single contact; balanced duel, no crossed axe, no people. One opaque square image."
+    },
+    {
+      "tree": "commander",
+      "column": 4,
+      "slug": "fencing",
+      "name": "Szermierka",
+      "id": "node.warrior.commander.t5_4",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Commander tree uniform background: dark STEEL NAVY #182534 with subdued #26394c planes. Do not copy the red background or sword composition of reference. Silver physical, gold command, muted blue sight. Passive: Szermierka. Subject/composition: One large slender steel dueling sword pointing diagonally upward-right, with TWO broad separated pale silver slash arcs stepping behind it, suggesting successive precise attacks against the same opponent. Sword and arcs legible at32px, arcs secondary, no repeated weapons, no target or numbers. One opaque square image."
+    },
+    {
+      "tree": "commander",
+      "column": 5,
+      "slug": "commanders_eye",
+      "name": "Oko Dowódcy",
+      "id": "node.warrior.commander.t5_5",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Commander tree uniform background: dark STEEL NAVY #182534 with subdued #26394c planes. Do not copy the red background or sword composition of reference. Silver physical, gold command, muted blue sight. Passive: Oko Dowódcy. Subject/composition: One large watchful human EYE framed by a simple steel helmet brow, iris amber gold. Two broad muted blue sight bands extend outward behind the eye to suggest extended reach of orders. Eye dominates, no full face, no arrows or lettering. One opaque square image."
+    },
+    {
+      "tree": "brawler",
+      "column": 1,
+      "slug": "focused_rage",
+      "name": "Trening Skupienia",
+      "id": "node.warrior.brawler.t5_1",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/rage-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Brawler tree uniform background: deep muted BURGUNDY #30151d with subdued #511f2c planes. Background much darker than foreground. Silver physical, crimson rage, green healing where applicable. Passive: Trening Skupienia. Subject/composition: One large STEEL HELMET frontal eye slit with two sharply focused amber eyes. A compact CRIMSON targeting diamond is centered on the helmet brow, broad muted crimson pressure planes BEHIND helmet. Controlled rage improves accuracy. Helmet fills image; no tiny crosshairs, no fists or weapons. One opaque square image."
+    },
+    {
+      "tree": "brawler",
+      "column": 2,
+      "slug": "battle_frenzy",
+      "name": "Szał Bitewny",
+      "id": "node.warrior.brawler.t5_2",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/rage-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Brawler tree uniform background: deep muted BURGUNDY #30151d with subdued #511f2c planes. Background much darker than foreground. Silver physical, crimson rage, green healing where applicable. Passive: Szał Bitewny. Subject/composition: One large battered steel GAUNTLET clenched around a short sword hilt, rising from a broad CRIMSON surge behind it. A single prominent crack in wrist armor and restrained red glow suggest greater power when badly wounded. Fist/hilt simple dominant, no full person, no fine cracks or gore. One opaque square image."
+    },
+    {
+      "tree": "brawler",
+      "column": 3,
+      "slug": "battle_fury",
+      "name": "Furia Bitewna",
+      "id": "node.warrior.brawler.t5_3",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/rage-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Brawler tree uniform background: deep muted BURGUNDY #30151d with subdued #511f2c planes. Background much darker than foreground. Silver physical, crimson rage, green healing where applicable. Passive: Furia Bitewna. Subject/composition: One large jagged CRIMSON HEART with a bold single central crack, behind a short bright STEEL SWORD TIP thrusting diagonally through foreground. Missing health sharpens critical damage. Heart and blade separated with thick dark outlines, two simple shapes; no anatomical gore, no droplets or UI bars. One opaque square image."
+    },
+    {
+      "tree": "brawler",
+      "column": 4,
+      "slug": "return_to_life",
+      "name": "Powrót do Żywych",
+      "id": "node.warrior.brawler.t5_4",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/rage-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Brawler tree uniform background: deep muted BURGUNDY #30151d with subdued #511f2c planes. Background much darker than foreground. Silver physical, crimson rage, green healing where applicable. Passive: Powrót do Żywych. Subject/composition: One large steel armored OPEN HAND rising upward from a dark broken skull at bottom, with ONE broad muted GREEN healing arc sweeping upward behind hand. Returning from brink of death restores life. Hand is dominant, skull small secondary, clear separated fingers as chunky groups, no full body. One opaque square image."
+    },
+    {
+      "tree": "brawler",
+      "column": 5,
+      "slug": "undying_fury",
+      "name": "Nieśmiertelna Furia",
+      "id": "node.warrior.brawler.t5_5",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/WarriorT5Icons20261101/references/rage-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive icon source, later FULL-CANVAS nearest-neighbor reduced to32x32. Input image is STYLE ONLY: match chunky stepped pixel clusters, broad shaded metal facets, thick near-black charcoal outlines, large simple readable silhouette. One or two dominant foreground shapes fill square. Quiet grouped color planes, crisp facet highlights, no miniature details. Opaque square, no border/frame, text, letters, digits, UI, watermark, photorealism, smooth gradients, noise, microtexture, tiny particles. No repeated ornamental scratch/radial motif. Subject-specific effects stay BEHIND foreground. Brawler tree uniform background: deep muted BURGUNDY #30151d with subdued #511f2c planes. Background much darker than foreground. Silver physical, crimson rage, green healing where applicable. Passive: Nieśmiertelna Furia. Subject/composition: One large steel HELMET with a single deep crack, still upright, wrapped from below in one broad CRIMSON FLAME rising behind it. A small incoming steel blade tip stopped at helmet side suggests surviving a lethal strike fuels rage. Helmet dominates, flame secondary, no eyes glow, no tiny fragments. One opaque square image."
+    }
+  ]
+}

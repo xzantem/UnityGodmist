@@ -263,3 +263,65 @@ MonoBehaviour:
     - <NodeId>k__BackingField: node.warrior.commander.renewal
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.t5_1
+    <DisplayName>k__BackingField: Egida
+    <Description>k__BackingField: "Rozkaz Gotowo\u015Bci zwi\u0119ksza obra\u017Cenia
+      celu o 15%/30% na 3 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: a933418eff92d0648bcfccc45125264f, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.regroup
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.t5_2
+    <DisplayName>k__BackingField: Egzekucja
+    <Description>k__BackingField: "Krytyk ma 10% szansy na egzekucj\u0119 celu, kt\xF3ry
+      zgin\u0105\u0142by od pi\u0119ciokrotno\u015Bci obra\u017Ce\u0144. Na bossie
+      zamiast egzekucji podwaja obra\u017Cenia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: c99115028244abb459d66560396e6cc9, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.t5_3
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.t5_3
+    <DisplayName>k__BackingField: Pojedynek
+    <Description>k__BackingField: "+10%/20% szansy krytycznej przeciw s\u0105siaduj\u0105cemu
+      celowi, je\u015Bli jest jedynym s\u0105siaduj\u0105cym wrogiem."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7ec2234c31e5db744a99336dbec6ace6, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.t5_4
+    <DisplayName>k__BackingField: Szermierka
+    <Description>k__BackingField: "Ataki w ten sam cel: +2%/4% obra\u017Ce\u0144
+      na \u0142adunek, maks. 5. Jeden \u0142adunek na u\u017Cycie, tak\u017Ce przy
+      pudle. Zmiana celu lub atak wielocelowy resetuje seri\u0119."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 08b03005cde02fa4f974b402e7b68623, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.commander.t5_3
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.commander.t5_5
+    <DisplayName>k__BackingField: "Oko Dow\xF3dcy"
+    <Description>k__BackingField: "+2 zasi\u0119gu rozkaz\xF3w."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 97b8d8974f767cb4baa4561edc4b7f83, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []

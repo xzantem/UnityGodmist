@@ -1,0 +1,92 @@
+[
+  {
+    "id": "node.warrior.commander.t5_1",
+    "slug": "aegis",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorCommander/t5_aegis-32.png",
+    "source_sha256": "21a901ed6b54ed27cfc023902d6e4234833370a323af89ca4131a5dc588abbb7",
+    "png_sha256": "84ab4db0ea3f29a5eb4c4f10fc756219555f29c3fb5ee080dabebc48da5cfa83",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.commander.t5_2",
+    "slug": "execution",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorCommander/t5_execution-32.png",
+    "source_sha256": "54935e7d2328ab955ac932be2af1a77d654900120dd3f49569062c3814764456",
+    "png_sha256": "da66cc3c81b3805d2cb196d4cbef3d75f43ef5cb7144595cf1b9b337e916f78e",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.commander.t5_3",
+    "slug": "duel",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorCommander/t5_duel-32.png",
+    "source_sha256": "3a383e5eb91023b7e7a279f0b639f2c9363313d039cd2780345f4bca4bf2b8a5",
+    "png_sha256": "e7449650fb47f17a3e6f1e9de3420450af390cf13209b45a0c67ac963fa54182",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.commander.t5_4",
+    "slug": "fencing",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorCommander/t5_fencing-32.png",
+    "source_sha256": "de7292de658af877d0b4edd3a00243d09624c8d099324a983ee03de031cd4c26",
+    "png_sha256": "28a4f3617d4e5b742f372bbd71ac0f31f388eefb4e9e8869ecce5544a841b9aa",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.commander.t5_5",
+    "slug": "commanders_eye",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorCommander/t5_commanders_eye-32.png",
+    "source_sha256": "b01e9abf212dcb4d675cee07d1db8c83c73eab4f7be385b8b0f162c663af111b",
+    "png_sha256": "80033f237713d758c4f1ae7b514bd0dd0b943f185c820d9a6be28588bbda856a",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.brawler.t5_1",
+    "slug": "focused_rage",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/t5_focused_rage-32.png",
+    "source_sha256": "685991521ce7c3abc542fe391343e1331c4d5b81205c3cae7050a267a602cb77",
+    "png_sha256": "f5cf60e46e3c3f3e79c71b614c95a39a9fe85e53b2f38bfbc453173d1ce91ede",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.brawler.t5_2",
+    "slug": "battle_frenzy",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/t5_battle_frenzy-32.png",
+    "source_sha256": "ade79ad39c4838adb7ad6efcf04d6a870893cf3c05772485dc3d7430fb741b23",
+    "png_sha256": "df9634438f3606503eed78ce0d011018180d383c205c5bdb13a79e5a397427b0",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.brawler.t5_3",
+    "slug": "battle_fury",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/t5_battle_fury-32.png",
+    "source_sha256": "bc2734e1baeec4a9b9f1380b5912fb3a4af8501cfb028d05b57ddf56b3ca4e33",
+    "png_sha256": "73fdb9c192325ee100c9906b1a4e8a6a0b99d4454b20422af1a841bf7640bb91",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.brawler.t5_4",
+    "slug": "return_to_life",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/t5_return_to_life-32.png",
+    "source_sha256": "b34c696fc5eb646b10519fd080f06690288e519cd9ebab674ca09e7ea3a703f0",
+    "png_sha256": "c3671d08edec1e35f993a83679320b996a45151e9d20a8ee09d6f049baed71bf",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.brawler.t5_5",
+    "slug": "undying_fury",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorBrawler/t5_undying_fury-32.png",
+    "source_sha256": "28bb2d55ec67b766ff21bb9c5b589c140806cc1ac7426c41f655c74de244b27c",
+    "png_sha256": "47f38fdcffccbb864e211ef836160533f0430b08579fdc7b46f9ae150c8d38fc",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  }
+]

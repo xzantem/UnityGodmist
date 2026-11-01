@@ -409,6 +409,10 @@ def main():
             additions.append({"id": node_id, "name": clean, "kind": "GlobalPassive" if is_global else "SkillTreeNode", "tree": tree,
                 "slot": slot, "status": status, "reference": ref(s.title,f"A{row}:G{row}"), "declared_rank_or_cost": name,
                 "description": s[f"D{row}"].value, "requirements": s[f"E{row}"].value})
+            if node_id == "node.warrior.brawler.t5_1":
+                additions[-1]["workbook_description"] = additions[-1]["description"]
+                additions[-1]["description"] = "Każdy punkt aktualnej wściekłości zwiększa celność umiejętności o 0,5; wartość liczona przed opłaceniem ataku."
+                additions[-1]["decision_reference"] = "CP2-05: zatwierdzona decyzja użytkownika 2026-10-31; zastępuje przestarzałą redukcję kary z Drzewka!D8."
             if re.search(r"\d+\s+P[MWP]",str(name)):
                 skill = reserve("node_skill:"+key,"skill."+tree.removeprefix('tree.')+'.'+slug(slot),clean)
                 additions[-1]['granted_skill'] = skill

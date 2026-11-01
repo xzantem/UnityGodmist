@@ -107,7 +107,7 @@ namespace Godmist.Systems.Combat
             if(preview)cuts=ctx.Source.WarriorState.LastCutTarget==ctx.Target.Character.CharacterId?cuts+1:1;
             if(ctx.SkillId==Cut && cuts%3==0 && cuts>0)
                 bonus+=.0025f*B(ctx.Source,"third_time")*(ctx.Source.Character.ResourcePool?.CurrentValue??0);
-            return 1+bonus;
+            return (1+bonus)*FencingMultiplier(ctx,preview);
         }
         public static float ArmorBonus(BattleUnit source,BattleUnit target)=>target?.Character?.Stats==null?1:1+.15f*C(source,"armor_piercing")*target.Character.CurrentHealth/Mathf.Max(1,target.Character.Stats.MaxHealth.GetValue());
         public static float Received(CombatSession session,BattleUnit source,BattleUnit target,DamageType type)
@@ -126,8 +126,9 @@ namespace Godmist.Systems.Combat
         static int AdjacentEnemies(CombatSession session,BattleUnit target,BattleUnit source)=>session?.Units?.Count(u=>u.IsPlayerSide==source.IsPlayerSide && u.Character.LifeState==CharacterLifeState.Alive
             && Math.Abs(u.Position.X-target.Position.X)+Math.Abs(u.Position.Y-target.Position.Y)==1 && session.Grid.CanMoveBetween(u.Position,target.Position))??0;
         public static float CriticalMultiplier(BattleUnit source,BattleUnit target)=>target?.WarriorState.OrderTurns>0 && target.WarriorState.OrderSource?.IsPlayerSide==source?.IsPlayerSide?1+.5f*C(target.WarriorState.OrderSource,"marking"):1;
-        public static void BeginSkill(BattleUnit caster,SkillData skill,IReadOnlyList<BattleUnit> targets)
+        public static void BeginSkill(BattleUnit caster,SkillData skill,IReadOnlyList<BattleUnit> targets,bool passiveDuplicate=false,IReadOnlyList<BattleUnit> fencingTargets=null)
         {
+            if (!passiveDuplicate) BeginFencing(caster,skill,fencingTargets ?? targets);
             var w=caster.WarriorState;var id=targets?.FirstOrDefault()?.Character?.CharacterId;
             if(skill.SkillId==Cut){w.ConsecutiveCuts=w.LastCutTarget==id?w.ConsecutiveCuts+1:1;w.LastCutTarget=id;}
             else{w.ConsecutiveCuts=0;w.LastCutTarget=null;}

@@ -191,6 +191,7 @@ namespace Godmist.Systems.Combat
             }
 
             finalDamage = ScoutCombatSystem.ResolveThroatCut(session, eventContext, finalDamage);
+            finalDamage = WarriorCombatSystem.ResolveExecution(session, eventContext, isCritical, finalDamage);
             var healthDamage = ApplyDamage(
                 session,
                 source,
@@ -296,7 +297,12 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     target, CombatFeedbackType.ShieldLoss, shieldDamage, damageType, source: source));
             }
-            if(WarriorCombatSystem.DeathProtected(target))remainingDamage=Mathf.Min(remainingDamage,Mathf.Max(0,target.Character.CurrentHealth-1));
+            if(WarriorCombatSystem.DeathProtected(target))
+            {
+                var permitted = Mathf.Min(remainingDamage,Mathf.Max(0,target.Character.CurrentHealth-1));
+                WarriorCombatSystem.RecordDeathWishPrevention(target, remainingDamage-permitted);
+                remainingDamage = permitted;
+            }
             remainingDamage = DeadKingBossSystem.KnightDamage(target, remainingDamage, damageType);
             var healthBeforeDamage = target.Character.CurrentHealth;
             var healthDamage = Mathf.Min(healthBeforeDamage, remainingDamage);
@@ -467,7 +473,7 @@ namespace Godmist.Systems.Combat
             }
 
             var chance = damageType == DamageType.Magical
-                ? MageCombatSystem.CalculateMagicCriticalChance(context)
+                ? Mathf.Clamp01(MageCombatSystem.CalculateMagicCriticalChance(context) + WarriorCombatSystem.DuelCriticalChance(session, source, context?.Target))
                 : CalculateRegularCriticalChance(session, source, context);
             return damageType==DamageType.Magical ? UnityEngine.Random.value < chance : UnityEngine.Random.value <= chance;
         }
@@ -485,7 +491,7 @@ namespace Godmist.Systems.Combat
                 distance: Mathf.Abs(source.Position.X - target.Position.X) + Mathf.Abs(source.Position.Y - target.Position.Y));
             if (damageType is not (DamageType.Physical or DamageType.Magical or DamageType.Inevitable)) return 0f;
             if (skill?.GuaranteedCritical == true || !ignoreConsumedGuaranteedCritical && HasUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit)) return 1f-avoidance;
-            return (damageType == DamageType.Magical ? MageCombatSystem.CalculateMagicCriticalChance(context)
+            return (damageType == DamageType.Magical ? Mathf.Clamp01(MageCombatSystem.CalculateMagicCriticalChance(context) + WarriorCombatSystem.DuelCriticalChance(session, source, context?.Target))
                 : CalculateRegularCriticalChance(session, source, context))*(1-avoidance);
         }
 
@@ -501,6 +507,7 @@ namespace Godmist.Systems.Combat
         {
             var chance = context?.DischargeCast?.CritChance ?? (source.Character.Stats == null ? 0f : source.Character.Stats.CritChance.GetValue());
             chance += MageCombatSystem.BurningCriticalChance(source,context?.Target);
+            chance += WarriorCombatSystem.DuelCriticalChance(session,source,context?.Target);
             chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(
                 session,
                 context,
@@ -808,9 +815,9 @@ namespace Godmist.Systems.Combat
             return freeze == null ? 1f : 1f + freeze.RemainingDuration * GameDefinesRuntime.GetFloat(GameDefineIds.FreezeDamagePerRemainingTurn, .5f);
         }
 
-        public static int ApplyPostDefenseBonuses(BattleUnit source, BattleUnit target, int damage, bool critical, float freezeMultiplier = 1f)
+        public static int ApplyPostDefenseBonuses(BattleUnit source, BattleUnit target, int damage, bool critical, float freezeMultiplier = 1f, Godmist.Data.Skills.SkillData previewSkill = null)
         {
-            var criticalMultiplier = critical ? Mathf.Max(1f, (source?.Character?.Stats?.CritDamage.GetValue() ?? 1f)
+            var criticalMultiplier = critical ? Mathf.Max(1f, WarriorCombatSystem.CriticalDamage(source,previewSkill)
                 + ScoutCombatSystem.WeakPointCriticalDamage(target)) : 1f;
             return Mathf.Max(0, Mathf.CeilToInt(damage * criticalMultiplier * freezeMultiplier));
         }

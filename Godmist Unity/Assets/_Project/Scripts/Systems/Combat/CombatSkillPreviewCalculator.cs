@@ -116,7 +116,7 @@ namespace Godmist.Systems.Combat
                     case EffectType.PaladinHeal:
                         amount = Mathf.RoundToInt(PaladinCombatSystem.CalculateHealing(caster, skill, effect,singleTarget)
                             *(1+variation*PaladinCombatSystem.HealingVariation)
-                            *(critical?Mathf.Max(1,caster.Character.Stats.CritDamage.GetValue()):1)); break;
+                            *(critical?Mathf.Max(1,WarriorCombatSystem.CriticalDamage(caster,skill)):1)); break;
                     case EffectType.PaladinRegeneration: amount = PaladinCombatSystem.CalculateRegenerationUpfront(caster, target,critical); break;
                     default: continue;
                 }
@@ -222,7 +222,7 @@ namespace Godmist.Systems.Combat
             var guaranteed = skill?.GuaranteedCritical == true || CombatDamageSystem.HasUniqueBuff(caster,UniqueBuffType.GuaranteedCriticalHit);
             if (guaranteed)
             {
-                var critical = Mathf.Max(1,caster.Character.Stats.CritDamage.GetValue());
+                var critical = Mathf.Max(1,WarriorCombatSystem.CriticalDamage(caster,skill));
                 explanation?.Add("guaranteed_critical",critical);
                 // Execution rounds the hero multipliers before applying critical damage.
                 range = new CombatSkillDamageRange(Mathf.CeilToInt(Mathf.RoundToInt(range.Minimum*multiplier)*critical),
@@ -430,8 +430,8 @@ namespace Godmist.Systems.Combat
                         maximumRaw,
                         effect.DamageType,
                         effect.BonusPenetration, WarriorDischargeRules.DefenseIgnore(caster, skill, type: effect.DamageType));
-                    minimumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, minimumAfterDefense, isCritical, freezeMultiplier);
-                    maximumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, maximumAfterDefense, isCritical, freezeMultiplier);
+                    minimumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, minimumAfterDefense, isCritical, freezeMultiplier,skill);
+                    maximumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, maximumAfterDefense, isCritical, freezeMultiplier,skill);
                     if (hitIndex < hitCount)
                     {
                         var amount = ApplyCurrentDamageModifiers(caster, target, minimumAfterDefense,

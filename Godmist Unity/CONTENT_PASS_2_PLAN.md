@@ -109,6 +109,8 @@ Duże karty, zwłaszcza 06, 11, 19, 25 i karty bossów, dzielić wykonawczo na: 
 
 ### CP2-05 Dodać T5 Dowódcy i Awanturnika
 
+**Status:** ZAAKCEPTOWANA2026-11-01 — commit/push zlecony przez użytkownika; dedykowane ikony10/10 i redakcyjne tooltipy44/44PASS. Pierwotny etap READY_FOR_SMOKE — `CONTENT_PASS_2_WARRIOR_T5.md`. Dziesięć węzłów wdrożonych, Trening Skupienia+0,5 celności/PW przed kosztem. Authoring Editor API zachował40 dawnych node'ów, narzędzie idempotentne. Końcowy ukryty batch454/454PASS; łącznie678 różnych końcowychPASS. Bez zmiany save i bez ręcznego wiring. Po prośbie użytkownika brak dalszego sterowania oknami. Manual smoke/buildWindows NOT RUN; bez commit/push.
+
 **Zależności:** 03–04.
 
 **Zakres:** po pięć node'ów T5 obu istniejących drzewek Wojownika z arkusza `Drzewka`, wraz z ich prerequisite, rankami, kosztami i przypisanymi efektami. Nie przebudowywać T1–4 poza konieczną zgodnością i zatwierdzonym balansem.

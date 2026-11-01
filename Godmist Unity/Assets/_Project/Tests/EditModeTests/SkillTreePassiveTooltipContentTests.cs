@@ -57,7 +57,7 @@ namespace Godmist.Tests.EditMode
                     Assert.That(node.Description, Is.EqualTo(authored), "Presentation must not mutate authored data.");
                 }
             }
-            Assert.That(count, Is.EqualTo(133));
+            Assert.That(count, Is.EqualTo(143));
             Directory.CreateDirectory("out");
             File.WriteAllText("out/passive-tooltip-catalog-rendered.md", report.ToString());
         }
@@ -71,6 +71,46 @@ namespace Godmist.Tests.EditMode
             Assert.That(Regex.Matches(body, "Przy ataku").Count, Is.EqualTo(2));
             Assert.That(Regex.Matches(body, "Maksymalnie 5 kumulacji").Count, Is.EqualTo(2));
             Assert.That(body, Does.Not.Contain("30%").And.Not.Contain("4 tury"));
+        }
+
+        [TestCase("Commander")]
+        [TestCase("Brawler")]
+        public void WarriorTierFiveUsesEditorialCopyForEveryRank(string treeName)
+        {
+            var tree = AssetDatabase.LoadAssetAtPath<SkillTreeDefinition>(
+                "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_" + treeName + ".asset");
+            var nodes = tree.Nodes.Where(node => node.Tier == 5).ToArray();
+            Assert.That(nodes.Length, Is.EqualTo(5));
+            foreach (var source in nodes)
+            {
+                // A distinct authored fallback detects a missing editorial entry;
+                // the production ScriptableObject remains untouched.
+                var node = Node("UNREVIEWED_T5_FALLBACK", source.EffectiveMaxRanks);
+                Set(node, "Id", source.Id);
+                for (var rank = 0; rank <= node.EffectiveMaxRanks; rank++)
+                {
+                    var body = Plain(SkillTreeNodeView.BuildDetails(node, rank));
+                    Assert.That(body, Does.Not.Contain("UNREVIEWED_T5_FALLBACK"), source.Id);
+                    Assert.That(body, Does.Not.Match(@"\d+[,.\d%]*\s*/\s*\d"), source.Id);
+                    Assert.That(body, Does.Not.Contain("snapshot").And.Not.Contain("opłaceniem"), source.Id);
+                }
+            }
+        }
+
+        [Test]
+        public void WarriorTierFiveComparisonKeepsRankSpecificBonusAndConditionTogether()
+        {
+            var node = Node("UNREVIEWED_T5_FALLBACK");
+            Set(node, "Id", "node.warrior.brawler.t5_2");
+            var body = Plain(SkillTreeNodeView.BuildDetails(node, 1));
+            var sections = body.Split(new[] { "Następne:" }, StringSplitOptions.None);
+            Assert.That(sections.Length, Is.EqualTo(2));
+            Assert.That(sections[0], Does.Contain("30%").And.Contain("10%").And.Not.Contain("50%").And.Not.Contain("20%"));
+            Assert.That(sections[1], Does.Contain("50%").And.Contain("20%").And.Not.Contain("30%").And.Not.Contain("10%"));
+            Set(node, "Id", "node.warrior.brawler.t5_3");
+            body = Plain(SkillTreeNodeView.BuildDetails(node, 1));
+            Assert.That(body, Does.Contain("0,003").And.Contain("0,005").And.Contain("1%"));
+            Assert.That(body, Does.Not.Contain("x/"));
         }
 
         [Test]

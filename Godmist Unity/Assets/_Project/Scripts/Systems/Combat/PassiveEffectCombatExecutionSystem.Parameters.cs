@@ -75,10 +75,11 @@ namespace Godmist.Systems.Combat
             if (mode == null) return null;
             var index = -1;
             for (var i = 0; skill != null && i < skill.TargetModes.Count; i++) if (ReferenceEquals(skill.TargetModes[i], mode)) { index = i; break; }
+            var orderRange = WarriorCombatSystem.OrderRangeBonus(owner, skill);
             var extra = skill?.SkillId == "skill.scout.ricochet" ? ScoutCombatSystem.AssassinRank(owner,"farsight") switch {1=>1,2=>3,_=>0} : 0;
             if (skill?.SkillId == "skill.mage.sacrifice") mode = mode.WithChainTargets(1 + MageCombatSystem.W(owner, "mass_sacrifice"));
             return mode.WithChainTargets(mode.ChainTargets+(skill?.SkillId == "skill.scout.ricochet" ? 2*ScoutCombatSystem.AssassinRank(owner,"knife_bounce") : 0)).WithRuntimeRanges(
-                Mathf.RoundToInt(ResolveParameter(owner, skill, "range", mode.AbsoluteRange.MaxRange + extra, modeIndex: index)),
+                Mathf.RoundToInt(ResolveParameter(owner, skill, "range", mode.AbsoluteRange.MaxRange + extra + orderRange, modeIndex: index)),
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "area_range", mode.RelativeRange.MaxRange + extra, modeIndex: index)));
         }
 
@@ -89,7 +90,8 @@ namespace Godmist.Systems.Combat
             var context = new PassiveEffectCombatContext(source: owner, target: owner,
                 skill: skill, skillId: skill.SkillId, attackType: skill.AttackType,
                 resourceType: skill.ResourceType, resourceAmount: skill.ResourceCost);
-            float flat = 0, percent = 0, multiplier = 1;
+            float flat = parameter == "accuracy" ? WarriorCombatSystem.AccuracyBonus(owner, skill) : 0, percent = 0, multiplier = 1;
+            if (flat != 0) explanation?.Add("Trening Skupienia", flat);
             foreach (var runtime in owner.Character.PassiveEffects ?? new List<PassiveEffectRuntime>())
             {
                 if (!PassiveEffectLifecycleSystem.IsActive(runtime)

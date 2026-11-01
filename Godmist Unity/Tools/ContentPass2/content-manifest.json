@@ -3,7 +3,7 @@
   "source_workbook": "design/content_pass_2.xlsx",
   "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
   "natural_contract_sha256": "9dae030880234ac08233a038bc37e5cc16950cd967a812413b400c0ee6345cea",
-  "baseline_commit": "f30ab8f38d85490f47ba1e7c36afce94ad28bf70",
+  "baseline_commit": "889456c9c9c2f8ee8af2dff47e84cf9316a1f606",
   "runtime_changed": false,
   "entities": [
     {
@@ -39893,8 +39893,10 @@
       "status": "specified",
       "reference": "Drzewka!A8:G8",
       "declared_rank_or_cost": "Trening Skupienia [1]",
-      "description": "Redukuje karę celności za posiadanie wściekłości o 50%",
-      "requirements": null
+      "description": "Każdy punkt aktualnej wściekłości zwiększa celność umiejętności o 0,5; wartość liczona przed opłaceniem ataku.",
+      "requirements": null,
+      "workbook_description": "Redukuje karę celności za posiadanie wściekłości o 50%",
+      "decision_reference": "CP2-05: zatwierdzona decyzja użytkownika 2026-10-31; zastępuje przestarzałą redukcję kary z Drzewka!D8."
     },
     {
       "id": "node.warrior.brawler.t5_2",

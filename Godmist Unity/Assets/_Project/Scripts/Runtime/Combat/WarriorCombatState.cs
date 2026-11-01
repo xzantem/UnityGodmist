@@ -19,6 +19,11 @@ namespace Godmist.Runtime.Combat
         public float RevengeRemainder;
         public float HealingRemainder;
         public float TrueDamageRemainder;
+        public int? AccuracyRageSnapshot;
+        public string AccuracySnapshotSkill;
+        public string FencingTarget;
+        public int FencingStacks;
+        public long DeathWishPreventedDamage;
         // Combat-local grace: 0 after offense, 1 free idle turn, 2 recurring decay.
         public int RageIdleTurns;
         public bool RageOffensiveActionUsed, RageHadOffensiveOpportunity, RageControlBlocked;

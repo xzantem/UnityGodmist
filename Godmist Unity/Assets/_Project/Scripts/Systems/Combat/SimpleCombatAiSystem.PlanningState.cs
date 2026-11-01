@@ -119,6 +119,10 @@ namespace Godmist.Systems.Combat
             copy.WarriorState.TraumaBonus = source.WarriorState.TraumaBonus;
             copy.WarriorState.LastCutTarget = source.WarriorState.LastCutTarget;
             copy.WarriorState.ConsecutiveCuts = source.WarriorState.ConsecutiveCuts;
+            copy.WarriorState.FencingTarget = source.WarriorState.FencingTarget;
+            copy.WarriorState.FencingStacks = source.WarriorState.FencingStacks;
+            copy.WarriorState.HealingRemainder = source.WarriorState.HealingRemainder;
+            copy.WarriorState.DeathWishPreventedDamage = source.WarriorState.DeathWishPreventedDamage;
             copy.WarriorState.FreeMovementTurns = source.WarriorState.FreeMovementTurns;
             copy.WarriorState.FreeStepsUsed = source.WarriorState.FreeStepsUsed;
             copy.MageState.OffensiveTargetCount = source.MageState.OffensiveTargetCount;
@@ -156,6 +160,10 @@ namespace Godmist.Systems.Combat
                     Add(unit.Character.CurrentHealth); Add(unit.CurrentActionPoints); Add(unit.MaxActionPoints);
                     Add(unit.Character.ResourcePool?.CurrentValue ?? 0); Add(unit.Character.ShieldPool?.TotalShield ?? 0);
                     Add(unit.PaladinState.HealingDiscount ? 1 : 0);
+                    Add(unit.WarriorState.FencingTarget?.GetHashCode() ?? 0);
+                    Add(unit.WarriorState.FencingStacks);
+                    Add(unit.WarriorState.HealingRemainder.GetHashCode());
+                    Add(unit.WarriorState.DeathWishPreventedDamage.GetHashCode());
                     Add(unit.AvailableKnives); Add(unit.MovementStepsThisTurn); Add(unit.ScoutState.Facing.GetHashCode());
                     foreach (var buff in unit.UniqueBuffs) Add((int)buff);
                     var resistances = unit.Character.Resistances;

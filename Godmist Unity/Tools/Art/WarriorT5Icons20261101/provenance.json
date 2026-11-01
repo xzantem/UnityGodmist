@@ -1,0 +1,62 @@
+[
+  {
+    "id": "node.warrior.commander.t5_1",
+    "slug": "aegis",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-687e45cf-e247-4c9c-bea6-e50584de05bb.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.commander.t5_2",
+    "slug": "execution",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-db231ac5-1157-415d-962b-ffc93a61f2bc.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.commander.t5_3",
+    "slug": "duel",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-35cfc25e-e25c-45cd-af55-52006e48c9c6.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.commander.t5_4",
+    "slug": "fencing",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-ab5d043b-c947-429f-8ba1-ad6637927ec1.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.commander.t5_5",
+    "slug": "commanders_eye",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-d1c15dac-31fe-4f81-965f-9b0c46b37d78.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.brawler.t5_1",
+    "slug": "focused_rage",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-c059e9b6-aeaa-4ca7-a897-b31430703683.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.brawler.t5_2",
+    "slug": "battle_frenzy",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-56259132-4018-401e-ae12-27ab92e625a7.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.brawler.t5_3",
+    "slug": "battle_fury",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-b129da4a-6191-46ad-b2a5-355ee2c5ac56.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.brawler.t5_4",
+    "slug": "return_to_life",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-7441edcf-704f-478e-9dea-2c121190f8db.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  },
+  {
+    "id": "node.warrior.brawler.t5_5",
+    "slug": "undying_fury",
+    "tool": "built-in image_gen",
+    "output_hint": "Generated images are saved to C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c as C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-99b40727-93dc-469a-84e3-ca7990299a78.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link."
+  }
+]

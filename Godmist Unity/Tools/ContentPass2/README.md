@@ -12,6 +12,8 @@ Pliki nie są katalogiem runtime i nie konfigurują Unity. Dodatni wynik walidac
 - `material-sources.txt`: tabela przedmiotów i źródeł z separatorem `|`. Zawiera też jawnie oznaczone legacy i zakres powyżej L40.
 - `validation.json`: wynik niezależnego przeliczenia grafu i kontroli inwariantów, z hashem badanego manifestu.
 
+- `warrior-t5-validation.json`: wynik CP2-05 — authoring10 node'ów, zachowanie40 dawnych, idempotencja,335/339 w pierwszym przebiegu i454/454 w końcowym batchu;678 różnych końcowychPASS. Trening Skupienia ma jawny override+0,5 celności/PW w generatorze; stary opis zXLSX zachowany osobno w `workbook_description`.
+
 ## Aktualizacja
 
 Użyć Pythona z `openpyxl`, np. bundled runtime Codexa. Z katalogu głównego repozytorium:

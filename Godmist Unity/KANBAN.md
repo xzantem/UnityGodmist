@@ -1,3 +1,15 @@
+## CP2-05 — T5 Dowódcy i Awanturnika — 2026-11-01 — ZAAKCEPTOWANA
+
+Przygotowano `CONTENT_PASS_2_WARRIOR_T5.md`:10 zarezerwowanychID, rangi/prerequisite, mapa punktów integracji, authoring i testy. Trzy doprecyzowania zatwierdzone: Powrót do Żywych wypłaca bank po każdym wyłączeniu, także ręcznym; Szermierka liczy użycia ataków z pierwszym ładunkiem od pierwszego ataku, pudłami i resetem po zmianie celu/AoE; Egzekucja na bossie daje podwójny damage zamiast zabicia. Rozkaz Przegrupowania z arkusza mapuje się na obecny Rozkaz Gotowości, to samo skill.warrior.regroup.
+
+Trening Skupienia zatwierdzony: +0,5 celności umiejętności/PW przed zapłatą kosztu. Kod, dziesięć node'ów i nowe testy wdrożone; authoring zachował40 oryginalnych node'ów i jest idempotentny. Pierwszy przebieg335/339PASS; cztery failure prezentacji poprawione (licznik+10, dwa stare formaty tekstów, overflow). Końcowy ukryty batch454/454PASS; łącznie678 różnych końcowychPASS, w tym34 nowe przypadkiT5 i nowy test zakupu/inspekcji obu rzędów. Dodano format rang z jednostkąx oraz prognozę leczenia od zapłaty kosztu przed oceną bonusów niskiegoHP i kopię stanuT5 dlaAI. Po uwadze użytkownika nie sterujemy oknami ani nie wysyłamy skrótów. Bez zmian XLSX i formatu save, bez commit/push. Dowody: `../LocalHandoffs/cp2-05-warrior-t5-20261031/verification.json`, `Tools/ContentPass2/warrior-t5-validation.json`.40 starych rekordów node'ów bajtowo zgodnych; wcześniejsze zmiany użytkownika zachowane. Runnery lokalne usunięte, brak ręcznego wiring; smoke w lokalnym UNITY_HANDOFF.md. Manual render/gameplay/FPS i buildWindows NOT RUN.
+
+Uzupełnienie2026-11-01:10 dedykowanych ikonT5 wygenerowanych osobno image_gen, zatwierdzony full-canvas nearest32/Aseprite. Podpięte przez Unity API;10 unikalnychSprite,40 dawnych ikon i gameplay bez zmian. Import/idempotencja i dokładny roundtrip10/10PASS;WarriorContentTests62/62PASS. Paczka Tools/Art/WarriorT5Icons20261101 (źródła/prompty/Aseprite/review.png), dowody ../LocalHandoffs/cp2-05-icons-20261101. Bez sterowania pulpitem, ręcznego wiring, commit/push.
+
+Uzupełnienie opisów2026-11-01:10T5 ma dedykowane teksty każdej rangi w SkillTreeTooltipCopy,7 rozwijanych Zasad działania, spójne jednostki i porównania rang. Tooltipy/UI44/44PASS (katalog143 pasywek); bez gameplayu/assetów. Dowody ../LocalHandoffs/cp2-05-copy-20261101/.
+
+Użytkownik zaakceptował kartę i polecił commit/push oraz przejście doCP2-06 dnia2026-11-01. Powyższe ograniczenia opisują wykonane testy; ręczny odbiór zaakceptowany poleceniem użytkownika.
+
 ## CP2-02 — katalog contentu i źródła L1–40 — 2026-10-31 — ZAAKCEPTOWANA
 
 Użytkownik zaakceptował przegląd katalogu, polecił commit/push i przejście do CP2-03.

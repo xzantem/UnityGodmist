@@ -9,6 +9,16 @@ namespace Godmist.Views.UI.Workspace
     {
         internal static readonly IReadOnlyDictionary<string,string[]> Descriptions = new Dictionary<string,string[]>
         {
+            ["node.warrior.commander.t5_1"] = new[] { "Rozkaz Gotowości zwiększa obrażenia celu o 15% na 3 tury.", "Rozkaz Gotowości zwiększa obrażenia celu o 30% na 3 tury." },
+            ["node.warrior.commander.t5_2"] = new[] { "Trafienia krytyczne mają 10% szansy na zabicie przeciwnika, jeśli pięciokrotność ich obrażeń wystarczyłaby do jego pokonania. Przeciw bossom zamiast zabicia podwaja obrażenia trafienia." },
+            ["node.warrior.commander.t5_3"] = new[] { "Zwiększa szansę krytyczną o 10 pp przeciw przyległemu celowi, jeśli jest jedynym przyległym przeciwnikiem.", "Zwiększa szansę krytyczną o 20 pp przeciw przyległemu celowi, jeśli jest jedynym przyległym przeciwnikiem." },
+            ["node.warrior.commander.t5_4"] = new[] { "Ataki w ten sam cel zadają o 2% więcej obrażeń za każdy atak w serii, maksymalnie o 10%.", "Ataki w ten sam cel zadają o 4% więcej obrażeń za każdy atak w serii, maksymalnie o 20%." },
+            ["node.warrior.commander.t5_5"] = new[] { "Zwiększa zasięg Rozkazu Unicestwienia, Rozkazu Ochrony i Rozkazu Gotowości o 2 pola." },
+            ["node.warrior.brawler.t5_1"] = new[] { "Każdy posiadany punkt furii zwiększa celność umiejętności o 0,5." },
+            ["node.warrior.brawler.t5_2"] = new[] { "Zwiększa zadawane obrażenia o 30%, gdy zdrowie spadnie poniżej 10% maksymalnego zdrowia.", "Zwiększa zadawane obrażenia o 50%, gdy zdrowie spadnie poniżej 20% maksymalnego zdrowia." },
+            ["node.warrior.brawler.t5_3"] = new[] { "Zwiększa obrażenia krytyczne o 0,003 za każdy brakujący 1% maksymalnego zdrowia.", "Zwiększa obrażenia krytyczne o 0,005 za każdy brakujący 1% maksymalnego zdrowia." },
+            ["node.warrior.brawler.t5_4"] = new[] { "Wyłączenie Pragnienia Śmierci przywraca zdrowie równe 25% obrażeń zatrzymanych przez jego ochronę przed śmiercią.", "Wyłączenie Pragnienia Śmierci przywraca zdrowie równe 50% obrażeń zatrzymanych przez jego ochronę przed śmiercią." },
+            ["node.warrior.brawler.t5_5"] = new[] { "Za każdym razem, gdy Pragnienie Śmierci zapobiega śmierci, generuje 10 furii." },
             ["node.mage.fire.burning_aura"] = new[] { "Zwiększa obrażenia od podpalenia Ognistej Aury o 15%.", "Zwiększa obrażenia od podpalenia Ognistej Aury o 30%." },
             ["node.mage.fire.pyromania"] = new[] { "Zwiększa szansę na podpalenie Ognistej Aury do 60%, a Kuli Ognia do 85%.", "Zwiększa szansę na podpalenie Ognistej Aury do 75%, a Kuli Ognia do 100%." },
             ["node.mage.fire.distracting_fire"] = new[] { "Podpaleni przeciwnicy zadają o 10% mniej obrażeń.", "Podpaleni przeciwnicy zadają o 20% mniej obrażeń." },

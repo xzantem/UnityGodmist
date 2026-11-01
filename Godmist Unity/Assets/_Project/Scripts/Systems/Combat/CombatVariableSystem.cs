@@ -99,6 +99,9 @@ namespace Godmist.Systems.Combat
                 source?.Character,
                 GameplayVariableType.DamageDealtPercent,explanation:explanation);
             if(previewSkill!=null)dealtMultiplier=WarriorCombatSystem.PreviewDealtMultiplier(source,previewSkill,dealtMultiplier);
+            var lowHealthBonus = WarriorCombatSystem.LowHealthDamageBonus(source,previewSkill);
+            dealtMultiplier += lowHealthBonus;
+            if (lowHealthBonus != 0) explanation?.Add("Szał Bitewny", lowHealthBonus);
             explanation?.Add("damage_dealt",dealtMultiplier);
 
             var angerMultiplier = ScoutCombatSystem.ReceivedDamageMultiplier(source, target);

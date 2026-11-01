@@ -223,8 +223,10 @@ namespace Godmist.Systems.Combat
             var vfxActionId = presentationActionId ?? actionId;
             using var equipmentAction = new EquipmentActionScope(session, caster, actionId, !isPassiveDuplicate);
             using var tiringCast = new MageTiringSpellSystem.CastScope(session, caster, actionId);
+            using var warriorCast = new WarriorCombatSystem.CastScope(caster, skill);
             var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
-            WarriorCombatSystem.BeginSkill(caster,skill,knifeTargets);
+            WarriorCombatSystem.BeginSkill(caster,skill,knifeTargets,isPassiveDuplicate,
+                targetsByModeIndex?.Values.SelectMany(targets => targets ?? Array.Empty<BattleUnit>()).Distinct().ToArray());
             var actionContext = CreateActionContext(
                 session,
                 caster,
@@ -519,6 +521,7 @@ namespace Godmist.Systems.Combat
             {
                 caster.ActiveToggleSkillIds ??= new HashSet<string>();
                 caster.ActiveToggleSkillIds.Add(skill.SkillId);
+                if (skill.SkillId == WarriorCombatSystem.DeathWish) caster.WarriorState.DeathWishPreventedDamage = 0;
                 caster.ToggleSkillIdsUsedThisTurn?.Add(skill.SkillId);
             }
             CombatTurnSystem.RefreshMaxActionPoints(session);
@@ -1116,7 +1119,7 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ModifyActionValue:
                 {
-                    if(skill.SkillId=="skill.warrior.regroup"){target.CurrentActionValue=0;return new EffectExecutionResult{Succeeded=true};}
+                    if(skill.SkillId=="skill.warrior.regroup"){target.CurrentActionValue=0;WarriorCombatSystem.ApplyAegis(caster,target);return new EffectExecutionResult{Succeeded=true};}
                     var maximumActionValue = CombatTurnSystem.CalculateBaseActionValue(target);
                     var change = maximumActionValue * Mathf.Abs(effect.ActionValuePercent);
                     target.CurrentActionValue = Mathf.Max(0f,
@@ -2290,7 +2293,8 @@ namespace Godmist.Systems.Combat
                     $"{skillId}.damage_redirect.",
                     StringComparison.OrdinalIgnoreCase));
 
-            caster.ActiveToggleSkillIds?.Remove(skillId);
+            var wasActive = caster.ActiveToggleSkillIds?.Remove(skillId) == true;
+            if (wasActive && skillId == WarriorCombatSystem.DeathWish) WarriorCombatSystem.EndDeathWish(caster,recoverySystem);
             if (markUsedThisTurn)
             {
                 caster.ToggleSkillIdsUsedThisTurn ??= new HashSet<string>();
