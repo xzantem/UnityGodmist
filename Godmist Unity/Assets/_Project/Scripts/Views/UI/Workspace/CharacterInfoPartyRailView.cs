@@ -1,3 +1,4 @@
+using Godmist.Runtime.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -213,6 +214,13 @@ namespace Godmist.Views.UI.Workspace
             foreach (var row in portraits) if (row != null) row.MarkInsertion(false, false);
             foreach (var group in groupViews) if (group != null) group.Highlight(false);
         }
+        public bool CanPreviewItemDrop(CharacterInfoWindowView source, string recipientId,
+            ItemInstance item, out string reason)
+        {
+            reason = "Przedmiot nie jest już dostępny.";
+            return source != null && source.CanPreviewRecipientDrop(session, recipientId, item, out reason);
+        }
+
         public void ReceiveItemDrop(string recipientId, PointerEventData eventData)
         {
             if (eventData?.button != PointerEventData.InputButton.Left || session == null || eventData.pointerDrag == null) return;

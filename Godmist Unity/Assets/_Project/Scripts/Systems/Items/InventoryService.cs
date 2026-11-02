@@ -114,19 +114,39 @@ namespace Godmist.Systems.Items
             return false;
         }
 
-        // Validate the entire selection before changing either inventory.
+        // Preview and execution resolve the same complete selection without partial mutations.
+        public bool TryPreviewTransferItems(Inventory source, Inventory destination,
+            IReadOnlyList<string> ids, out float? resultingWeight)
+        {
+            resultingWeight = null;
+            if (!TryResolveTransferItems(source, destination, ids, out var items)) return false;
+            resultingWeight = TransferResultWeight(destination, items);
+            return HasWeightCapacity(destination, resultingWeight.Value);
+        }
+
         public bool TryTransferItems(Inventory source, Inventory destination, IReadOnlyList<string> ids)
         {
-            if (source?.Items == null || destination?.Items == null || source == destination
-                || ids == null || ids.Count == 0 || ids.Distinct().Count() != ids.Count) return false;
-            var items = ids.Select(id => source.Items.FirstOrDefault(item => item?.InstanceId == id)).ToList();
-            if (items.Any(item => item?.Definition == null || string.IsNullOrWhiteSpace(item.InstanceId)
-                || ContainsInstanceId(destination, item.InstanceId))) return false;
-            var weight = items.Sum(item => Mathf.Max(0, item.Definition.Weight));
-            if (destination.MaxWeight.HasValue && GetCurrentWeight(destination) + weight > destination.MaxWeight.Value) return false;
+            if (!TryResolveTransferItems(source, destination, ids, out var items)) return false;
+            if (!HasWeightCapacity(destination, TransferResultWeight(destination, items))) return false;
             foreach (var item in items) source.Items.Remove(item);
             destination.Items.AddRange(items);
             return true;
+        }
+
+        private float TransferResultWeight(Inventory destination, List<ItemInstance> items) =>
+            GetCurrentWeight(destination) + items.Sum(item => Mathf.Max(0, item.Definition.Weight));
+        private static bool HasWeightCapacity(Inventory destination, float weight) =>
+            !destination.MaxWeight.HasValue || !(weight > destination.MaxWeight.Value);
+
+        private static bool TryResolveTransferItems(Inventory source, Inventory destination,
+            IReadOnlyList<string> ids, out List<ItemInstance> items)
+        {
+            items = null;
+            if (source?.Items == null || destination?.Items == null || source == destination
+                || ids == null || ids.Count == 0 || ids.Distinct().Count() != ids.Count) return false;
+            items = ids.Select(id => source.Items.FirstOrDefault(item => item?.InstanceId == id)).ToList();
+            return !items.Any(item => item?.Definition == null || string.IsNullOrWhiteSpace(item.InstanceId)
+                || ContainsInstanceId(destination, item.InstanceId));
         }
 
         private static bool ContainsInstanceId(Inventory inventory, string instanceId)

@@ -84,6 +84,81 @@ namespace Godmist.Tests.EditMode
         void Combat(CharacterInstance character)
         { var combat=new CombatSession { IsSeamless=true }; combat.Units.Add(new BattleUnit { Character=character,IsPlayerSide=true }); Get<List<CombatSession>>(session,"combats").Add(combat); }
 
+        [Test] public void RecipientPreviewRequiresRoomForOneUnitWithoutMovingTheStack()
+        {
+            var a=Add("a"); Add("b"); Add("c"); Drag(a);
+            recipient.Inventory.MaxWeight=1;
+            Assert.That(window.CanPreviewRecipientDrop(session,recipient.CharacterId,a,out var reason),Is.True);
+            Assert.That(reason,Does.Contain("liczbę sztuk"));
+            recipient.Inventory.MaxWeight=.5f;
+            Assert.That(window.CanPreviewRecipientDrop(session,recipient.CharacterId,a,out reason),Is.False);
+            Assert.That(reason,Does.Contain("Brak miejsca"));
+            Assert.That(owner.Inventory.Items,Has.Count.EqualTo(3));Assert.That(recipient.Inventory.Items,Is.Empty);
+        }
+        [TestCase("dead")] [TestCase("combat")] [TestCase("self")] [TestCase("foreign")]
+        public void RecipientPreviewRejectsUnavailableDestinations(string state)
+        {
+            var a=Add("a"); Drag(a);
+            if(state=="dead") recipient.LifeState=CharacterLifeState.Dead;
+            if(state=="combat") Combat(recipient);
+            var destination=state=="foreign"?new GameSession():session;
+            var id=state=="self"?owner.CharacterId:recipient.CharacterId;
+            Assert.That(window.CanPreviewRecipientDrop(destination,id,a,out var reason),Is.False);
+            Assert.That(reason,Is.Not.Empty);Assert.That(owner.Inventory.Items,Does.Contain(a));
+        }
+        [Test] public void LeavingPortraitAndCancellingClearOnlyTheRecipientPreview()
+        {
+            var image=new GameObject("Portrait",typeof(RectTransform),typeof(Image)).GetComponent<Image>();
+            image.transform.SetParent(portrait.transform,false);Set(portrait,"portrait",image);
+            var a=Add("a");var data=Drag(a);
+            data.pointerCurrentRaycast=new RaycastResult {gameObject=portrait.gameObject};window.UpdateDrag(data);
+            var border=Get<ItemRarityBorderGraphic>(portrait,"itemDropBorder");
+            Assert.That(border,Is.Not.Null);Assert.That(border.enabled,Is.True);
+            Assert.That(border.color,Is.EqualTo(Godmist.Views.HighlightStyle.Friendly));
+            data.pointerCurrentRaycast=new RaycastResult();window.UpdateDrag(data);
+            Assert.That(border.enabled,Is.False);
+            data.pointerCurrentRaycast=new RaycastResult {gameObject=portrait.gameObject};window.UpdateDrag(data);
+            Assert.That(border.enabled,Is.True);window.EndDrag();Assert.That(border.enabled,Is.False);
+            Assert.That(window.CanPreviewRecipientDrop(session,recipient.CharacterId,a,out _),Is.False);
+        }
+
+        [Test] public void QuantityPreviewShowsWeightDisablesOverflowAndDoesNotClampTheChoice()
+        {
+            var a=Add("a"); Add("b"); Add("c"); recipient.Inventory.MaxWeight=1;
+            portrait.OnDrop(Drag(a));
+            Assert.That(Get<TMP_Text>(popup,"quantityHint").text,Does.Contain("Waga odbiorcy"));
+            Assert.That(Get<Button>(popup,"confirmButton").interactable,Is.True);
+            Get<TMP_InputField>(popup,"quantityInput").text="2";
+            Assert.That(Get<Button>(popup,"confirmButton").interactable,Is.False);
+            Assert.That(Get<TMP_InputField>(popup,"quantityInput").text,Is.EqualTo("2"));
+            Assert.That(Get<TMP_Text>(popup,"quantityError").text,Does.Contain("limit wagi"));
+            Assert.That(owner.Inventory.Items,Has.Count.EqualTo(3)); Assert.That(recipient.Inventory.Items,Is.Empty);
+            recipient.Inventory.MaxWeight=null;
+            Confirm(2);
+            Assert.That(recipient.Inventory.Items,Has.Count.EqualTo(2));Assert.That(owner.Inventory.Items,Has.Count.EqualTo(1));
+        }
+        [Test] public void PreviewAndTransferShareWeightAndStaleSelectionValidation()
+        {
+            var a=Add("a");var b=Add("b");var ids=new[]{a.InstanceId,b.InstanceId};
+            var actions=new Godmist.Systems.Items.ItemOwnershipActions();
+            recipient.Inventory.MaxWeight=1;
+            Assert.That(actions.PreviewTransfer(session,owner,a,ids,2,recipient,false,true,out var reason,out var weight),Is.False);
+            Assert.That(weight,Is.EqualTo(2));
+            Assert.That(actions.TryTransfer(session,owner,a,ids,2,recipient,false,true,out var actualReason),Is.False);
+            Assert.That(actualReason,Is.EqualTo(reason)); Assert.That(owner.Inventory.Items,Has.Count.EqualTo(2));
+            owner.Inventory.Items.Remove(b);recipient.Inventory.MaxWeight=null;
+            Assert.That(actions.PreviewTransfer(session,owner,a,ids,2,recipient,false,true,out _,out weight),Is.False);
+            Assert.That(weight,Is.Null);Assert.That(recipient.Inventory.Items,Is.Empty);
+        }
+        [TestCase(0f)] [TestCase(-2f)] public void ZeroAndNegativeDefinitionWeightUseTheExistingZeroFloor(float weight)
+        {
+            Set(material,"<Weight>k__BackingField",weight);
+            var a=Add("a");Add("b");recipient.Inventory.MaxWeight=0;
+            portrait.OnDrop(Drag(a));Get<TMP_InputField>(popup,"quantityInput").text="2";
+            Assert.That(Get<Button>(popup,"confirmButton").interactable,Is.True);Confirm(2);
+            Assert.That(recipient.Inventory.Items,Has.Count.EqualTo(2));
+        }
+
         [Test] public void PortraitStackDropRequestsQuantityAndPreservesExactInstances()
         {
             var a=Add("a"); var b=Add("b"); var c=Add("c");

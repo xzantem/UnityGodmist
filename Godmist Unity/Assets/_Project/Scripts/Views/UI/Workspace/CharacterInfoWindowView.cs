@@ -16,7 +16,7 @@ using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
 {
-    public sealed class CharacterInfoWindowView : MonoBehaviour
+    public sealed partial class CharacterInfoWindowView : MonoBehaviour
     {
         private static readonly HashSet<CharacterInfoWindowView> OpenWindows = new();
         private readonly CharacterStatHoverController statHover = new();
@@ -177,6 +177,7 @@ namespace Godmist.Views.UI.Workspace
         private void LateUpdate()
         {
             RefreshProgressionButtons();
+            RefreshRecipientDragPreview();
             if (character != null)
             {
                 RefreshVitals();
@@ -474,7 +475,7 @@ namespace Godmist.Views.UI.Workspace
                 icon.enabled = icon.sprite != null;
             }
             var countLabel = dragGhost.transform.Find("CountLabel");
-            if (countLabel != null) countLabel.gameObject.SetActive(false);
+            ConfigureRecipientDragLabel(countLabel);
             UpdateDrag(eventData);
         }
 
@@ -485,10 +486,12 @@ namespace Godmist.Views.UI.Workspace
             var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(window.Manager.WorkspaceRoot, eventData.position, camera, out var point))
                 dragGhost.GetComponent<RectTransform>().anchoredPosition = point;
+            UpdateRecipientDragTarget(eventData);
         }
 
         public void EndDrag()
         {
+            ClearRecipientDragPreview();
             UIWorkspaceTooltipView.ActiveInstance?.EndDragSuppression();
             draggedItem = null;
             draggedItemIds = null;

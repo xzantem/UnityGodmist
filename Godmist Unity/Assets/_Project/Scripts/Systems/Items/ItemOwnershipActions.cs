@@ -37,9 +37,25 @@ namespace Godmist.Systems.Items
             IReadOnlyList<string> capturedIds, int count, CharacterInstance recipient, bool toStash,
             bool inCity, out string reason)
         {
+            if (!PreviewTransfer(session, owner, expectedItem, capturedIds, count, recipient,
+                toStash, inCity, out reason, out _)) return false;
+            var destination = toStash ? session.Stash : recipient.Inventory;
+            var success = owner.Inventory.Items.Contains(expectedItem)
+                ? inventory.TryTransferItems(owner.Inventory, destination, capturedIds.Take(count).ToArray())
+                : equipment.TryTransferEquippedItem(owner, ((EquipmentItemInstance)expectedItem).EquipmentSlot,
+                    expectedItem.InstanceId, destination);
+            if (!success) reason = "Nie można teraz przekazać przedmiotów.";
+            return success;
+        }
+
+        public bool PreviewTransfer(GameSession session, CharacterInstance owner, ItemInstance expectedItem,
+            IReadOnlyList<string> capturedIds, int count, CharacterInstance recipient, bool toStash,
+            bool inCity, out string reason, out float? resultingWeight)
+        {
+            resultingWeight = null;
             reason = "Przedmiot nie jest już dostępny.";
             if (session == null || !session.CharactersById.TryGetValue(owner?.CharacterId ?? "", out var registered)
-                || !ReferenceEquals(registered, owner) || !Owns(owner, expectedItem)
+                || !ReferenceEquals(registered, owner) || !Owns(owner, expectedItem) || expectedItem.Definition == null
                 || capturedIds == null || count < 1 || count > capturedIds.Count) return false;
             if (session.IsCharacterInCombat(owner.CharacterId))
             { reason = "Przedmiotów nie można przekazywać podczas walki."; return false; }
@@ -53,13 +69,19 @@ namespace Godmist.Systems.Items
             {
                 if (ids.Any(id => !owner.Inventory.Items.Any(item => item?.InstanceId == id
                     && (ReferenceEquals(item, expectedItem) || expectedItem.CanStackWith(item))))) return false;
-                if (!inventory.TryTransferItems(owner.Inventory, destination, ids))
+                if (!inventory.TryPreviewTransferItems(owner.Inventory, destination, ids, out resultingWeight))
                 { reason = "Brak miejsca w plecaku odbiorcy. Sprawdź limit wagi."; return false; }
             }
             else if (count != 1 || expectedItem is not EquipmentItemInstance equipped
                 || ids[0] != equipped.InstanceId
-                || !equipment.TryTransferEquippedItem(owner, equipped.EquipmentSlot, equipped.InstanceId, destination))
-            { reason = "Brak miejsca w plecaku odbiorcy."; return false; }
+                || !ReferenceEquals(owner.Equipment.GetItem(equipped.EquipmentSlot), equipped))
+            { reason = "Przedmiot nie jest już dostępny."; return false; }
+            else
+            {
+                resultingWeight = inventory.GetCurrentWeight(destination) + UnityEngine.Mathf.Max(0, expectedItem.Definition.Weight);
+                if (!inventory.CanAddItem(destination, expectedItem))
+                { reason = "Brak miejsca w plecaku odbiorcy."; return false; }
+            }
             reason = string.Empty;
             return true;
         }

@@ -27,6 +27,9 @@ namespace Godmist.Views.UI.Workspace
         private ItemRarityBorderGraphic candidateRarityBorder, equippedRarityBorder;
         private readonly ItemOwnershipActions actions = new();
         private Func<int, string> describe, confirm;
+        private Func<int, (string Description, string Error)> quantityPreview;
+        private float nextPreviewRefresh;
+        private readonly InventoryService inventory = new();
         private int maximum;
         private bool notice;
         private GameObject previousSelection;
@@ -115,7 +118,21 @@ namespace Godmist.Views.UI.Workspace
             }
             var destination = toStash ? "schowka" : recipient.Definition?.DisplayName ?? recipient.CharacterId;
             if (ids.Length > 1) RequestQuantity("Przekaż przedmioty", ids.Length,
-                count => $"{item.DisplayName}\n{count} szt. → {destination}", Execute);
+                count => $"{item.DisplayName}\n{count} szt. → {destination}", Execute, count =>
+                {
+                    var allowed = actions.PreviewTransfer(session, owner, item, ids, count, recipient, toStash,
+                        inCity(), out var reason, out var resultingWeight);
+                    var description = $"{item.DisplayName}\n{count} szt. → {destination}";
+                    var targetInventory = toStash ? session.Stash : recipient?.Inventory;
+                    if (targetInventory != null && resultingWeight.HasValue)
+                    {
+                        var current = inventory.GetCurrentWeight(targetInventory);
+                        var limit = targetInventory.MaxWeight.HasValue ? $" / {targetInventory.MaxWeight.Value:0.##} kg" : " kg (bez limitu)";
+                        var color = ColorUtility.ToHtmlStringRGB(allowed ? HighlightStyle.Friendly : HighlightStyle.Hostile);
+                        description += $"\nWaga odbiorcy: {current:0.##} → <color=#{color}>{resultingWeight.Value:0.##}</color>{limit}";
+                    }
+                    return (description, allowed ? null : reason);
+                });
             else { var error = Execute(1); if (error != null) ShowNotice(error); }
         }
 
@@ -138,16 +155,19 @@ namespace Godmist.Views.UI.Workspace
 
         private void OpenModal(GameObject panel)
         {
+            quantityPreview = null;
             previousSelection = EventSystem.current?.currentSelectedGameObject;
             menu.Hide(); gameObject.SetActive(true); transform.SetAsLastSibling();
             quantityPanel.SetActive(false); comparisonPanel.SetActive(false); panel.SetActive(true);
             UIWorkspaceTooltipView.ActiveInstance?.Hide();
         }
 
-        public void RequestQuantity(string title, int max, Func<int, string> description, Func<int, string> execute)
+        public void RequestQuantity(string title, int max, Func<int, string> description, Func<int, string> execute,
+            Func<int, (string Description, string Error)> preview = null)
         {
             if (max < 1) return;
             OpenModal(quantityPanel); maximum = max; notice = false; describe = description; confirm = execute;
+            quantityPreview = preview;
             quantityTitle.text = title; quantityError.text = string.Empty;
             foreach (var control in new GameObject[] { quantityInput.gameObject, minusButton.gameObject, plusButton.gameObject,
                 maxButton.gameObject, confirmButton.gameObject }) control.SetActive(true);
@@ -169,11 +189,22 @@ namespace Godmist.Views.UI.Workspace
             if (notice) return;
             quantityHint.text = describe?.Invoke(Count) ?? string.Empty;
             minusButton.interactable = Count > 1; plusButton.interactable = Count < maximum;
-            confirmButton.interactable = int.TryParse(quantityInput.text, out var count) && count >= 1 && count <= maximum;
+            var validCount = int.TryParse(quantityInput.text, out var count) && count >= 1 && count <= maximum;
+            confirmButton.interactable = validCount;
+            if (quantityPreview != null)
+            {
+                var state = quantityPreview(Count);
+                quantityHint.text = state.Description;
+                quantityError.text = validCount ? state.Error ?? string.Empty : $"Podaj liczbę od 1 do {maximum}.";
+                confirmButton.interactable = validCount && string.IsNullOrEmpty(state.Error);
+                nextPreviewRefresh = Time.unscaledTime + .1f;
+            }
         }
         private void Confirm()
         {
-            if (confirm == null || !confirmButton.interactable) return;
+            if (confirm == null) return;
+            if (quantityPreview != null) UpdateQuantity();
+            if (!confirmButton.interactable) return;
             var error = confirm(Count);
             if (string.IsNullOrEmpty(error)) HideAll(); else quantityError.text = error;
         }
@@ -206,13 +237,18 @@ namespace Godmist.Views.UI.Workspace
 
         public void HideAll()
         {
-            menu.Hide(); quantityPanel.SetActive(false); comparisonPanel.SetActive(false); confirm = null;
+            menu.Hide(); quantityPanel.SetActive(false); comparisonPanel.SetActive(false); confirm = null; quantityPreview = null;
             GetComponentInParent<UIWorkspaceWindowManager>()?.ConsumeContextMenuInput();
             var events = EventSystem.current;
             if (events?.currentSelectedGameObject != null && events.currentSelectedGameObject.transform.IsChildOf(transform))
                 events.SetSelectedGameObject(previousSelection != null && previousSelection.activeInHierarchy ? previousSelection : null);
             gameObject.SetActive(false);
         }
-        private void Update() { if (IsModalOpen && Input.GetKeyDown(KeyCode.Escape)) HideAll(); }
+        private void Update()
+        {
+            if (IsModalOpen && Input.GetKeyDown(KeyCode.Escape)) { HideAll(); return; }
+            if (quantityPanel.activeSelf && !notice && quantityPreview != null && Time.unscaledTime >= nextPreviewRefresh)
+                UpdateQuantity();
+        }
     }
 }
