@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,15 +29,30 @@ namespace Godmist.Views.UI.Workspace
             string Percent(float v)=>FormatPercent(v);
             string Turns(int t)=>FixedTurns(t,"Czas trwania: "+UiTerms.Present(skill.DisplayName));
             string F(string value,string title)=>BaseValue(value,title);
+            if(skill.SkillId==ScoutCombatSystem.ForwardRoll)
+                return effect.EffectType==EffectType.Teleport?"Przemieszcza na wolne pole w odległości "+F("1–2","Zasięg Przewrotu")+"."
+                    :effect.UniqueBuffType==UniqueBuffType.GuaranteedCriticalHit?"Zapewnia jeden krytyk w następnym użyciu ataku.":"Zapewnia jeden gwarantowany unik bezpośredniego trafienia.";
+            if(skill.SkillId==ScoutCombatSystem.BottledVenom)
+                return "Trzy pulsy w promieniu "+F("2","Promień Jadu w Butelce")+": "+F(Percent(.7f),"Szansa zatrucia — Jad w Butelce")+" szansy na zatrucie o sile "+PeriodicValue(caster,effect)+" na turę przez "+Turns(3)+".";
+            if(skill.SkillId==ScoutCombatSystem.SickenedCurse)
+                return "Zadaje "+DamageValue(skill,caster,effect)+" obrażeń fizycznych; w zwarciu "+F("60%","Siła Klątwy w zwarciu")+" tej wartości. Przeciw zatrutemu celowi: +"+F("40%","Premia Klątwy przeciw zatrutemu celowi")+" obrażeń. Trafienie przedłuża zatrucie o "+FixedTurns(1,"Przedłużenie zatrucia")+".";
+            if(skill.SkillId==GuardianCombatSystem.Shield)
+                return "Zapewnia tarczę równą "+F("15%","Tarcza — udział zdrowia celu")+" maksymalnego zdrowia celu na "+Turns(3+GuardianCombatSystem.G(caster,"t2_3"))+".";
+            if(skill.SkillId==GuardianCombatSystem.Taunt)
+                return F("90%","Bazowa szansa prowokacji")+" szansy na sprowokowanie na "+Turns(3)+"."
+                    +(GuardianCombatSystem.G(caster,"t2_4")>0?" Obniża celność umiejętności celu o "+F((5*GuardianCombatSystem.G(caster,"t2_4")).ToString(),"Zaślepienie Wściekłością — celność")+".":"");
+            if(skill.SkillId==GuardianCombatSystem.Counter)
+                return "Do końca następnej własnej tury odbija "+F((100+75*GuardianCombatSystem.G(caster,"t5_5")).ToString()+"%","Kontratak — siła odbicia")+" bazowej wartości następnego bezpośredniego ataku.";
             if(skill.SkillId==WarriorCombatSystem.DefensiveStance)
                 return "Zapewnia tarczę o wartości "+F(WarriorCombatSystem.ArmoredShield(caster).ToString(),"Tarcza")+" na "+Turns(5)+".";
-            if(skill.SkillId==WarriorCombatSystem.Prediction)return skill.TooltipDescription;
+            if(skill.SkillId==WarriorCombatSystem.Prediction)return "Przez "+Turns(5)+" zwiększa unik o "+F("5","Unik Przewidywania za pole")+" za każde pole odległości od atakującego.";
             if(skill.SkillId==WarriorCombatSystem.EnergyRenewal)
                 return "Usypia na "+Turns(2)+". Przywraca "+F(Mathf.CeilToInt((caster?.Character?.MaximumHealth??0)*.2f).ToString(),"Leczenie na turę")+" zdrowia na turę przez "+Turns(2)+". Otrzymanie obrażeń kończy efekt.";
             if(skill.SkillId==WarriorCombatSystem.PommelStrike)
             {
                 var extra=WarriorCombatSystem.M(caster,"t3_3");
-                return skill.TooltipDescription+(extra>0?"\nZmniejsza pozostałe odporności o "+Percent(.08f*extra)+" na "+Turns(3)+".":"");
+                return "Trafienie ma "+F("90%","Szansa obniżenia odporności na supresję")+" szansy na zmniejszenie odporności na supresję o "+F("50 pp","Obniżenie odporności na supresję")+" na "+Turns(3)+", a następnie "+F("70%","Bazowa szansa ogłuszenia Ciosem Rękojeścią")+" szansy na ogłuszenie na "+Turns(3)+"."
+                    +(extra>0?"\nZmniejsza pozostałe odporności o "+F(Percent(.08f*extra),"Odebranie Żywiołu — redukcja odporności")+" na "+Turns(3)+".":"");
             }
             string Param(string key,string value)=>LinkEffectParameter(skill,caster,effect,key,value);
             var duration=effect.DurationTurns>0 && effect.EffectType is not (EffectType.Push or EffectType.Pull) ? " na "+LinkEffectParameter(skill,caster,effect,"duration",FormatTurnCount(effect.DurationTurns)) : "";

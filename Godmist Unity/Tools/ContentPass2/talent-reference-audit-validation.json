@@ -1,0 +1,90 @@
+{
+  "date": "2026-11-02",
+  "status": "ACCEPTED",
+  "scope": {
+    "trees": 10,
+    "other_than_guardian": 9,
+    "nodes": 230,
+    "rank_variants": 460,
+    "class_node_counts": {
+      "Warrior": 75,
+      "Scout": 75,
+      "Mage": 40,
+      "Paladin": 40
+    }
+  },
+  "findings": [
+    "Only Guardian registered talent names; other class names and inflections lacked specific entries",
+    "Gniewny Odwet could match the shorter boss Odwet entry",
+    "Przewidywanie has different node IDs and icons for Warrior and Scout; class context must replace previous candidates",
+    "Observed inflections such as Młyńca, Rozkazem Unicestwienia, Rykoszetu, Szybkich Ciosów, Ognistej Aury and Pola Osądu require explicit aliases",
+    "Generic lowercase statuses and generic healing must not become named-skill references"
+  ],
+  "implementation": [
+    "Class-scoped registry of actual tree nodes and granted/known skills",
+    "Lazy shared node renderer on popup lookup; live invested rank, icon and character values",
+    "Exact declared inflections; case-sensitive talent names preserve generic status prose",
+    "Contextual proper names take precedence over shorter/general glossary terms",
+    "Preserved Guardian wrapper and full-rule links; active cards use standard skill summary"
+  ],
+  "test_runs": [
+    {
+      "report": "LocalHandoffs/skill-tree-reference-audit-20261102/tests.xml",
+      "passed": 58,
+      "failed": 5,
+      "resolution": "five old Guardian expectations assumed passive Następne heading for active skills; updated to canonical Koszt summary"
+    },
+    {
+      "report": "LocalHandoffs/skill-tree-reference-audit-20261102/final.xml",
+      "passed": 135,
+      "failed": 0,
+      "sha256": "9f4be5de9266c96d472dbf520cbd9dcb01555d11069463ce36e9a07a3faf357c"
+    }
+  ],
+  "checks": {
+    "all_node_titles_and_exact_icon_references": true,
+    "unlearned_and_max_rank_descriptions": true,
+    "inflections_in_all_four_classes": true,
+    "class_switch_and_duplicate_names": true,
+    "lowercase_status_and_generic_healing_preserved": true,
+    "boss_odwet_preserved": true,
+    "no_existing_serialized_assets_changed": true,
+    "source_matches_tested_snapshot": true,
+    "git_diff_check": "PASS"
+  },
+  "files": [
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/CombatTooltipGlossary.cs",
+      "sha256": "ed99b77ed3e2bac395299092961b182f3c9dbcd03b78543187e0de9c1ba087ba"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/GuardianDesignPreviewCopy.cs",
+      "sha256": "767ea96589db1eb86ec20221f8b08a0bb9b24be21f355f2647b209c6bdfdb1db"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/SkillTreeTooltipPresentation.cs",
+      "sha256": "b5be474817214230afd7dc28a8fb05b813adcd578c25fd88e7543dc4f99fb6fd"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/UIWorkspaceTooltipView.cs",
+      "sha256": "9c5ece7a3dfe932fa8b1c9898532082a929b18079afd95337802fc188ae4333e"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/UIWorkspaceTooltipView.TalentReferences.cs",
+      "sha256": "41f532662565d8b4770c6d74e0ee8775fdce51165ca1fd71c84b2157235c0ba1"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/TalentReferenceAuditTests.cs",
+      "sha256": "5fdc9e3043050c92d8b74f6dd0daeedff3bd42d8db9dd5b8637ad809f30be8cb"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/CombatTooltipGlossaryTests.cs",
+      "sha256": "109bc5824736eee711cb784d9d8e44446b1efb68bb7e94e4be8d9c815f8e0f6a"
+    }
+  ],
+  "manual_smoke": "UNITY_HANDOFF.md",
+  "desktop_control_used": false,
+  "committed": false,
+  "pushed": false,
+  "acceptance": "User accepted smoke and explicitly authorized commit/push on 2026-11-02"
+}

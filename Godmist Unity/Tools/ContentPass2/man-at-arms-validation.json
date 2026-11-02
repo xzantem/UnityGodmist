@@ -327,7 +327,8 @@
   "icons": {
     "nearest_sampling": 25,
     "aseprite_roundtrip": 25,
-    "records_sha256": "5484f206584bda7afb3969ec3d7ff032f83889e329bd2e16cf7f16287f31af4c"
+    "records_sha256": "c21bc0e760f4d1b59b101972af1067307321d6a17da033f84bd53fa8efb41da1",
+    "original_records_sha256": "5484f206584bda7afb3969ec3d7ff032f83889e329bd2e16cf7f16287f31af4c"
   },
   "source_snapshot_parity": {
     "tracked_changed_cs": 35,
@@ -351,5 +352,12 @@
     "result": "PASS",
     "accepted_by": "user",
     "date": "2026-11-02"
+  },
+  "palette_followup": {
+    "status": "READY_FOR_SMOKE",
+    "date": "2026-11-02",
+    "report": "Tools/Art/IconPaletteFix20261102/validation.json",
+    "original_authoring_hashes_are_historical": true,
+    "note": "Production PNG bytes were subsequently corrected. All original asset/meta/reference/code hashes remain unchanged; current icon hashes are in updated records.json and palette validation."
   }
 }

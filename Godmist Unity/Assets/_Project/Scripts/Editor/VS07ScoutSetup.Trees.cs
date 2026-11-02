@@ -187,6 +187,10 @@ public static partial class VS07ScoutSetup
             if(!found){entries.InsertArrayElementAtIndex(entries.arraySize);entries.GetArrayElementAtIndex(entries.arraySize-1).objectReferenceValue=skill;}
         }
         catalog.ApplyModifiedPropertiesWithoutUndo();AssetDatabase.SaveAssets();
+        if(System.IO.File.Exists("Tools/Art/ScoutT5Icons20261102/prompts.json"))
+            Godmist.Editor.ContentPass2ScoutT5Setup.Apply();
+        if(System.IO.File.Exists("Tools/ContentPass2/guardian-content.json"))
+            Godmist.Editor.ContentPass2GuardianSetup.Apply();
     }
     static void RequireHit(SerializedProperty effect)
     {

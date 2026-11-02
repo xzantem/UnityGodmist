@@ -215,7 +215,7 @@ namespace Godmist.Views.UI.Workspace
         internal string AnnotateTalentValues(string text,SkillTreeNodeDefinition node,int rank,CharacterInstance character,Func<int,string> describe)
         {
             var previous=rank>1?Regex.Matches(describe(rank-1),NumericTokenPattern).Cast<Match>().Where(m=>!m.Value.StartsWith("<")).Select(m=>m.Value).ToArray():Array.Empty<string>();
-            var templates=SkillTreeTooltipCopy.Descriptions.TryGetValue(node.Id,out var copies)?copies:Array.Empty<string>();
+            var templates=SkillTreeTooltipCopy.RankCopies(node.Id);
             var fixedValues=templates.Select(t=>Regex.Matches(t.Replace("{X–Y}","0–0").Replace("{X}","0").Replace("{furia}","0"),NumericTokenPattern)
                 .Cast<Match>().Where(m=>!m.Value.StartsWith("<")).Select(m=>m.Value).ToArray()).ToArray();
             var ordinal=0;

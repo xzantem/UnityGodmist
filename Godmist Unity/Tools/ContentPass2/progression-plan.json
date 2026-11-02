@@ -1,0 +1,2485 @@
+{
+  "status": "APPROVED_CONTRACT",
+  "runtime_changed": false,
+  "decisions": {
+    "content_scope_max_level": 40,
+    "character_cap": 50,
+    "keep_existing_xp_sp_growth_and_tier_thresholds": true,
+    "all_five_biomes_eligible_from_start_when_authored": true,
+    "new_biome_assets_owned_by_cards": [
+      31,
+      36,
+      41
+    ],
+    "new_expedition_level_cap_introduced_by_this_card": false
+  },
+  "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
+  "config_sha256": "e3ce04780545d49cea382152af7cb1046cf230d1bde2b86c93a9a90ceb0ace9a",
+  "source_config": "Godmist Unity\\Assets\\_Project\\Resources\\GameDefines.asset",
+  "current_character_cap": 50,
+  "config": {
+    "progression.npc.loyalty.initial_level": 1.0,
+    "progression.npc.loyalty.maximum_level": 15.0,
+    "progression.npc.loyalty.threshold_base": 4.0,
+    "progression.npc.loyalty.threshold_exponent_offset": 4.0,
+    "progression.npc.loyalty.threshold_level_divisor": 3.0,
+    "progression.npc.loyalty.discount.level_1": 2.0,
+    "progression.npc.loyalty.discount.level_2": 4.0,
+    "progression.npc.loyalty.discount.level_3": 7.0,
+    "progression.npc.loyalty.discount.level_4": 9.0,
+    "progression.npc.loyalty.discount.level_5": 12.0,
+    "progression.npc.loyalty.discount.percent_1": 0.01,
+    "progression.npc.loyalty.discount.percent_2": 0.04,
+    "progression.npc.loyalty.discount.percent_3": 0.09,
+    "progression.npc.loyalty.discount.percent_4": 0.16,
+    "progression.npc.loyalty.discount.percent_5": 0.25,
+    "progression.party.default_max_active_members": 5.0,
+    "progression.skill_loadout.default_capacity": 5.0,
+    "progression.character.minimum_level": 1.0,
+    "progression.character.maximum_level": 50.0,
+    "progression.experience.formula_coefficient": 1200.0,
+    "progression.experience.formula_exponent": 1.5,
+    "progression.experience.formula_constant": 1200.0,
+    "progression.skill_points.level_two": 2.0,
+    "progression.skill_points.other_levels": 1.0,
+    "progression.skill_tree.maximum_points": 50.0,
+    "progression.skill_tree.tier_3_4_required_points": 10.0,
+    "progression.skill_tree.tier_5_6_required_points": 20.0,
+    "progression.skill_tree.tier_7_required_points": 30.0,
+    "progression.growth.level_2_10": 1.0,
+    "progression.growth.level_11_20": 2.0,
+    "progression.growth.level_21_30": 3.0,
+    "progression.growth.level_31_40": 5.0,
+    "progression.growth.level_41_50": 9.0,
+    "progression.growth.early_end_level": 10.0,
+    "progression.growth.mid_end_level": 20.0,
+    "progression.growth.late_end_level": 30.0,
+    "progression.growth.endgame_end_level": 40.0
+  },
+  "levels": [
+    {
+      "level": 1,
+      "xp_to_next_at_current_cap": 2400,
+      "cumulative_xp_from_level_1": 0,
+      "total_earned_sp": 0,
+      "growth_band_coefficient": 0,
+      "cumulative_growth_units": 0
+    },
+    {
+      "level": 2,
+      "xp_to_next_at_current_cap": 4594,
+      "cumulative_xp_from_level_1": 2400,
+      "total_earned_sp": 2,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 1
+    },
+    {
+      "level": 3,
+      "xp_to_next_at_current_cap": 7435,
+      "cumulative_xp_from_level_1": 6994,
+      "total_earned_sp": 3,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 2
+    },
+    {
+      "level": 4,
+      "xp_to_next_at_current_cap": 10800,
+      "cumulative_xp_from_level_1": 14429,
+      "total_earned_sp": 4,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 3
+    },
+    {
+      "level": 5,
+      "xp_to_next_at_current_cap": 14616,
+      "cumulative_xp_from_level_1": 25229,
+      "total_earned_sp": 5,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 4
+    },
+    {
+      "level": 6,
+      "xp_to_next_at_current_cap": 18836,
+      "cumulative_xp_from_level_1": 39845,
+      "total_earned_sp": 6,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 5
+    },
+    {
+      "level": 7,
+      "xp_to_next_at_current_cap": 23424,
+      "cumulative_xp_from_level_1": 58681,
+      "total_earned_sp": 7,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 6
+    },
+    {
+      "level": 8,
+      "xp_to_next_at_current_cap": 28353,
+      "cumulative_xp_from_level_1": 82105,
+      "total_earned_sp": 8,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 7
+    },
+    {
+      "level": 9,
+      "xp_to_next_at_current_cap": 33600,
+      "cumulative_xp_from_level_1": 110458,
+      "total_earned_sp": 9,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 8
+    },
+    {
+      "level": 10,
+      "xp_to_next_at_current_cap": 39147,
+      "cumulative_xp_from_level_1": 144058,
+      "total_earned_sp": 10,
+      "growth_band_coefficient": 1,
+      "cumulative_growth_units": 9
+    },
+    {
+      "level": 11,
+      "xp_to_next_at_current_cap": 44979,
+      "cumulative_xp_from_level_1": 183205,
+      "total_earned_sp": 11,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 11
+    },
+    {
+      "level": 12,
+      "xp_to_next_at_current_cap": 51083,
+      "cumulative_xp_from_level_1": 228184,
+      "total_earned_sp": 12,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 13
+    },
+    {
+      "level": 13,
+      "xp_to_next_at_current_cap": 57447,
+      "cumulative_xp_from_level_1": 279267,
+      "total_earned_sp": 13,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 15
+    },
+    {
+      "level": 14,
+      "xp_to_next_at_current_cap": 64060,
+      "cumulative_xp_from_level_1": 336714,
+      "total_earned_sp": 14,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 17
+    },
+    {
+      "level": 15,
+      "xp_to_next_at_current_cap": 70914,
+      "cumulative_xp_from_level_1": 400774,
+      "total_earned_sp": 15,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 19
+    },
+    {
+      "level": 16,
+      "xp_to_next_at_current_cap": 78000,
+      "cumulative_xp_from_level_1": 471688,
+      "total_earned_sp": 16,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 21
+    },
+    {
+      "level": 17,
+      "xp_to_next_at_current_cap": 85311,
+      "cumulative_xp_from_level_1": 549688,
+      "total_earned_sp": 17,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 23
+    },
+    {
+      "level": 18,
+      "xp_to_next_at_current_cap": 92841,
+      "cumulative_xp_from_level_1": 634999,
+      "total_earned_sp": 18,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 25
+    },
+    {
+      "level": 19,
+      "xp_to_next_at_current_cap": 100583,
+      "cumulative_xp_from_level_1": 727840,
+      "total_earned_sp": 19,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 27
+    },
+    {
+      "level": 20,
+      "xp_to_next_at_current_cap": 108531,
+      "cumulative_xp_from_level_1": 828423,
+      "total_earned_sp": 20,
+      "growth_band_coefficient": 2,
+      "cumulative_growth_units": 29
+    },
+    {
+      "level": 21,
+      "xp_to_next_at_current_cap": 116681,
+      "cumulative_xp_from_level_1": 936954,
+      "total_earned_sp": 21,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 32
+    },
+    {
+      "level": 22,
+      "xp_to_next_at_current_cap": 125027,
+      "cumulative_xp_from_level_1": 1053635,
+      "total_earned_sp": 22,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 35
+    },
+    {
+      "level": 23,
+      "xp_to_next_at_current_cap": 133565,
+      "cumulative_xp_from_level_1": 1178662,
+      "total_earned_sp": 23,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 38
+    },
+    {
+      "level": 24,
+      "xp_to_next_at_current_cap": 142291,
+      "cumulative_xp_from_level_1": 1312227,
+      "total_earned_sp": 24,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 41
+    },
+    {
+      "level": 25,
+      "xp_to_next_at_current_cap": 151200,
+      "cumulative_xp_from_level_1": 1454518,
+      "total_earned_sp": 25,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 44
+    },
+    {
+      "level": 26,
+      "xp_to_next_at_current_cap": 160289,
+      "cumulative_xp_from_level_1": 1605718,
+      "total_earned_sp": 26,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 47
+    },
+    {
+      "level": 27,
+      "xp_to_next_at_current_cap": 169555,
+      "cumulative_xp_from_level_1": 1766007,
+      "total_earned_sp": 27,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 50
+    },
+    {
+      "level": 28,
+      "xp_to_next_at_current_cap": 178994,
+      "cumulative_xp_from_level_1": 1935562,
+      "total_earned_sp": 28,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 53
+    },
+    {
+      "level": 29,
+      "xp_to_next_at_current_cap": 188604,
+      "cumulative_xp_from_level_1": 2114556,
+      "total_earned_sp": 29,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 56
+    },
+    {
+      "level": 30,
+      "xp_to_next_at_current_cap": 198380,
+      "cumulative_xp_from_level_1": 2303160,
+      "total_earned_sp": 30,
+      "growth_band_coefficient": 3,
+      "cumulative_growth_units": 59
+    },
+    {
+      "level": 31,
+      "xp_to_next_at_current_cap": 208321,
+      "cumulative_xp_from_level_1": 2501540,
+      "total_earned_sp": 31,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 64
+    },
+    {
+      "level": 32,
+      "xp_to_next_at_current_cap": 218423,
+      "cumulative_xp_from_level_1": 2709861,
+      "total_earned_sp": 32,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 69
+    },
+    {
+      "level": 33,
+      "xp_to_next_at_current_cap": 228685,
+      "cumulative_xp_from_level_1": 2928284,
+      "total_earned_sp": 33,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 74
+    },
+    {
+      "level": 34,
+      "xp_to_next_at_current_cap": 239103,
+      "cumulative_xp_from_level_1": 3156969,
+      "total_earned_sp": 34,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 79
+    },
+    {
+      "level": 35,
+      "xp_to_next_at_current_cap": 249675,
+      "cumulative_xp_from_level_1": 3396072,
+      "total_earned_sp": 35,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 84
+    },
+    {
+      "level": 36,
+      "xp_to_next_at_current_cap": 260400,
+      "cumulative_xp_from_level_1": 3645747,
+      "total_earned_sp": 36,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 89
+    },
+    {
+      "level": 37,
+      "xp_to_next_at_current_cap": 271275,
+      "cumulative_xp_from_level_1": 3906147,
+      "total_earned_sp": 37,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 94
+    },
+    {
+      "level": 38,
+      "xp_to_next_at_current_cap": 282297,
+      "cumulative_xp_from_level_1": 4177422,
+      "total_earned_sp": 38,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 99
+    },
+    {
+      "level": 39,
+      "xp_to_next_at_current_cap": 293466,
+      "cumulative_xp_from_level_1": 4459719,
+      "total_earned_sp": 39,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 104
+    },
+    {
+      "level": 40,
+      "xp_to_next_at_current_cap": 304779,
+      "cumulative_xp_from_level_1": 4753185,
+      "total_earned_sp": 40,
+      "growth_band_coefficient": 5,
+      "cumulative_growth_units": 109
+    }
+  ],
+  "heroes": [
+    {
+      "definition": "Godmist Unity\\Assets\\_Project\\ScriptableObjects\\Characters\\CD_Jerzy.asset",
+      "character_id": "jerzy",
+      "base": {
+        "MaxHealth": 300.0,
+        "MinAttack": 18.0,
+        "MaxAttack": 36.0,
+        "PhysicalDefense": 8.0,
+        "MagicalDefense": 4.0,
+        "PhysicalDefensePenetration": 0.0,
+        "MagicalDefensePenetration": 0.0,
+        "Dodge": 17.0,
+        "CritChance": 0.0,
+        "CritDamage": 1.0,
+        "Speed": 55.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 200.0,
+        "ResourceRegeneration": 0.0,
+        "HealingPower": 0.0
+      },
+      "growth": {
+        "MaxHealth": 10.0,
+        "MinAttack": 0.8,
+        "MaxAttack": 1.1,
+        "LateMaxHealth": 0.0,
+        "LateMinAttack": 0.0,
+        "LateMaxAttack": 0.0,
+        "EarlyMaxHealth": 0.0,
+        "EarlyMinAttack": 0.0,
+        "EarlyMaxAttack": 0.0,
+        "LateMaxHealthOffset": 0.0,
+        "LateMinAttackOffset": 0.0,
+        "LateMaxAttackOffset": 0.0,
+        "PhysicalDefense": 0.33,
+        "MagicalDefense": 0.2,
+        "Dodge": 0.08,
+        "CritChance": 0.0,
+        "CritDamage": 0.0,
+        "Speed": 0.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 0.0,
+        "ResourceRegeneration": 0.0
+      },
+      "checkpoints": [
+        {
+          "level": 1,
+          "unmodified_base_stats": {
+            "MaxHealth": 300.0,
+            "MinAttack": 18.0,
+            "MaxAttack": 36.0,
+            "PhysicalDefense": 8.0,
+            "MagicalDefense": 4.0,
+            "Dodge": 17.0
+          }
+        },
+        {
+          "level": 20,
+          "unmodified_base_stats": {
+            "MaxHealth": 590.0,
+            "MinAttack": 41.2,
+            "MaxAttack": 67.9,
+            "PhysicalDefense": 17.57,
+            "MagicalDefense": 9.8,
+            "Dodge": 19.32
+          }
+        },
+        {
+          "level": 21,
+          "unmodified_base_stats": {
+            "MaxHealth": 620.0,
+            "MinAttack": 43.6,
+            "MaxAttack": 71.2,
+            "PhysicalDefense": 18.56,
+            "MagicalDefense": 10.4,
+            "Dodge": 19.56
+          }
+        },
+        {
+          "level": 25,
+          "unmodified_base_stats": {
+            "MaxHealth": 740.0,
+            "MinAttack": 53.2,
+            "MaxAttack": 84.4,
+            "PhysicalDefense": 22.52,
+            "MagicalDefense": 12.8,
+            "Dodge": 20.52
+          }
+        },
+        {
+          "level": 30,
+          "unmodified_base_stats": {
+            "MaxHealth": 890.0,
+            "MinAttack": 65.2,
+            "MaxAttack": 100.9,
+            "PhysicalDefense": 27.47,
+            "MagicalDefense": 15.8,
+            "Dodge": 21.72
+          }
+        },
+        {
+          "level": 31,
+          "unmodified_base_stats": {
+            "MaxHealth": 940.0,
+            "MinAttack": 69.2,
+            "MaxAttack": 106.4,
+            "PhysicalDefense": 29.12,
+            "MagicalDefense": 16.8,
+            "Dodge": 22.12
+          }
+        },
+        {
+          "level": 35,
+          "unmodified_base_stats": {
+            "MaxHealth": 1140.0,
+            "MinAttack": 85.2,
+            "MaxAttack": 128.4,
+            "PhysicalDefense": 35.72,
+            "MagicalDefense": 20.8,
+            "Dodge": 23.72
+          }
+        },
+        {
+          "level": 40,
+          "unmodified_base_stats": {
+            "MaxHealth": 1390.0,
+            "MinAttack": 105.2,
+            "MaxAttack": 155.9,
+            "PhysicalDefense": 43.97,
+            "MagicalDefense": 25.8,
+            "Dodge": 25.72
+          }
+        }
+      ]
+    },
+    {
+      "definition": "Godmist Unity\\Assets\\_Project\\ScriptableObjects\\Characters\\CD_Wladimir_Test.asset",
+      "character_id": "wladimir",
+      "base": {
+        "MaxHealth": 375.0,
+        "MinAttack": 24.0,
+        "MaxAttack": 32.0,
+        "PhysicalDefense": 12.0,
+        "MagicalDefense": 8.0,
+        "PhysicalDefensePenetration": 0.0,
+        "MagicalDefensePenetration": 0.0,
+        "Dodge": 10.0,
+        "CritChance": 0.0,
+        "CritDamage": 1.0,
+        "Speed": 40.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 50.0,
+        "ResourceRegeneration": 0.0,
+        "HealingPower": 0.0
+      },
+      "growth": {
+        "MaxHealth": 12.5,
+        "MinAttack": 0.7,
+        "MaxAttack": 0.95,
+        "LateMaxHealth": 0.0,
+        "LateMinAttack": 0.0,
+        "LateMaxAttack": 0.0,
+        "EarlyMaxHealth": 0.0,
+        "EarlyMinAttack": 0.0,
+        "EarlyMaxAttack": 0.0,
+        "LateMaxHealthOffset": 0.0,
+        "LateMinAttackOffset": 0.0,
+        "LateMaxAttackOffset": 0.0,
+        "PhysicalDefense": 0.45,
+        "MagicalDefense": 0.3,
+        "Dodge": 0.05,
+        "CritChance": 0.0,
+        "CritDamage": 0.0,
+        "Speed": 0.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 0.0,
+        "ResourceRegeneration": 0.0
+      },
+      "checkpoints": [
+        {
+          "level": 1,
+          "unmodified_base_stats": {
+            "MaxHealth": 375.0,
+            "MinAttack": 24.0,
+            "MaxAttack": 32.0,
+            "PhysicalDefense": 12.0,
+            "MagicalDefense": 8.0,
+            "Dodge": 10.0
+          }
+        },
+        {
+          "level": 20,
+          "unmodified_base_stats": {
+            "MaxHealth": 737.5,
+            "MinAttack": 44.3,
+            "MaxAttack": 59.55,
+            "PhysicalDefense": 25.05,
+            "MagicalDefense": 16.7,
+            "Dodge": 11.45
+          }
+        },
+        {
+          "level": 21,
+          "unmodified_base_stats": {
+            "MaxHealth": 775.0,
+            "MinAttack": 46.4,
+            "MaxAttack": 62.4,
+            "PhysicalDefense": 26.4,
+            "MagicalDefense": 17.6,
+            "Dodge": 11.6
+          }
+        },
+        {
+          "level": 25,
+          "unmodified_base_stats": {
+            "MaxHealth": 925.0,
+            "MinAttack": 54.8,
+            "MaxAttack": 73.8,
+            "PhysicalDefense": 31.8,
+            "MagicalDefense": 21.2,
+            "Dodge": 12.2
+          }
+        },
+        {
+          "level": 30,
+          "unmodified_base_stats": {
+            "MaxHealth": 1112.5,
+            "MinAttack": 65.3,
+            "MaxAttack": 88.05,
+            "PhysicalDefense": 38.55,
+            "MagicalDefense": 25.7,
+            "Dodge": 12.95
+          }
+        },
+        {
+          "level": 31,
+          "unmodified_base_stats": {
+            "MaxHealth": 1175.0,
+            "MinAttack": 68.8,
+            "MaxAttack": 92.8,
+            "PhysicalDefense": 40.8,
+            "MagicalDefense": 27.2,
+            "Dodge": 13.2
+          }
+        },
+        {
+          "level": 35,
+          "unmodified_base_stats": {
+            "MaxHealth": 1425.0,
+            "MinAttack": 82.8,
+            "MaxAttack": 111.8,
+            "PhysicalDefense": 49.8,
+            "MagicalDefense": 33.2,
+            "Dodge": 14.2
+          }
+        },
+        {
+          "level": 40,
+          "unmodified_base_stats": {
+            "MaxHealth": 1737.5,
+            "MinAttack": 100.3,
+            "MaxAttack": 135.55,
+            "PhysicalDefense": 61.05,
+            "MagicalDefense": 40.7,
+            "Dodge": 15.45
+          }
+        }
+      ]
+    },
+    {
+      "definition": "Godmist Unity\\Assets\\_Project\\ScriptableObjects\\Characters\\CD_Mage.asset",
+      "character_id": "character.mage",
+      "base": {
+        "MaxHealth": 250.0,
+        "MinAttack": 27.0,
+        "MaxAttack": 36.0,
+        "PhysicalDefense": 6.0,
+        "MagicalDefense": 12.0,
+        "PhysicalDefensePenetration": 0.0,
+        "MagicalDefensePenetration": 0.0,
+        "Dodge": 6.0,
+        "CritChance": 0.0,
+        "CritDamage": 1.0,
+        "Speed": 45.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 100.0,
+        "ResourceRegeneration": 15.0,
+        "HealingPower": 0.0
+      },
+      "growth": {
+        "MaxHealth": 7.5,
+        "MinAttack": 1.0,
+        "MaxAttack": 1.3,
+        "LateMaxHealth": 0.0,
+        "LateMinAttack": 0.0,
+        "LateMaxAttack": 0.0,
+        "EarlyMaxHealth": 0.0,
+        "EarlyMinAttack": 0.0,
+        "EarlyMaxAttack": 0.0,
+        "LateMaxHealthOffset": 0.0,
+        "LateMinAttackOffset": 0.0,
+        "LateMaxAttackOffset": 0.0,
+        "PhysicalDefense": 0.25,
+        "MagicalDefense": 0.5,
+        "Dodge": 0.04,
+        "CritChance": 0.0,
+        "CritDamage": 0.0,
+        "Speed": 0.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 0.0,
+        "ResourceRegeneration": 0.0
+      },
+      "checkpoints": [
+        {
+          "level": 1,
+          "unmodified_base_stats": {
+            "MaxHealth": 250.0,
+            "MinAttack": 27.0,
+            "MaxAttack": 36.0,
+            "PhysicalDefense": 6.0,
+            "MagicalDefense": 12.0,
+            "Dodge": 6.0
+          }
+        },
+        {
+          "level": 20,
+          "unmodified_base_stats": {
+            "MaxHealth": 467.5,
+            "MinAttack": 56.0,
+            "MaxAttack": 73.7,
+            "PhysicalDefense": 13.25,
+            "MagicalDefense": 26.5,
+            "Dodge": 7.16
+          }
+        },
+        {
+          "level": 21,
+          "unmodified_base_stats": {
+            "MaxHealth": 490.0,
+            "MinAttack": 59.0,
+            "MaxAttack": 77.6,
+            "PhysicalDefense": 14.0,
+            "MagicalDefense": 28.0,
+            "Dodge": 7.28
+          }
+        },
+        {
+          "level": 25,
+          "unmodified_base_stats": {
+            "MaxHealth": 580.0,
+            "MinAttack": 71.0,
+            "MaxAttack": 93.2,
+            "PhysicalDefense": 17.0,
+            "MagicalDefense": 34.0,
+            "Dodge": 7.76
+          }
+        },
+        {
+          "level": 30,
+          "unmodified_base_stats": {
+            "MaxHealth": 692.5,
+            "MinAttack": 86.0,
+            "MaxAttack": 112.7,
+            "PhysicalDefense": 20.75,
+            "MagicalDefense": 41.5,
+            "Dodge": 8.36
+          }
+        },
+        {
+          "level": 31,
+          "unmodified_base_stats": {
+            "MaxHealth": 730.0,
+            "MinAttack": 91.0,
+            "MaxAttack": 119.2,
+            "PhysicalDefense": 22.0,
+            "MagicalDefense": 44.0,
+            "Dodge": 8.56
+          }
+        },
+        {
+          "level": 35,
+          "unmodified_base_stats": {
+            "MaxHealth": 880.0,
+            "MinAttack": 111.0,
+            "MaxAttack": 145.2,
+            "PhysicalDefense": 27.0,
+            "MagicalDefense": 54.0,
+            "Dodge": 9.36
+          }
+        },
+        {
+          "level": 40,
+          "unmodified_base_stats": {
+            "MaxHealth": 1067.5,
+            "MinAttack": 136.0,
+            "MaxAttack": 177.7,
+            "PhysicalDefense": 33.25,
+            "MagicalDefense": 66.5,
+            "Dodge": 10.36
+          }
+        }
+      ]
+    },
+    {
+      "definition": "Godmist Unity\\Assets\\_Project\\ScriptableObjects\\Characters\\CD_Paladin.asset",
+      "character_id": "character.paladin",
+      "base": {
+        "MaxHealth": 450.0,
+        "MinAttack": 21.0,
+        "MaxAttack": 30.0,
+        "PhysicalDefense": 16.0,
+        "MagicalDefense": 16.0,
+        "PhysicalDefensePenetration": 0.0,
+        "MagicalDefensePenetration": 0.0,
+        "Dodge": 8.0,
+        "CritChance": 0.0,
+        "CritDamage": 1.0,
+        "Speed": 35.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 100.0,
+        "ResourceRegeneration": 15.0,
+        "HealingPower": 0.0
+      },
+      "growth": {
+        "MaxHealth": 20.0,
+        "MinAttack": 0.6,
+        "MaxAttack": 0.8,
+        "LateMaxHealth": 0.0,
+        "LateMinAttack": 0.0,
+        "LateMaxAttack": 0.0,
+        "EarlyMaxHealth": 0.0,
+        "EarlyMinAttack": 0.0,
+        "EarlyMaxAttack": 0.0,
+        "LateMaxHealthOffset": 0.0,
+        "LateMinAttackOffset": 0.0,
+        "LateMaxAttackOffset": 0.0,
+        "PhysicalDefense": 0.6,
+        "MagicalDefense": 0.6,
+        "Dodge": 0.04,
+        "CritChance": 0.0,
+        "CritDamage": 0.0,
+        "Speed": 0.0,
+        "WeaponAccuracy": 0.0,
+        "MaxResource": 0.0,
+        "ResourceRegeneration": 0.0
+      },
+      "checkpoints": [
+        {
+          "level": 1,
+          "unmodified_base_stats": {
+            "MaxHealth": 450.0,
+            "MinAttack": 21.0,
+            "MaxAttack": 30.0,
+            "PhysicalDefense": 16.0,
+            "MagicalDefense": 16.0,
+            "Dodge": 8.0
+          }
+        },
+        {
+          "level": 20,
+          "unmodified_base_stats": {
+            "MaxHealth": 1030.0,
+            "MinAttack": 38.4,
+            "MaxAttack": 53.2,
+            "PhysicalDefense": 33.4,
+            "MagicalDefense": 33.4,
+            "Dodge": 9.16
+          }
+        },
+        {
+          "level": 21,
+          "unmodified_base_stats": {
+            "MaxHealth": 1090.0,
+            "MinAttack": 40.2,
+            "MaxAttack": 55.6,
+            "PhysicalDefense": 35.2,
+            "MagicalDefense": 35.2,
+            "Dodge": 9.28
+          }
+        },
+        {
+          "level": 25,
+          "unmodified_base_stats": {
+            "MaxHealth": 1330.0,
+            "MinAttack": 47.4,
+            "MaxAttack": 65.2,
+            "PhysicalDefense": 42.4,
+            "MagicalDefense": 42.4,
+            "Dodge": 9.76
+          }
+        },
+        {
+          "level": 30,
+          "unmodified_base_stats": {
+            "MaxHealth": 1630.0,
+            "MinAttack": 56.4,
+            "MaxAttack": 77.2,
+            "PhysicalDefense": 51.4,
+            "MagicalDefense": 51.4,
+            "Dodge": 10.36
+          }
+        },
+        {
+          "level": 31,
+          "unmodified_base_stats": {
+            "MaxHealth": 1730.0,
+            "MinAttack": 59.4,
+            "MaxAttack": 81.2,
+            "PhysicalDefense": 54.4,
+            "MagicalDefense": 54.4,
+            "Dodge": 10.56
+          }
+        },
+        {
+          "level": 35,
+          "unmodified_base_stats": {
+            "MaxHealth": 2130.0,
+            "MinAttack": 71.4,
+            "MaxAttack": 97.2,
+            "PhysicalDefense": 66.4,
+            "MagicalDefense": 66.4,
+            "Dodge": 11.36
+          }
+        },
+        {
+          "level": 40,
+          "unmodified_base_stats": {
+            "MaxHealth": 2630.0,
+            "MinAttack": 86.4,
+            "MaxAttack": 117.2,
+            "PhysicalDefense": 81.4,
+            "MagicalDefense": 81.4,
+            "Dodge": 12.36
+          }
+        }
+      ]
+    }
+  ],
+  "existing_tree_budget_checks": [
+    {
+      "tree": "tree.mage.fire",
+      "legal_existing_rank_sequence": [
+        "node.mage.fire.fire_aura",
+        "node.mage.fire.burning_aura",
+        "node.mage.fire.burning_aura",
+        "node.mage.fire.pyromania",
+        "node.mage.fire.pyromania",
+        "node.mage.fire.distracting_fire",
+        "node.mage.fire.distracting_fire",
+        "node.mage.fire.cauterize",
+        "node.mage.fire.cauterize",
+        "node.mage.fire.protection",
+        "node.mage.fire.adrenaline",
+        "node.mage.fire.protection",
+        "node.mage.fire.aggressive_fire",
+        "node.mage.fire.fire_feeding",
+        "node.mage.fire.fire_feeding",
+        "node.mage.fire.arcana",
+        "node.mage.fire.arcana",
+        "node.mage.fire.arcana",
+        "node.mage.fire.fire_offering",
+        "node.mage.fire.fire_resistance"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.mage.fire.fire_aura",
+        "node.mage.fire.burning_aura",
+        "node.mage.fire.burning_aura",
+        "node.mage.fire.pyromania",
+        "node.mage.fire.pyromania",
+        "node.mage.fire.distracting_fire",
+        "node.mage.fire.distracting_fire",
+        "node.mage.fire.cauterize",
+        "node.mage.fire.cauterize",
+        "node.mage.fire.protection",
+        "node.mage.fire.adrenaline",
+        "node.mage.fire.protection",
+        "node.mage.fire.aggressive_fire",
+        "node.mage.fire.fire_feeding",
+        "node.mage.fire.fire_feeding",
+        "node.mage.fire.arcana",
+        "node.mage.fire.arcana",
+        "node.mage.fire.arcana",
+        "node.mage.fire.fire_offering",
+        "node.mage.fire.fire_resistance",
+        "node.mage.fire.fire_offering",
+        "node.mage.fire.fire_offering",
+        "node.mage.fire.expansion",
+        "node.mage.fire.choleric",
+        "node.mage.fire.sanguine",
+        "node.mage.fire.sanguine",
+        "node.mage.fire.choleric",
+        "node.mage.fire.fire_arrow",
+        "node.mage.fire.piercing"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.mage.warlock",
+      "legal_existing_rank_sequence": [
+        "node.mage.warlock.dispersion",
+        "node.mage.warlock.dispersion",
+        "node.mage.warlock.dispersion",
+        "node.mage.warlock.mastery",
+        "node.mage.warlock.defensive_power",
+        "node.mage.warlock.defensive_power",
+        "node.mage.warlock.defensive_power",
+        "node.mage.warlock.offering",
+        "node.mage.warlock.superhuman_offering",
+        "node.mage.warlock.superhuman_offering",
+        "node.mage.warlock.superhuman_offering",
+        "node.mage.warlock.magic_saving",
+        "node.mage.warlock.energy_saving",
+        "node.mage.warlock.energy_saving",
+        "node.mage.warlock.magic_focus",
+        "node.mage.warlock.calm",
+        "node.mage.warlock.calm",
+        "node.mage.warlock.sacrifice",
+        "node.mage.warlock.energy_sense",
+        "node.mage.warlock.energy_sense"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.mage.warlock.dispersion",
+        "node.mage.warlock.dispersion",
+        "node.mage.warlock.dispersion",
+        "node.mage.warlock.mastery",
+        "node.mage.warlock.defensive_power",
+        "node.mage.warlock.defensive_power",
+        "node.mage.warlock.defensive_power",
+        "node.mage.warlock.offering",
+        "node.mage.warlock.superhuman_offering",
+        "node.mage.warlock.superhuman_offering",
+        "node.mage.warlock.superhuman_offering",
+        "node.mage.warlock.magic_saving",
+        "node.mage.warlock.energy_saving",
+        "node.mage.warlock.energy_saving",
+        "node.mage.warlock.magic_focus",
+        "node.mage.warlock.calm",
+        "node.mage.warlock.calm",
+        "node.mage.warlock.sacrifice",
+        "node.mage.warlock.energy_sense",
+        "node.mage.warlock.energy_sense",
+        "node.mage.warlock.beyond_limits",
+        "node.mage.warlock.beyond_limits",
+        "node.mage.warlock.master_concentration",
+        "node.mage.warlock.memory",
+        "node.mage.warlock.memory",
+        "node.mage.warlock.mass_sacrifice",
+        "node.mage.warlock.mass_sacrifice",
+        "node.mage.warlock.adaptation",
+        "node.mage.warlock.adaptation"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.paladin.crusader",
+      "legal_existing_rank_sequence": [
+        "node.paladin.crusader.judgement_field",
+        "node.paladin.crusader.field_range",
+        "node.paladin.crusader.field_range",
+        "node.paladin.crusader.gravedigger",
+        "node.paladin.crusader.gravedigger",
+        "node.paladin.crusader.exorcist",
+        "node.paladin.crusader.hatred",
+        "node.paladin.crusader.exorcist",
+        "node.paladin.crusader.judgement_release",
+        "node.paladin.crusader.judgement_release",
+        "node.paladin.crusader.judgement_release",
+        "node.paladin.crusader.blinding_light",
+        "node.paladin.crusader.expose",
+        "node.paladin.crusader.expose",
+        "node.paladin.crusader.advantage",
+        "node.paladin.crusader.harsh_verdict",
+        "node.paladin.crusader.harsh_verdict",
+        "node.paladin.crusader.exhaustion",
+        "node.paladin.crusader.exhaustion",
+        "node.paladin.crusader.blinding"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.paladin.crusader.judgement_field",
+        "node.paladin.crusader.field_range",
+        "node.paladin.crusader.field_range",
+        "node.paladin.crusader.gravedigger",
+        "node.paladin.crusader.gravedigger",
+        "node.paladin.crusader.exorcist",
+        "node.paladin.crusader.hatred",
+        "node.paladin.crusader.exorcist",
+        "node.paladin.crusader.judgement_release",
+        "node.paladin.crusader.judgement_release",
+        "node.paladin.crusader.judgement_release",
+        "node.paladin.crusader.blinding_light",
+        "node.paladin.crusader.expose",
+        "node.paladin.crusader.expose",
+        "node.paladin.crusader.advantage",
+        "node.paladin.crusader.harsh_verdict",
+        "node.paladin.crusader.harsh_verdict",
+        "node.paladin.crusader.exhaustion",
+        "node.paladin.crusader.exhaustion",
+        "node.paladin.crusader.blinding",
+        "node.paladin.crusader.torment",
+        "node.paladin.crusader.torment_max",
+        "node.paladin.crusader.torment_max",
+        "node.paladin.crusader.torment_max",
+        "node.paladin.crusader.severe_judge",
+        "node.paladin.crusader.grounding_wave",
+        "node.paladin.crusader.destruction_wave",
+        "node.paladin.crusader.kicking_downed",
+        "node.paladin.crusader.kicking_downed"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.paladin.priest",
+      "legal_existing_rank_sequence": [
+        "node.paladin.priest.group_heal",
+        "node.paladin.priest.healing_power",
+        "node.paladin.priest.healing_power",
+        "node.paladin.priest.healing_aura",
+        "node.paladin.priest.healing_aura",
+        "node.paladin.priest.healing_chain",
+        "node.paladin.priest.holy_artifacts",
+        "node.paladin.priest.battle_zeal",
+        "node.paladin.priest.universal_grace",
+        "node.paladin.priest.universal_grace",
+        "node.paladin.priest.universal_grace",
+        "node.paladin.priest.unexpected_grace",
+        "node.paladin.priest.unexpected_grace",
+        "node.paladin.priest.unexpected_grace",
+        "node.paladin.priest.healer_focus",
+        "node.paladin.priest.critical_focus",
+        "node.paladin.priest.critical_focus",
+        "node.paladin.priest.healer_focus",
+        "node.paladin.priest.holy_regeneration",
+        "node.paladin.priest.haste"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.paladin.priest.group_heal",
+        "node.paladin.priest.healing_power",
+        "node.paladin.priest.healing_power",
+        "node.paladin.priest.healing_aura",
+        "node.paladin.priest.healing_aura",
+        "node.paladin.priest.healing_chain",
+        "node.paladin.priest.holy_artifacts",
+        "node.paladin.priest.battle_zeal",
+        "node.paladin.priest.universal_grace",
+        "node.paladin.priest.universal_grace",
+        "node.paladin.priest.universal_grace",
+        "node.paladin.priest.unexpected_grace",
+        "node.paladin.priest.unexpected_grace",
+        "node.paladin.priest.unexpected_grace",
+        "node.paladin.priest.healer_focus",
+        "node.paladin.priest.critical_focus",
+        "node.paladin.priest.critical_focus",
+        "node.paladin.priest.healer_focus",
+        "node.paladin.priest.holy_regeneration",
+        "node.paladin.priest.haste",
+        "node.paladin.priest.haste",
+        "node.paladin.priest.haste",
+        "node.paladin.priest.anointed_warrior",
+        "node.paladin.priest.anointed_warrior",
+        "node.paladin.priest.persistent_healer",
+        "node.paladin.priest.persistent_healer",
+        "node.paladin.priest.persistent_healer",
+        "node.paladin.priest.encouragement",
+        "node.paladin.priest.lasting_effect"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.scout.assassin",
+      "legal_existing_rank_sequence": [
+        "node.scout.assassin.backstab",
+        "node.scout.assassin.backstab",
+        "node.scout.assassin.ricochet",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.weak_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.leg_sweep",
+        "node.scout.assassin.leg_sweep",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.knife_bounce",
+        "node.scout.assassin.rapid_strikes",
+        "node.scout.assassin.rapid_strikes",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.running_attack",
+        "node.scout.assassin.running_attack"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.scout.assassin.backstab",
+        "node.scout.assassin.backstab",
+        "node.scout.assassin.ricochet",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.weak_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.leg_sweep",
+        "node.scout.assassin.leg_sweep",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.knife_bounce",
+        "node.scout.assassin.rapid_strikes",
+        "node.scout.assassin.rapid_strikes",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.running_attack",
+        "node.scout.assassin.running_attack",
+        "node.scout.assassin.shadow_warrior",
+        "node.scout.assassin.surprise",
+        "node.scout.assassin.surprise",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.throat_cut",
+        "node.scout.assassin.throat_cut",
+        "node.scout.assassin.throat_cut"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.scout.blade_dancer",
+      "legal_existing_rank_sequence": [
+        "node.scout.blade_dancer.poisoned_dagger",
+        "node.scout.blade_dancer.viruses",
+        "node.scout.blade_dancer.viruses",
+        "node.scout.blade_dancer.venom",
+        "node.scout.blade_dancer.venom",
+        "node.scout.blade_dancer.venom",
+        "node.scout.blade_dancer.anger",
+        "node.scout.blade_dancer.strong_insult",
+        "node.scout.blade_dancer.strong_insult",
+        "node.scout.blade_dancer.knee_throw",
+        "node.scout.blade_dancer.knee_throw",
+        "node.scout.blade_dancer.knee_throw",
+        "node.scout.blade_dancer.combo",
+        "node.scout.blade_dancer.combo",
+        "node.scout.blade_dancer.quick_strikes",
+        "node.scout.blade_dancer.series",
+        "node.scout.blade_dancer.series",
+        "node.scout.blade_dancer.revenge",
+        "node.scout.blade_dancer.stimulating_tonic",
+        "node.scout.blade_dancer.combo_master"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.scout.blade_dancer.poisoned_dagger",
+        "node.scout.blade_dancer.viruses",
+        "node.scout.blade_dancer.viruses",
+        "node.scout.blade_dancer.venom",
+        "node.scout.blade_dancer.venom",
+        "node.scout.blade_dancer.venom",
+        "node.scout.blade_dancer.anger",
+        "node.scout.blade_dancer.strong_insult",
+        "node.scout.blade_dancer.strong_insult",
+        "node.scout.blade_dancer.knee_throw",
+        "node.scout.blade_dancer.knee_throw",
+        "node.scout.blade_dancer.knee_throw",
+        "node.scout.blade_dancer.combo",
+        "node.scout.blade_dancer.combo",
+        "node.scout.blade_dancer.quick_strikes",
+        "node.scout.blade_dancer.series",
+        "node.scout.blade_dancer.series",
+        "node.scout.blade_dancer.revenge",
+        "node.scout.blade_dancer.stimulating_tonic",
+        "node.scout.blade_dancer.combo_master",
+        "node.scout.blade_dancer.combo_master",
+        "node.scout.blade_dancer.fine_thrusts",
+        "node.scout.blade_dancer.fine_thrusts",
+        "node.scout.blade_dancer.dance_of_doom",
+        "node.scout.blade_dancer.dance_of_doom",
+        "node.scout.blade_dancer.mental_control",
+        "node.scout.blade_dancer.mental_control",
+        "node.scout.blade_dancer.mental_control",
+        "node.scout.blade_dancer.brew_strength"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.scout.guardian",
+      "legal_existing_rank_sequence": [
+        "node.scout.assassin.test2",
+        "node.scout.assassin.test2",
+        "node.scout.assassin.ricochet",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.weak_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.knife_bounce",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.shadow_warrior",
+        "node.scout.assassin.surprise",
+        "node.scout.assassin.surprise"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.scout.assassin.test2",
+        "node.scout.assassin.test2",
+        "node.scout.assassin.ricochet",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.farsight",
+        "node.scout.assassin.weak_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.critical_point",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.throw_power",
+        "node.scout.assassin.knife_bounce",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.karambit_style",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.deep_analysis",
+        "node.scout.assassin.shadow_warrior",
+        "node.scout.assassin.surprise",
+        "node.scout.assassin.surprise",
+        "node.scout.assassin.rapid_strikes",
+        "node.scout.assassin.rapid_strikes",
+        "node.scout.assassin.throat_cut",
+        "node.scout.assassin.throat_cut",
+        "node.scout.assassin.throat_cut",
+        "node.scout.assassin.sharp_knife",
+        "node.scout.assassin.keen_eye",
+        "node.scout.assassin.keen_eye",
+        "node.scout.assassin.keen_eye"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.warrior.brawler",
+      "legal_existing_rank_sequence": [
+        "node.warrior.brawler.bleeding_destruction",
+        "node.warrior.brawler.wounding",
+        "node.warrior.brawler.wounding",
+        "node.warrior.brawler.rage",
+        "node.warrior.brawler.thirst_revenge",
+        "node.warrior.brawler.thirst_revenge",
+        "node.warrior.brawler.thirst_revenge",
+        "node.warrior.brawler.furious_strikes",
+        "node.warrior.brawler.furious_strikes",
+        "node.warrior.brawler.furious_strikes",
+        "node.warrior.brawler.larger_wound",
+        "node.warrior.brawler.larger_wound",
+        "node.warrior.brawler.revenge",
+        "node.warrior.brawler.revenge",
+        "node.warrior.brawler.release_rage",
+        "node.warrior.brawler.release_rage",
+        "node.warrior.brawler.release_rage",
+        "node.warrior.brawler.shout",
+        "node.warrior.brawler.spiked_armor",
+        "node.warrior.brawler.whirlwind"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.warrior.brawler.bleeding_destruction",
+        "node.warrior.brawler.wounding",
+        "node.warrior.brawler.wounding",
+        "node.warrior.brawler.rage",
+        "node.warrior.brawler.thirst_revenge",
+        "node.warrior.brawler.thirst_revenge",
+        "node.warrior.brawler.thirst_revenge",
+        "node.warrior.brawler.furious_strikes",
+        "node.warrior.brawler.furious_strikes",
+        "node.warrior.brawler.furious_strikes",
+        "node.warrior.brawler.larger_wound",
+        "node.warrior.brawler.larger_wound",
+        "node.warrior.brawler.revenge",
+        "node.warrior.brawler.revenge",
+        "node.warrior.brawler.release_rage",
+        "node.warrior.brawler.release_rage",
+        "node.warrior.brawler.release_rage",
+        "node.warrior.brawler.shout",
+        "node.warrior.brawler.spiked_armor",
+        "node.warrior.brawler.whirlwind",
+        "node.warrior.brawler.third_time",
+        "node.warrior.brawler.third_time",
+        "node.warrior.brawler.amok",
+        "node.warrior.brawler.amok",
+        "node.warrior.brawler.amok",
+        "node.warrior.brawler.unawareness",
+        "node.warrior.brawler.unawareness",
+        "node.warrior.brawler.aggressive_nature",
+        "node.warrior.brawler.conflagration"
+      ],
+      "twenty_points_reachable_without_T5": true
+    },
+    {
+      "tree": "tree.warrior.commander",
+      "legal_existing_rank_sequence": [
+        "node.warrior.commander.destruction",
+        "node.warrior.commander.marking",
+        "node.warrior.commander.marking",
+        "node.warrior.commander.armor_shred",
+        "node.warrior.commander.armor_piercing",
+        "node.warrior.commander.armor_piercing",
+        "node.warrior.commander.weapon_mastery",
+        "node.warrior.commander.weapon_mastery",
+        "node.warrior.commander.weapon_mastery",
+        "node.warrior.commander.breakdown",
+        "node.warrior.commander.breakdown",
+        "node.warrior.commander.breakdown",
+        "node.warrior.commander.immobilize",
+        "node.warrior.commander.broken_bones",
+        "node.warrior.commander.piercing",
+        "node.warrior.commander.deep_wounds",
+        "node.warrior.commander.deep_wounds",
+        "node.warrior.commander.deep_wounds",
+        "node.warrior.commander.flanking",
+        "node.warrior.commander.flanking"
+      ],
+      "legal_existing_29_rank_sequence": [
+        "node.warrior.commander.destruction",
+        "node.warrior.commander.marking",
+        "node.warrior.commander.marking",
+        "node.warrior.commander.armor_shred",
+        "node.warrior.commander.armor_piercing",
+        "node.warrior.commander.armor_piercing",
+        "node.warrior.commander.weapon_mastery",
+        "node.warrior.commander.weapon_mastery",
+        "node.warrior.commander.weapon_mastery",
+        "node.warrior.commander.breakdown",
+        "node.warrior.commander.breakdown",
+        "node.warrior.commander.breakdown",
+        "node.warrior.commander.immobilize",
+        "node.warrior.commander.broken_bones",
+        "node.warrior.commander.piercing",
+        "node.warrior.commander.deep_wounds",
+        "node.warrior.commander.deep_wounds",
+        "node.warrior.commander.deep_wounds",
+        "node.warrior.commander.flanking",
+        "node.warrior.commander.flanking",
+        "node.warrior.commander.pinning",
+        "node.warrior.commander.pinning",
+        "node.warrior.commander.trauma",
+        "node.warrior.commander.trauma",
+        "node.warrior.commander.protection",
+        "node.warrior.commander.renewal",
+        "node.warrior.commander.renewal",
+        "node.warrior.commander.renewal",
+        "node.warrior.commander.regroup"
+      ],
+      "twenty_points_reachable_without_T5": true
+    }
+  ],
+  "example_build_paths": [
+    {
+      "class": "warrior",
+      "primary": "tree.warrior.commander",
+      "secondary": "tree.warrior.brawler",
+      "new_T5": {
+        "id": "node.warrior.commander.t5_3",
+        "name": "Pojedynek",
+        "kind": "SkillTreeNode",
+        "tree": "tree.warrior.commander",
+        "slot": "T5:3",
+        "status": "specified",
+        "reference": "Drzewka!A4:G4",
+        "declared_rank_or_cost": "Pojedynek [2]",
+        "description": "Zwiększa szansę krytyczną o 10%/20% w odległości 1 pola wokół, jeśli w tej odległości jest dokładnie 1 przeciwnik",
+        "requirements": null
+      },
+      "scope": "Planning feasibility; T5 requires its owning implementation card.",
+      "investments": [
+        {
+          "point": 1,
+          "earliest_level": 2,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.destruction"
+        },
+        {
+          "point": 2,
+          "earliest_level": 2,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.marking"
+        },
+        {
+          "point": 3,
+          "earliest_level": 3,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.marking"
+        },
+        {
+          "point": 4,
+          "earliest_level": 4,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.armor_shred"
+        },
+        {
+          "point": 5,
+          "earliest_level": 5,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.armor_piercing"
+        },
+        {
+          "point": 6,
+          "earliest_level": 6,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.armor_piercing"
+        },
+        {
+          "point": 7,
+          "earliest_level": 7,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.weapon_mastery"
+        },
+        {
+          "point": 8,
+          "earliest_level": 8,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.weapon_mastery"
+        },
+        {
+          "point": 9,
+          "earliest_level": 9,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.weapon_mastery"
+        },
+        {
+          "point": 10,
+          "earliest_level": 10,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.breakdown"
+        },
+        {
+          "point": 11,
+          "earliest_level": 11,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.breakdown"
+        },
+        {
+          "point": 12,
+          "earliest_level": 12,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.breakdown"
+        },
+        {
+          "point": 13,
+          "earliest_level": 13,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.immobilize"
+        },
+        {
+          "point": 14,
+          "earliest_level": 14,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.broken_bones"
+        },
+        {
+          "point": 15,
+          "earliest_level": 15,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.piercing"
+        },
+        {
+          "point": 16,
+          "earliest_level": 16,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.deep_wounds"
+        },
+        {
+          "point": 17,
+          "earliest_level": 17,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.deep_wounds"
+        },
+        {
+          "point": 18,
+          "earliest_level": 18,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.deep_wounds"
+        },
+        {
+          "point": 19,
+          "earliest_level": 19,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.flanking"
+        },
+        {
+          "point": 20,
+          "earliest_level": 20,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.flanking"
+        },
+        {
+          "point": 21,
+          "earliest_level": 21,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.t5_3"
+        },
+        {
+          "point": 22,
+          "earliest_level": 22,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.bleeding_destruction"
+        },
+        {
+          "point": 23,
+          "earliest_level": 23,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.wounding"
+        },
+        {
+          "point": 24,
+          "earliest_level": 24,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.wounding"
+        },
+        {
+          "point": 25,
+          "earliest_level": 25,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.rage"
+        },
+        {
+          "point": 26,
+          "earliest_level": 26,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.thirst_revenge"
+        },
+        {
+          "point": 27,
+          "earliest_level": 27,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.thirst_revenge"
+        },
+        {
+          "point": 28,
+          "earliest_level": 28,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.thirst_revenge"
+        },
+        {
+          "point": 29,
+          "earliest_level": 29,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.furious_strikes"
+        },
+        {
+          "point": 30,
+          "earliest_level": 30,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.furious_strikes"
+        },
+        {
+          "point": 31,
+          "earliest_level": 31,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.pinning"
+        },
+        {
+          "point": 32,
+          "earliest_level": 32,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.pinning"
+        },
+        {
+          "point": 33,
+          "earliest_level": 33,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.trauma"
+        },
+        {
+          "point": 34,
+          "earliest_level": 34,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.trauma"
+        },
+        {
+          "point": 35,
+          "earliest_level": 35,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.protection"
+        },
+        {
+          "point": 36,
+          "earliest_level": 36,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.renewal"
+        },
+        {
+          "point": 37,
+          "earliest_level": 37,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.renewal"
+        },
+        {
+          "point": 38,
+          "earliest_level": 38,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.renewal"
+        },
+        {
+          "point": 39,
+          "earliest_level": 39,
+          "tree": "tree.warrior.commander",
+          "node": "node.warrior.commander.regroup"
+        },
+        {
+          "point": 40,
+          "earliest_level": 40,
+          "tree": "tree.warrior.brawler",
+          "node": "node.warrior.brawler.furious_strikes"
+        }
+      ]
+    },
+    {
+      "class": "scout",
+      "primary": "tree.scout.assassin",
+      "secondary": "tree.scout.blade_dancer",
+      "new_T5": {
+        "id": "node.scout.assassin.t5_2",
+        "name": "Przewrót w Przód",
+        "kind": "SkillTreeNode",
+        "tree": "tree.scout.assassin",
+        "slot": "T5:2",
+        "status": "specified",
+        "reference": "Drzewka!A47:G47",
+        "declared_rank_or_cost": "Przewrót w Przód [80 PP, 80% PA]",
+        "description": "Następny atak jest gwarantowanym ciosem krytycznym, następna obrona jest gwarantowanym unikiem, Szarża 2",
+        "requirements": null,
+        "granted_skill": "skill.scout.assassin.t5_2"
+      },
+      "scope": "Planning feasibility; T5 requires its owning implementation card.",
+      "investments": [
+        {
+          "point": 1,
+          "earliest_level": 2,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.backstab"
+        },
+        {
+          "point": 2,
+          "earliest_level": 2,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.backstab"
+        },
+        {
+          "point": 3,
+          "earliest_level": 3,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.ricochet"
+        },
+        {
+          "point": 4,
+          "earliest_level": 4,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.farsight"
+        },
+        {
+          "point": 5,
+          "earliest_level": 5,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.farsight"
+        },
+        {
+          "point": 6,
+          "earliest_level": 6,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.weak_point"
+        },
+        {
+          "point": 7,
+          "earliest_level": 7,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.critical_point"
+        },
+        {
+          "point": 8,
+          "earliest_level": 8,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.critical_point"
+        },
+        {
+          "point": 9,
+          "earliest_level": 9,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.critical_point"
+        },
+        {
+          "point": 10,
+          "earliest_level": 10,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.leg_sweep"
+        },
+        {
+          "point": 11,
+          "earliest_level": 11,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.leg_sweep"
+        },
+        {
+          "point": 12,
+          "earliest_level": 12,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.throw_power"
+        },
+        {
+          "point": 13,
+          "earliest_level": 13,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.throw_power"
+        },
+        {
+          "point": 14,
+          "earliest_level": 14,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.knife_bounce"
+        },
+        {
+          "point": 15,
+          "earliest_level": 15,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.rapid_strikes"
+        },
+        {
+          "point": 16,
+          "earliest_level": 16,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.rapid_strikes"
+        },
+        {
+          "point": 17,
+          "earliest_level": 17,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.deep_analysis"
+        },
+        {
+          "point": 18,
+          "earliest_level": 18,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.deep_analysis"
+        },
+        {
+          "point": 19,
+          "earliest_level": 19,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.running_attack"
+        },
+        {
+          "point": 20,
+          "earliest_level": 20,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.running_attack"
+        },
+        {
+          "point": 21,
+          "earliest_level": 21,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.t5_2"
+        },
+        {
+          "point": 22,
+          "earliest_level": 22,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.poisoned_dagger"
+        },
+        {
+          "point": 23,
+          "earliest_level": 23,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.viruses"
+        },
+        {
+          "point": 24,
+          "earliest_level": 24,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.viruses"
+        },
+        {
+          "point": 25,
+          "earliest_level": 25,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.venom"
+        },
+        {
+          "point": 26,
+          "earliest_level": 26,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.venom"
+        },
+        {
+          "point": 27,
+          "earliest_level": 27,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.venom"
+        },
+        {
+          "point": 28,
+          "earliest_level": 28,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.anger"
+        },
+        {
+          "point": 29,
+          "earliest_level": 29,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.strong_insult"
+        },
+        {
+          "point": 30,
+          "earliest_level": 30,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.strong_insult"
+        },
+        {
+          "point": 31,
+          "earliest_level": 31,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.shadow_warrior"
+        },
+        {
+          "point": 32,
+          "earliest_level": 32,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.surprise"
+        },
+        {
+          "point": 33,
+          "earliest_level": 33,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.surprise"
+        },
+        {
+          "point": 34,
+          "earliest_level": 34,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.karambit_style"
+        },
+        {
+          "point": 35,
+          "earliest_level": 35,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.karambit_style"
+        },
+        {
+          "point": 36,
+          "earliest_level": 36,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.karambit_style"
+        },
+        {
+          "point": 37,
+          "earliest_level": 37,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.throat_cut"
+        },
+        {
+          "point": 38,
+          "earliest_level": 38,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.throat_cut"
+        },
+        {
+          "point": 39,
+          "earliest_level": 39,
+          "tree": "tree.scout.assassin",
+          "node": "node.scout.assassin.throat_cut"
+        },
+        {
+          "point": 40,
+          "earliest_level": 40,
+          "tree": "tree.scout.blade_dancer",
+          "node": "node.scout.blade_dancer.knee_throw"
+        }
+      ]
+    },
+    {
+      "class": "mage",
+      "primary": "tree.mage.fire",
+      "secondary": "tree.mage.warlock",
+      "new_T5": {
+        "id": "node.mage.fire.t5_5",
+        "name": "Słup Ognia",
+        "kind": "SkillTreeNode",
+        "tree": "tree.mage.fire",
+        "slot": "T5:5",
+        "status": "specified",
+        "reference": "Drzewka!A95:G95",
+        "declared_rank_or_cost": "Słup Ognia [80 PM, 80% PA]",
+        "description": "Zadaje losowe obrażenia magiczne; [85%] podpalenie 90% na 4 tury;",
+        "requirements": null,
+        "granted_skill": "skill.mage.fire.t5_5"
+      },
+      "scope": "Planning feasibility; T5 requires its owning implementation card.",
+      "investments": [
+        {
+          "point": 1,
+          "earliest_level": 2,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_aura"
+        },
+        {
+          "point": 2,
+          "earliest_level": 2,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.burning_aura"
+        },
+        {
+          "point": 3,
+          "earliest_level": 3,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.burning_aura"
+        },
+        {
+          "point": 4,
+          "earliest_level": 4,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.pyromania"
+        },
+        {
+          "point": 5,
+          "earliest_level": 5,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.pyromania"
+        },
+        {
+          "point": 6,
+          "earliest_level": 6,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.distracting_fire"
+        },
+        {
+          "point": 7,
+          "earliest_level": 7,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.distracting_fire"
+        },
+        {
+          "point": 8,
+          "earliest_level": 8,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.cauterize"
+        },
+        {
+          "point": 9,
+          "earliest_level": 9,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.cauterize"
+        },
+        {
+          "point": 10,
+          "earliest_level": 10,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.protection"
+        },
+        {
+          "point": 11,
+          "earliest_level": 11,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.adrenaline"
+        },
+        {
+          "point": 12,
+          "earliest_level": 12,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.protection"
+        },
+        {
+          "point": 13,
+          "earliest_level": 13,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.aggressive_fire"
+        },
+        {
+          "point": 14,
+          "earliest_level": 14,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_feeding"
+        },
+        {
+          "point": 15,
+          "earliest_level": 15,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_feeding"
+        },
+        {
+          "point": 16,
+          "earliest_level": 16,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.arcana"
+        },
+        {
+          "point": 17,
+          "earliest_level": 17,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.arcana"
+        },
+        {
+          "point": 18,
+          "earliest_level": 18,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.arcana"
+        },
+        {
+          "point": 19,
+          "earliest_level": 19,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_offering"
+        },
+        {
+          "point": 20,
+          "earliest_level": 20,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_resistance"
+        },
+        {
+          "point": 21,
+          "earliest_level": 21,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.t5_5"
+        },
+        {
+          "point": 22,
+          "earliest_level": 22,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.dispersion"
+        },
+        {
+          "point": 23,
+          "earliest_level": 23,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.dispersion"
+        },
+        {
+          "point": 24,
+          "earliest_level": 24,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.dispersion"
+        },
+        {
+          "point": 25,
+          "earliest_level": 25,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.mastery"
+        },
+        {
+          "point": 26,
+          "earliest_level": 26,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.defensive_power"
+        },
+        {
+          "point": 27,
+          "earliest_level": 27,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.defensive_power"
+        },
+        {
+          "point": 28,
+          "earliest_level": 28,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.defensive_power"
+        },
+        {
+          "point": 29,
+          "earliest_level": 29,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.offering"
+        },
+        {
+          "point": 30,
+          "earliest_level": 30,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.superhuman_offering"
+        },
+        {
+          "point": 31,
+          "earliest_level": 31,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_offering"
+        },
+        {
+          "point": 32,
+          "earliest_level": 32,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_offering"
+        },
+        {
+          "point": 33,
+          "earliest_level": 33,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.expansion"
+        },
+        {
+          "point": 34,
+          "earliest_level": 34,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.choleric"
+        },
+        {
+          "point": 35,
+          "earliest_level": 35,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.sanguine"
+        },
+        {
+          "point": 36,
+          "earliest_level": 36,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.sanguine"
+        },
+        {
+          "point": 37,
+          "earliest_level": 37,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.choleric"
+        },
+        {
+          "point": 38,
+          "earliest_level": 38,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.fire_arrow"
+        },
+        {
+          "point": 39,
+          "earliest_level": 39,
+          "tree": "tree.mage.fire",
+          "node": "node.mage.fire.piercing"
+        },
+        {
+          "point": 40,
+          "earliest_level": 40,
+          "tree": "tree.mage.warlock",
+          "node": "node.mage.warlock.superhuman_offering"
+        }
+      ]
+    },
+    {
+      "class": "paladin",
+      "primary": "tree.paladin.priest",
+      "secondary": "tree.paladin.crusader",
+      "new_T5": {
+        "id": "node.paladin.priest.t5_2",
+        "name": "Poświęcona Broń",
+        "kind": "SkillTreeNode",
+        "tree": "tree.paladin.priest",
+        "slot": "T5:2",
+        "status": "specified",
+        "reference": "Drzewka!A125:G125",
+        "declared_rank_or_cost": "Poświęcona Broń [1]",
+        "description": "Leczenie sojuszników daje im jeden ładunek Poświęconej Broni (do 3), każdy zwiększa siłę ataku o 5%. Po przekroczeniu maksymalnej ilości ładunków, wzmocnienie znika, ale następne leczenie ma zwiększoną siłę o 25% za każdy ładunek. Ładunki wyczerpują się po zakończeniu bitwy",
+        "requirements": null
+      },
+      "scope": "Planning feasibility; T5 requires its owning implementation card.",
+      "investments": [
+        {
+          "point": 1,
+          "earliest_level": 2,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.group_heal"
+        },
+        {
+          "point": 2,
+          "earliest_level": 2,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.healing_power"
+        },
+        {
+          "point": 3,
+          "earliest_level": 3,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.healing_power"
+        },
+        {
+          "point": 4,
+          "earliest_level": 4,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.healing_aura"
+        },
+        {
+          "point": 5,
+          "earliest_level": 5,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.healing_aura"
+        },
+        {
+          "point": 6,
+          "earliest_level": 6,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.healing_chain"
+        },
+        {
+          "point": 7,
+          "earliest_level": 7,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.holy_artifacts"
+        },
+        {
+          "point": 8,
+          "earliest_level": 8,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.battle_zeal"
+        },
+        {
+          "point": 9,
+          "earliest_level": 9,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.universal_grace"
+        },
+        {
+          "point": 10,
+          "earliest_level": 10,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.universal_grace"
+        },
+        {
+          "point": 11,
+          "earliest_level": 11,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.universal_grace"
+        },
+        {
+          "point": 12,
+          "earliest_level": 12,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.unexpected_grace"
+        },
+        {
+          "point": 13,
+          "earliest_level": 13,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.unexpected_grace"
+        },
+        {
+          "point": 14,
+          "earliest_level": 14,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.unexpected_grace"
+        },
+        {
+          "point": 15,
+          "earliest_level": 15,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.healer_focus"
+        },
+        {
+          "point": 16,
+          "earliest_level": 16,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.critical_focus"
+        },
+        {
+          "point": 17,
+          "earliest_level": 17,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.critical_focus"
+        },
+        {
+          "point": 18,
+          "earliest_level": 18,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.healer_focus"
+        },
+        {
+          "point": 19,
+          "earliest_level": 19,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.holy_regeneration"
+        },
+        {
+          "point": 20,
+          "earliest_level": 20,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.haste"
+        },
+        {
+          "point": 21,
+          "earliest_level": 21,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.t5_2"
+        },
+        {
+          "point": 22,
+          "earliest_level": 22,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.judgement_field"
+        },
+        {
+          "point": 23,
+          "earliest_level": 23,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.field_range"
+        },
+        {
+          "point": 24,
+          "earliest_level": 24,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.field_range"
+        },
+        {
+          "point": 25,
+          "earliest_level": 25,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.gravedigger"
+        },
+        {
+          "point": 26,
+          "earliest_level": 26,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.gravedigger"
+        },
+        {
+          "point": 27,
+          "earliest_level": 27,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.exorcist"
+        },
+        {
+          "point": 28,
+          "earliest_level": 28,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.hatred"
+        },
+        {
+          "point": 29,
+          "earliest_level": 29,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.exorcist"
+        },
+        {
+          "point": 30,
+          "earliest_level": 30,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.judgement_release"
+        },
+        {
+          "point": 31,
+          "earliest_level": 31,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.haste"
+        },
+        {
+          "point": 32,
+          "earliest_level": 32,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.haste"
+        },
+        {
+          "point": 33,
+          "earliest_level": 33,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.anointed_warrior"
+        },
+        {
+          "point": 34,
+          "earliest_level": 34,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.anointed_warrior"
+        },
+        {
+          "point": 35,
+          "earliest_level": 35,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.persistent_healer"
+        },
+        {
+          "point": 36,
+          "earliest_level": 36,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.persistent_healer"
+        },
+        {
+          "point": 37,
+          "earliest_level": 37,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.persistent_healer"
+        },
+        {
+          "point": 38,
+          "earliest_level": 38,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.encouragement"
+        },
+        {
+          "point": 39,
+          "earliest_level": 39,
+          "tree": "tree.paladin.priest",
+          "node": "node.paladin.priest.lasting_effect"
+        },
+        {
+          "point": 40,
+          "earliest_level": 40,
+          "tree": "tree.paladin.crusader",
+          "node": "node.paladin.crusader.judgement_release"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Values extracted from current serialized config, not a Unity runtime test.",
+    "Hero stats exclude equipment, passives, rounding and final stat pipeline.",
+    "Example build paths combine existing legal ranks with specified prerequisite-free T5 entries, not runtime T5 assets.",
+    "XP on L40 uses the approved existing L50 character cap.",
+    "Level table is not an estimate of expedition duration."
+  ]
+}

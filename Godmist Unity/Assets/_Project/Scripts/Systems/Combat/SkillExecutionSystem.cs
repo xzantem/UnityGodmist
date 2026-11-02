@@ -225,6 +225,8 @@ namespace Godmist.Systems.Combat
             using var tiringCast = new MageTiringSpellSystem.CastScope(session, caster, actionId);
             using var warriorCast = new WarriorCombatSystem.CastScope(caster, skill);
             using var armoredCast = new WarriorCombatSystem.ArmoredAttackScope(caster,skill,isPassiveDuplicate);
+            using var scoutCast = new ScoutCombatSystem.AttackScope(caster,skill,isPassiveDuplicate);
+            using var guardianCast = new GuardianCombatSystem.CastScope(caster,skill);
             var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
             WarriorCombatSystem.BeginSkill(caster,skill,knifeTargets,isPassiveDuplicate,
                 targetsByModeIndex?.Values.SelectMany(targets => targets ?? Array.Empty<BattleUnit>()).Distinct().ToArray());
@@ -273,6 +275,7 @@ namespace Godmist.Systems.Combat
                 var spentResource = caster.Character.ResourcePool?.Drain(requestedResource) ?? 0;
                 MomentumResourceRule.RefreshSpeedAfterChange(caster.Character, previousResource);
                 caster.LastSkillResourceSpent = spentResource;
+                GuardianCombatSystem.Paid(caster,skill,spentResource);
                 WarriorCombatSystem.Paid(caster,skill,requestedResource,spentResource,recoverySystem);
                 if (spentResource > 0)
                 {
@@ -793,6 +796,8 @@ namespace Godmist.Systems.Combat
             GridPosition? selectedTargetPosition = null, string presentationActionId = null, WarriorDischargeCast dischargeCast = null)
         {
             var vfxActionId = presentationActionId ?? actionId;
+            if(GuardianCombatSystem.Active(skill.SkillId))
+                return new EffectExecutionResult{Succeeded=GuardianCombatSystem.Execute(caster,target,skill,statusEffectSystem??new StatusEffectSystem(),shieldSystem)};
             if(WarriorCombatSystem.IsArmoredActive(skill.SkillId))
                 return new EffectExecutionResult{Succeeded=WarriorCombatSystem.ExecuteArmored(caster,target,skill,statusEffectSystem,shieldSystem)};
             switch (effect.EffectType)
@@ -1643,6 +1648,13 @@ namespace Godmist.Systems.Combat
             if (skill?.SkillId == DeadKingBossSystem.BladeId && (targetsByModeIndex == null
                 || !targetsByModeIndex.TryGetValue(0, out var bladeTargets) || bladeTargets.Count != 1
                 || !DeadKingBossSystem.CanBladeTarget(session,caster,bladeTargets[0]))) return false;
+            if (GuardianCombatSystem.Active(skill?.SkillId))
+            {
+                if (targetsByModeIndex == null || !targetsByModeIndex.TryGetValue(0, out var guardianTargets)
+                    || guardianTargets.Count != 1 || guardianTargets[0] == null) return false;
+                var mode = PassiveEffectCombatExecutionSystem.ResolveMode(caster, skill, skill.TargetModes[0]);
+                if (!new CombatTargetingService().GetTargets(session, caster, mode, guardianTargets[0].Position).Contains(guardianTargets[0])) return false;
+            }
             return true;
         }
 
@@ -2222,6 +2234,12 @@ namespace Godmist.Systems.Combat
         private bool ApplyUniqueBuff(CombatSession session, BattleUnit caster,
             BattleUnit target, SkillData skill, SkillEffectData effect, int effectIndex)
         {
+            if(skill.SkillId==ScoutCombatSystem.ForwardRoll&&effect.UniqueBuffType==UniqueBuffType.GuaranteedCriticalHit)
+            {ScoutCombatSystem.GrantRollCritical(caster);return true;}
+            if(skill.SkillId==ScoutCombatSystem.ForwardRoll&&effect.UniqueBuffType==UniqueBuffType.GuaranteedDodge)
+            {ScoutCombatSystem.GrantRollDodge(caster);return true;}
+            if(skill.SkillId==ScoutCombatSystem.BottledVenom)
+            {ScoutCombatSystem.StartVenom(session,caster,statusEffectSystem??new StatusEffectSystem());return true;}
             switch (effect.UniqueBuffType)
             {
                 case UniqueBuffType.ActionPointsNextTurn:
@@ -2660,6 +2678,12 @@ namespace Godmist.Systems.Combat
         {
             AwayFromReference,
             TowardsReference
+        }
+
+        public bool TryGuardianPush(CombatSession session,BattleUnit source,BattleUnit target,int distance)
+        {
+            if(!(statusEffectSystem??new StatusEffectSystem()).PassesMovementEffectChance(target,1f))return false;
+            return TryApplyForcedDisplacement(session,target,source,distance,ForcedDisplacementDirection.AwayFromReference,"odepchnięty",damageObstacleOnCollision:true);
         }
 
         private bool TryApplyForcedDisplacement(

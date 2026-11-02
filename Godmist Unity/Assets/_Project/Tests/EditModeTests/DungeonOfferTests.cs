@@ -28,6 +28,23 @@ namespace Godmist.Tests.EditMode
   [TearDown] public void Cleanup()=>UnityEngine.Object.DestroyImmediate(definition);
   static void Set(object obj,string property,object value)=>obj.GetType().GetField("<"+property+">k__BackingField",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(obj,value);
   GameSession Session()=>new(campaignId:"offers.campaign");
+  [Test] public void FiveAuthoredBiomesAreEligibleFromLevelOneWithoutCharacterLevelGates()
+  {
+   var themes=new[]{DungeonTheme.Catacombs,DungeonTheme.Forest,DungeonTheme.ElvenRuins,DungeonTheme.Docks,DungeonTheme.Swamp};
+   var definitions=themes.Select(theme=>{
+    var dungeon=ScriptableObject.CreateInstance<DungeonDefinition>();
+    Set(dungeon,"Id","cp2.test."+theme);Set(dungeon,"Theme",theme);
+    Set(dungeon,"IsProcedural",true);Set(dungeon,"IsAvailableAsOffer",true);
+    return dungeon;
+   }).ToArray();
+   try {
+    var session=Session();session.TryRegisterCharacter(new CharacterInstance{CharacterId="hero",Level=1});
+    session.PlayerParty.TryAddActiveMember("hero");
+    Assert.That(DungeonOfferSystem.EnsureOffers(session,definitions),Is.True);
+    foreach(var dungeon in definitions)
+     Assert.That(session.DungeonOffers.Offers.Any(offer=>offer.DefinitionId==dungeon.Id),Is.True,dungeon.Id);
+   } finally {foreach(var dungeon in definitions)UnityEngine.Object.DestroyImmediate(dungeon);}
+  }
   [Test] public void SetDangerCommandUnlocksBossOfferWithoutChangingCharacterLevel()
   {
    var boss=ScriptableObject.CreateInstance<DungeonDefinition>();

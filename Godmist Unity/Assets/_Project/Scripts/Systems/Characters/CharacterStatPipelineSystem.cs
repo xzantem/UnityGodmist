@@ -69,6 +69,7 @@ namespace Godmist.Systems.Characters
 
             WarriorCombatSystem.ApplyStats(character);
             MageCombatSystem.ApplyStats(character);
+            GuardianCombatSystem.ApplyStats(character);
             UniqueEquipmentCombatRules.ApplyDerivedStats(character);
             SyncDependentRuntimeValues(character);
             character.Stats.Speed.SetEffectiveValue(ApplyFinalSpeedMaximum(character,

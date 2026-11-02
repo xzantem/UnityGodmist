@@ -138,19 +138,46 @@ namespace Godmist.Tests.EditMode
             Assert.That(character.AvailableSkillPoints, Is.EqualTo(0));
         }
 
-        [Test]
-        public void TryMigrateLegacySkillPointTotal_AddsTheMissingStartingPointOnce()
+        [TestCase(19)]
+        [TestCase(20)]
+        [TestCase(29)]
+        [TestCase(30)]
+        [TestCase(39)]
+        [TestCase(40)]
+        public void ContentMilestone_AdvancesOnceAndPreservesOverflowAndSkillPoints(int startLevel)
+        {
+            var character = CreateLevelOneCharacter();
+            while (character.Level < startLevel)
+                progressionSystem.AddExperience(character,
+                    progressionSystem.GetExperienceRequiredForNextLevel(character.Level));
+
+            var required = progressionSystem.GetExperienceRequiredForNextLevel(startLevel);
+            Assert.That(progressionSystem.AddExperience(character, required - 1), Is.Zero);
+            Assert.That(character.Level, Is.EqualTo(startLevel));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(startLevel));
+
+            Assert.That(progressionSystem.AddExperience(character, 8), Is.EqualTo(1));
+            Assert.That(character.Level, Is.EqualTo(startLevel + 1));
+            Assert.That(character.CurrentExperience, Is.EqualTo(7));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(startLevel + 1));
+        }
+
+        [TestCase(21)]
+        [TestCase(31)]
+        [TestCase(40)]
+        [TestCase(50)]
+        public void TryMigrateLegacySkillPointTotal_AddsTheMissingStartingPointOnce(int level)
         {
             var character = new CharacterInstance
             {
-                Level = 50,
-                AvailableSkillPoints = 49
+                Level = level,
+                AvailableSkillPoints = level - 1
             };
 
             Assert.That(
                 Godmist.Systems.SaveLoad.LegacySaveMigrations.RecoverSkillPointTotal(character),
                 Is.True);
-            Assert.That(character.AvailableSkillPoints, Is.EqualTo(50));
+            Assert.That(character.AvailableSkillPoints, Is.EqualTo(level));
             Assert.That(
                 Godmist.Systems.SaveLoad.LegacySaveMigrations.RecoverSkillPointTotal(character),
                 Is.False);

@@ -1,0 +1,227 @@
+[
+  {
+    "id": "node.scout.guardian.t1_1",
+    "slot": "t1_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_1-32.png",
+    "source_sha256": "e8d0cf3af3cfee11a6af6d6d34cb46588909b41f555b9a2fd6f3de0de157cbf9",
+    "png_sha256": "08b26753c4f080e0ce76672ebebc31af0b50a1637c760443f22c84cd812f625c",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t1_2",
+    "slot": "t1_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_2-32.png",
+    "source_sha256": "4bb4135999ea24aa5a757857d78d7e1c51cb49dc5a9c134bf0172992805eb62e",
+    "png_sha256": "c5985db8827af7821a5cb3fa32c0122a804762ef1d1c2388fc27e90602da4d33",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t1_3",
+    "slot": "t1_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_3-32.png",
+    "source_sha256": "291f9343718d4bf1b8490927fa1fb8b1afa947c452a43c5c29f35fe1bbeb9d8a",
+    "png_sha256": "5a9fbbe061702f77af46d05d55fc17cecb66046f6c85cde8b28dd8742300d9ad",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t1_4",
+    "slot": "t1_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_4-32.png",
+    "source_sha256": "40a19a5de3d3713e6aa481b206383f01083487d99b6f962932be6dbc7082a522",
+    "png_sha256": "d71c8495a25216f3a6dd36f4f69ac03abb9b1666e6f7c06164b2bf5818584f98",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t1_5",
+    "slot": "t1_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_5-32.png",
+    "source_sha256": "5d4df88c1de5510a4badab60326c05af74a6959fa7e79834e4881d6cbe9bd9cf",
+    "png_sha256": "e9a7301d3d6b5dc437d45df5dc0318c04b3896b2796e23dcb5fff32b6016735a",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t2_1",
+    "slot": "t2_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_1-32.png",
+    "source_sha256": "96916b9fd2ccd0bc5a72b4e679a699fc336f666dfa309c382a0eb11a8530c91f",
+    "png_sha256": "1f8796bfc7dd9fa90a46e7b26e66daee85d27dc44b0e68cba929d8a8ca52e605",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t2_2",
+    "slot": "t2_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_2-32.png",
+    "source_sha256": "3bea87b26bcabdebba6ecbf5498802adf4d4a6e5f4cf9ec87150082e55974a58",
+    "png_sha256": "372fc36452ba8ccb2c7cae3ca9d8e9543d0f1d7383e692b5f02779975662a64e",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t2_3",
+    "slot": "t2_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_3-32.png",
+    "source_sha256": "2b392d8ef0151babce0ce3966df969e6b2ec326042f6406a1c0e6b4afb706af4",
+    "png_sha256": "5d28bc989649a4b7b8808712ed9f8d6d7bc04d290ae094e7ae4c50f677c8ac71",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t2_4",
+    "slot": "t2_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_4-32.png",
+    "source_sha256": "a06e34818ac2f53a72cd18387d67c306ae52f93a8d4ea3bac8f165b0048df4c2",
+    "png_sha256": "958659a55cd3e7ae5cfbf3398b03e6563bb4eba42331bbf42bbdebd3aa281f03",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t2_5",
+    "slot": "t2_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_5-32.png",
+    "source_sha256": "1d0b3ea8421d7ca0102d04bc693e521a3ebe01082ec883d8ae8059aea3c7e681",
+    "png_sha256": "305e979ece77b743ae3d7f25980afffc12a036effe3dae244386972ca7740b2e",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t3_1",
+    "slot": "t3_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_1-32.png",
+    "source_sha256": "42b89b9a4d800b316d329ed65b5dd7653ac1860f9e828b6149f25015134e2597",
+    "png_sha256": "6286c01d758e081263b0da0af755c02aa1aba7ed7f324041be23ce25f0cfc873",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t3_2",
+    "slot": "t3_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_2-32.png",
+    "source_sha256": "486f9c6649c29a570a699c3c20e41422ae04382ee8a7e94ae34f9af39621bf1d",
+    "png_sha256": "20a512a25192fcbdb0681d331d007d0e3816f30c4fe475526e7f22c5b7e0bd7d",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t3_3",
+    "slot": "t3_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_3-32.png",
+    "source_sha256": "419f5e73746e5d4cdb069e3a2b0a738c529bc52efa42a8256f05dec44aff11bd",
+    "png_sha256": "fb0c05e55f29a23056ea4f6d00efabe41bfb3df7325b61447138e7982ebd3785",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t3_4",
+    "slot": "t3_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_4-32.png",
+    "source_sha256": "c7d0017cb38b6d59d96beb24ba44d601b3529eba4e76d2b5b8184122078e06e7",
+    "png_sha256": "0797d2dfe6f65f3de7c5feb0d72ed98a19840ddf0f96ed7e485d0bb676e8e4ce",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t3_5",
+    "slot": "t3_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_5-32.png",
+    "source_sha256": "0ae77194a3a2c7675493bc7e29268e886b27a90ff40be0b9d0d8fa2fc7ccfb45",
+    "png_sha256": "ea90af1309e078c2e9dfbb8796725736cb6bb4c269f7a0d5d54ac3f9a6717daa",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t4_1",
+    "slot": "t4_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_1-32.png",
+    "source_sha256": "bb3435627991deb842ff4758b53c4f6ba30dce0420122a1ec6a4b3d740e842d1",
+    "png_sha256": "b29415f57b17392bbad2acb5d5aa99ba0cfb83fb9cf4cfc73bb4e5052374477c",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t4_2",
+    "slot": "t4_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_2-32.png",
+    "source_sha256": "af9d814f911d68fdfdfad2935ecee1112d76c892c2a8b069c1702a17679a1295",
+    "png_sha256": "a5195200bcf86d2c0d6571536aafdc8d88168a0da79b45a27d83fac36e5bfab1",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t4_3",
+    "slot": "t4_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_3-32.png",
+    "source_sha256": "e29689a95011b276fce2e5f8e710746f2ee68881b8be84af5bf513022866d470",
+    "png_sha256": "69303c61d9b40cf7ced121acc82fdc4a92e9aa743656d84d4db3c3feccfa9fc9",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t4_4",
+    "slot": "t4_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_4-32.png",
+    "source_sha256": "a9a0c01c7a25b6bd636f57837505a850045a212adc58ec267c44f2750bc4839d",
+    "png_sha256": "b9a28505757e5dc71495e4cda3db4493ea6f308e5ecd945f391920ec96429eff",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t4_5",
+    "slot": "t4_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_5-32.png",
+    "source_sha256": "31288341b3c83da1e8dfb3fd8f37bc648aecf9585a40a5d5b3fcfa2640b9daa1",
+    "png_sha256": "338108eb2009b4d88b0691dd9e9d12e438aca503a53185498cc5e9877e37bda6",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t5_1",
+    "slot": "t5_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_1-32.png",
+    "source_sha256": "b396b1fa6b93f8b76c54370a78acc46a32db8e7302ce0fc3a34e00f9896191d0",
+    "png_sha256": "1d05893c1d62c31b722ec406028bb9ae47dfa729b0d58bad846a123bb00c1aab",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t5_2",
+    "slot": "t5_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_2-32.png",
+    "source_sha256": "66414aaf8d25c737ec6b7339c2a661ffcc816d9e965ea3202667bb8dfe9d2d11",
+    "png_sha256": "308df8517e0e98a6c96ee2b8a980253a20d35b126b47c78f130031b962ec6bc4",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t5_3",
+    "slot": "t5_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_3-32.png",
+    "source_sha256": "5d501d5398d1d95f396927a505bea487ff6340baaf485f6e7fa2b3137f8c54b5",
+    "png_sha256": "c96e0127e4b0fea1c980c3d840d8752b41f97b20e76b4715cc9217acec75de9c",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t5_4",
+    "slot": "t5_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_4-32.png",
+    "source_sha256": "958e0e7b1ae92ffa243302ae6243ec91a7fe63acc787f0d0f6890c90fcb502bc",
+    "png_sha256": "217318920cb97788b4b7e863974cb247986a57d8591b8b389c75e9e44fc98381",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.guardian.t5_5",
+    "slot": "t5_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_5-32.png",
+    "source_sha256": "15a85c94b58eca4438ae3ba3006efa1c0170b67c941f49bf3adf2a66b0980b31",
+    "png_sha256": "b627733417b1af17c93fb452370b52f9783fe2ef8fbf48f58d2ab9e2cbb79262",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  }
+]

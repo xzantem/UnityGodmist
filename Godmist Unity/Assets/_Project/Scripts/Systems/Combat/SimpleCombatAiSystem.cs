@@ -1022,8 +1022,8 @@ namespace Godmist.Systems.Combat
                     var risk = session.EvaluateTrapRisk?.Invoke(aiUnit, next) ?? 0f;
                     if (!float.IsFinite(risk)) continue;
                     var key = (candidate, session.TrapRouteState?.Invoke(next) ?? "");
-                    var cost = node.cost + (aiUnit.MovementStepsThisTurn + next.Count
-                        + session.Grid.GetMovementSurcharge(current, candidate)) * ActionPointUnits.PerPoint;
+                    var cost = CombatMovementSystem.CalculatePathCost(session, aiUnit.Position, GuardianCombatSystem.PaidSteps(aiUnit), next,
+                        ScoutCombatSystem.MovementDiscount(aiUnit), WarriorCombatSystem.FreeSteps(aiUnit), GuardianCombatSystem.HasFreeStep(aiUnit)?1:0, aiUnit);
                     if (best.TryGetValue(key, out var old) && (old.risk < risk || old.risk == risk && old.cost <= cost)) continue;
                     best[key] = (risk, cost);
                     pending.Add((candidate, next, risk, cost, key.Item2, serial++));

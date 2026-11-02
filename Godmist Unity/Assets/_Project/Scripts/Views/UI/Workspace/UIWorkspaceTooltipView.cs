@@ -1906,6 +1906,7 @@ namespace Godmist.Views.UI.Workspace
             string id,
             out CombatTooltipGlossary.Entry result)
         {
+            if (TryGetTalentReference(id, out result)) return true;
             if (!string.IsNullOrEmpty(id) && GetRootTooltip().calculationEntries.TryGetValue(id,out result)) return true;
             if (TryGetGalduryteEffectEntry(id, out result)) return true;
             if (glossary != null && glossary.TryGet(id, out result)) return true;
@@ -2166,9 +2167,10 @@ namespace Godmist.Views.UI.Workspace
 
         private string LinkifyGlossary(string text)
         {
+            var talents = GetRootTooltip().talentReferenceEntries;
             return glossary != null
-                ? glossary.Linkify(text ?? string.Empty, glossaryEntryId)
-                : CombatTooltipGlossary.LinkifyFallback(text ?? string.Empty, glossaryEntryId);
+                ? glossary.Linkify(text ?? string.Empty, glossaryEntryId, talents)
+                : CombatTooltipGlossary.LinkifyWithEntries(text ?? string.Empty, talents, glossaryEntryId);
         }
 
         public void ShowLoadoutSkillDetails(SkillData skill, CharacterInstance character, object source, string rankMetadata)
@@ -2183,6 +2185,7 @@ namespace Godmist.Views.UI.Workspace
         public string BuildLoadoutSkillDetails(SkillData skill, CharacterInstance character)
         {
             if (skill == null) return string.Empty;
+            RegisterTalentReferences(character);
             var caster = character == null ? null : new BattleUnit { Character = character };
             var result = new StringBuilder();
             var targeting = new StringBuilder();
@@ -2194,6 +2197,9 @@ namespace Godmist.Views.UI.Workspace
             foreach (var description in BuildSkillMechanics(skill, caster))
                 result.Append("• ").Append(description).Append('\n');
             var body = result.ToString().TrimEnd();
+            if (GuardianCombatSystem.Active(skill.SkillId) && GuardianTalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var guardian))
+                body += "\n<size=85%>" + LinkRule("Zasady działania", skill.DisplayName,
+                    LinkTalentReferences(guardian.Rules, character, "node"+skill.SkillId.Substring(5))) + "</size>";
             return LinkifyGlossary(UiTerms.Present(body));
         }
 
@@ -2268,6 +2274,7 @@ namespace Godmist.Views.UI.Workspace
 
         private string BuildSkillDescription(SkillData skill, BattleUnit caster)
         {
+            RegisterTalentReferences(caster?.Character);
             var generated = new StringBuilder();
             var targeting = new StringBuilder();
             // Consumables use the same transient SkillData pipeline as combat
@@ -2282,9 +2289,12 @@ namespace Godmist.Views.UI.Workspace
             if(skill.IsToggle)generated.Append("<size=85%>Włączana/wyłączana</size>\n\n");
             foreach (var description in BuildSkillMechanics(skill, caster)) Append(generated, description);
 
-            return UiTerms.Present(targeting.Length > 0
+            var result=UiTerms.Present(targeting.Length > 0
                 ? FormatSkillTargetingSummary(new StringBuilder(GeometryValues(targeting.ToString(),skill,caster))) + "\n\n" + generated
                 : generated.ToString());
+            if(GuardianCombatSystem.Active(skill.SkillId)&&GuardianTalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var guardian))
+                result+="\n<size=85%>"+LinkRule("Zasady działania",skill.DisplayName,LinkGuardianTalentReferences(guardian.Rules,caster?.Character,"node"+skill.SkillId.Substring(5)))+"</size>";
+            return result;
         }
 
         private static string FormatSkillTargetingSummary(StringBuilder targeting) =>

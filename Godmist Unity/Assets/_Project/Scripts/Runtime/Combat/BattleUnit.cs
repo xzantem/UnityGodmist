@@ -30,6 +30,7 @@ namespace Godmist.Runtime.Combat
         [NonSerialized] public int PoacherArmorCooldown, PoacherArmorShieldTurns;
         public CharacterInstance Character;
         public readonly ScoutTargetState ScoutState = new();
+        public readonly GuardianCombatState GuardianState = new();
         public readonly WarriorCombatState WarriorState = new();
         public readonly MageCombatState MageState = new();
         public readonly PaladinCombatState PaladinState = new();

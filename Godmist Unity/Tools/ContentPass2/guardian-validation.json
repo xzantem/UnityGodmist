@@ -1,0 +1,524 @@
+{
+  "card": "CP2-09",
+  "date": "2026-11-02",
+  "status": "ACCEPTED",
+  "scope": {
+    "tiers": "T1-T5",
+    "nodes": 25,
+    "ranks": 44,
+    "active_skills": 3,
+    "icons": 25,
+    "future_T6_T7": "deferred; removed from runtime tree, preserved in design"
+  },
+  "test_runs": [
+    {
+      "report": "LocalHandoffs/cp2-09-guardian-20261102/focused.xml",
+      "passed": 111,
+      "failed": 2,
+      "resolution": "fixed target-side validation; corrected magical-defense fixture"
+    },
+    {
+      "report": "LocalHandoffs/cp2-09-guardian-20261102/regression.xml",
+      "passed": 901,
+      "failed": 6,
+      "resolution": "four graphics exports require renderer; corrected two fixture assumptions (per-hit value and AP cap)"
+    },
+    {
+      "report": "LocalHandoffs/cp2-09-guardian-20261102/final.xml",
+      "passed": 911,
+      "failed": 0,
+      "graphics": "enabled in hidden batch process",
+      "sha256": "4d1e68a4cdfd6a6ef48f7898114324cfe9d61fe544d68be99a72c2a8e60a0081"
+    },
+    {
+      "report": "LocalHandoffs/cp2-09-guardian-20261102/reflection-final.xml",
+      "passed": 336,
+      "failed": 0,
+      "reason": "final Counter pre-defense bookkeeping fix and two cross-class Armored mitigation regressions",
+      "sha256": "ea568d5d3316bfc817047267a7836e415c2a8301230c600feb7069599cb94250"
+    }
+  ],
+  "checks": {
+    "other_serialized_assets_preserved": true,
+    "asset_authoring": "PASS:25 T1-T5 nodes/44 ranks;3 validated skills;25 native icons;matching node/skill sprites;no T6/T7;other trees/class/catalog order preserved;idempotent.",
+    "sprite_count": 25,
+    "native_size": "32x32",
+    "aseprite_roundtrip": "25/25 PASS",
+    "all_production_png_hashes_match_reviewed_exports": true,
+    "existing_node_ids_preserved": true,
+    "t6_t7_in_runtime_tree": false,
+    "save_schema_changed": false,
+    "desktop_focus_control_used": false,
+    "git_diff_check": "PASS",
+    "post_promotion_files_match_snapshot": true,
+    "tooltip_reference_followup": "guardian-tooltip-links-validation.json",
+    "all_tree_reference_audit": "talent-reference-audit-validation.json"
+  },
+  "self_review": [
+    "combat state lifetime and cleanup",
+    "counter once-per-use and reaction chain suppression",
+    "shared movement token limit and paid-step ordinal",
+    "multi-hit first-hit protection in execution and pure preview",
+    "live party/knife aura conditions and strongest-only stacking",
+    "cost/refund/target validation before charging",
+    "stable node IDs and existing save/load/loadout infrastructure",
+    "catalog append order, unrelated asset preservation, idempotent Unity API authoring",
+    "icon palette, native export, editable Aseprite roundtrip",
+    "reflected pre-defense value feeds Armored mitigation bank without reapplying reflector offensive modifiers"
+  ],
+  "source_hashes": [
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Editor/ContentPass2GuardianPreviewSetup.cs",
+      "sha256": "8733cf4d9383fcdc1f96e0c7043ae78af3b5204958cfff1a689a3d1c653ab64d"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Editor/VS07ScoutSetup.Trees.cs",
+      "sha256": "14b430637885d58f370c39c30a58047a3b14fc0d15ec73e84de13f2814b60ac9"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Core/Enums/EffectType.cs",
+      "sha256": "2922a6474298e1e329ebf797851a2244da7d3c4718ab3ad634955889791f4755"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Data/Skills/SkillTreeDefinition.cs",
+      "sha256": "80b01df5ec2f5796b5ed130ab7127a8dfb80d4d7467d1d043deb89126ee180be"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Runtime/Combat/BattleUnit.cs",
+      "sha256": "e12886b32f73da14a9cd22a7696811bf4bdff73d093fadc0d8ca9976b3d4bae7"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Characters/CharacterStatExplanation.cs",
+      "sha256": "2929595695d612bcdc31bbc1171b045e09d2ed12d7b6b91dff002acab00a49e6"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Characters/CharacterStatPipelineSystem.cs",
+      "sha256": "b8671562e09e8e8f0ad52d74151eb8bc36a4b0d651f2d5feffe55b4538874877"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Characters/SkillTreeProgressionSystem.cs",
+      "sha256": "33bb8ccd7d6cef1851f924ac4bfa8ca74e1e08094256d7cdd3a9539ee297139a"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/CombatActionCostCalculator.cs",
+      "sha256": "89fc0e9b9f7dc7e15b203d020fc9aef8dd5df0df484ce232e1c907d42e63e4b0"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/CombatDamageSystem.cs",
+      "sha256": "49d82461b519ec38f7895a4b9412a412cc3671192ec58bb54c3a196676fdd73b"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/CombatMovementSystem.cs",
+      "sha256": "c7c0c3ee282c01ee6e50e55161bc6179f703e53458fdfe21b1a116bcbf786aaa"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/CombatSkillPreviewCalculator.cs",
+      "sha256": "24d12f87476576bcfe9169c6c6ea468a711e9edcf4aca48efe138a6dd7f90191"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/PassiveEffectCombatExecutionSystem.Parameters.cs",
+      "sha256": "dd65015e864f9474fbe4c9bdc5f16814a91a5688a4860d5b7bc03d03092a3c50"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/ScoutCombatSystem.cs",
+      "sha256": "35a74db80d902bda792b27b3806e2ce03c61c3dd57642c7c8ed0d9e3877c2bd7"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/ScoutCombatSystem.Tier5.cs",
+      "sha256": "c47f35649aa0494df5a62592a79b72d75b5aedd6787f84519f47d5a863933f14"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/SimpleCombatAiSystem.cs",
+      "sha256": "b35476146e92c0006fac831f308a3b7172e815613e875dd9ff344907f1b07ad5"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/SimpleCombatAiSystem.PlanningEffects.cs",
+      "sha256": "9007fe74417bb38d35a6e8d96ad1c4a2b3ac62e664f7b6e8bf0bd56e0022ed3a"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/SimpleCombatAiSystem.PlanningState.cs",
+      "sha256": "ea96e7daeaceec88704cc4dff70525c914ef9aac6f6aa3bc3539b99d3d3d873c"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/SimpleCombatAiSystem.Resources.cs",
+      "sha256": "583ef3bcc751aeae4036ff803ac0151b41636ef65bfa0f569357a956a8dd7e74"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/SimpleCombatAiSystem.Tactics.cs",
+      "sha256": "1cbc40d9e53891ba30ce278579580a9473578d2a8d0a56907249dde217d15662"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/SimpleCombatAiSystem.TurnPlanner.cs",
+      "sha256": "dc0fcdbb5604b1099a477a086b3866dabb8b698aac4f39b5485c3a31265bfa97"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/SkillExecutionSystem.cs",
+      "sha256": "f0fe4f272dfbc5842cf7676eabb5e21e30f556739c81b3977b926f26ec49af8e"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/StatusEffectSystem.cs",
+      "sha256": "e584a70fce1e3cf3c1a180f0c548736178ba4efc81e5108862efdea8a24ec2b2"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/Resources/ResourceRuleSystem.cs",
+      "sha256": "0b3df04864a89773729c4afc836d0203f5949104756b1de0294740d2aa42dc15"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/Combat/CombatExecutionDriver.cs",
+      "sha256": "08cb1bdfcd14f5206a9252489673bdfb6c73a7eddcad92344d5b0d0273329a0f"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/HeroCombatStatusText.cs",
+      "sha256": "e96bf25ea3824e0ad9f6e754a37abeb01a3fe47948bb7724df8142c866aa6c13"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/SkillTreeProgressionPanelView.cs",
+      "sha256": "c02a79fc1db49093e03e400fba1589c4c86a58f6b25eac53fb1b6181548bdd32"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/GuardianDesignPreviewCopy.cs",
+      "sha256": "767ea96589db1eb86ec20221f8b08a0bb9b24be21f355f2647b209c6bdfdb1db"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/SkillTreeNodeView.cs",
+      "sha256": "f7790b8c5c3926b7ef8b6e98eb2d3f3b67963c203797787d35763eabb962b2b4"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/SkillTreeTooltipCopy.cs",
+      "sha256": "d6f90367da10cef3b0e3e0ab2b704a67f0992eb5fc654af28048556c41289b31"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/SkillTreeTooltipPresentation.cs",
+      "sha256": "b5be474817214230afd7dc28a8fb05b813adcd578c25fd88e7543dc4f99fb6fd"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/UIWorkspaceTooltipView.cs",
+      "sha256": "9c5ece7a3dfe932fa8b1c9898532082a929b18079afd95337802fc188ae4333e"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/UIWorkspaceTooltipView.ReviewedSkills.cs",
+      "sha256": "8f32983e1112714b08092e73d33f1b3a7e7c2146d21692f660cf424a0f11ea5a"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Systems/Combat/GuardianCombatSystem.cs",
+      "sha256": "417e451831e45822b2e9dbcdde5fd100be1c1a8735862d6e2fcffc5553c12349"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Runtime/Combat/GuardianCombatState.cs",
+      "sha256": "1da75f1d92d9eb776b17c44a81975358db7f039e5773802579c2d0e0bf4c8466"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Editor/ContentPass2GuardianSetup.cs",
+      "sha256": "dd028ded7551e6d471af7a8652a3c678947cd97359bf661b13f3ca7a91f1803c"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/ScoutContentTests.Guardian.cs",
+      "sha256": "6022c40c7be1b340263ad5cd1b5e334c6e4bdfdbefc8b0e2fdd3ca6ebe25f36b"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/SkillTreePresentationTests.GuardianPreview.cs",
+      "sha256": "299e3377cce98d95144b62069a6b6bb70e7631de795839892ddffc0b1e0d0e27"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/SkillTreePassiveTooltipContentTests.cs",
+      "sha256": "ddf1525d015823476f7db9a08b9ab703fe15583a51757dbdeb340e31d99ada57"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/ScoutContentTests.cs",
+      "sha256": "f9eba8ef0f45e20b13549417bc0c261050991b6aa1db13070b4d0eaef3899c3f"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/CombatTooltipGlossary.cs",
+      "sha256": "ed99b77ed3e2bac395299092961b182f3c9dbcd03b78543187e0de9c1ba087ba"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/CombatTooltipGlossaryTests.cs",
+      "sha256": "109bc5824736eee711cb784d9d8e44446b1efb68bb7e94e4be8d9c815f8e0f6a"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/GlossaryMechanicsTests.cs",
+      "sha256": "488481ce9dd01da7079b7f6357a4f5e0a7215b9647d4ae56a413e37c34ecd24f"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Scripts/Views/UI/Workspace/UIWorkspaceTooltipView.TalentReferences.cs",
+      "sha256": "41f532662565d8b4770c6d74e0ee8775fdce51165ca1fd71c84b2157235c0ba1"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Tests/EditModeTests/TalentReferenceAuditTests.cs",
+      "sha256": "5fdc9e3043050c92d8b74f6dd0daeedff3bd42d8db9dd5b8637ad809f30be8cb"
+    }
+  ],
+  "promoted": {
+    "method": "exact bytes copied from validated isolated Unity AssetDatabase authoring; no YAML/meta editing",
+    "files": [
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_Guardian.asset",
+        "sha256": "8ddc515d817b4d7f621c102112e23c410b2b84704437514672490cfdcc212971"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_Guardian.asset.meta",
+        "sha256": "7f8115bdf310d0a0290e620dfbe3069bbd1371358cad17cbd9a001db1c98c851"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset",
+        "sha256": "0f4d6d54886fbaa15d922acab0d83ed14eee513712bdc9da816ce53b141b2573"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset.meta",
+        "sha256": "78f11c945982d626475c834032a31310059e25e1bbbe8ca44632bc7f9fb2c9db"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutGuardian_t1_3.asset",
+        "sha256": "9a607384d3d7e02290082f40d152aa7a9b5f29f34e0c5b9088db3affbeb4b9c8"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutGuardian_t1_3.asset.meta",
+        "sha256": "4c532f80547d658dba56e60a55da2020a2196b2addb6449ba440e065644c6dee"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutGuardian_t1_4.asset",
+        "sha256": "c504cbd703f0055ab90782ab90cf45f243570add874c49994a7ba238fad03e5c"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutGuardian_t1_4.asset.meta",
+        "sha256": "ece210b7f85d7e3bce67810257d43d1239d2994a6246c1783779af7f60275f73"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutGuardian_t5_4.asset",
+        "sha256": "ed2854b0f72fe80083058941db3c54ee4f9c8eb9f02e7d585880b86e766745fc"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutGuardian_t5_4.asset.meta",
+        "sha256": "9c390d0a750a56740ff7b2b49d688eab29fade8e99ad46185250dfdd285ae2d4"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian.meta",
+        "sha256": "e7c1e6660a3193f61f1873f319cac9ea9a21fcc57171eea7071d5b331e0f58e9"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_1-32.png",
+        "sha256": "08b26753c4f080e0ce76672ebebc31af0b50a1637c760443f22c84cd812f625c"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_1-32.png.meta",
+        "sha256": "e0834f8b3518697257f305948113b832f8edcc473a383d7090171ceb215b83f4"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_2-32.png",
+        "sha256": "c5985db8827af7821a5cb3fa32c0122a804762ef1d1c2388fc27e90602da4d33"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_2-32.png.meta",
+        "sha256": "7bd801d9f60bd301a6e7d73b8cd56b80c5332d76950a0b2e8fed809b9741f2a6"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_3-32.png",
+        "sha256": "5a9fbbe061702f77af46d05d55fc17cecb66046f6c85cde8b28dd8742300d9ad"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_3-32.png.meta",
+        "sha256": "9a842cfea2bdccde023027e1a261ce5b07d3e52c04cf98bd6ae203ad405faa45"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_4-32.png",
+        "sha256": "d71c8495a25216f3a6dd36f4f69ac03abb9b1666e6f7c06164b2bf5818584f98"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_4-32.png.meta",
+        "sha256": "fd56d89cc9d21a7cc95f16a49f757ddc7117a2ca1207063084ab5eaf5c43dd79"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_5-32.png",
+        "sha256": "e9a7301d3d6b5dc437d45df5dc0318c04b3896b2796e23dcb5fff32b6016735a"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t1_5-32.png.meta",
+        "sha256": "d2223d660c276c6a5c9dc5a77ef82c6fa69d134a9dcc13a48fa67ccb9bf0057b"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_1-32.png",
+        "sha256": "1f8796bfc7dd9fa90a46e7b26e66daee85d27dc44b0e68cba929d8a8ca52e605"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_1-32.png.meta",
+        "sha256": "3af99d8f91ab19328b2fc5622b521949f5ed6e1b829de50a9ece580cd6e19e16"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_2-32.png",
+        "sha256": "372fc36452ba8ccb2c7cae3ca9d8e9543d0f1d7383e692b5f02779975662a64e"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_2-32.png.meta",
+        "sha256": "e1ef43de770cbfee6bf933303346444312ff27103107d1c355feeb9a966312b7"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_3-32.png",
+        "sha256": "5d28bc989649a4b7b8808712ed9f8d6d7bc04d290ae094e7ae4c50f677c8ac71"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_3-32.png.meta",
+        "sha256": "743276e4fee1cbae90c82fb9d34904367032762ebf617dc8e11e78b8a4d8d344"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_4-32.png",
+        "sha256": "958659a55cd3e7ae5cfbf3398b03e6563bb4eba42331bbf42bbdebd3aa281f03"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_4-32.png.meta",
+        "sha256": "144e607ecfcd18dcb1810d46e24126d545d5e79bd70d06bf97f27ec005130cfe"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_5-32.png",
+        "sha256": "305e979ece77b743ae3d7f25980afffc12a036effe3dae244386972ca7740b2e"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t2_5-32.png.meta",
+        "sha256": "2bc4dbaf73808ab64b1c178f9f271bff1d744d4f57c2acfda582b26c0aed6b9f"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_1-32.png",
+        "sha256": "6286c01d758e081263b0da0af755c02aa1aba7ed7f324041be23ce25f0cfc873"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_1-32.png.meta",
+        "sha256": "fb0940b5a891162563cc274f988d48db22309b07b7513eb2385ae0e6c2e2e09b"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_2-32.png",
+        "sha256": "20a512a25192fcbdb0681d331d007d0e3816f30c4fe475526e7f22c5b7e0bd7d"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_2-32.png.meta",
+        "sha256": "599c747db9fd656402bbd48f90821332ed6dc0297e46c5ee824659911b01c079"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_3-32.png",
+        "sha256": "fb0c05e55f29a23056ea4f6d00efabe41bfb3df7325b61447138e7982ebd3785"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_3-32.png.meta",
+        "sha256": "9321337fa2fc53313a25ff81064638fa5823e8ea2f80f463e397f275376283f1"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_4-32.png",
+        "sha256": "0797d2dfe6f65f3de7c5feb0d72ed98a19840ddf0f96ed7e485d0bb676e8e4ce"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_4-32.png.meta",
+        "sha256": "45f24da52a8f169501116c3d494220656a7bf507082e8fd0a948665a48b7c32f"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_5-32.png",
+        "sha256": "ea90af1309e078c2e9dfbb8796725736cb6bb4c269f7a0d5d54ac3f9a6717daa"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t3_5-32.png.meta",
+        "sha256": "8e39bc5c7109065c1c523feca61bfcf7d71772a797456cf6a2838f676536011f"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_1-32.png",
+        "sha256": "b29415f57b17392bbad2acb5d5aa99ba0cfb83fb9cf4cfc73bb4e5052374477c"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_1-32.png.meta",
+        "sha256": "9161efbb081a15a2014e2320fc89d81685c2b89deb78a41c5a48201bff97fa74"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_2-32.png",
+        "sha256": "a5195200bcf86d2c0d6571536aafdc8d88168a0da79b45a27d83fac36e5bfab1"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_2-32.png.meta",
+        "sha256": "d3b4ed8e3d33133ce04ca6d4798a52e998cc1f1eda82e2d6f6f577969a975af9"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_3-32.png",
+        "sha256": "69303c61d9b40cf7ced121acc82fdc4a92e9aa743656d84d4db3c3feccfa9fc9"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_3-32.png.meta",
+        "sha256": "27cde6ef23551c2ba5daa0ee46082c5ec0a244539f28c80b3383447bcbd06f79"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_4-32.png",
+        "sha256": "b9a28505757e5dc71495e4cda3db4493ea6f308e5ecd945f391920ec96429eff"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_4-32.png.meta",
+        "sha256": "14e7b8013d5ac42e5a49cf0791cf9e52b12dafd6babc0e58b45aeed9822de2da"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_5-32.png",
+        "sha256": "338108eb2009b4d88b0691dd9e9d12e438aca503a53185498cc5e9877e37bda6"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t4_5-32.png.meta",
+        "sha256": "06df00e6b598ba088287ea37685a3953bce2c696ca314d54fd2bb452ab6a50c2"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_1-32.png",
+        "sha256": "1d05893c1d62c31b722ec406028bb9ae47dfa729b0d58bad846a123bb00c1aab"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_1-32.png.meta",
+        "sha256": "35333a92dd8cae8f7f490fe41c6623027a70dead00c362c82b2d095b6f8158c9"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_2-32.png",
+        "sha256": "308df8517e0e98a6c96ee2b8a980253a20d35b126b47c78f130031b962ec6bc4"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_2-32.png.meta",
+        "sha256": "a7231a0a54a3e3022d15d0e4ad5d5e6de57631533d5450d71c389fc600c3e0e3"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_3-32.png",
+        "sha256": "c96e0127e4b0fea1c980c3d840d8752b41f97b20e76b4715cc9217acec75de9c"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_3-32.png.meta",
+        "sha256": "887147c8f063fe48e6722f6c4ee138bd9bda70841051e3049980aa67a2f196e5"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_4-32.png",
+        "sha256": "217318920cb97788b4b7e863974cb247986a57d8591b8b389c75e9e44fc98381"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_4-32.png.meta",
+        "sha256": "9d817fe2793222612ca93027e4a2cc8144cba8d37c6347b4924025466a78775a"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_5-32.png",
+        "sha256": "b627733417b1af17c93fb452370b52f9783fe2ef8fbf48f58d2ab9e2cbb79262"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutGuardian/t5_5-32.png.meta",
+        "sha256": "d9b130050da7509bb32a7bfcd895c237ffc8eec3adfeef79c7203231944e88e4"
+      },
+      {
+        "path": "Assets/_Project/Scripts/Systems/Combat/GuardianCombatSystem.cs.meta",
+        "sha256": "981bb68bd022620fe10bbeb63c118ff8aad2053bef8e7b78e89bb08dd51c9b67"
+      },
+      {
+        "path": "Assets/_Project/Scripts/Runtime/Combat/GuardianCombatState.cs.meta",
+        "sha256": "dd12e0bd0d5d0bf287d478c0597ef6ddc5b6558f84ff30e8731290b93c13cb77"
+      },
+      {
+        "path": "Assets/_Project/Scripts/Editor/ContentPass2GuardianSetup.cs.meta",
+        "sha256": "7b30e1b4ed4242d4500a92e1de1c3bf6ede743323c8d953a360933bfa7860372"
+      },
+      {
+        "path": "Assets/_Project/Tests/EditModeTests/ScoutContentTests.Guardian.cs.meta",
+        "sha256": "f7bde7187e8413f3d814686be6fea079aa8892817d9277c34bd28adcea8b28a9"
+      }
+    ]
+  },
+  "manual_smoke": "Local UNITY_HANDOFF.md; not yet performed by user",
+  "committed": false,
+  "pushed": false,
+  "latest_unique_tests": {
+    "passed": 913,
+    "failed": 0
+  },
+  "acceptance": "User accepted smoke and explicitly authorized commit/push on 2026-11-02"
+}

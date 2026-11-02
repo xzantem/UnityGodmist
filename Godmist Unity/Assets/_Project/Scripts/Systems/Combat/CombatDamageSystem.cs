@@ -67,23 +67,30 @@ namespace Godmist.Systems.Combat
                 return new CombatDamageResult(false, false, 0);
             }
 
-            var wasHit = IsGuaranteedHitDamageType(damageType)
-                || RollHit(source, target, skillAccuracy, eventContext.Skill);
-            var wasDodged = false;
+            using var guardianResolution = new CombatSkillResolutionScope(session);
+            var reflect = GuardianCombatSystem.PrepareReflection(session,source,target,
+                SnapshotAttackValue(source,target,attackValue,damageType,eventContext),damageType,eventContext,this);
+            var actualChance=ContactChance(source,target,damageType,skillAccuracy,eventContext.Skill,session);
+            var contactRoll=IsGuaranteedHitDamageType(damageType)&&actualChance>=1f ? 0f : UnityEngine.Random.value;
+            var wasHit=contactRoll<=actualChance;
+            var wasDodged=!wasHit&&contactRoll<=ContactChance(source,target,damageType,skillAccuracy,eventContext.Skill,session,true);
+            var guaranteedDodge=false;
             if (wasHit && TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
             {
                 wasHit = false;
                 wasDodged = true;
+                guaranteedDodge = true;
             }
 
             if (!wasHit)
             {
-                if (!wasDodged
-                    && PassiveEffectCombatExecutionSystem.TryConvertMiss(
+                if (!guaranteedDodge
+                    && (ScoutCombatSystem.RescueMiss(source,target,eventContext.Skill,actualChance) || PassiveEffectCombatExecutionSystem.TryConvertMiss(
                         session,
-                        eventContext))
+                        eventContext)))
                 {
                     wasHit = true;
+                    wasDodged = false;
                 }
             }
 
@@ -103,11 +110,15 @@ namespace Godmist.Systems.Combat
                         succeeded: false,
                         wasDodged: wasDodged,
                         wasMissed: !wasDodged));
+                if(wasDodged)GuardianCombatSystem.Dodged(session,target,source,eventContext,this,battleLog,feedbackBus);
+                reflect?.Invoke();
                 return new CombatDamageResult(false, false, 0);
             }
 
-            return ResolveSuccessfulHit(session, source, target, attackValue, damageType,
+            var resolved=ResolveSuccessfulHit(session, source, target, attackValue, damageType,
                 bonusDefensePenetration, eventContext, ignoreDefense);
+            reflect?.Invoke();
+            return resolved;
         }
 
         public CombatDamageResult ResolveAndApplyDamage(
@@ -135,9 +146,12 @@ namespace Godmist.Systems.Combat
                 target: target,
                 damageType: damageType);
             Publish(session, PassiveEffectTriggerType.OnAttack, eventContext);
+            using var guardianResolution = new CombatSkillResolutionScope(session);
+            var reflect=GuardianCombatSystem.PrepareReflection(session,source,target,
+                SnapshotAttackValue(source,target,attackValue,damageType,eventContext),damageType,eventContext,this);
             if (!wasHit)
             {
-                if (PassiveEffectCombatExecutionSystem.TryConvertMiss(
+                if (ScoutCombatSystem.RescueMiss(source,target,eventContext.Skill) || PassiveEffectCombatExecutionSystem.TryConvertMiss(
                         session,
                         eventContext))
                 {
@@ -149,17 +163,32 @@ namespace Godmist.Systems.Combat
             {
                 Publish(session, PassiveEffectTriggerType.OnMiss,
                     eventContext.WithOutcome(succeeded: false, wasMissed: true));
+                reflect?.Invoke();
                 return new CombatDamageResult(false, false, 0);
             }
             if (TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
             {
                 Publish(session, PassiveEffectTriggerType.OnDodge,
                     eventContext.WithOutcome(succeeded: false, wasDodged: true));
+                GuardianCombatSystem.Dodged(session,target,source,eventContext,this,battleLog,feedbackBus);
+                reflect?.Invoke();
                 return new CombatDamageResult(false, false, 0);
             }
 
-            return ResolveSuccessfulHit(session, source, target, attackValue, damageType,
+            // Magical damage is normally guaranteed, including authored AlwaysHits.
+            // Guardian's explicit magic-dodge talent adds its own contact test only.
+            if(damageType==DamageType.Magical&&GuardianCombatSystem.G(target,"t3_5")>0
+                &&UnityEngine.Random.value>ContactChance(source,target,damageType,100,eventContext.Skill,session))
+            {
+                Publish(session,PassiveEffectTriggerType.OnDodge,eventContext.WithOutcome(succeeded:false,wasDodged:true));
+                GuardianCombatSystem.Dodged(session,target,source,eventContext,this,battleLog,feedbackBus);
+                reflect?.Invoke();return new CombatDamageResult(false,false,0);
+            }
+
+            var resolved=ResolveSuccessfulHit(session, source, target, attackValue, damageType,
                 bonusDefensePenetration, eventContext, ignoreDefense);
+            reflect?.Invoke();
+            return resolved;
         }
 
         // Accuracy and dodge have already been resolved by the entry point.
@@ -199,7 +228,7 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Critical));
             }
 
-            finalDamage = ScoutCombatSystem.ResolveThroatCut(session, eventContext, finalDamage);
+            if(source.GuardianState.ReactionDepth==0)finalDamage = ScoutCombatSystem.ResolveThroatCut(session, eventContext, finalDamage);
             finalDamage = WarriorCombatSystem.ResolveExecution(session, eventContext, isCritical, finalDamage);
             var healthDamage = ApplyDamage(
                 session,
@@ -223,7 +252,10 @@ namespace Godmist.Systems.Combat
             }
 
             ScoutCombatSystem.RecordHit(source, target, damageType);
-            ScoutCombatSystem.AfterCritical(eventContext, isCritical);
+            if(source.GuardianState.ReactionDepth==0)ScoutCombatSystem.AfterCritical(eventContext, isCritical);
+            if(source.GuardianState.ReactionDepth==0&&isCritical&&ScoutCombatSystem.AssassinRank(source,"t5_4")>0)
+                ScoutCombatSystem.LowBlow(eventContext,true,new StatusEffectSystem(battleLog,damageSystem:this,
+                    feedbackBus:feedbackBus,passiveEffectEventDispatcher:passiveEffectEventDispatcher));
             WarriorCombatSystem.AfterHit(session,eventContext,isCritical,damageAfterCrit,finalDamage,this);
             return new CombatDamageResult(true, isCritical, healthDamage);
         }
@@ -258,6 +290,7 @@ namespace Godmist.Systems.Combat
             var rawBeforeTargetMitigation=CalculateRawBeforeTargetMitigation(session,source,target,
                 preMitigationDamage??requestedDamage,damageType,passiveContext);
             var incomingDamage=CalculateIncomingBeforeRedirect(session,source,target,requestedDamage,damageType,passiveContext,variables:combatVariableSystem);
+            GuardianCombatSystem.RecordDirectHit(target,damageType);
             if(WarriorCombatSystem.ArmoredAvoidMagic(target,damageType))return 0;
             incomingDamage=WarriorCombatSystem.ArmoredBlock(target,incomingDamage,damageType);
             if (incomingDamage <= 0)
@@ -458,7 +491,7 @@ namespace Godmist.Systems.Combat
         }
 
         public static float CalculateSkillHitChance(
-            BattleUnit source, BattleUnit target, SkillData skill, float? skillAccuracy = null)
+            BattleUnit source, BattleUnit target, SkillData skill, float? skillAccuracy = null, CombatSession session = null, bool ignoreDodge = false)
         {
             if (source?.Character == null || target?.Character == null) return 0f;
             if (HasUniqueBuff(source, UniqueBuffType.Hawkeye)) return 1f;
@@ -466,8 +499,29 @@ namespace Godmist.Systems.Combat
             var accuracy = alchemical ? 100f : skillAccuracy
                 ?? PassiveEffectCombatExecutionSystem.ResolveParameter(source, skill, "accuracy", skill?.SkillAccuracy ?? 0f);
             var chance = CalculateHitChance(alchemical ? 100f : source.Character.WeaponAccuracy,
-                accuracy, (target.Character.Stats?.Dodge.GetValue() ?? 0f)+WarriorCombatSystem.PredictionDodge(source,target));
+                accuracy, ignoreDodge?0:(target.Character.Stats?.Dodge.GetValue() ?? 0f)+WarriorCombatSystem.PredictionDodge(source,target)+GuardianCombatSystem.DodgeBonus(target,session));
             return WarriorCombatSystem.ArmoredHitChance(source,ApplyHitChanceBonus(source.Character, chance));
+        }
+
+        public static float ContactChance(BattleUnit source,BattleUnit target,DamageType type,float accuracy,SkillData skill,CombatSession session=null,bool ignoreDodge=false)
+        {
+            if(HasUniqueBuff(source,UniqueBuffType.Hawkeye))return 1;
+            if(type==DamageType.Physical)return CalculateSkillHitChance(source,target,skill,accuracy,session,ignoreDodge);
+            if(type==DamageType.Magical&&GuardianCombatSystem.G(target,"t3_5")>0)
+            {
+                var dodge=ignoreDodge?0:Mathf.Max(0,(target.Character.Stats?.Dodge.GetValue()??0)+GuardianCombatSystem.DodgeBonus(target,session));
+                return 100f/(100f+dodge*.5f);
+            }
+            return 1;
+        }
+        static int SnapshotAttackValue(BattleUnit source,BattleUnit target,int value,DamageType type,PassiveEffectCombatContext context)
+        {
+            if(target.GuardianState.CounterTurns<=0)return value;
+            var bank=(int)Math.Min(int.MaxValue,Math.Floor(Math.Max(0,source.WarriorState.AttackBank)));
+            value=(int)Math.Min(int.MaxValue,(long)value+SkeletonSlayerBossSystem.AttackBonus(source)+bank);
+            value=Mathf.RoundToInt(value*ScoutCombatSystem.DamageMultiplier(context)*WarriorCombatSystem.DamageMultiplier(context)
+                *MageCombatSystem.DamageMultiplier(context)*PaladinCombatSystem.DamageMultiplier(context)*HawkeyeDamageMultiplier(source,target,type));
+            return StatusEffectSystem.HasStatus(source,Godmist.Core.Constants.StatusEffectIds.Weakening)?Mathf.CeilToInt(value*.8f):value;
         }
 
         public static bool IsGuaranteedHitDamageType(DamageType damageType)
@@ -489,6 +543,9 @@ namespace Godmist.Systems.Combat
         {
             if (damageType is not (DamageType.Physical or DamageType.Magical or DamageType.Inevitable)) return false;
 
+            if(source.GuardianState.ReactionDepth>0)
+                return UnityEngine.Random.value<PreviewCriticalChance(session,source,context?.Target,context?.Skill,damageType,true);
+            if (ScoutCombatSystem.ConsumeRollCritical(source)) return true;
             if (context?.Skill?.GuaranteedCritical == true) return true;
             if (TryConsumeUniqueBuff(source, UniqueBuffType.GuaranteedCriticalHit))
             {
@@ -566,7 +623,7 @@ namespace Godmist.Systems.Combat
                 + GetDefensePenetration(source, damageType)
                 + (damageType == DamageType.Physical ? ScoutCombatSystem.AnalysisPenetration(source) : 0f)
                 + Mathf.Max(0f, bonusDefensePenetration);
-            defense = Mathf.Max(0f, defense) * (1f - Mathf.Clamp01(defenseIgnorePercent)) * WarriorCombatSystem.DefenseMultiplier(target,null) / (1f + penetration);
+            defense = Mathf.Max(0f, defense) * (1f - Mathf.Clamp01(defenseIgnorePercent)) * WarriorCombatSystem.DefenseMultiplier(target,null) * GuardianCombatSystem.DefenseMultiplier(target) / (1f + penetration);
 
             if (defense <= 0f) return damage;
 
@@ -575,27 +632,34 @@ namespace Godmist.Systems.Combat
 
         public static int CalculateIncomingBeforeRedirect(CombatSession session,BattleUnit source,BattleUnit target,
             int requestedDamage,DamageType damageType,PassiveEffectCombatContext passiveContext,
-            CombatValueExplanation explanation=null,Godmist.Data.Skills.SkillData previewSkill=null,CombatVariableSystem variables=null)
+            CombatValueExplanation explanation=null,Godmist.Data.Skills.SkillData previewSkill=null,CombatVariableSystem variables=null,bool? guardianFirstHitUsed=null)
         {
-            var incomingDamage = Mathf.RoundToInt(SkeletonSlayerBossSystem.IncomingMultiplier(target,damageType) * DeadKingBossSystem.DamageMultiplier(session, source, target, passiveContext) * (variables??new CombatVariableSystem()).ApplyDamageModifiers(source, target, requestedDamage,explanation,previewSkill) * (variables??new CombatVariableSystem()).GetDungeonThemeDamageMultiplier(source?.Character, session?.DungeonTheme ?? DungeonTheme.Story) * EquipmentEffectSystem.Outgoing(source, target, damageType, session,explanation) * EquipmentEffectSystem.Incoming(target?.Character, damageType)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(source,session));
+            // A reflection returns a fixed captured amount, without another set of the defender's offensive bonuses.
+            var reflection = passiveContext?.IsPassiveReaction == true && passiveContext.SkillId == GuardianCombatSystem.Counter;
+            var outgoingSource = reflection ? null : source;
+            var incomingDamage = Mathf.RoundToInt(SkeletonSlayerBossSystem.IncomingMultiplier(target,damageType) * DeadKingBossSystem.DamageMultiplier(session, source, target, passiveContext) * (variables??new CombatVariableSystem()).ApplyDamageModifiers(outgoingSource, target, requestedDamage,explanation,previewSkill) * (variables??new CombatVariableSystem()).GetDungeonThemeDamageMultiplier(outgoingSource?.Character, session?.DungeonTheme ?? DungeonTheme.Story) * EquipmentEffectSystem.Outgoing(outgoingSource, target, damageType, session,explanation) * EquipmentEffectSystem.Incoming(target?.Character, damageType)*WarriorCombatSystem.Received(session,source,target,damageType)*MageCombatSystem.FireOutgoing(outgoingSource,session));
             if (HasUniqueBuff(target, UniqueBuffType.MageOffering))
                 incomingDamage = Mathf.RoundToInt(incomingDamage * (1 + MageCombatSystem.OfferingBonus(target) * (1 - .1f * MageCombatSystem.W(target,"calm"))));
             incomingDamage = Mathf.Max(
                 0,
                 Mathf.RoundToInt(
-                    PassiveEffectCombatExecutionSystem.ApplyDamageMultiplier(
+                    (reflection ? incomingDamage : PassiveEffectCombatExecutionSystem.ApplyDamageMultiplier(
                         session,
                         passiveContext,
-                        incomingDamage)));
+                        incomingDamage))));
             explanation?.Add("equipment_outgoing",EquipmentEffectSystem.Outgoing(source,target,damageType,session));
             explanation?.Add("incoming_before_redirect",incomingDamage);
             incomingDamage=WarriorCombatSystem.ArmoredIncoming(source,target,incomingDamage,damageType,passiveContext?.SkillId,roll:1f);
+            var guardian=GuardianCombatSystem.IncomingMultiplier(session,source,target,damageType,guardianFirstHitUsed);
+            incomingDamage=Mathf.RoundToInt(incomingDamage*guardian);
+            if(guardian!=1f)explanation?.Add("Strażnik — ochrona",guardian);
             return incomingDamage;
         }
 
         private int CalculateRawBeforeTargetMitigation(CombatSession session,BattleUnit source,BattleUnit target,int raw,
             DamageType type,PassiveEffectCombatContext context)
         {
+            if(context?.IsPassiveReaction==true&&context.SkillId==GuardianCombatSystem.Counter)return Mathf.Max(0,raw);
             var value=raw*combatVariableSystem.GetOutgoingDamageMultiplier(source)
                 *combatVariableSystem.GetDungeonThemeDamageMultiplier(source?.Character,session.DungeonTheme)
                 *EquipmentEffectSystem.Outgoing(source,target,type,session)
@@ -690,7 +754,8 @@ namespace Godmist.Systems.Combat
 
         public static bool HasUniqueBuff(BattleUnit unit, UniqueBuffType buffType)
         {
-            return FindUniqueBuff(unit, buffType) != null;
+            return buffType==UniqueBuffType.GuaranteedCriticalHit&&ScoutCombatSystem.HasRollCritical(unit)
+                || FindUniqueBuff(unit, buffType) != null;
         }
 
         public static bool TryConsumeUniqueBuff(BattleUnit unit, UniqueBuffType buffType)

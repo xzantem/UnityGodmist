@@ -9,6 +9,16 @@ namespace Godmist.Views.UI.Workspace
     {
         internal static readonly IReadOnlyDictionary<string,string[]> Descriptions = new Dictionary<string,string[]>
         {
+            ["node.scout.assassin.t5_1"] = new[] { "Zmniejsza koszt Przewrotu w Przód do 40% maksymalnych punktów akcji." },
+            ["node.scout.assassin.t5_2"] = new[] { "Przemieszcza o 1–2 pola. Zapewnia jeden krytyk w następnym ataku i jeden gwarantowany unik." },
+            ["node.scout.assassin.t5_3"] = new[] { "Daje 20% szansy na zamianę chybienia w trafienie.", "Daje 40% szansy na zamianę chybienia w trafienie." },
+            ["node.scout.assassin.t5_4"] = new[] { "Krytyczne trafienia mają 30% szansy na ogłuszenie na 1 turę." },
+            ["node.scout.assassin.t5_5"] = new[] { "Podwaja szansę Podcięcia Gardła przeciw ogłuszonym przeciwnikom." },
+            ["node.scout.blade_dancer.t5_1"] = new[] { "Przez 3 pulsy próbuje zatruć wrogów w promieniu 2: 70% szansy, 40% średniego ataku na turę przez 3 tury." },
+            ["node.scout.blade_dancer.t5_2"] = new[] { "Każdy odzyskany sztylet zwiększa obrażenia następnego ataku o 8%, maksymalnie do 24%.", "Każdy odzyskany sztylet zwiększa obrażenia następnego ataku o 16%, maksymalnie do 48%.", "Każdy odzyskany sztylet zwiększa obrażenia następnego ataku o 25%, maksymalnie do 75%." },
+            ["node.scout.blade_dancer.t5_3"] = new[] { "Zwiększa zasięg umiejętności dystansowych o 2 pola.", "Zwiększa zasięg umiejętności dystansowych o 4 pola." },
+            ["node.scout.blade_dancer.t5_4"] = new[] { "Zadaje losowe obrażenia fizyczne, w zwarciu 60%. Przeciw zatrutemu celowi: +40% obrażeń i przedłużenie zatrucia o 1 turę po trafieniu." },
+            ["node.scout.blade_dancer.t5_5"] = new[] { "Zwiększa maksymalną liczbę sztyletów o 2." },
             ["node.warrior.man_at_arms.t1_1"] = new[] { "Zwiększa obronę fizyczną o 15%.", "Zwiększa obronę fizyczną o 25%.", "Zwiększa obronę fizyczną o 40%." },
             ["node.warrior.man_at_arms.t1_2"] = new[] { "Zapewnia na 5 tur tarczę równą 20% maksymalnego zdrowia." },
             ["node.warrior.man_at_arms.t1_3"] = new[] { "Zwiększa siłę tarczy Postawy Defensywnej o 10%." },
@@ -179,6 +189,11 @@ namespace Godmist.Views.UI.Workspace
             ["node.warrior.commander.furious_rising"] = new[] { "Uniknięcie ogłuszenia dzięki Niezłomności zadaje atakującemu obrażenia magiczne równe 3% jego maksymalnego zdrowia, z szansą krytyczną zwiększoną o 10 pp.", "Uniknięcie ogłuszenia dzięki Niezłomności zadaje atakującemu obrażenia magiczne równe 7% jego maksymalnego zdrowia, z szansą krytyczną zwiększoną o 10 pp." },
         };
         internal static string ForRank(string id,int rank)
-            => Descriptions.TryGetValue(id,out var values) ? values[Mathf.Clamp(rank-1,0,values.Length-1)] : null;
+        {
+            var values=RankCopies(id);
+            return values.Length>0 ? values[Mathf.Clamp(rank-1,0,values.Length-1)] : null;
+        }
+        internal static string[] RankCopies(string id)
+            => Descriptions.TryGetValue(id,out var values) ? values : GuardianTalentCopy.RankCopies(id);
     }
 }

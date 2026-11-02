@@ -919,6 +919,8 @@ namespace Godmist.Systems.Combat
         {
             if(unit!=null)unit.WarriorState.Session=session;
             ScoutCombatSystem.TurnStart(unit);
+            GuardianCombatSystem.TurnStart(unit);
+            ScoutCombatSystem.Tier5TurnStart(session,unit,this);
             WarriorCombatSystem.TurnStart(unit);
             MageCombatSystem.TurnStart(session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
             if(unit?.Character!=null)PaladinCombatSystem.TurnStart(session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
@@ -949,6 +951,7 @@ namespace Godmist.Systems.Combat
                 }
             }
             ScoutCombatSystem.TurnEnd(unit);
+            GuardianCombatSystem.TurnEnd(unit);
             WarriorCombatSystem.TurnEnd(unit);
             MageCombatSystem.TurnEnd(unit);
             unit?.AdvanceStatusTolerances();
@@ -1157,7 +1160,7 @@ namespace Godmist.Systems.Combat
         {
             if (target?.Character == null || string.IsNullOrWhiteSpace(statusId)) return 0f;
 
-            var chance = CalculateSourceStatusChance(source,statusId,baseChance);
+            var chance = CalculateSourceStatusChance(source,statusId,GuardianCombatSystem.StatusBaseChance(target,statusId,baseChance));
             var naturalResistance = GetResistance(target, statusId, includeTolerance: false, additionalResistanceModifier);
             var naturalChance = CalculateEffectChance(chance, naturalResistance);
             var tolerance = target.GetStatusTolerance(statusId);

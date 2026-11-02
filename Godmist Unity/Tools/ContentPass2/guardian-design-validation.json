@@ -1,0 +1,66 @@
+{
+  "card": "CP2-08",
+  "version": 6,
+  "status": "READY_FOR_SMOKE",
+  "kind": "design validation only",
+  "approved_decisions": {
+    "date": "2026-11-02",
+    "direction": "mobile team defender as design basis",
+    "global_passive": "+0.5% physical/magical defense per SP only",
+    "dancing_step": "free step during own turn, no immediate reactive movement",
+    "full_tree_active_count": 4,
+    "capstone": "active T7; remove Kontuzjowanie"
+  },
+  "planning_checks": {
+    "nodes_full_tree": 29,
+    "ranks_full_tree": 50,
+    "nodes_T1_T5": 25,
+    "ranks_T1_T5": 44,
+    "active_skills_full_T1_T7": 4,
+    "active_skills_T1_T5": 3,
+    "active_skills_T6_T7": 1,
+    "active_slots": [
+      "t1_3",
+      "t1_4",
+      "t5_4",
+      "t7_3"
+    ],
+    "dependency_edges": 17,
+    "max_outgoing_edges": 2,
+    "direct_shield_dependents": 1,
+    "transitive_shield_dependents": [
+      "t2_3",
+      "t3_3"
+    ],
+    "long_edges": 0,
+    "prerequisites_and_tier_sp": "PASS",
+    "build_totals": [
+      {
+        "guardian": 30,
+        "assassin": 10
+      },
+      {
+        "guardian": 21,
+        "blade_dancer": 19
+      }
+    ],
+    "shieldless_build": "21 Guardian +19 Blade Dancer; includes ground knife protection, no shield branch",
+    "capstone_without_shield_or_all_T6": "PASS;31 SP example",
+    "full_tree_max_build": {
+      "guardian": 50
+    },
+    "full_active_skill_budget": "PASS;exactly4",
+    "runtime_tests": "NOT RUN;design only",
+    "crossing_edges_at_authored_grid_centres": 0,
+    "retaliation_upgrades": "Szybki Odwet -> Odepchnięcie and Przypływ Adrenaliny, parallel; no forced resource upgrade",
+    "preview_rank_presentation": "Standard Next/Current; no preview-only all-rank blocks",
+    "T1_columns": {
+      "Czujność": 1,
+      "Refleks": 2
+    }
+  },
+  "spec_sha256": "c2f8d8f3c7405f9cabd8bc568dcae4aa198614d5d89b4454817003e4b7293d89",
+  "proposal_sha256": "0212b40c398487e3df098f31e6fd4378867f875a0035f634821683e4c03a9353",
+  "workbook_sha256_unchanged": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
+  "runtime_tests": "Preview/progression/UI PASS; combat mechanics NOT IMPLEMENTED"
+}

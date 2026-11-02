@@ -42,6 +42,12 @@ namespace Godmist.Views.UI
 
         public static string IconSource(string id) => Key(id) switch
         {
+            GuardianCombatSystem.FreeStepMarker=>"node.scout.guardian.t2_2",
+            GuardianCombatSystem.SureStep=>"node.scout.guardian.t2_1",
+            "scout.guardian.front"=>"node.scout.guardian.t3_3",
+            ScoutCombatSystem.RollCritical or "scout.forward_roll.dodge"=>ScoutCombatSystem.ForwardRoll,
+            ScoutCombatSystem.RecoveredStrength=>"node.scout.blade_dancer.t5_2",
+            ScoutCombatSystem.BottledVenom=>ScoutCombatSystem.BottledVenom,
             WarriorCombatSystem.DefensiveStance=>WarriorCombatSystem.DefensiveStance,
             WarriorCombatSystem.Prediction=>WarriorCombatSystem.Prediction,
             "warrior.man_at_arms.acquired"=>"node.warrior.man_at_arms.t3_4",
@@ -108,6 +114,16 @@ namespace Godmist.Views.UI
                         Line("Obrażenia otrzymywane od " + (group.Key ? "drużyny" : "przeciwników") + ": +" + Percent(bonus) + ".");
                     }
                     break;
+                case GuardianCombatSystem.FreeStepMarker:
+                    Line("Darmowe kroki: 1.");break;
+                case GuardianCombatSystem.CounterMarker when owner!=null:
+                    Line("Odbicie: "+Percent(1+.75f*GuardianCombatSystem.G(owner,"t5_5"))+". Pozostałe końce własnych tur: "+owner.GuardianState.CounterTurns+".");break;
+                case ScoutCombatSystem.RollCritical:
+                    Line("Gwarantowane krytyczne trafienia: 1.");break;
+                case ScoutCombatSystem.RecoveredStrength when owner!=null:
+                    Line("Ładunki: "+owner.ScoutState.RecoveredStacks+"/3. Obrażenia następnego ataku: +"+Percent(ScoutCombatSystem.RecoveredBonus(owner))+".");break;
+                case ScoutCombatSystem.BottledVenom when owner!=null:
+                    Line("Pozostałe pulsy: "+owner.ScoutState.VenomPulses+". Promień: 2.");break;
                 case "scout.embedded_knives" when owner != null:
                     foreach (var knives in owner.ScoutState.Knives.GroupBy(knife => new { knife.Owner, knife.BleedMultiplier }))
                         Line("Sztylety: " + knives.Count() + ". Wyjęcie: 90% bazowej szansy na Krwawienie " + Percent(knives.Key.BleedMultiplier) + " średniego ataku na turę przez 3 tury.");

@@ -603,6 +603,8 @@ namespace Godmist.Views.UI
                     return UiTerms.Present($"Zwiększa szansę krytyczną o {N(points*.2f)} pp i zadawane obrażenia w walce wręcz o {N(points*.5f)}%.", resource);
                 case Godmist.Systems.Combat.ScoutCombatSystem.BladeTree:
                     return UiTerms.Present($"Daje {points}% szansy na niezużycie sztyletów i zwiększa zadawane obrażenia od zatrucia o {points}%.", resource);
+                case Godmist.Systems.Combat.GuardianCombatSystem.Tree:
+                    return UiTerms.Present($"Zwiększa obronę fizyczną i magiczną o {N(points*.5f)}%.",resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Commander:
                     return UiTerms.Present($"Zwiększa szansę krytyczną o {N(points*.3f)} pp. Trafienia zadają dodatkowe obrażenia nieuchronne równe {N(points*.002f)}% zadanych obrażeń za każdy 1% ulepszenia broni.", resource);
                 case Godmist.Systems.Combat.WarriorCombatSystem.Brawler:

@@ -35,6 +35,9 @@ namespace Godmist.Systems.Combat
             var path = new List<GridPosition>();
             var visited = new HashSet<GridPosition> { unit.Position };
             var from = unit.Position;
+            int RouteCost(List<GridPosition> route) => CombatMovementSystem.CalculatePathCost(session, unit.Position,
+                GuardianCombatSystem.PaidSteps(unit), route, ScoutCombatSystem.MovementDiscount(unit), WarriorCombatSystem.FreeSteps(unit),
+                GuardianCombatSystem.HasFreeStep(unit)?1:0, unit);
             for (var step = 0; step < 2; step++)
             {
                 GridPosition? best = null; var bestDistance = -1; var bestCost = 0;
@@ -48,10 +51,9 @@ namespace Godmist.Systems.Combat
                         || !session.Grid.CanMoveBetween(from, candidate)
                         || SkillData.IsPointBlank(candidate.X - target.Position.X, candidate.Y - target.Position.Y)
                         || !CanUseRangedSkillAgainst(session, target, candidate, attacks)) continue;
-                    var cost = (unit.MovementStepsThisTurn + path.Count + 1
-                        + session.Grid.GetMovementSurcharge(from, candidate)) * ActionPointUnits.PerPoint;
-                    cost = PassiveEffectCombatExecutionSystem.ApplyMovementCost(session, unit, cost);
-                    if (cost <= 0 || cost > budget) continue;
+                    var nextPath = new List<GridPosition>(path) { candidate };
+                    var cost = RouteCost(nextPath) - RouteCost(path);
+                    if (cost < 0 || cost > budget) continue;
                     var distance = Math.Abs(candidate.X - target.Position.X) + Math.Abs(candidate.Y - target.Position.Y);
                     if (distance <= bestDistance) continue;
                     best = candidate; bestDistance = distance; bestCost = cost;

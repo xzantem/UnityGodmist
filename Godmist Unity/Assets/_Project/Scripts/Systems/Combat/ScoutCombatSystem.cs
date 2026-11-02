@@ -21,6 +21,8 @@ namespace Godmist.Systems.Combat
         internal static int RewardKnifeRecovery(BattleUnit owner, int recovered, CombatRecoverySystem recoverySystem)
         {
             if (recovered <= 0 || owner?.Character?.ResourcePool?.ResourceType != ResourceType.Momentum) return 0;
+            RecoveredKnives(owner,recovered);
+            GuardianCombatSystem.Recovered(owner,recovered);
             // A flat reward once per successful recovery, not once per knife.
             // Reuse normal recovery for the cap, gain blockers and feedback.
             return (recoverySystem ?? new CombatRecoverySystem()).RestoreResource(owner, KnifeRecoveryMomentum);

@@ -1,0 +1,565 @@
+{
+  "version": 6,
+  "scope": "production T1-T5; T6/T7 deferred",
+  "entries": [
+    {
+      "slot": "t1_1",
+      "id": "node.scout.guardian.t1_1",
+      "name": "Refleks",
+      "ranks": 2,
+      "requirements": [],
+      "effect": "Unik +8/16 jednostek statystyki; nie są to punkty procentowe końcowej szansy uniknięcia.",
+      "active": null,
+      "rationale": "Punkt wejścia do mobilnego obrońcy. Inwestycja w unik działa bez Osłony w Ruchu.",
+      "descriptions": [
+        "Zwiększa unik o 8.",
+        "Zwiększa unik o 16."
+      ],
+      "rules": "Unik +8/16 jednostek statystyki; nie są to punkty procentowe końcowej szansy uniknięcia.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 2,
+      "subject": "one silver alert eye with a narrow white motion streak",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one silver alert eye with a narrow white motion streak. Skill: Refleks. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t1_2",
+      "id": "node.scout.guardian.t1_2",
+      "name": "Czujność",
+      "ranks": 2,
+      "requirements": [],
+      "effect": "Pierwsze trafienie bezpośredniego ataku między początkami własnych tur zadaje o 10/20% mniej obrażeń. Pudło, unik i obrażenia okresowe nie zużywają ochrony; trafienie w tarczę ją zużywa. Redukcja mnoży się przez pozostałe redukcje.",
+      "active": null,
+      "rationale": "Jedno czytelne zabezpieczenie przed pierwszym trafieniem zastępuje kilka podobnych pasywów antykrytycznych.",
+      "descriptions": [
+        "Zmniejsza obrażenia pierwszego otrzymanego trafienia w turze o 10%.",
+        "Zmniejsza obrażenia pierwszego otrzymanego trafienia w turze o 20%."
+      ],
+      "rules": "Pierwsze trafienie bezpośredniego ataku między początkami własnych tur zadaje o 10/20% mniej obrażeń. Pudło, unik i obrażenia okresowe nie zużywają ochrony; trafienie w tarczę ją zużywa. Redukcja mnoży się przez pozostałe redukcje.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 1,
+      "subject": "one steel shield intercepting a heavy white blow",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one steel shield intercepting a heavy white blow. Skill: Czujność. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t1_3",
+      "id": "node.scout.guardian.t1_3",
+      "name": "Osłona w Ruchu",
+      "ranks": 1,
+      "requirements": [],
+      "effect": "Tarcza 15% maksymalnego zdrowia celu na 3 jego tury. Jeden żywy sojusznik lub rzucający; zasięg 4. Ta sama tarcza odświeżana, bez sumowania.",
+      "active": {
+        "impet": 35,
+        "ap_percent": 40,
+        "skill_id_candidate": "skill.scout.guardian.t1_3"
+      },
+      "rationale": "Opcjonalny aktywny filar tarcz. Bez niej można rozwijać ruch, reakcje, Prowokację i ochronę przy sztyletach.",
+      "descriptions": [
+        "Zapewnia na 3 tury tarczę równą 15% maksymalnego zdrowia celu."
+      ],
+      "rules": "Tarcza 15% maksymalnego zdrowia celu na 3 jego tury. Jeden żywy sojusznik lub rzucający; zasięg 4. Ta sama tarcza odświeżana, bez sumowania.",
+      "scope": "implemented T1-T5",
+      "target_header": "Zasięg: 4 (zasięgowy).\nCel: sojusznik lub rzucający.",
+      "column": 3,
+      "subject": "one golden protective dome over a leather scout shoulder",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one golden protective dome over a leather scout shoulder. Skill: Osłona w Ruchu. Opaque square background: quiet dark blue-green with restrained gold protective glow. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t1_4",
+      "id": "node.scout.guardian.t1_4",
+      "name": "Prowokacja",
+      "ranks": 1,
+      "requirements": [],
+      "effect": "90% bazowej szansy prowokacji na 3 tury; jeden wróg, zasięg 4; standardowa odporność na kontrolę. Bez obrażeń i kosztu noża.",
+      "active": {
+        "impet": 55,
+        "ap_percent": 70,
+        "skill_id_candidate": "skill.scout.guardian.t1_4"
+      },
+      "rationale": "Pozwala przejąć zagrożenie od słabszego członka drużyny i wykorzystać własną obronę.",
+      "descriptions": [
+        "Ma 90% szansy sprowokowania przeciwnika na 3 tury."
+      ],
+      "rules": "90% bazowej szansy prowokacji na 3 tury; jeden wróg, zasięg 4; standardowa odporność na kontrolę. Bez obrażeń i kosztu noża.",
+      "scope": "implemented T1-T5",
+      "target_header": "Zasięg: 4 (zasięgowy).\nCel: przeciwnik.",
+      "column": 4,
+      "subject": "one stern leather masked scout face calling a challenge with a muted blue pulse",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one stern leather masked scout face calling a challenge with a muted blue pulse. Skill: Prowokacja. Opaque square background: quiet dark muted blue control background. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t1_5",
+      "id": "node.scout.guardian.t1_5",
+      "name": "Odwrócenie",
+      "ranks": 2,
+      "requirements": [],
+      "effect": "Obrona magiczna +10/30%.",
+      "active": null,
+      "rationale": "Zapewnia podstawową ochronę przed magią również bez specjalizacji w magicznych unikach.",
+      "descriptions": [
+        "Zwiększa obronę magiczną o 10%.",
+        "Zwiększa obronę magiczną o 30%."
+      ],
+      "rules": "Obrona magiczna +10/30%.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 5,
+      "subject": "one steel buckler deflecting a violet spell",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one steel buckler deflecting a violet spell. Skill: Odwrócenie. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t2_1",
+      "id": "node.scout.guardian.t2_1",
+      "name": "Pewny Krok",
+      "ranks": 2,
+      "requirements": [],
+      "effect": "Pierwszy faktycznie wykonany płatny krok we własnej turze daje +4/8 uniku do początku następnej własnej tury. Bez kumulacji; darmowy krok, teleport i ruch wymuszony nie wyzwalają efektu.",
+      "active": null,
+      "rationale": "Zwykły ruch przygotowuje obronę i prowadzi do Odwetu, bez zależności od tarczy.",
+      "descriptions": [
+        "Pierwszy płatny krok w turze zwiększa unik o 4 do początku następnej własnej tury.",
+        "Pierwszy płatny krok w turze zwiększa unik o 8 do początku następnej własnej tury."
+      ],
+      "rules": "Pierwszy faktycznie wykonany płatny krok we własnej turze daje +4/8 uniku do początku następnej własnej tury. Bez kumulacji; darmowy krok, teleport i ruch wymuszony nie wyzwalają efektu.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 1,
+      "subject": "one leather boot stepping diagonally with white speed trails",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather boot stepping diagonally with white speed trails. Skill: Pewny Krok. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t2_2",
+      "id": "node.scout.guardian.t2_2",
+      "name": "Taneczny Krok",
+      "ranks": 1,
+      "requirements": [
+        "t1_1"
+      ],
+      "effect": "Po pierwszym udanym uniku między początkami własnych tur otrzymuje jeden darmowy zwykły krok do użycia we własnej turze, do końca następnej własnej tury. Bez kumulacji, generowania Impetu i zwiększania narastającego kosztu/serii płatnych kroków. Nie przerywa akcji przeciwnika.",
+      "active": null,
+      "rationale": "Przenosi nagrodę za unik do świadomej decyzji w swojej turze, bez przerywania akcji wroga.",
+      "descriptions": [
+        "Raz na turę udany unik zapewnia jeden darmowy krok."
+      ],
+      "rules": "Po pierwszym udanym uniku między początkami własnych tur otrzymuje jeden darmowy zwykły krok do użycia we własnej turze, do końca następnej własnej tury. Bez kumulacji, generowania Impetu i zwiększania narastającego kosztu/serii płatnych kroków. Nie przerywa akcji przeciwnika.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 2,
+      "subject": "one leather boot between two silver curved dodge trails",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather boot between two silver curved dodge trails. Skill: Taneczny Krok. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t2_3",
+      "id": "node.scout.guardian.t2_3",
+      "name": "Przedłużona Osłona",
+      "ranks": 2,
+      "requirements": [
+        "t1_3"
+      ],
+      "effect": "Bezpośrednia Osłona w Ruchu trwa o 1/2 tury celu dłużej, łącznie 4/5 tur. Bez wydłużania Wspólnego Frontu.",
+      "active": null,
+      "rationale": "Pozwala utrzymywać ochronę sojuszników mniejszą liczbą ponownych użyć, ale nie zwiększa wartości tarczy.",
+      "descriptions": [
+        "Wydłuża Osłonę w Ruchu do 4 tur celu.",
+        "Wydłuża Osłonę w Ruchu do 5 tur celu."
+      ],
+      "rules": "Bezpośrednia Osłona w Ruchu trwa o 1/2 tury celu dłużej, łącznie 4/5 tur. Bez wydłużania Wspólnego Frontu.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 3,
+      "subject": "one golden shield and a broad golden circular duration arc",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one golden shield and a broad golden circular duration arc. Skill: Przedłużona Osłona. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t2_4",
+      "id": "node.scout.guardian.t2_4",
+      "name": "Zaślepienie Wściekłością",
+      "ranks": 3,
+      "requirements": [
+        "t1_4"
+      ],
+      "effect": "Udana Prowokacja obniża celność umiejętności celu o 5/10/15 na czas prowokacji. Nie odejmuje pp od końcowej szansy trafienia.",
+      "active": null,
+      "rationale": "Prowokacja otrzymuje część defensywną. Pudło od obniżonej celności nadal nie jest automatycznie unikiem.",
+      "descriptions": [
+        "Prowokacja obniża celność umiejętności celu o 5 na czas jej działania.",
+        "Prowokacja obniża celność umiejętności celu o 10 na czas jej działania.",
+        "Prowokacja obniża celność umiejętności celu o 15 na czas jej działania."
+      ],
+      "rules": "Udana Prowokacja obniża celność umiejętności celu o 5/10/15 na czas prowokacji. Nie odejmuje pp od końcowej szansy trafienia.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 4,
+      "subject": "one furious enemy eye covered by a blue haze",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one furious enemy eye covered by a blue haze. Skill: Zaślepienie Wściekłością. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t2_5",
+      "id": "node.scout.guardian.t2_5",
+      "name": "Neutralizacja",
+      "ranks": 2,
+      "requirements": [
+        "t1_5"
+      ],
+      "effect": "Bazowa szansa otrzymania ogłuszenia, unieruchomienia, snu, paraliżu, prowokacji lub strachu −10/20 pp, przed standardową odpornością i tolerancją; minimum 0. Nie dotyczy obrażeń okresowych, debuffów statystyk ani zderzenia z przeszkodą.",
+      "active": null,
+      "rationale": "Utrzymanie możliwości ruchu i używania ochrony jest częścią roli obrońcy.",
+      "descriptions": [
+        "Zmniejsza bazową szansę otrzymania efektów kontroli o 10 pp.",
+        "Zmniejsza bazową szansę otrzymania efektów kontroli o 20 pp."
+      ],
+      "rules": "Bazowa szansa otrzymania ogłuszenia, unieruchomienia, snu, paraliżu, prowokacji lub strachu −10/20 pp, przed standardową odpornością i tolerancją; minimum 0. Nie dotyczy obrażeń okresowych, debuffów statystyk ani zderzenia z przeszkodą.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 5,
+      "subject": "one leather gauntlet breaking a single thick blue chain",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather gauntlet breaking a single thick blue chain. Skill: Neutralizacja. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t3_1",
+      "id": "node.scout.guardian.t3_1",
+      "name": "Szybki Odwet",
+      "ranks": 2,
+      "requirements": [
+        "t2_1"
+      ],
+      "effect": "Po pierwszym uniku między początkami własnych tur może wykonać reakcję Rzutem Sztyletem w żywego atakującego: 40/70% zwykłych obrażeń, 0 PA i 0 Impetu, rzeczywisty koszt noża według dystansu; standardowe trafienie, krytyk i zasięg. Brak noża poza zwarciem albo brak linii widzenia/zasięgu oznacza brak reakcji, bez długu na później.",
+      "active": null,
+      "rationale": "Daje ograniczoną ofensywną nagrodę za obronę, zamiast zastępować własne ataki.",
+      "descriptions": [
+        "Raz na turę po uniku wykonuje Rzut Sztyletem za 40% normalnych obrażeń.",
+        "Raz na turę po uniku wykonuje Rzut Sztyletem za 70% normalnych obrażeń."
+      ],
+      "rules": "Po pierwszym uniku między początkami własnych tur może wykonać reakcję Rzutem Sztyletem w żywego atakującego: 40/70% zwykłych obrażeń, 0 PA i 0 Impetu, rzeczywisty koszt noża według dystansu; standardowe trafienie, krytyk i zasięg. Brak noża poza zwarciem albo brak linii widzenia/zasięgu oznacza brak reakcji, bez długu na później.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 1,
+      "subject": "one silver throwing dagger arcing back after a white dodge streak",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one silver throwing dagger arcing back after a white dodge streak. Skill: Szybki Odwet. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t3_2",
+      "id": "node.scout.guardian.t3_2",
+      "name": "Swobodny Ruch",
+      "ranks": 1,
+      "requirements": [
+        "t2_2"
+      ],
+      "descriptions": [
+        "Odzyskanie własnego sztyletu zapewnia darmowy Taneczny Krok, raz na turę."
+      ],
+      "rules": "Udany odzysk co najmniej jednego własnego sztyletu może przyznać darmowy krok bez wcześniejszego uniku. Odzysk z ziemi, Linką z Hakiem lub z przeciwnika. Wspólny limit z Tanecznym Krokiem: jedno przyznanie między początkami własnych tur, bez kumulacji; zużycie kroku nie odnawia limitu. Krok nie generuje Impetu, nie zwiększa numeru płatnego kroku i respektuje przeszkody oraz unieruchomienie. Wygasa do końca następnej własnej tury.",
+      "rationale": "Proaktywna mobilność wynika z używania sztyletów, a nie z rzucania Osłony.",
+      "active": null,
+      "effect": "Udany odzysk co najmniej jednego własnego sztyletu może przyznać darmowy krok bez wcześniejszego uniku. Odzysk z ziemi, Linką z Hakiem lub z przeciwnika. Wspólny limit z Tanecznym Krokiem: jedno przyznanie między początkami własnych tur, bez kumulacji; zużycie kroku nie odnawia limitu. Krok nie generuje Impetu, nie zwiększa numeru płatnego kroku i respektuje przeszkody oraz unieruchomienie. Wygasa do końca następnej własnej tury.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 2,
+      "subject": "one leather gloved hand retrieving a silver dagger from dark earth",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather gloved hand retrieving a silver dagger from dark earth. Skill: Swobodny Ruch. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t3_3",
+      "id": "node.scout.guardian.t3_3",
+      "name": "Wspólny Front",
+      "ranks": 1,
+      "requirements": [
+        "t2_3"
+      ],
+      "effect": "Osłona w Ruchu przyznana innemu sojusznikowi daje Strażnikowi osobną tarczę równą 50% rzeczywiście przyznanej osłony, maksymalnie 10% własnego maksymalnego zdrowia, na 3 własne tury. Ten sam efekt odświeża się bez sumowania. Użycie na sobie i wtórna tarcza nie uruchamiają kolejnego efektu.",
+      "active": null,
+      "rationale": "Drugie i ostatnie ulepszenie Osłony zamyka krótki, pionowy łańcuch. Pozostałe gałęzie nie wymagają tego talentu.",
+      "descriptions": [
+        "Osłonięcie innego sojusznika daje na 3 tury własną tarczę równą 50% jego osłony, do 10% własnego maksymalnego zdrowia."
+      ],
+      "rules": "Osłona w Ruchu przyznana innemu sojusznikowi daje Strażnikowi osobną tarczę równą 50% rzeczywiście przyznanej osłony, maksymalnie 10% własnego maksymalnego zdrowia, na 3 własne tury. Ten sam efekt odświeża się bez sumowania. Użycie na sobie i wtórna tarcza nie uruchamiają kolejnego efektu.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 3,
+      "subject": "two broad golden protective shields facing outward",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: two broad golden protective shields facing outward. Skill: Wspólny Front. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t3_4",
+      "id": "node.scout.guardian.t3_4",
+      "name": "Nieustępliwość",
+      "ranks": 2,
+      "requirements": [
+        "t2_4"
+      ],
+      "effect": "Bezpośrednie ataki przeciwnika aktualnie objętego własną Prowokacją zadają Strażnikowi o 10/20% mniej obrażeń. Mnożnik redukcji, bez wpływu na obrażeń okresowych lub ataki w innych sojuszników.",
+      "active": null,
+      "rationale": "Wzmacnia świadome przejęcie zagrożenia zamiast tworzyć kolejną umiejętność kontroli.",
+      "descriptions": [
+        "Zmniejsza bezpośrednie obrażenia otrzymywane od sprowokowanych przeciwników o 10%.",
+        "Zmniejsza bezpośrednie obrażenia otrzymywane od sprowokowanych przeciwników o 20%."
+      ],
+      "rules": "Bezpośrednie ataki przeciwnika aktualnie objętego własną Prowokacją zadają Strażnikowi o 10/20% mniej obrażeń. Mnożnik redukcji, bez wpływu na obrażeń okresowych lub ataki w innych sojuszników.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 4,
+      "subject": "one leather-armored shoulder standing against an enemy blade",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather-armored shoulder standing against an enemy blade. Skill: Nieustępliwość. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t3_5",
+      "id": "node.scout.guardian.t3_5",
+      "name": "Blokada Zaklęcia",
+      "ranks": 1,
+      "requirements": [
+        "t2_5"
+      ],
+      "effect": "Bezpośredni atak magiczny rozstrzyga szansę trafienia standardową formułą, ale z połową aktualnego uniku Strażnika; dotychczasowy magiczny atak bez takiego talentu nadal nie dostaje nowego testu celności. Nie unika obrażeń okresowych ani obrażeń nieuchronnych.",
+      "active": null,
+      "rationale": "Pozwala inwestycji w unik pracować również przeciw magii, ale ze zmniejszoną skutecznością.",
+      "descriptions": [
+        "Pozwala unikać bezpośrednich ataków magicznych z wykorzystaniem połowy aktualnego uniku."
+      ],
+      "rules": "Bezpośredni atak magiczny rozstrzyga szansę trafienia standardową formułą, ale z połową aktualnego uniku Strażnika; dotychczasowy magiczny atak bez takiego talentu nadal nie dostaje nowego testu celności. Nie unika obrażeń okresowych ani obrażeń nieuchronnych.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 5,
+      "subject": "one leather gauntlet sweeping a purple spell aside",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather gauntlet sweeping a purple spell aside. Skill: Blokada Zaklęcia. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t4_1",
+      "id": "node.scout.guardian.t4_1",
+      "name": "Odepchnięcie",
+      "ranks": 2,
+      "requirements": [
+        "t3_1"
+      ],
+      "effect": "Szybki Odwet, który trafił w zwarciu żywego wroga, próbuje odepchnąć go o 1/2 pola, bez dodatkowej opłaty i losowania dodatkowego efektu talentu. Zwykła odporność na przemieszczenie, geometria i reguły kolizji nadal działają. Szybki Odwet na dystansie nie pcha.",
+      "active": null,
+      "rationale": "Bezpośrednie ulepszenie Szybkiego Odwetu, równoległe do odzyskiwania Impetu. Nie wymaga Adrenaliny.",
+      "descriptions": [
+        "Szybki Odwet odpycha trafionego w zwarciu przeciwnika o 1 pole.",
+        "Szybki Odwet odpycha trafionego w zwarciu przeciwnika o 2 pola."
+      ],
+      "rules": "Szybki Odwet, który trafił w zwarciu żywego wroga, próbuje odepchnąć go o 1/2 pola, bez dodatkowej opłaty i losowania dodatkowego efektu talentu. Zwykła odporność na przemieszczenie, geometria i reguły kolizji nadal działają. Szybki Odwet na dystansie nie pcha.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 1,
+      "subject": "one leather boot forcefully pushing an enemy shield backward",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather boot forcefully pushing an enemy shield backward. Skill: Odepchnięcie. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t4_2",
+      "id": "node.scout.guardian.t4_2",
+      "name": "Przypływ Adrenaliny",
+      "ranks": 2,
+      "requirements": [
+        "t3_1"
+      ],
+      "effect": "Pierwszy udany unik między początkami własnych tur przywraca 6/10 Impetu. Zwrot stały, bez losowania, nie podlega połowieniu generacji ruchowej ponad 100.",
+      "active": null,
+      "rationale": "Alternatywna inwestycja w ekonomię zasobu po uniku; równoległa do Odepchnięcia, bez przymusu kupowania obu.",
+      "descriptions": [
+        "Raz na turę udany unik przywraca 6 Impetu.",
+        "Raz na turę udany unik przywraca 10 Impetu."
+      ],
+      "rules": "Pierwszy udany unik między początkami własnych tur przywraca 6/10 Impetu. Zwrot stały, bez losowania, nie podlega połowieniu generacji ruchowej ponad 100.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 2,
+      "subject": "one leather scout bracer and a strong bright green adrenaline spark",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather scout bracer and a strong bright green adrenaline spark. Skill: Przypływ Adrenaliny. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t4_3",
+      "id": "node.scout.guardian.t4_3",
+      "name": "Eskorta",
+      "ranks": 2,
+      "requirements": [],
+      "effect": "Wymaga innego żywego członka drużyny na jednym z czterech pól przyległych. Strażnik i żywi członkowie drużyny przylegli do niego otrzymują +5/10 uniku. Bez przywołań i klonów. Bonus zmienia się wraz z pozycją i znika po śmierci właściciela. Wielu Strażników nie sumuje tego samego bonusu; działa silniejszy.",
+      "active": null,
+      "rationale": "Ochrona przez ustawienie obok sojusznika jest niezależną alternatywą do tarcz.",
+      "descriptions": [
+        "Zapewnia sobie i przyległym sojusznikom +5 uniku, gdy obok stoi sojusznik.",
+        "Zapewnia sobie i przyległym sojusznikom +10 uniku, gdy obok stoi sojusznik."
+      ],
+      "rules": "Wymaga innego żywego członka drużyny na jednym z czterech pól przyległych. Strażnik i żywi członkowie drużyny przylegli do niego otrzymują +5/10 uniku. Bez przywołań i klonów. Bonus zmienia się wraz z pozycją i znika po śmierci właściciela. Wielu Strażników nie sumuje tego samego bonusu; działa silniejszy.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 3,
+      "subject": "two leather-armored scout shoulders under one silver protective arc",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: two leather-armored scout shoulders under one silver protective arc. Skill: Eskorta. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t4_4",
+      "id": "node.scout.guardian.t4_4",
+      "name": "Stanowczość",
+      "ranks": 2,
+      "requirements": [
+        "t3_4"
+      ],
+      "descriptions": [
+        "Nieudana Prowokacja zwraca 50% wydanego Impetu.",
+        "Nieudana Prowokacja zwraca 100% wydanego Impetu."
+      ],
+      "rules": "Gdy Prowokacja została poprawnie opłacona, ale nie nałożyła prowokacji z powodu nieudanej próby lub odporności celu, zwraca 50/100% rzeczywiście zapłaconego Impetu. Zwrot w dół do całej jednostki, bez zwrotu PA i bez przekraczania limitu zasobu. Udana Prowokacja nie zwraca kosztu. Anulowanie lub nieprawidłowy cel nie wyzwalają zwrotu.",
+      "rationale": "Ułatwia zarządzanie ryzykiem kontroli, bez dokładania kolejnej warstwy tarczy lub redukcji obrażeń.",
+      "active": null,
+      "effect": "Gdy Prowokacja została poprawnie opłacona, ale nie nałożyła prowokacji z powodu nieudanej próby lub odporności celu, zwraca 50/100% rzeczywiście zapłaconego Impetu. Zwrot w dół do całej jednostki, bez zwrotu PA i bez przekraczania limitu zasobu. Udana Prowokacja nie zwraca kosztu. Anulowanie lub nieprawidłowy cel nie wyzwalają zwrotu.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 4,
+      "subject": "one silver dagger and a restrained green circular returning arrow",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one silver dagger and a restrained green circular returning arrow. Skill: Stanowczość. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t4_5",
+      "id": "node.scout.guardian.t4_5",
+      "name": "Zasłonięcie",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Zmniejsza bezpośrednie obrażenia otrzymywane przez przyległych sojuszników o 10%, jeśli napastnik jest oddalony od nich o co najmniej 2 pola."
+      ],
+      "rules": "Chroni innych żywych członków drużyny na czterech polach przyległych do Strażnika. Odległość atakującego od chronionego celu co najmniej 2 pola, liczona poziomo i pionowo. Zmniejsza bezpośrednie obrażenia fizyczne i magiczne o 10%, bez wpływu na obrażenia okresowe. Nie chroni samego Strażnika. Mnoży się z innymi redukcjami; wiele źródeł Zasłonięcia nie sumuje się. Wymaga żywego właściciela.",
+      "rationale": "Pozwala chronić drużynę przed ostrzałem przez pozycję. Nie wymaga Prowokacji, tarczy ani dodatkowego przycisku.",
+      "active": null,
+      "effect": "Chroni innych żywych członków drużyny na czterech polach przyległych do Strażnika. Odległość atakującego od chronionego celu co najmniej 2 pola, liczona poziomo i pionowo. Zmniejsza bezpośrednie obrażenia fizyczne i magiczne o 10%, bez wpływu na obrażenia okresowe. Nie chroni samego Strażnika. Mnoży się z innymi redukcjami; wiele źródeł Zasłonięcia nie sumuje się. Wymaga żywego właściciela.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 5,
+      "subject": "one steel buckler shielding a leather shoulder from a distant arrow",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one steel buckler shielding a leather shoulder from a distant arrow. Skill: Zasłonięcie. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t5_1",
+      "id": "node.scout.guardian.t5_1",
+      "name": "Opanowanie",
+      "ranks": 2,
+      "requirements": [],
+      "effect": "Pierwsza aktywna umiejętność Strażnika we własnej turze kosztuje o 10/20% mniej Impetu. Koszt bazowy jest zaokrąglany w górę przed pozostałymi modyfikatorami. Nie zmniejsza PA. Zwykły atak, reakcja lub anulowana próba nie zużywają zniżki. Na drugiej randze koszty Osłony w Ruchu, Prowokacji i Kontrataku wynoszą odpowiednio 28, 44 i 56 Impetu.",
+      "active": null,
+      "rationale": "Oszczędzanie Impetu jest samodzielnym wyborem: zadziała również w buildzie Prowokacji i Kontrataku bez Osłony.",
+      "descriptions": [
+        "Pierwsza aktywna umiejętność Strażnika w turze kosztuje o 10% mniej Impetu.",
+        "Pierwsza aktywna umiejętność Strażnika w turze kosztuje o 20% mniej Impetu."
+      ],
+      "rules": "Pierwsza aktywna umiejętność Strażnika we własnej turze kosztuje o 10/20% mniej Impetu. Koszt bazowy jest zaokrąglany w górę przed pozostałymi modyfikatorami. Nie zmniejsza PA. Zwykły atak, reakcja lub anulowana próba nie zużywają zniżki. Na drugiej randze koszty Osłony w Ruchu, Prowokacji i Kontrataku wynoszą odpowiednio 28, 44 i 56 Impetu.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 1,
+      "subject": "one leather gloved hand holding a silver dagger steady and balanced",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one leather gloved hand holding a silver dagger steady and balanced. Skill: Opanowanie. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t5_2",
+      "id": "node.scout.guardian.t5_2",
+      "name": "Ochrona Sztyletu",
+      "ranks": 3,
+      "requirements": [],
+      "effect": "Strażnik i żywi członkowie drużyny na polu własnego leżącego sztyletu lub jednym z czterech pól przyległych otrzymują 5/8/10% mniej bezpośrednich obrażeń. Nie obejmuje obrażeń okresowych ani noża wbitego we wroga. Wiele noży i właścicieli nie sumuje tej premii; działa silniejsza. Właściciel musi żyć. Usunięcie noża lub zmiana pozycji odświeża obszar.",
+      "active": null,
+      "rationale": "Samodzielny filar późnej ochrony i ekonomii sztyletów. Dostępny po progu SP bez inwestowania w tarczę.",
+      "descriptions": [
+        "Zmniejsza bezpośrednie obrażenia otrzymywane przez siebie i sojuszników o 5% na polu własnego leżącego sztyletu i polach przyległych.",
+        "Zmniejsza bezpośrednie obrażenia otrzymywane przez siebie i sojuszników o 8% na polu własnego leżącego sztyletu i polach przyległych.",
+        "Zmniejsza bezpośrednie obrażenia otrzymywane przez siebie i sojuszników o 10% na polu własnego leżącego sztyletu i polach przyległych."
+      ],
+      "rules": "Strażnik i żywi członkowie drużyny na polu własnego leżącego sztyletu lub jednym z czterech pól przyległych otrzymują 5/8/10% mniej bezpośrednich obrażeń. Nie obejmuje obrażeń okresowych ani noża wbitego we wroga. Wiele noży i właścicieli nie sumuje tej premii; działa silniejsza. Właściciel musi żyć. Usunięcie noża lub zmiana pozycji odświeża obszar.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 2,
+      "subject": "one silver dagger planted point-down in dark earth with a restrained golden protection ring",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one silver dagger planted point-down in dark earth with a restrained golden protection ring. Skill: Ochrona Sztyletu. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t5_3",
+      "id": "node.scout.guardian.t5_3",
+      "name": "Zwarty Szyk",
+      "ranks": 2,
+      "requirements": [
+        "t4_3"
+      ],
+      "descriptions": [
+        "Obecność przyległego sojusznika zwiększa obronę fizyczną i magiczną o 10%.",
+        "Obecność przyległego sojusznika zwiększa obronę fizyczną i magiczną o 20%."
+      ],
+      "rules": "Gdy na jednym z czterech pól przyległych stoi inny żywy członek drużyny, własna obrona fizyczna i magiczna wzrastają o 10/20%. Nie zwiększa obron sojusznika. Nie skaluje się z liczbą sąsiadów, nie obejmuje przywołań i klonów. Przemieszczenie lub śmierć sąsiada aktualizuje warunek.",
+      "rationale": "Wspiera obrońcę pozostającego przy drużynie, tworząc krótką ścieżkę od Eskorty.",
+      "active": null,
+      "effect": "Gdy na jednym z czterech pól przyległych stoi inny żywy członek drużyny, własna obrona fizyczna i magiczna wzrastają o 10/20%. Nie zwiększa obron sojusznika. Nie skaluje się z liczbą sąsiadów, nie obejmuje przywołań i klonów. Przemieszczenie lub śmierć sąsiada aktualizuje warunek.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 3,
+      "subject": "two leather scout bracers held together in a compact defensive formation",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: two leather scout bracers held together in a compact defensive formation. Skill: Zwarty Szyk. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t5_4",
+      "id": "node.scout.guardian.t5_4",
+      "name": "Kontratak",
+      "ranks": 1,
+      "requirements": [],
+      "effect": "Przygotowanie trwa do końca następnej własnej tury. Zużywa się na pierwszej próbie bezpośredniego ataku przeciw Strażnikowi, także przy pudle lub uniku, raz na użycie umiejętności. Odbicie wykorzystuje wylosowaną wartość ataku po premiach napastnika, przed obroną i krytykiem. Zachowuje fizyczny lub magiczny typ obrażeń; podlega obronie i tarczom napastnika, samo nie krytuje. Nie zmniejsza otrzymanych obrażeń. Nie reaguje na obrażenia okresowe, samookaleczenie, odbicia ani same osłabienia. Nie tworzy kolejnych reakcji. Ponowne użycie odświeża przygotowanie, bez kumulacji.",
+      "active": {
+        "impet": 70,
+        "ap_percent": 40,
+        "skill_id_candidate": "skill.scout.guardian.t5_4"
+      },
+      "rationale": "Pozwala zaplanować kosztowną odpowiedź na przewidywany mocny atak, bez darmowych nieograniczonych kontrreakcji.",
+      "descriptions": [
+        "Do końca następnej własnej tury odbija 100% bazowej wartości następnego bezpośredniego ataku."
+      ],
+      "rules": "Przygotowanie trwa do końca następnej własnej tury. Zużywa się na pierwszej próbie bezpośredniego ataku przeciw Strażnikowi, także przy pudle lub uniku, raz na użycie umiejętności. Odbicie wykorzystuje wylosowaną wartość ataku po premiach napastnika, przed obroną i krytykiem. Zachowuje fizyczny lub magiczny typ obrażeń; podlega obronie i tarczom napastnika, samo nie krytuje. Nie zmniejsza otrzymanych obrażeń. Nie reaguje na obrażenia okresowe, samookaleczenie, odbicia ani same osłabienia. Nie tworzy kolejnych reakcji. Ponowne użycie odświeża przygotowanie, bez kumulacji.",
+      "scope": "implemented T1-T5",
+      "target_header": "Cel: rzucający.",
+      "column": 4,
+      "subject": "one silver dagger intercepting another sword with a curved silver returning arc",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one silver dagger intercepting another sword with a curved silver returning arc. Skill: Kontratak. Opaque square background: quiet dark blue-violet with silver physical contact streak. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    },
+    {
+      "slot": "t5_5",
+      "id": "node.scout.guardian.t5_5",
+      "name": "Koncentracja",
+      "ranks": 2,
+      "requirements": [
+        "t5_4"
+      ],
+      "effect": "Kontratak odbija +75/150 pp (łącznie 175/250% wartości bazowej). Pozostałe warunki i jednorazowe zużycie bez zmian.",
+      "active": null,
+      "rationale": "Daje opcjonalną specjalizację w odbiciu i znaczący wydatek punktów poza gałęzią tarcz.",
+      "descriptions": [
+        "Zwiększa odbicie Kontrataku do 175% wartości bazowej.",
+        "Zwiększa odbicie Kontrataku do 250% wartości bazowej."
+      ],
+      "rules": "Kontratak odbija +75/150 pp (łącznie 175/250% wartości bazowej). Pozostałe warunki i jednorazowe zużycie bez zmian.",
+      "scope": "implemented T1-T5",
+      "target_header": "",
+      "column": 5,
+      "subject": "one narrow focused scout eye reflected along a silver dagger blade",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist RPG skill icon SOURCE reduced full-canvas nearest-neighbor to32x32. Reference is STYLE ONLY: chunky pixel clusters, broad silver steel facets, thick near-black outlines. Do not copy its sword or red background. Subject: one narrow focused scout eye reflected along a silver dagger blade. Skill: Koncentracja. Opaque square background: quiet dark muted forest olive #253023 with broad lighter #3c4b34 planes. Foreground materials retain silver steel, brown leather; white physical motion, blue control, gold protection. One or two large clean silhouettes, highly readable at32pixels. Crisp stepped pixel edges. No border, frame, text, letters, numbers, watermark, gradients, microtexture, tiny particles or painterly blur. One icon only.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\GuardianIcons20261102\\references\\cut-source.png"
+    }
+  ]
+}

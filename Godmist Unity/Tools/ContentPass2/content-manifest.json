@@ -3,7 +3,7 @@
   "source_workbook": "design/content_pass_2.xlsx",
   "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
   "natural_contract_sha256": "9dae030880234ac08233a038bc37e5cc16950cd967a812413b400c0ee6345cea",
-  "baseline_commit": "c4ec11a394da6de2eb0f983ab0253960954edd31",
+  "baseline_commit": "3f7db1797b660a3f34ae2897e09e44d3553c78f8",
   "runtime_changed": false,
   "entities": [
     {
@@ -42452,7 +42452,7 @@
     "CharacterDefinitions": 31,
     "CharacterClasses": 9,
     "EquipmentPartDefinitions": 219,
-    "SkillDefinitions": 140,
+    "SkillDefinitions": 143,
     "DungeonDefinitions": 16
   }
 }

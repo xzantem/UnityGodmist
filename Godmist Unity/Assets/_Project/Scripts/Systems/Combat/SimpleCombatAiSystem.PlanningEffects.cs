@@ -48,6 +48,7 @@ namespace Godmist.Systems.Combat
             caster.CurrentActionPoints -= price;
             var previousResource = caster.Character.ResourcePool?.CurrentValue ?? 0;
             caster.Character.ResourcePool?.Drain(resource);
+            GuardianCombatSystem.Paid(caster,skill,resource);
             AdjustProjectedMomentumSpeed(caster, previousResource);
             if (PassiveEffectCombatExecutionSystem.IsOffensiveSkill(skill) && skill.SkillId != WarriorDischargeRules.SkillId) ProjectResourceGain(caster, 0, true);
             var utility = -ActionPointUnits.ToPoints(price) * Ai(GameDefineIds.AiActionCostPenaltyPerPoint, .35f)
@@ -67,6 +68,29 @@ namespace Godmist.Systems.Combat
                     var chance = EffectPrerequisiteChance(next, skill, effect, caster, target) * requiredChance;
                     if (chance <= 0f) continue;
                     var amount = 0f;
+                    if(skill.SkillId==GuardianCombatSystem.Counter)
+                    {
+                        if(caster.GuardianState.CounterTurns==0)
+                            utility+=IncomingThreat(live,actor,actor)*(1+.75f*GuardianCombatSystem.G(caster,"t5_5"));
+                        caster.GuardianState.CounterTurns=2;next.Terminal=true;continue;
+                    }
+                    if(skill.SkillId==GuardianCombatSystem.Shield)
+                    {
+                        var shield=GuardianCombatSystem.ShieldAmount(target);
+                        var existing=target.Character.ShieldPool.Layers.Where(l=>l.SourceId==GuardianCombatSystem.Shield).Sum(l=>l.CurrentValue);
+                        var observed=live.Units[next.World.Units.IndexOf(target)];
+                        utility+=Mathf.Min(Math.Max(0,shield-existing),IncomingThreat(live,actor,observed)*2);
+                        target.Character.ShieldPool.RemoveLayersBySourceId(GuardianCombatSystem.Shield);
+                        target.Character.ShieldPool.AddLayer(shield,GuardianCombatSystem.Shield,3+GuardianCombatSystem.G(caster,"t2_3"));
+                        if(caster!=target&&GuardianCombatSystem.G(caster,"t3_3")>0)
+                        {
+                            var shared=Math.Min(Mathf.FloorToInt(caster.Character.MaximumHealth*.1f),Mathf.FloorToInt(shield*.5f));
+                            caster.Character.ShieldPool.RemoveLayersBySourceId("scout.guardian.front");caster.Character.ShieldPool.AddLayer(shared,"scout.guardian.front",3);
+                        }
+                        continue;
+                    }
+                    if(skill.SkillId==ScoutCombatSystem.BottledVenom)
+                    {utility+=40f*next.World.Units.Count(t=>t.IsPlayerSide!=caster.IsPlayerSide&&t.Character.CurrentHealth>0&&GetManhattanDistance(t.Position,caster.Position)<=2);next.Terminal=true;continue;}
                     if(skill.SkillId==WarriorCombatSystem.EnergyRenewal)
                     {
                         var healing=CombatSkillPreviewCalculator.CalculateHealing(caster,target,skill)??0;
@@ -90,6 +114,9 @@ namespace Godmist.Systems.Combat
                             amount = DamageUtility(next.World, previewCaster, target, skill, skill.Effects[index],live,actor);
                             var healthLoss = target.Character.ShieldPool?.AbsorbDamage(Mathf.RoundToInt(expected)) ?? Mathf.RoundToInt(expected);
                             caster.WarriorState.MitigatedBank=0;
+                            caster.ScoutState.RecoveredStacks=0;
+                            new PassiveEffectLifecycleSystem().RemoveEffect(caster.Character,ScoutCombatSystem.RecoveredStrength);
+                            new PassiveEffectLifecycleSystem().RemoveEffect(caster.Character,ScoutCombatSystem.RollCritical);
                             var certainKill = preview.HitChance >= 1f && preview.Damage.Minimum >= target.Character.CurrentHealth
                                 + shieldBefore;
                             target.Character.CurrentHealth = Mathf.Max(certainKill ? 0 : 1, target.Character.CurrentHealth - healthLoss);
@@ -218,6 +245,12 @@ namespace Godmist.Systems.Combat
                             next.StatusConfidence.Remove((next.World.Units.IndexOf(target), effect.StatusId));
                             break;
                         case EffectType.ApplyUniqueBuff:
+                            if(skill.SkillId==ScoutCombatSystem.ForwardRoll)
+                            {
+                                if(effect.UniqueBuffType==UniqueBuffType.GuaranteedCriticalHit)ScoutCombatSystem.GrantRollCritical(caster);
+                                else ScoutCombatSystem.GrantRollDodge(caster);
+                                amount=Ai(GameDefineIds.AiModifyBonus,40f);break;
+                            }
                             if (!CombatDamageSystem.HasUniqueBuff(target, effect.UniqueBuffType))
                             {
                                 target.Character.PassiveEffects.Add(new PassiveEffectRuntime
@@ -319,7 +352,7 @@ namespace Godmist.Systems.Combat
             if (pool == null || ResourceRuleSystem.IsResourceGainBlocked(caster) || !planningResourceRules.TryGetRule(pool.ResourceType, out var rule)) return;
             var before = pool.CurrentValue;
             if (offensive) rule.ProcessOffensiveSkillUsed(pool);
-            else if (rule is MomentumResourceRule momentum) momentum.ProcessMovementSteps(pool, caster.MovementStepsThisTurn);
+            else if (rule is MomentumResourceRule momentum) momentum.ProcessMovementSteps(pool, GuardianCombatSystem.PaidSteps(caster));
             else rule.ProcessMovement(pool, movementCost);
             AdjustProjectedMomentumSpeed(caster, before);
         }

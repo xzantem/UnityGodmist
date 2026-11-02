@@ -14,6 +14,75 @@ namespace Godmist.Tests.EditMode
     {
         const BindingFlags Hidden=BindingFlags.Instance|BindingFlags.NonPublic;
 
+        [TestCase(false)][TestCase(true)]
+        public void FullTalentNameNeverFallsBackToBossSuffixWhenRepeatedOrExcluded(bool excluded)
+        {
+            var entry=new CombatTooltipGlossary.Entry{Id="node.scout.guardian.t3_1",Title="Szybki Odwet"};
+            var text=CombatTooltipGlossary.LinkifyWithEntries("Szybki Odwet. Szybki Odwet.",new[]{entry},excluded?entry.Id:null);
+            Assert.That(text,Does.Not.Contain("catacombs.skeleton_slayer.retaliation"));
+            if(excluded)Assert.That(text,Does.Not.Contain("<link="));
+            else Assert.That(text,Does.Contain("<link=\"node.scout.guardian.t3_1\""));
+        }
+
+        [TestCase("Refleks", "t1_1")]
+        [TestCase("Czujność", "t1_2")]
+        [TestCase("Osłona w Ruchu", "t1_3")]
+        [TestCase("Prowokacja", "t1_4")]
+        [TestCase("Odwrócenie", "t1_5")]
+        [TestCase("Pewny Krok", "t2_1")]
+        [TestCase("Taneczny Krok", "t2_2")]
+        [TestCase("Przedłużona Osłona", "t2_3")]
+        [TestCase("Zaślepienie Wściekłością", "t2_4")]
+        [TestCase("Neutralizacja", "t2_5")]
+        [TestCase("Swobodny Ruch", "t3_2")]
+        [TestCase("Wspólny Front", "t3_3")]
+        [TestCase("Nieustępliwość", "t3_4")]
+        [TestCase("Blokada Zaklęcia", "t3_5")]
+        [TestCase("Odepchnięcie", "t4_1")]
+        [TestCase("Przypływ Adrenaliny", "t4_2")]
+        [TestCase("Eskorta", "t4_3")]
+        [TestCase("Stanowczość", "t4_4")]
+        [TestCase("Zasłonięcie", "t4_5")]
+        [TestCase("Opanowanie", "t5_1")]
+        [TestCase("Ochrona Sztyletu", "t5_2")]
+        [TestCase("Zwarty Szyk", "t5_3")]
+        [TestCase("Kontratak", "t5_4")]
+        [TestCase("Koncentracja", "t5_5")]
+        [TestCase("Szybki Odwet", "t3_1")]
+        [TestCase("Szybkiego Odwetu", "t3_1")]
+        [TestCase("Szybkim Odwetem", "t3_1")]
+        [TestCase("Wspólnego Frontu", "t3_3")]
+        [TestCase("Osłony w Ruchu", "t1_3")]
+        [TestCase("Tanecznego Kroku", "t2_2")]
+        [TestCase("Kontrataku", "t5_4")]
+        public void GuardianReferencesResolveRealTalentIconAndCopyThroughFinalGlossaryPass(string name,string slot)
+        {
+            var definition=UnityEditor.AssetDatabase.LoadAssetAtPath<Godmist.Data.Characters.CharacterDefinition>("Assets/_Project/ScriptableObjects/Characters/CD_Jerzy.asset");
+            var classData=UnityEditor.AssetDatabase.LoadAssetAtPath<Godmist.Data.Characters.CharacterClassData>("Assets/_Project/ScriptableObjects/Classes/CCD_Scout.asset");
+            var character=new Godmist.Systems.Characters.CharacterInstanceFactory().Create(definition,classData,1);
+            var go=new GameObject("Guardian references");
+            try
+            {
+                var tooltip=go.AddComponent<UIWorkspaceTooltipView>();
+                var linked=tooltip.LinkGuardianTalentReferences(name+". "+name+".",character);
+                var final=(string)typeof(UIWorkspaceTooltipView).GetMethod("LinkifyGlossary",Hidden).Invoke(tooltip,new object[]{linked});
+                Assert.That(final,Does.Not.Contain("catacombs.skeleton_slayer.retaliation"));
+                Assert.That(final,Does.Contain("<link=\"node.scout.guardian."+slot+"\""));
+                var registry=(Dictionary<string,CombatTooltipGlossary.Entry>)typeof(UIWorkspaceTooltipView).GetField("calculationEntries",Hidden).GetValue(tooltip);
+                var args=new object[]{"node.scout.guardian."+slot,null};
+                Assert.That(typeof(UIWorkspaceTooltipView).GetMethod("TryGetGlossaryEntry",Hidden).Invoke(tooltip,args),Is.True);
+                var entry=(CombatTooltipGlossary.Entry)args[1];
+                var actualNode=classData.SkillTrees.Find(t=>t.Id=="tree.scout.guardian").Nodes.Find(n=>n.Id==entry.Id);
+                Assert.That(entry.Title,Is.EqualTo(actualNode.DisplayName));Assert.That(entry.Icon,Is.SameAs(actualNode.Icon));
+                Assert.That(entry.Icon,Is.Not.Null);
+                Assert.That(entry.Description,Does.Contain(actualNode.GrantedSkill==null?"Następne:":"Koszt:"));
+                Assert.That(entry.Description,Does.Not.Contain("Nieugiętą Obronę"));
+                var boss=(string)typeof(UIWorkspaceTooltipView).GetMethod("LinkifyGlossary",Hidden).Invoke(tooltip,new object[]{"Odwet"});
+                Assert.That(boss,Does.Contain("catacombs.skeleton_slayer.retaliation"),"Bare boss name must retain its global meaning.");
+            }
+            finally{Object.DestroyImmediate(go);}
+        }
+
         [Test]
         public void FallbackLookupCoversSlowAndClassResourceTerms()
         {

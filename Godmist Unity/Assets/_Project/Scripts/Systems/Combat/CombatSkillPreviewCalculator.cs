@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Core.Utilities;
 using Godmist.Core.Constants;
@@ -265,6 +266,8 @@ namespace Godmist.Systems.Combat
         {
             if(skill?.Effects==null || caster?.Character==null || target?.Character==null)return 0f;
             var total=0f;
+            if(ScoutCombatSystem.HasRollCritical(caster))
+                return ExpectedRollDamage(session,caster,target,skill,targetModeIndex,singleEffect);
             foreach(var authored in skill.Effects)
             {
                 if(authored?.EffectType!=EffectType.DealDamage || authored.TargetModeIndex!=targetModeIndex
@@ -286,6 +289,33 @@ namespace Godmist.Systems.Combat
                 total+=(normal*(1f-crit)+(crit>0?WithProc(true)*crit:0))*effect.ExpectedHitCount/effect.DamageHitCount;
             }
             return total;
+        }
+
+        private static float ExpectedRollDamage(CombatSession session,BattleUnit caster,BattleUnit target,SkillData skill,int mode,SkillEffectData single)
+        {
+            float result=0,unused=1;bool opening=true;
+            foreach(var authored in skill.Effects)
+            {
+                if(authored.EffectType!=EffectType.DealDamage||authored.TargetModeIndex!=mode||single!=null&&single!=authored)continue;
+                var effect=PassiveEffectCombatExecutionSystem.ResolveEffect(caster,skill,authored);
+                var guaranteed=CombatDamageSystem.PreviewCriticalChance(session,caster,target,skill,effect.DamageType);
+                var ordinary=CombatDamageSystem.PreviewCriticalChance(session,caster,target,skill,effect.DamageType,ignoreConsumedGuaranteedCritical:true);
+                for(var hit=0;hit<effect.MaximumHitCount;hit++)
+                {
+                    var occurs=hit<effect.DamageHitCount?1:effect.AdditionalHitChance;
+                    float Average(bool critical)
+                    {
+                        float Value(bool proc)
+                        {var preview=CalculateTargetPreviewInternal(caster,target,skill,mode,critical,authored,proc,true,true,opening);return (preview.Damage.Minimum+preview.Damage.Maximum)*.5f;}
+                        return Value(false)*(1-effect.BonusDamageMultiplierChance)+Value(true)*effect.BonusDamageMultiplierChance;
+                    }
+                    var contact=CalculateTargetPreviewInternal(caster,target,skill,mode,false,authored,false,true,true,opening).HitChance;
+                    var crit=unused*guaranteed+(1-unused)*ordinary;
+                    result+=occurs*contact*(Average(false)*(1-crit)+Average(true)*crit);
+                    unused*=1-occurs*contact;opening=false;
+                }
+            }
+            return result;
         }
 
         // Bounded convolution: occurrence, accuracy, crit and damage proc are independent
@@ -375,6 +405,8 @@ namespace Godmist.Systems.Combat
             var hasGuaranteedHit = true;
             var minimumProtectionUsed = target?.RibbedTunicProtectionUsed ?? false;
             var maximumProtectionUsed = minimumProtectionUsed;
+            var minimumGuardianHitUsed = target?.GuardianState.FirstHitUsed ?? false;
+            var maximumGuardianHitUsed = minimumGuardianHitUsed;
             var minimumShield = target?.Character?.ShieldPool?.TotalShield ?? 0;
             var maximumShield = minimumShield;
             var armoredBonusAvailable=openingDamage;
@@ -434,18 +466,21 @@ namespace Godmist.Systems.Combat
                         maximumRaw,
                         effect.DamageType,
                         effect.BonusPenetration, WarriorDischargeRules.DefenseIgnore(caster, skill, type: effect.DamageType));
-                    minimumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, minimumAfterDefense, isCritical, freezeMultiplier,skill);
-                    maximumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, maximumAfterDefense, isCritical, freezeMultiplier,skill);
+                    var criticalHit=isCritical&&(!ScoutCombatSystem.HasRollCritical(caster)||singleHitOnly||hitIndex==0&&armoredBonusAvailable);
+                    minimumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, minimumAfterDefense, criticalHit, freezeMultiplier,skill);
+                    maximumAfterDefense = CombatDamageSystem.ApplyPostDefenseBonuses(caster, target, maximumAfterDefense, criticalHit, freezeMultiplier,skill);
                     if (hitIndex < hitCount)
                     {
                         var amount = ApplyCurrentDamageModifiers(caster, target, minimumAfterDefense,
-                            skill, effect.DamageType, attackType, minimumProtectionUsed);
+                            skill, effect.DamageType, attackType, minimumProtectionUsed, guardianFirstHitUsed:minimumGuardianHitUsed);
+                        if (GuardianCombatSystem.Direct(effect.DamageType)) minimumGuardianHitUsed = true;
                         minimum += amount;
                         if (effect.DamageType == DamageType.Physical && amount > minimumShield) minimumProtectionUsed = true;
                         minimumShield = Mathf.Max(0, minimumShield - amount);
                     }
                     var maximumAmount = ApplyCurrentDamageModifiers(caster, target, maximumAfterDefense,
-                        skill, effect.DamageType, attackType, maximumProtectionUsed);
+                        skill, effect.DamageType, attackType, maximumProtectionUsed, guardianFirstHitUsed:maximumGuardianHitUsed);
+                    if (GuardianCombatSystem.Direct(effect.DamageType)) maximumGuardianHitUsed = true;
                     maximum += maximumAmount;
                     if (effect.DamageType == DamageType.Physical && maximumAmount > maximumShield) maximumProtectionUsed = true;
                     maximumShield = Mathf.Max(0, maximumShield - maximumAmount);
@@ -461,9 +496,12 @@ namespace Godmist.Systems.Combat
             }
 
             var hitChance = 1f;
-            if (hasDamage && !hasGuaranteedHit && !CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.Hawkeye))
+            if (hasDamage && (!hasGuaranteedHit || GuardianCombatSystem.G(target,"t3_5")>0&&skill.Effects.Any(e=>e.EffectType==EffectType.DealDamage&&e.DamageType==DamageType.Magical)) && !CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.Hawkeye))
             {
-                hitChance = CombatDamageSystem.CalculateSkillHitChance(caster, target, skill);
+                var direct=skill.Effects.Where(e=>e.EffectType==EffectType.DealDamage).Select(e=>e.DamageType).FirstOrDefault();
+                var accuracy=PassiveEffectCombatExecutionSystem.ResolveParameter(caster,skill,"accuracy",skill.SkillAccuracy);
+                hitChance=CombatDamageSystem.ContactChance(caster,target,direct,accuracy,skill,caster.WarriorState.Session);
+                hitChance = ScoutCombatSystem.HitChanceAfterRescue(caster,hitChance);
             }
 
             // Show only a status whose trigger can be estimated from the current
@@ -663,7 +701,7 @@ namespace Godmist.Systems.Combat
             BattleUnit caster,
             BattleUnit target,
             int damage, SkillData skill = null, DamageType damageType = DamageType.Physical,
-            AttackType? resolvedAttackType = null, bool? firstProtectionUsed = null, CombatValueExplanation explanation = null)
+            AttackType? resolvedAttackType = null, bool? firstProtectionUsed = null, CombatValueExplanation explanation = null, bool? guardianFirstHitUsed = null)
         {
             if (damage <= 0)
             {
@@ -673,7 +711,7 @@ namespace Godmist.Systems.Combat
             var context=new PassiveEffectCombatContext(source:caster,target:target,skill:skill,skillId:skill?.SkillId,
                 attackType:resolvedAttackType??skill?.AttackType??AttackType.Unknown,damageType:damageType);
             var amount=CombatDamageSystem.CalculateIncomingBeforeRedirect(caster?.WarriorState.Session,caster,target,
-                damage,damageType,context,explanation,skill);
+                damage,damageType,context,explanation,skill,guardianFirstHitUsed:guardianFirstHitUsed);
             return Mathf.Max(0,Mathf.RoundToInt(amount*UniqueEquipmentCombatRules.IncomingMultiplier(target,damageType,
                 resolvedAttackType??skill?.AttackType??AttackType.Unknown,firstProtectionUsed)));
         }

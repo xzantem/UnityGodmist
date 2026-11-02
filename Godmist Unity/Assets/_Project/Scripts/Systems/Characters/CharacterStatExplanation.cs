@@ -56,6 +56,7 @@ namespace Godmist.Systems.Characters
             }
             WarriorCombatSystem.ApplyStats(copy,Observe);
             MageCombatSystem.ApplyStats(copy,Observe);
+            GuardianCombatSystem.ApplyStats(copy,Observe);
             UniqueEquipmentCombatRules.ApplyDerivedStats(copy,Observe);
             var speed=MomentumResourceRule.SpeedBonus(copy.ResourcePool,copy.ResourcePool?.CurrentValue??0);
             copy.Stats.Speed.SetEffectiveValue(copy.Stats.Speed.GetValue()+speed);

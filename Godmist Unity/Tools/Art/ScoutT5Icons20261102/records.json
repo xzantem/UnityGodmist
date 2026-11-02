@@ -1,0 +1,92 @@
+[
+  {
+    "id": "node.scout.assassin.t5_1",
+    "slot": "a1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a1-32.png",
+    "source_sha256": "0e5e8d851770682c932c61e818af7acf392fb62eb10ea25cf635aace3c6df4fd",
+    "png_sha256": "a2fa3d6466c15cee98909818a3085681699597b136fad54952d33628c42042f1",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.assassin.t5_2",
+    "slot": "a2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a2-32.png",
+    "source_sha256": "85c18fc178b9c3577ce49ebb9765e5bcef4db0bff707117ee05265e5f175532c",
+    "png_sha256": "7297bc782c1c125739b12a33cb7fdd1fa0fe4c49223d2a32082d44d90e8dfc39",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.assassin.t5_3",
+    "slot": "a3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a3-32.png",
+    "source_sha256": "c8716a2c9395d9a2aafda5aea3d1b5bbe9b4fa8d3d387ce9df3db672df9ad802",
+    "png_sha256": "40c7a5018dd805dc4b8c19bc186e07afb967b22a8923f6cf3e732ee977bb03fe",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.assassin.t5_4",
+    "slot": "a4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a4-32.png",
+    "source_sha256": "6ec108992e43bcc316ca54e10dd953efd314550ce9ab74067a690d10dd8fd04c",
+    "png_sha256": "0ce11f97aaeea2a3e7b936b4790f16c854c284e81e4f4906a7fa2fd91a342d16",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.assassin.t5_5",
+    "slot": "a5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a5-32.png",
+    "source_sha256": "0eae9980cf9fc0b698fe0f82cb1dce431a2c7043bded7fe3f5d70406efda5cce",
+    "png_sha256": "e1815d142260b4e6c174332af55f72a30a3c5d6db440aac5b496b68e7719dd64",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.blade_dancer.t5_1",
+    "slot": "b1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b1-32.png",
+    "source_sha256": "714a92ab7212f37e7c8b93ccd77905f711bdba00bc1413fa659dc605d251952f",
+    "png_sha256": "29bd366f59e6a865013a4d92d403e38b53bd1efb0f04e5e3f0325da3f490db66",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.blade_dancer.t5_2",
+    "slot": "b2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b2-32.png",
+    "source_sha256": "00c93041d3bb73d1bf125bc0bc134e0a44bab833dc07c1c393732b0006c2ccf2",
+    "png_sha256": "fd5d7f3bcfa312fe190d3d6eccef18070cd3913dbc205e73fb9a30b1f60f7296",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.blade_dancer.t5_3",
+    "slot": "b3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b3-32.png",
+    "source_sha256": "aefc3b28c47ed3da51ebc6edddc41089cead383382c09947ca0d6e8671fa23dd",
+    "png_sha256": "3c90207f1e7ad0ace7eaa85a1aec0c7a7d6552c38ca675bc1a9eb0c2e087864c",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.blade_dancer.t5_4",
+    "slot": "b4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b4-32.png",
+    "source_sha256": "e976dc5f4e32d83051270c294b163eb1ec43a6372121c3a94540e81cd28e1bb6",
+    "png_sha256": "4d2c9b87844546ab62a0ab0ccb78ea0b5dd3b87c2e80b991b829ccf3e74fc39c",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.scout.blade_dancer.t5_5",
+    "slot": "b5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b5-32.png",
+    "source_sha256": "086e6de3efa71cf6445a3c1a5d94307953b6bc376a76b5046705e0b5fc65118e",
+    "png_sha256": "bf620f859646e32d1f65759e93b17c4a6fbfe14b7fad9d86dc5697e41ffe4671",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  }
+]

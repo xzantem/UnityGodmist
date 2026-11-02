@@ -685,6 +685,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ece439e732115804a92daca5eb7fc004, type: 2}
   - {fileID: 11400000, guid: 20406949662de6541b022fbcc6b91d37, type: 2}
   - {fileID: 11400000, guid: 0ba4db18160b00c4487bd34acc7c5724, type: 2}
+  - {fileID: 11400000, guid: 634a6f99380dcf04db3950abe6652838, type: 2}
+  - {fileID: 11400000, guid: 8b8f5ee0a93442e4cb027c034e104ecc, type: 2}
+  - {fileID: 11400000, guid: b01edb798797f374798e31119844ac79, type: 2}
+  - {fileID: 11400000, guid: bc932c07dd5eedd4a818d8bd9656c2c2, type: 2}
+  - {fileID: 11400000, guid: 28380d679b848f5409c90eeba1851b6f, type: 2}
+  - {fileID: 11400000, guid: f42c15bd23f8e034483d7edbf0490ae9, type: 2}
   <QuestDefinitions>k__BackingField:
   - {fileID: 11400000, guid: 8f50b644b9390bb41902a1beb6bfc986, type: 2}
   - {fileID: 11400000, guid: f5a92c8157c12f54c9e8f8d074012dfb, type: 2}

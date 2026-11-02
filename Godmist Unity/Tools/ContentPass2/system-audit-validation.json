@@ -1,0 +1,65 @@
+{
+  "card": "CP2-03",
+  "source_commit": "889456c9c9c2f8ee8af2dff47e84cf9316a1f606",
+  "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
+  "audit_sha256": "4993a49958601cfd2d1f3697b163c7efbda80a0fbc5f4644283577a322543255",
+  "passed": 8,
+  "failed": 0,
+  "checks": [
+    {
+      "check": "Workbook source unchanged",
+      "passed": true,
+      "detail": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7"
+    },
+    {
+      "check": "Explicit code references exist",
+      "passed": true,
+      "detail": {
+        "count": 27,
+        "missing": []
+      }
+    },
+    {
+      "check": "Mechanism row IDs unique and complete",
+      "passed": true,
+      "detail": {
+        "count": 53
+      }
+    },
+    {
+      "check": "Internal mechanism references resolve",
+      "passed": true,
+      "detail": {
+        "unresolved": [],
+        "excluded_level_labels": [
+          "L20",
+          "L40",
+          "L50"
+        ]
+      }
+    },
+    {
+      "check": "All 56 owner cards present in plan",
+      "passed": true,
+      "detail": 56
+    },
+    {
+      "check": "Audit marked review-only",
+      "passed": true,
+      "detail": "No gameplay validation claimed"
+    },
+    {
+      "check": "Save behavior verified in source",
+      "passed": true,
+      "detail": "Existing save guard; no mid-combat save proposed"
+    },
+    {
+      "check": "Catalog validation still passes",
+      "passed": true,
+      "detail": "Catalog validator with graph self-test"
+    }
+  ],
+  "gameplay_tests": "NOT RUN: analysis-only card",
+  "unity": "NOT RUN",
+  "scope": "Document integrity and source references; not proof of runtime support"
+}

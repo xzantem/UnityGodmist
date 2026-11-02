@@ -1,0 +1,142 @@
+{
+  "card": "CP2-04",
+  "status": "READY_FOR_SMOKE",
+  "commit_push": "NOT REQUESTED / NOT RUN",
+  "gameplay_code_changed": false,
+  "save_schema_changed": false,
+  "workbook_changed": false,
+  "decisions": {
+    "content_scope_max_level": 40,
+    "character_cap": 50,
+    "keep_existing_xp_sp_growth_and_tier_thresholds": true,
+    "all_five_biomes_eligible_from_start_when_authored": true,
+    "new_biome_assets_owned_by_cards": [
+      31,
+      36,
+      41
+    ],
+    "new_expedition_level_cap_introduced_by_this_card": false
+  },
+  "unity": {
+    "mode": "Existing target-project Editor, EditMode including one UnityTest with PlayMode transitions",
+    "latest_result_per_distinct_test": {
+      "passed": 90,
+      "failed": 0
+    },
+    "runs": [
+      {
+        "file": "LocalHandoffs\\cp2-04-progression-20261031\\editmode-results.xml",
+        "sha256": "f9db36ba57fa96e4a257b88f1bc914958f6e6d65742bb8ebcafc61078cb76355",
+        "passed": 89,
+        "failed": 1
+      },
+      {
+        "file": "LocalHandoffs\\cp2-04-progression-20261031\\ui-retest-results.xml",
+        "sha256": "2d92d9019995dac4be0a2dc612b4509577198e213d389a8e1a6d3f5f8d2e61d9",
+        "passed": 1,
+        "failed": 0
+      }
+    ],
+    "retest_reason": "Destroy in EditMode during UI UnityTest; probable runner reload interference. Isolated retest passed without production changes or concurrent script edits.",
+    "fixtures": [
+      {
+        "fullname": "Godmist.Tests.EditMode.CharacterLevelGrowthSystemTests",
+        "result": "Passed",
+        "testcasecount": "5"
+      },
+      {
+        "fullname": "Godmist.Tests.EditMode.CharacterProgressionSystemTests",
+        "result": "Passed",
+        "testcasecount": "26"
+      },
+      {
+        "fullname": "Godmist.Tests.EditMode.DungeonOfferTests",
+        "result": "Passed",
+        "testcasecount": "31"
+      },
+      {
+        "fullname": "Godmist.Tests.EditMode.GameDefinesTests",
+        "result": "Passed",
+        "testcasecount": "7"
+      },
+      {
+        "fullname": "Godmist.Tests.EditMode.GameSessionSaveSnapshotFactoryTests",
+        "result": "Passed",
+        "testcasecount": "5"
+      },
+      {
+        "fullname": "Godmist.Tests.EditMode.LegacySaveMigrationTests",
+        "result": "Passed",
+        "testcasecount": "3"
+      },
+      {
+        "fullname": "Godmist.Tests.EditMode.SkillTreeProgressionSystemTests",
+        "result": "Failed",
+        "testcasecount": "13"
+      }
+    ]
+  },
+  "planning_checks": {
+    "levels": 40,
+    "hero_profiles": 4,
+    "existing_tree_budget_paths": 9,
+    "example_build_paths": 4,
+    "result": "PASS"
+  },
+  "protected_existing_changes": [
+    {
+      "path": "Godmist Unity/Assets/_Project/Art/ArungardCityCohesionV4Prototype/PublicGroundOverlay.mat",
+      "preserved": true,
+      "sha256": "c6e8cc22ed852dd910fc5138aece78adb827153d7f52dae72336efef973dbf53"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Art/ArungardDoorApproachesV9Prototype/DoorApproachesTerrain.mat",
+      "preserved": true,
+      "sha256": "e73ed80b003f387d895e6c5b8d2c259424e544e177a6d6fbeea9acdde850c45c"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Art/ArungardForgePrototype/courtyard.mat",
+      "preserved": true,
+      "sha256": "cf7a382bcc98f44e1fd6b037d0bf0598c2123dd63dba806f8a3bbec05856fe49"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Art/ArungardHouseholdGroundV4Prototype/HouseholdGardenOverlay.mat",
+      "preserved": true,
+      "sha256": "034b6e7d2a34c23e2b10e3b38cf105bb74b84095f7565fca3ffd820abba9cfec"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Art/ArungardWorkstationPrototype/facade-fire.mat",
+      "preserved": true,
+      "sha256": "b0fc1b80cfe1cfd9c0080afe000dcbef3df97661bf367015282377fc28054404"
+    },
+    {
+      "path": "Godmist Unity/Assets/_Project/Art/ArungardWorkstationPrototype/ground-fire.mat",
+      "preserved": true,
+      "sha256": "0bab4ca090a90b56768cdd48f9aba4aad4f087a720019ec2e7645757f2618975"
+    },
+    {
+      "path": "Godmist Unity/Assets/d/Free - Raven Fantasy Icons.meta",
+      "preserved": true,
+      "sha256": null
+    },
+    {
+      "path": "Godmist Unity/ProjectSettings/ProjectSettings.asset",
+      "preserved": true,
+      "sha256": "84c71dc555a07627780351ccbf87f34d3ca8ff5bdc66eee6edc99c3d6a778eb7"
+    },
+    {
+      "path": "KANBAN.md",
+      "preserved": true,
+      "sha256": "2d4e5eecbebe96dceb9fc2427d0eaf3ac1f85fb1cc712b3c375fd4456b543463"
+    }
+  ],
+  "temporary_runners_removed": true,
+  "editor_side_effect_restoration": "Six pre-existing ForgeStrength=.33412033 material values restored through Unity Editor API; all nine protected state hashes match.",
+  "manual_smoke": "NOT RUN",
+  "windows_build": "NOT RUN",
+  "limitations": [
+    "New biome authoring is deferred to 31/36/41; five-biome test uses in-memory definitions.",
+    "New T5 skills in example paths are planning entries, not implemented assets.",
+    "Legacy full save/load cycles tested at level50; SP migration idempotency at21/31/40/50."
+  ]
+}

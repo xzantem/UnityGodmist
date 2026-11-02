@@ -1,0 +1,251 @@
+{
+  "method": "built-in image_gen; one call per icon; full-canvas nearest32 Aseprite",
+  "entries": [
+    {
+      "slot": "a1",
+      "tree": "assassin",
+      "column": 1,
+      "name": "Kondycja",
+      "ranks": 1,
+      "requirements": [
+        "t5_2"
+      ],
+      "descriptions": [
+        "Zmniejsza koszt Przewrotu w Przód do 40% maksymalnych punktów akcji."
+      ],
+      "id": "node.scout.assassin.t5_1",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. PASSIVE Assassin tree: opaque dark MUTED PLUM #281c30 base with subdued #3c2a47 planes, never burgundy. Muted blue control effects; pale lilac mobility. No red background rays. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: One large leather boot stepping through a short bright curved silver arc. Stamina and efficient acrobatic movement. Skill: Kondycja. Background: opaque dark muted burgundy #310d19, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "plum",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a1/a1.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutAssassin/backstab-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a1/a1.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutAssassin/backstab-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "a2",
+      "tree": "assassin",
+      "column": 2,
+      "name": "Przewrót w Przód",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Przemieszcza o 1–2 pola. Zapewnia jeden krytyk w następnym ataku i jeden gwarantowany unik."
+      ],
+      "id": "node.scout.assassin.t5_2",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. ACTIVE movement skill, not a passive: deep violet-blue backdrop and restrained cyan-violet motion trails, matching existing Swap active reference. No burgundy and no passive plum backdrop. Preserve original physical rolling rogue. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: A compact hooded rogue silhouette curled into a forward somersault, one broad silver crescent motion trail. Clear large silhouette. Skill: Przewrót w Przód. Background: opaque dark muted burgundy #310d19, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "mobility",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a2/a2.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Skills/VS22/scout-swap-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a2/a2.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Skills/VS22/scout-swap-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "a3",
+      "tree": "assassin",
+      "column": 3,
+      "name": "Przewidywanie",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Daje 20% szansy na zamianę chybienia w trafienie.",
+        "Daje 40% szansy na zamianę chybienia w trafienie."
+      ],
+      "id": "node.scout.assassin.t5_3",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. PASSIVE Assassin tree: opaque dark MUTED PLUM #281c30 base with subdued #3c2a47 planes, never burgundy. Muted blue control effects; pale lilac mobility. No red background rays. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: One large silver dagger missing a target then bending back toward it, one simple copper curved return arrow. Predictive corrected strike. Skill: Przewidywanie. Background: opaque dark muted burgundy #310d19, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "plum",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a3/a3.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutAssassin/backstab-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a3/a3.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutAssassin/backstab-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "a4",
+      "tree": "assassin",
+      "column": 4,
+      "name": "Cios Poniżej Pasa",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Krytyczne trafienia mają 30% szansy na ogłuszenie na 1 turę."
+      ],
+      "id": "node.scout.assassin.t5_4",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. PASSIVE Assassin tree: opaque dark MUTED PLUM #281c30 base with subdued #3c2a47 planes, never burgundy. Muted blue control effects; pale lilac mobility. No red background rays. Change the yellow/gold stun impact spark to muted BLUE; preserve its shape. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: One armored leather fist striking a dark leather waist belt with a broad bright gold impact star. No full body, no gore. Skill: Cios Poniżej Pasa. Background: opaque dark muted burgundy #310d19, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "plum",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a4/a4.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutAssassin/backstab-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a4/a4.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutAssassin/backstab-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "a5",
+      "tree": "assassin",
+      "column": 5,
+      "name": "Cięcie bez Honoru",
+      "ranks": 1,
+      "requirements": [
+        "pommel_strike"
+      ],
+      "descriptions": [
+        "Podwaja szansę Podcięcia Gardła przeciw ogłuszonym przeciwnikom."
+      ],
+      "id": "node.scout.assassin.t5_5",
+      "prompt": "Use case: precise-object-edit. Image1 is the edit target. Preserve its current muted PLUM background #281c30/#3c2a47, hooded head, dagger, geometry, pixel clusters, steel, leather and all positions. Correct ONLY the short wound slash between hooded neck and dagger: change this currently blue streak back to CRIMSON RED as in image2 (original icon). It represents a wound, NOT stun or magic. Keep plum background rays plum; only the wound/blood accent is crimson. No global tint, new objects, transparency, text or frame. Same opaque square icon.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: A broad hooked steel dagger crossing beneath a tiny stunned hooded head silhouette. Two large shapes, one restrained crimson edge. Skill: Cięcie bez Honoru. Background: opaque dark muted burgundy #310d19, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "plum",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/iterations/v1/scout_a5.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a5/a5.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/iterations/v1/scout_a5.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_a5/a5.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "b1",
+      "tree": "blade_dancer",
+      "column": 1,
+      "name": "Jad w Butelce",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Przez 3 pulsy próbuje zatruć wrogów w promieniu 2: 70% szansy, 40% średniego ataku na turę przez 3 tury."
+      ],
+      "id": "node.scout.blade_dancer.t5_1",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. ACTIVE poison skill, not a passive: dark desaturated OLIVE backdrop and restrained YELLOW-GREEN poison accents matching the Poisoned Dagger active reference. No teal tree backdrop, neon cyan or purple magic. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: One uncorked squat green glass poison bottle with a large simple curling poisonous vapor halo. Bright olive liquid and pale green vapor. Skill: Jad w Butelce. Background: opaque dark muted blue-green #142a2c, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "poison",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b1/b1.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Skills/VS22/poisoned-dagger-b-v2-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b1/b1.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Skills/VS22/poisoned-dagger-b-v2-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "b2",
+      "tree": "blade_dancer",
+      "column": 2,
+      "name": "Odzyskana Siła",
+      "ranks": 3,
+      "requirements": [
+        "efficient_recovery"
+      ],
+      "descriptions": [
+        "Każdy odzyskany sztylet zwiększa obrażenia następnego ataku o 8%, maksymalnie do 24%.",
+        "Każdy odzyskany sztylet zwiększa obrażenia następnego ataku o 16%, maksymalnie do 48%.",
+        "Każdy odzyskany sztylet zwiększa obrażenia następnego ataku o 25%, maksymalnie do 75%."
+      ],
+      "id": "node.scout.blade_dancer.t5_2",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. PASSIVE Blade Dancer tree: opaque dark MUTED TEAL #173033 base and subdued #254b50 planes. Match supporting reference. Keep meaningful silver, leather brown, green poison or amber recovery accents. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: One steel throwing dagger lifted upward inside a simple broad golden recovery arrow. Recovery restores power, no fist or extra daggers. Skill: Odzyskana Siła. Background: opaque dark muted blue-green #142a2c, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "teal",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b2/b2.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutBladeDancer/accurate_throw-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b2/b2.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutBladeDancer/accurate_throw-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "b3",
+      "tree": "blade_dancer",
+      "column": 3,
+      "name": "Sokoli Wzrok",
+      "ranks": 2,
+      "requirements": [
+        "accurate_throw"
+      ],
+      "descriptions": [
+        "Zwiększa zasięg umiejętności dystansowych o 2 pola.",
+        "Zwiększa zasięg umiejętności dystansowych o 4 pola."
+      ],
+      "id": "node.scout.blade_dancer.t5_3",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. PASSIVE Blade Dancer tree: opaque dark MUTED TEAL #173033 base and subdued #254b50 planes. Match supporting reference. Keep meaningful silver, leather brown, green poison or amber recovery accents. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: One large pale hawk eye under a dark feather brow, a steel dagger shape reflected in the iris. Very broad readable eye. Skill: Sokoli Wzrok. Background: opaque dark muted blue-green #142a2c, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "teal",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b3/b3.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutBladeDancer/accurate_throw-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b3/b3.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutBladeDancer/accurate_throw-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "b4",
+      "tree": "blade_dancer",
+      "column": 4,
+      "name": "Klątwa Schorowanych",
+      "ranks": 1,
+      "requirements": [
+        "poison_master"
+      ],
+      "descriptions": [
+        "Zadaje losowe obrażenia fizyczne, w zwarciu 60%. Przeciw zatrutemu celowi: +40% obrażeń i przedłużenie zatrucia o 1 turę po trafieniu."
+      ],
+      "id": "node.scout.blade_dancer.t5_4",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. ACTIVE poison skill, not a passive: dark desaturated OLIVE backdrop and restrained YELLOW-GREEN poison accents matching the Poisoned Dagger active reference. No teal tree backdrop, neon cyan or purple magic. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: A steel throwing dagger dripping one large olive poison drop, crossing a simple green ghostly skull shape. One dominant blade, chunky skull. Skill: Klątwa Schorowanych. Background: opaque dark muted blue-green #142a2c, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "poison",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b4/b4.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Skills/VS22/poisoned-dagger-b-v2-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b4/b4.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Skills/VS22/poisoned-dagger-b-v2-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    },
+    {
+      "slot": "b5",
+      "tree": "blade_dancer",
+      "column": 5,
+      "name": "Worek na Sztylety",
+      "ranks": 1,
+      "requirements": [
+        "spare_daggers"
+      ],
+      "descriptions": [
+        "Zwiększa maksymalną liczbę sztyletów o 2."
+      ],
+      "id": "node.scout.blade_dancer.t5_5",
+      "prompt": "Use case: precise-object-edit. Edit target: image1, the existing Godmist icon. Image2 is a COLOR CONVENTION reference only; never copy its objects/composition. Preserve image1 subject, exact composition, positions, scale, silhouette, steel/leather materials, pixel cluster geometry and all meaningful foreground colors. Change ONLY background hues and specified effect colors. PASSIVE Blade Dancer tree: opaque dark MUTED TEAL #173033 base and subdued #254b50 planes. Match supporting reference. Keep meaningful silver, leather brown, green poison or amber recovery accents. Keep the existing broad quiet background planes, no new rays, objects, textures, border, text, UI or watermark. Preserve thick charcoal outlines, crisp stepped pixel edges and opaque square canvas. Do not apply a global tint or redraw the subject. Same single icon, later full-canvas nearest32 in Aseprite.",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ScoutT5Icons20261102/references/cut-b-v2-source-raw.png",
+      "initial_prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill icon SOURCE, later reduced full-canvas nearest-neighbor to32x32. Reference image is STYLE ONLY: match chunky stepped pixel clusters, broad steel facets and thick near-black outlines; do not copy the sword composition. Subject: One large dark leather belt pouch holding exactly two broad steel throwing dagger handles and blades. Clear bag silhouette, no decorative clutter. Skill: Worek na Sztylety. Background: opaque dark muted blue-green #142a2c, quiet broad planes. One or two LARGE SIMPLE foreground forms fill square, bright steel highlights, restrained bronze/leather/poison green as appropriate. Designed readable at32pixels. Crisp blocky edges, no smooth gradients, painterly brushwork, noise, tiny particles or microtexture. No border, frame, text, letters, numbers, UI or watermark. One opaque square image.",
+      "palette_kind": "teal",
+      "edit_target": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b5/b5.png",
+      "palette_reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutBladeDancer/accurate_throw-32.png",
+      "referenced_image_paths": [
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/IconPaletteFix20261102/before/scout_b5/b5.png",
+        "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Assets/_Project/Art/Icons/Passives/VS22/ScoutBladeDancer/accurate_throw-32.png"
+      ],
+      "palette_correction": "IconPaletteFix20261102: original tree/effect convention restored; image_gen edit."
+    }
+  ]
+}

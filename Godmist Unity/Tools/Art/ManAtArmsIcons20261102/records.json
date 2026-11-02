@@ -12,8 +12,8 @@
     "id": "node.warrior.man_at_arms.t1_2",
     "slot": "t1_2",
     "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_2-32.png",
-    "source_sha256": "90798d949c083415e9a420eacd8b7012226e2a648ad47d99a37179761f244609",
-    "png_sha256": "b9ea86c137532203929cfa1e3004b33af905916a6b38368247be8d7113ac430e",
+    "source_sha256": "de1257b0f037da815a12827f13be389a4a2f29038e655bcbe20e4500f36bcf47",
+    "png_sha256": "16e04009a2ee146173fc5d8ace10b6f7979717a5dc8aa7f0ff031732f033175b",
     "nearest_sampling": "PASS",
     "aseprite_roundtrip": "PASS"
   },
@@ -66,8 +66,8 @@
     "id": "node.warrior.man_at_arms.t2_3",
     "slot": "t2_3",
     "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_3-32.png",
-    "source_sha256": "dc51fd4c11058c651128507c1887b9a81e4b91b6e04efbf2811c98f2c899d1a7",
-    "png_sha256": "6a79dbcc9b104b5138bcb24e0ecf9aef0fb2c2d72057c51c92587eb580d4f8d0",
+    "source_sha256": "c99f8d34f74c206880151c79c07772ff0e655e869749c2d326d1603fea85f98f",
+    "png_sha256": "981c84f21c0c06ad7f44cb2bed7023f4541547cb8ac9c106ff771ff8df59b9ed",
     "nearest_sampling": "PASS",
     "aseprite_roundtrip": "PASS"
   },
@@ -138,8 +138,8 @@
     "id": "node.warrior.man_at_arms.t4_1",
     "slot": "t4_1",
     "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_1-32.png",
-    "source_sha256": "8ee8f6ea1123dc84209521e8d7ebe83bc97c98656f4a0808cd266fa8a785530b",
-    "png_sha256": "b2b2cde6d6d2ae7ef4efff576ac4e6e7eebac38f96eb7f55ba4afeb19fbf465d",
+    "source_sha256": "6cc5ccdaaf860e89d6ecf8094cd04d1530006e5b3cdef4f67460463f0880ccdc",
+    "png_sha256": "5fd40c14f8f99c798e1c53350c6db733995cc9bfe92d4b9afcc85b9b5d33ec5e",
     "nearest_sampling": "PASS",
     "aseprite_roundtrip": "PASS"
   },
@@ -201,8 +201,8 @@
     "id": "node.warrior.man_at_arms.t5_3",
     "slot": "t5_3",
     "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_3-32.png",
-    "source_sha256": "4b5c81aad0ffb2edcf1d7c0bcbcddc2cf3d7fbb5a1ba70094342628554d880d1",
-    "png_sha256": "e0e3b65aa36801b64e15e6ba2c91c7e4e77fe226ef8f9f8006ec659cd0918651",
+    "source_sha256": "ad6fe0a7b7ad1369bb544d1fa75857a74fd3c432d2d176bf79cb39c228cacf43",
+    "png_sha256": "8401dd95dfe2bcc778502a3beccd494414dd84f7d33a9e8e83f62d3dee7e2e08",
     "nearest_sampling": "PASS",
     "aseprite_roundtrip": "PASS"
   },

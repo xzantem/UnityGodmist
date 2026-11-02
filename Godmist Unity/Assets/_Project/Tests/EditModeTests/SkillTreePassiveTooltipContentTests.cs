@@ -32,7 +32,7 @@ namespace Godmist.Tests.EditMode
             var trees = AssetDatabase.FindAssets("t:CharacterClassData")
                 .Select(guid => AssetDatabase.LoadAssetAtPath<CharacterClassData>(AssetDatabase.GUIDToAssetPath(guid)))
                 .SelectMany(character => character.SkillTrees).Where(tree => tree != null).Distinct().OrderBy(tree => tree.Id).ToArray();
-            Assert.That(trees.Length, Is.EqualTo(9));
+            Assert.That(trees.Length, Is.EqualTo(10));
             var report = new StringBuilder("# Tooltipy pasywek — wszystkie rangi\n\n");
             var count = 0;
             foreach (var tree in trees)
@@ -57,7 +57,7 @@ namespace Godmist.Tests.EditMode
                     Assert.That(node.Description, Is.EqualTo(authored), "Presentation must not mutate authored data.");
                 }
             }
-            Assert.That(count, Is.EqualTo(164));
+            Assert.That(count, Is.EqualTo(193));
             Directory.CreateDirectory("out");
             File.WriteAllText("out/passive-tooltip-catalog-rendered.md", report.ToString());
         }

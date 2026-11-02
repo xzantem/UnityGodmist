@@ -62,6 +62,9 @@ namespace Godmist.Systems.Combat
             foreach (var index in ownedUnits) copy.Units[index] = CopyPlanningUnit(source.Units[index]);
             copy.ActiveUnit = copy.Units[source.Units.IndexOf(source.ActiveUnit)];
             foreach (var index in ownedUnits) if (copy.Units[index] != null) copy.Units[index].WarriorState.Session = copy;
+            copy.Summons=source.Summons.Select(entry=>new SummonedBattleUnit(
+                source.Units.Contains(entry.Unit)?copy.Units[source.Units.IndexOf(entry.Unit)]:entry.Unit,
+                entry.CreatorCharacterId,entry.SourceSkillId,entry.SourceEffectIndex,entry.RemainingDurationTurns,entry.CreationOrder){GroupId=entry.GroupId}).ToList();
             copy.OpenExitEdges.UnionWith(source.OpenExitEdges);
             return copy;
         }
@@ -107,7 +110,10 @@ namespace Godmist.Systems.Combat
                 ActiveToggleSkillIds = new HashSet<string>(source.ActiveToggleSkillIds),
                 LastSkillResourceSpent = source.LastSkillResourceSpent
             };
+            copy.GuardianState.CopyFrom(source.GuardianState);
             copy.ScoutState.Facing = source.ScoutState.Facing;
+            copy.ScoutState.RecoveredStacks=source.ScoutState.RecoveredStacks;
+            copy.ScoutState.VenomPulses=source.ScoutState.VenomPulses;
             copy.ScoutState.WeakPointTurns = source.ScoutState.WeakPointTurns;
             copy.ScoutState.WeakPointCritDamage = source.ScoutState.WeakPointCritDamage;
             copy.ScoutState.AnalysisTurns = source.ScoutState.AnalysisTurns;
@@ -167,6 +173,7 @@ namespace Godmist.Systems.Combat
                     Add(unit.WarriorState.HealingRemainder.GetHashCode());
                     Add(unit.WarriorState.DeathWishPreventedDamage.GetHashCode());
                     Add(unit.WarriorState.ArmoredStateHash());Add(unit.Character.ManAtArmsDungeonKills);
+                    Add(unit.ScoutState.RecoveredStacks);Add(unit.ScoutState.VenomPulses);Add(unit.GuardianState.StateHash());
                     Add(unit.AvailableKnives); Add(unit.MovementStepsThisTurn); Add(unit.ScoutState.Facing.GetHashCode());
                     foreach (var buff in unit.UniqueBuffs) Add((int)buff);
                     var resistances = unit.Character.Resistances;

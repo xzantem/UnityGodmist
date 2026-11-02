@@ -113,3 +113,22 @@ użytkownika. Nie wykonano builda gracza, pomiarów FPS ani ręcznego smoke/rend
 walki w oknie gry. Ręczny smoke użytkownika zakończony PASS dnia 2026-11-02.
 CP2-03/04 i pozostałe wcześniejsze zmiany użytkownika pozostają zachowane.
 Użytkownik polecił commit/push wyłącznie karty 06 i przejście do 07.
+
+
+## Korekta palet — 2026-11-02
+
+Odtworzono źródłowe prompty i rozdzielono palety pasywek od aktywnych skilli.
+Szczegóły: Tools/Art/ICON_COLOR_CONVENTIONS.md. Cztery aktywne skille
+Zbrojnego mają teraz bordowe tło aktywnego Wojownika; złoto ochrony,
+błękit kontroli i zieleń odnowienia pozostają w efektach. T5 Dowódcy
+i Awanturnika porównano ze starszymi ikonami — były zgodne, bez zmian.
+U skauta poprawiono wszystkie 10 nowych ikon: 4 śliwkowe pasywki Skrytobójcy,
+3 pasywki teal Tancerza i 3 aktywne z paletą odpowiednią dla ich działania.
+Korekta obejmuje 14 produkcyjnych PNG; zachowano pliki meta/GUID, węzły,
+referencje aktywnych skilli, parametry importerów i cały kod gameplayu.
+Źródła przed zmianą i prompty edycji zachowano. Odtworzono natywne PNG32
+i Aseprite: pełne próbkowanie nearest i roundtrip obu paczek 35/35 PASS.
+Porównanie przed/po/wzorzec obejrzano w32×32 i powiększeniu. Raport:
+Tools/Art/IconPaletteFix20261102/validation.json. Pozostaje ręczny odbiór
+kolorów w grze; wcześniejszy smoke mechanik nie jest powtarzany ani cofany.
+Bez commit/push tej korekty.

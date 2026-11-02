@@ -15,7 +15,7 @@ using UnityEngine;
 
 namespace Godmist.Tests.EditMode
 {
-    public class ScoutContentTests
+    public partial class ScoutContentTests
     {
         const string Root="Assets/_Project/ScriptableObjects/";
         static T Load<T>(string path) where T:Object => AssetDatabase.LoadAssetAtPath<T>(Root+path);
@@ -38,15 +38,16 @@ namespace Godmist.Tests.EditMode
             progress.NodeInvestments.Add(new SkillTreeNodeInvestment{NodeId="node.scout."+tree+"."+id,Ranks=ranks});
         }
         static CombatSession Session(params BattleUnit[] units)=>new(){Grid=new BattleGrid(12,8),Units=units.ToList(),ActiveUnit=units[0]};
-        [Test] public void StarterRosterHasFiveValidDistinctSkillsAndTwoProductionTrees()
+        [Test] public void StarterRosterHasFiveValidDistinctSkillsAndThreeProductionTrees()
         {
             var u=Unit(true,1);Assert.That(u.Character.Skills.Count,Is.EqualTo(5));
             Assert.That(u.Character.Skills.Select(s=>s.SkillId).Distinct().Count(),Is.EqualTo(5));
             foreach(var skill in u.Character.Skills)Assert.That(CombatDataValidator.ValidateSkill(skill).Errors,Is.Empty,skill.name);
-            Assert.That(u.Character.ClassData.SkillTrees.Count,Is.EqualTo(2));
-            foreach(var tree in u.Character.ClassData.SkillTrees)
+            var productionTrees=u.Character.ClassData.SkillTrees.Where(t=>t!=null).ToArray();
+            Assert.That(productionTrees.Length,Is.EqualTo(3));
+            foreach(var tree in productionTrees)
             {
-                Assert.That(tree.Nodes.Count,Is.EqualTo(20));Assert.That(tree.Nodes.All(n=>n.Tier<=4),Is.True);
+                Assert.That(tree.Nodes.Count,Is.EqualTo(25));Assert.That(tree.Nodes.All(n=>n.Tier<=5),Is.True);
                 foreach(var node in tree.Nodes)
                     foreach(var requirement in node.Requirements)Assert.That(tree.Nodes.Any(n=>n.Id==requirement.NodeId),Is.True,node.Id);
             }

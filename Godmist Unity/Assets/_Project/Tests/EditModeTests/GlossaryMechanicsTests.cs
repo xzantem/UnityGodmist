@@ -21,7 +21,7 @@ namespace Godmist.Tests.EditMode
                 Assert.That(authored.Description,Does.Contain(phrase));
         }
 
-        [TestCase("mana", "pozostała")]
+        [TestCase("mana", "200%/100%/25%")]
         [TestCase("rage", "+10")]
         [TestCase("momentum", "połową")]
         [TestCase("momentum", "+2, +4, +6")]

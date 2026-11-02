@@ -17,7 +17,7 @@ namespace Godmist.Systems.Combat
             }
             return Mathf.Max(0,Mathf.RoundToInt(CalculatePercentageCost(
                 unit.MaxActionPoints, 
-                ScoutCombatSystem.KnifeRecoveryCost(unit, skill, skill.ActionCost, recoveringKnife))
+                ScoutCombatSystem.KnifeRecoveryCost(unit, skill, skill.SkillId==ScoutCombatSystem.ForwardRoll&&ScoutCombatSystem.AssassinRank(unit,"t5_1")>0?40:skill.ActionCost, recoveringKnife))
                 * UniqueEquipmentCombatRules.OrderCostMultiplier(unit,skill)));
         }
         public static int CalculateSkillCostForTarget(BattleUnit unit, SkillData skill, BattleUnit target, bool recoveringKnife = false) =>
@@ -50,8 +50,8 @@ namespace Godmist.Systems.Combat
                 return int.MaxValue;
             }
 
-            if(WarriorCombatSystem.FreeStep(unit))return 0;
-            return Mathf.Max(0, unit.MovementStepsThisTurn + 1 - ScoutCombatSystem.MovementDiscount(unit)) * ActionPointUnits.PerPoint;
+            if(WarriorCombatSystem.FreeStep(unit)||GuardianCombatSystem.HasFreeStep(unit))return 0;
+            return Mathf.Max(0, GuardianCombatSystem.PaidSteps(unit) + 1 - ScoutCombatSystem.MovementDiscount(unit)) * ActionPointUnits.PerPoint;
         }
     }
 

@@ -526,3 +526,11 @@ Jeśli pojawia się wątpliwość „gdzie coś powinno trafić?”, pytanie pom
 - czy to jest tylko prezentacja?
 
 Odpowiedź na to pytanie powinna wskazać właściwą warstwę.
+
+## Kolorystyka ikon
+
+Ikony pasywek korzystają z palety drzewa; aktywne skille należy porównywać
+z istniejącymi aktywnymi ikonami tej samej klasy. U Wojownika aktywne tło
+pozostaje bordowe, a kolor efektu rozróżnia ochronę, kontrolę i odnowienie.
+Materiały pierwszego planu zachowują własne kolory. Dokładne palety, źródła
+i przykłady: [konwencja kolorów ikon](Tools/Art/ICON_COLOR_CONVENTIONS.md).

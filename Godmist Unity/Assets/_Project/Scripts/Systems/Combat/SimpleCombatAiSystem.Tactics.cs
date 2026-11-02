@@ -300,9 +300,11 @@ namespace Godmist.Systems.Combat
             foreach(var cell in route)
             {
                 if(FindClosedDirectDoor(session,previous,cell)!=null)copy.CurrentActionPoints-=CombatInteractionSystem.CalculateActionCost(copy);
-                var cost=WarriorCombatSystem.FreeStep(copy)?0:PassiveEffectCombatExecutionSystem.ApplyMovementCost(session,copy,
+                var guardianFree=GuardianCombatSystem.HasFreeStep(copy)&&!WarriorCombatSystem.FreeStep(copy);
+                var cost=WarriorCombatSystem.FreeStep(copy)||guardianFree?0:PassiveEffectCombatExecutionSystem.ApplyMovementCost(session,copy,
                     CombatActionCostCalculator.CalculateMovementCost(copy))+session.Grid.GetMovementSurcharge(previous,cell)*ActionPointUnits.PerPoint;
                 copy.CurrentActionPoints-=cost;
+                GuardianCombatSystem.ProjectMove(copy,guardianFree,cost);
                 WarriorCombatSystem.Moved(copy);copy.MovementStepsThisTurn++;copy.Position=cell;
                 if(copy.CurrentActionPoints<0)return copy.CurrentActionPoints;
                 previous=cell;

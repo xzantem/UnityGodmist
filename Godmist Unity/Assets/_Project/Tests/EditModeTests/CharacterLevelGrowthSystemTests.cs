@@ -25,7 +25,11 @@ namespace Godmist.Tests.EditMode
             Assert.That(growthSystem.GetCumulativeGrowthMultiplier(1), Is.EqualTo(0f));
             Assert.That(growthSystem.GetCumulativeGrowthMultiplier(10), Is.EqualTo(9f));
             Assert.That(growthSystem.GetCumulativeGrowthMultiplier(11), Is.EqualTo(11f));
+            Assert.That(growthSystem.GetCumulativeGrowthMultiplier(20), Is.EqualTo(29f));
             Assert.That(growthSystem.GetCumulativeGrowthMultiplier(21), Is.EqualTo(32f));
+            Assert.That(growthSystem.GetCumulativeGrowthMultiplier(30), Is.EqualTo(59f));
+            Assert.That(growthSystem.GetCumulativeGrowthMultiplier(31), Is.EqualTo(64f));
+            Assert.That(growthSystem.GetCumulativeGrowthMultiplier(40), Is.EqualTo(109f));
             Assert.That(growthSystem.GetCumulativeGrowthMultiplier(41), Is.EqualTo(118f));
         }
 

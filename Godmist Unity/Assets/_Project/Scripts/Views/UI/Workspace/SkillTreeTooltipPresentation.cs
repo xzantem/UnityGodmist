@@ -114,6 +114,14 @@ namespace Godmist.Views.UI.Workspace
             text=UiTerms.Present(text,preview?.ResourcePool?.ResourceType ?? ResourceType.None);
             var details=node.Id switch
             {
+                "node.scout.assassin.t5_2"=>"Wybierz wolne pole w odległości 1–2. Unieruchomienie blokuje przemieszczenie. Krytyk dotyczy jednego trafienia następnego użycia ataku; niewykorzystana premia przepada także po pudle. Unik zatrzymuje jedno trafienie bezpośredniego ataku, bez DoT. Premie nie kumulują się i kończą się najpóźniej wraz z walką.",
+                "node.scout.assassin.t5_3"=>"Jedna próba po zwykłym chybieniu; nie powtarza całego ataku i nie przełamuje gwarantowanego uniku.",
+                "node.scout.assassin.t5_4"=>"Osobna próba dla każdego krytycznego trafienia bezpośredniego ataku. Obowiązują odporność i tolerancja na ogłuszenie.",
+                "node.scout.assassin.t5_5"=>"Cel musi być już ogłuszony przed rozstrzygnięciem Podcięcia Gardła. Nadal obowiązuje próg HP i tarczy równy pięciokrotności obrażeń. Boss zamiast egzekucji otrzymuje podwójne obrażenia.",
+                "node.scout.blade_dancer.t5_1"=>"Trzy pulsy: przy użyciu i na początku dwóch kolejnych tur. Każdy żywy wróg w odległości do 2 otrzymuje osobną próbę zatrucia, z uwzględnieniem odporności. Wyjście z obszaru i wygaśnięcie aury nie usuwają nałożonego zatrucia. Ponowne użycie odświeża aurę.",
+                "node.scout.blade_dancer.t5_2"=>"Ładunek za każdy faktycznie odzyskany własny sztylet: z ziemi, Linką z Hakiem lub przez wyjęcie z wroga. Do 3 ładunków, zużywanych na całe następne użycie ataku, również przy pudle. Nie wzmacnia DoT. Ładunki nie przechodzą do kolejnej walki.",
+                "node.scout.blade_dancer.t5_3"=>"Premia dotyczy zasięgu wyboru celu umiejętności dystansowych. Nie zwiększa promienia aur, zasięgu przemieszczeń ani walki wręcz.",
+                "node.scout.blade_dancer.t5_4"=>"Jeden sztylet na dystansie, bez kosztu sztyletu w zwarciu. Bonus obrażeń wymaga zatrucia przed trafieniem; trafienie przedłuża istniejące zatrucie o jeden tick. Nie nakłada nowego zatrucia na zdrowy cel.",
                 "node.warrior.man_at_arms.t1_3"=>"Premia jest względna: tarcza równa 20% maksymalnego zdrowia wzrasta do 22%.",
                 "node.warrior.man_at_arms.t1_4"=>"Usuwa jeden tick obrażeń wraz z odpowiadającą mu turą. Jednoturowe krwawienie, zatrucie lub podpalenie nie zostaje nałożone. Pozostałe ticki zachowują swoją siłę.",
                 "node.warrior.man_at_arms.t2_1"=>"Odbicie zmniejsza obrażenia fizyczne o 70%, nie odbija ich w atakującego. Nie chroni przed obrażeniami okresowymi.",
@@ -143,8 +151,11 @@ namespace Godmist.Views.UI.Workspace
                 "node.scout.assassin.throat_cut"=>"Próg zabicia uwzględnia aktualne HP i tarczę przeciwnika. Premia przeciw bossowi zastępuje natychmiastowe zabicie.",
                 _=>string.Empty
             };
+            if(node.Id.StartsWith("node.scout.guardian.")&&GuardianTalentCopy.Entries.TryGetValue(node.Id,out var guardianCopy))details=guardianCopy.Rules;
             if(tooltip!=null)
             {
+                text = tooltip.LinkTalentReferences(text, character, node.Id);
+                details = tooltip.LinkTalentReferences(details, character, node.Id);
                 text=tooltip.AnnotateTalentValues(text,node,rank,preview,r=>Describe(node,r,character,null));
                 if(!string.IsNullOrWhiteSpace(details))text+="\n<size=85%>"+tooltip.LinkRule("Zasady działania",UiTerms.Present(node.DisplayName),details)+"</size>";
             }

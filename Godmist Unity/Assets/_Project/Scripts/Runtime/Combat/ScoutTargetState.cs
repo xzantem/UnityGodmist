@@ -20,6 +20,9 @@ namespace Godmist.Runtime.Combat
         public UnityEngine.Vector2Int Facing;
         public bool RunningAttackUsed;
         public int ExtraKnifeCapacity;
+        public int RecoveredStacks, VenomPulses, AttackScopeDepth;
+        public bool RollCriticalActive;
+        public float RecoveredAttackBonus;
         public int WeakPointTurns;
         public float WeakPointCritDamage;
         public int AnalysisTurns;

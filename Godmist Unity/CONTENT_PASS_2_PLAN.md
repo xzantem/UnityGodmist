@@ -83,6 +83,8 @@ Duże karty, zwłaszcza 06, 11, 19, 25 i karty bossów, dzielić wykonawczo na: 
 
 ### CP2-03 Przeprowadzić audyt gotowości systemów
 
+**Status:** READY_FOR_SMOKE — przegląd audytu, 2026-10-31. Wynik: `CONTENT_PASS_2_SYSTEM_AUDIT.md`. Bez implementacji gameplayu. Macierz wskazuje ownerów, testy, podkarty i wpływ na save; decyzje dla poszczególnych mechanik zebrane razem w dokumencie. Nie blokują rozpoczęcia CP2-04.
+
 **Zależności:** 01–02.
 
 **Zakres:** dla każdej nowej mechaniki z przypisanych skilli, traitów i bossów określić: działa teraz, wymaga rozszerzenia danych, wymaga kodu, wymaga decyzji. Audyt ma odpowiedzieć na konkretne wymagania arkusza, bez mapowania całego projektu.
@@ -93,7 +95,11 @@ Duże karty, zwłaszcza 06, 11, 19, 25 i karty bossów, dzielić wykonawczo na: 
 
 **Odbiór:** każda wymagana mechanika ma właściciela i zależności; wiadomo, które z kart 23–26 są naprawdę potrzebne przed konkretnym biomem. Duże braki otrzymują jawne podkarty i ocenę wpływu na save.
 
+**Wynik audytu:** wspólne kontrakty 06A/B (wynik obrażeń i cykl śmierci), 11B (obszary), 25A (footprint), 28A–D (wynik efektu/summon/klony), 29A (fazy), 30A (budżet akcji/ICD) mają jednego właściciela i mogą powstać przed pełną zawartością ich kart. Woda/błoto wymagane przed odpowiednimi bossami; 24 przed wrogami z flying/levitation/immaterial; Stationary przed roślinami. 3×3 i Indestructible proponowane do odłożenia, bo przypisane dopiero przyszłym przeciwnikom. Szczegółowe zależności i propozycja rozbicia w audycie, bez zmiany numeracji 56 kart.
+
 ### CP2-04 Ustalić kontrakt progresji do L40
+
+**Status:** READY_FOR_SMOKE — kontrakt w `CONTENT_PASS_2_PROGRESSION.md`. Użytkownik zatwierdził content do40 przy zachowanym capie postaci50, obecną progresję XP/SP/statystyk i progi tierów oraz dostęp wszystkich pięciu biomów od początku. Przygotowano40 progów, profile czterech bohaterów i cztery40-punktowe ścieżki buildów; rozszerzono regresje progów, ofert i save. Nie było blokadyL20 do usunięcia; brak zmian produkcyjnego gameplayu i formatu save. Odczyt danych: `Tools/ContentPass2/progression-plan.json`; tabela z separatorem `|`: `progression-levels.txt`. Wyniki Unity i kontrola zachowania wcześniejszych zmian: `../LocalHandoffs/cp2-04-progression-20261031/verification.json`. CP2-31/36/41 dodają rzeczywiste biomy; granica opracowania40 nie wprowadza nowego capu wypraw.
 
 **Zależności:** 01–03.
 
@@ -141,17 +147,36 @@ Smoke użytkownika PASS; commit/push zatwierdzone 2026-11-02.
 
 ### CP2-07 Dodać T5 Skrytobójcy i Tancerza Ostrzy
 
-**Zależności:** 03–04.
+**Status:** READY_FOR_SMOKE — 2026-11-02.
 
-**Zakres:** dziesięć node'ów T5 dwóch istniejących drzew Zwiadowcy, z pełnym działaniem w obecnej kolejności zdarzeń walki. Nie dodawać przy tej okazji osobistych traitów Jerzego.
+**Zależności:** 03–04; trzy decyzje projektowe użytkownika zamknięte.
 
-**Przygotować:** dla każdego node'a warunek aktywacji, źródło obrażeń, liczbę triggerów, czas trwania i zasady kumulacji. Szczególnie sprawdzić interakcje z krytem, wieloma trafieniami, niewidzialnością i efektami okresowymi, o ile występują w jego definicji.
+**Zakres wykonany:** dziesięć węzłów T5 dwóch istniejących drzew Zwiadowcy,
+trzy skille, dziesięć ikon, opisy rang i rozwijane reguły. Przewrót: jeden
+gwarantowany krytyk w następnym ataku i jeden unik; odzysk nalicza ładunki
+za każdy sztylet; aura ma trzy pulsy, zaczynając przy użyciu. Bez traitów Jerzego.
 
-**Implementacja:** nowe dane w istniejącym grafie; potrzebne operacje we wspólnym wykonaniu skilli/pasywek. Oddzielić zdarzenie ataku, trafienia i zadania obrażeń, aby jedna akcja nie naliczała bonusu wielokrotnie.
+**Integracja:** wspólny hit/crit/status pipeline, granica użycia ataku,
+koszt PA, zasięg, pojemność sztyletów, preview i odłączony stan AI.
+Addytywny Editor authoring zachowuje 40 starszych węzłów. Bez zmiany save.
 
-**Odbiór:** testy dodatnie i ujemne warunków oraz wygaśnięcia efektu; dwie reprezentatywne konfiguracje w walce; poprawne preview kosztów i rang. Nowy efekt nie pozostaje po resecie ani wczytaniu innego buildu.
+**Weryfikacja:** runtime, graf, idempotencja, ikony/Aseprite, UI i tooltipy PASS.
+Źródła i decyzje: CONTENT_PASS_2_SCOUT_T5.md; dowody i liczby:
+Tools/ContentPass2/scout-t5-validation.json. Ręczny smoke pozostaje użytkownikowi.
 
 ### CP2-08 Zaprojektować docelowego Strażnika
+
+Korekta v6: zamiana kolumn Refleks/Czujność i przywrócenie standardowych opisów Następne/Aktualne.
+
+**Status:** projekt zaakceptowany do realizacji 2026-11-02 — v6 dopracowany po audycie pozostałych
+drzewek. Odepchnięcie i Adrenalina równolegle od Szybkiego Odwetu;
+Opanowanie samodzielnie w T5. Krótkie opisy, wspólne objaśnienia wartości,
+standardowy koszt/cel/zasięg aktywnych i jeden link pełnych zasad na węzeł.
+Bez etykiet Aktywna/Pasywna. Cztery aktywne, 29 węzłów/50 rang, dwie
+ścieżki L40 i capstone za 30 SP. Osłona ma tylko dwa zależne ulepszenia.
+Podgląd w grze bez SkillData/efektów/wydawania SP; standardowe opisy Następne/Aktualne.
+Specyfikacja: CONTENT_PASS_2_GUARDIAN_DESIGN.md. Dowody:
+Tools/ContentPass2/guardian-preview-validation.json. CP2-09 zastępuje podgląd produkcyjnym T1–T5.
 
 **Zależności:** 03–04.
 
@@ -164,6 +189,8 @@ Smoke użytkownika PASS; commit/push zatwierdzone 2026-11-02.
 **Odbiór:** nie ma sprzecznych wersji node'ów ani nieokreślonej jednostki wartości; każdy efekt ma techniczne odwzorowanie i testowalny warunek. Wynik jest kompletną specyfikacją dla 09, bez zmian gameplayowych.
 
 ### CP2-09 Wdrożyć drzewko Strażnika
+
+**Stan 2026-11-02: ZAAKCEPTOWANA — smoke i audyt tooltipów zaakceptowane; commit/push zlecony.** Implementacja T1–T5 — 25 węzłów/44 rangi, trzy aktywne, 25 nowych ikon 32×32. T6/T7 tymczasowo usunięte z gry; pełny projekt zachowany w CP2-08. Mechaniki, koszty, podglądy, AI i zakup/wyposażanie w istniejącym systemie. Szczegóły i walidacja: CONTENT_PASS_2_GUARDIAN.md.
 
 **Zależności:** 08 i wymagane rozszerzenia z 03.
 
@@ -780,4 +807,14 @@ Nazwy, odporności, ceny i receptury już opisane w aktualnym arkuszu nie są py
 
 Na początku realizacji dopisać w karcie Trello: przyjętą wersję arkusza, wynik punktowego context passu, zamknięte decyzje i konkretne podzadania wynikające z audytu. W opisie zostawić numer CP2 jako stały identyfikator. Każda zmiana zakresu aktualizuje ten plan i odpowiednią kartę; nie rozszerza sąsiednich kart po cichu.
 
-Status początkowy kart: **planowane**, z wyjątkiem zaakceptowanej CP2-01 po **smoke PASS** i zaakceptowanej CP2-02 po przeglądzie katalogu; macOS i X360 są odłożone do późniejszej integracji. Karty projektowe 08, 13, 47 kończą się zamkniętą specyfikacją/decyzją; nie wymagają pozornej implementacji. Karty 48–51 mają dodatkowo status **warunkowe** do decyzji 47. Ten plan nie tworzy i nie aktualizuje kart w zewnętrznym Trello.
+Status początkowy kart: **planowane**, z wyjątkiem zaakceptowanej CP2-01 po **smoke PASS**, zaakceptowanej CP2-02 po przeglądzie katalogu oraz CP2-03, CP2-04 i CP2-05 w **READY_FOR_SMOKE** do przeglądu audytu/kontraktu i regresji. Decyzje progresji CP2-04 zatwierdzone; macOS i X360 odłożone do późniejszej integracji. Karty projektowe 08, 13, 47 kończą się zamkniętą specyfikacją/decyzją; nie wymagają pozornej implementacji. Karty 48–51 mają dodatkowo status **warunkowe** do decyzji 47. Ten plan nie tworzy i nie aktualizuje kart w zewnętrznym Trello.
+
+
+## Nadrzędny limit aktywnych skilli — decyzja użytkownika 2026-11-02
+
+W KAŻDYM pełnym drzewie T1–T7 liczba aktywnych skilli po reworku musi
+pozostać taka sama jak przed nim. To limit całego drzewa, nie osobne limity
+każdego tieru ani wyłącznie T1–T5. Można zmienić działanie aktywnego skilla
+lub jego miejsce; dodanie nowego aktywnego wymaga zastąpienia innego
+aktywnego w pełnym projekcie. Nie zwiększać sumy kosztem nieopisanego
+„późniejszego rozliczenia” T6/T7.

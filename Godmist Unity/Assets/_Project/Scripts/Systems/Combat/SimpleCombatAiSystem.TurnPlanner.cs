@@ -28,7 +28,7 @@ namespace Godmist.Systems.Combat
                     && string.Equals(e.StatusId, skill.RequiredCasterStatusId, StringComparison.OrdinalIgnoreCase)
                     && skill.TargetModes[e.TargetModeIndex].TargetType == TargetType.Caster)
                 && (e.EffectType is EffectType.DealDamage or EffectType.ApplyStatus or EffectType.RemoveStatus
-                    or EffectType.ModifyStat or EffectType.ModifyVar or EffectType.Heal or EffectType.HealPercent or EffectType.PaladinHeal or EffectType.PaladinRegeneration or EffectType.Shield
+                    or EffectType.ModifyStat or EffectType.ModifyVar or EffectType.Heal or EffectType.HealPercent or EffectType.PaladinHeal or EffectType.PaladinRegeneration or EffectType.Shield or EffectType.GuardianCounter
                     || e.EffectType == EffectType.ApplyUniqueBuff && e.UniqueBuffType == UniqueBuffType.Hawkeye
                     || e.EffectType == EffectType.ModifyActionValue && e.ActionValuePercent <= 0f
                         && IsPreparationMode(skill.TargetModes[e.TargetModeIndex])
@@ -190,14 +190,21 @@ namespace Godmist.Systems.Combat
             var cost = PassiveEffectCombatExecutionSystem.ApplyMovementCost(world, unit,
                 CombatActionCostCalculator.CalculateMovementCost(unit))
                 + world.Grid.GetMovementSurcharge(unit.Position, cell) * ActionPointUnits.PerPoint;
-            if (WarriorCombatSystem.FreeStep(unit)) cost = 0;
-            if (cost <= 0 || cost > unit.CurrentActionPoints) return null;
+            var guardianFree=GuardianCombatSystem.HasFreeStep(unit)&&!WarriorCombatSystem.FreeStep(unit);
+            if (WarriorCombatSystem.FreeStep(unit)||guardianFree) cost = 0;
+            if (cost < 0 || cost > unit.CurrentActionPoints) return null;
             var moved = CopyPlanNode(node, live, actor);
             moved.World.ActiveUnit.CurrentActionPoints -= cost;
             moved.World.ActiveUnit.MovementStepsThisTurn++;
+            GuardianCombatSystem.ProjectMove(moved.World.ActiveUnit,guardianFree,cost);
+            WarriorCombatSystem.Moved(moved.World.ActiveUnit);
             ScoutCombatSystem.Face(moved.World.ActiveUnit, cell);
             moved.World.ActiveUnit.Position = cell;
-            ProjectResourceGain(moved.World.ActiveUnit, cost, false);
+            if(!guardianFree)ProjectResourceGain(moved.World.ActiveUnit, cost, false);
+            var beforeRecovery=moved.World.ActiveUnit.Character.ResourcePool?.CurrentValue??0;
+            if(GuardianCombatSystem.ProjectRecovery(moved.World,moved.World.ActiveUnit)>0&&!ResourceRuleSystem.IsResourceGainBlocked(moved.World.ActiveUnit))
+                moved.World.ActiveUnit.Character.ResourcePool?.Restore(8);
+            AdjustProjectedMomentumSpeed(moved.World.ActiveUnit,beforeRecovery);
             moved.Visited.Add(cell);
             moved.First ??= new AiTurnPlanStep { MovementPath = new List<GridPosition>() };
             if (moved.OnlyMovement && moved.First.MovementPath != null) moved.First.MovementPath.Add(cell);

@@ -1,0 +1,86 @@
+{
+  "card": "CP2-08",
+  "version": 6,
+  "status": "READY_FOR_SMOKE",
+  "scope": "in-game design preview only; no gameplay implementation",
+  "nodes": 29,
+  "ranks": 50,
+  "active_preview_nodes": 4,
+  "granted_skills": 0,
+  "node_and_global_passive_effects": 0,
+  "spending": "blocked; tested in progression and actual runtime prefab",
+  "all_ranks": "Authored rank variants retained; UI now uses standard Next/Current instead of showing all rank blocks.",
+  "topology": {
+    "nodes_full_tree": 29,
+    "ranks_full_tree": 50,
+    "nodes_T1_T5": 25,
+    "ranks_T1_T5": 44,
+    "active_skills_full_T1_T7": 4,
+    "active_skills_T1_T5": 3,
+    "active_skills_T6_T7": 1,
+    "active_slots": [
+      "t1_3",
+      "t1_4",
+      "t5_4",
+      "t7_3"
+    ],
+    "dependency_edges": 17,
+    "max_outgoing_edges": 2,
+    "direct_shield_dependents": 1,
+    "transitive_shield_dependents": [
+      "t2_3",
+      "t3_3"
+    ],
+    "long_edges": 0,
+    "prerequisites_and_tier_sp": "PASS",
+    "build_totals": [
+      {
+        "guardian": 30,
+        "assassin": 10
+      },
+      {
+        "guardian": 21,
+        "blade_dancer": 19
+      }
+    ],
+    "shieldless_build": "21 Guardian +19 Blade Dancer; includes ground knife protection, no shield branch",
+    "capstone_without_shield_or_all_T6": "PASS;31 SP example",
+    "full_tree_max_build": {
+      "guardian": 50
+    },
+    "full_active_skill_budget": "PASS;exactly4",
+    "runtime_tests": "NOT RUN;design only",
+    "crossing_edges_at_authored_grid_centres": 0,
+    "retaliation_upgrades": "Szybki Odwet -> Odepchnięcie and Przypływ Adrenaliny, parallel; no forced resource upgrade",
+    "preview_rank_presentation": "Standard Next/Current; no preview-only all-rank blocks",
+    "T1_columns": {
+      "Czujność": 1,
+      "Refleks": 2
+    }
+  },
+  "previous_direct_shield_dependents": 1,
+  "tests": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "evidence": "LocalHandoffs/cp2-08-guardian-20261102/v6/tests.xml"
+  },
+  "authoring": "PASS; Unity authoring idempotent; other Scout trees/catalog/order unchanged",
+  "copied_unity_authored_assets": [
+    {
+      "path": "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_Guardian.asset",
+      "sha256": "5091e4e5c4456b080f72762e311f789b10a1f19e7dd3afb365e1efd8291529d5",
+      "meta_sha256_unchanged": "7f8115bdf310d0a0290e620dfbe3069bbd1371358cad17cbd9a001db1c98c851"
+    },
+    {
+      "path": "Assets/_Project/ScriptableObjects/Classes/CCD_Scout.asset",
+      "sha256": "9935122ffd3355b3b0699a41770afbd1bcb40104c3bc2a6b6a79987a7d2d84ed",
+      "meta_sha256_unchanged": "1343c94e9233e8a0046b5efb90e867f5c1b0ba049d04df750e49fb4938b880af"
+    }
+  ],
+  "icons": "temporary existing artwork retained",
+  "desktop_control": "none; hidden headless Unity only",
+  "manual_review": "NOT RUN; ready for user in game",
+  "commit_push": "NOT RUN",
+  "copy_presentation": "Short effects; shared RankCopies/value explanations; standard cost and targeting headers; no active/passive labels; one rule link per node."
+}

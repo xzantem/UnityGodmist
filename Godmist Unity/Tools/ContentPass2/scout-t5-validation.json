@@ -1,0 +1,264 @@
+{
+  "card": "CP2-07",
+  "status": "ACCEPTED",
+  "branch": "codex/v0.2.0-content-pass-2",
+  "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
+  "scope": {
+    "nodes": 10,
+    "active_skills": 3,
+    "icons": 10,
+    "trees": [
+      "tree.scout.assassin",
+      "tree.scout.blade_dancer"
+    ]
+  },
+  "decisions": {
+    "forward_roll": "One guaranteed critical hit in next attack cast, lost on all-miss cast; one direct-hit dodge; free tile distance1-2; effects until consumed/combat end, no stacking.",
+    "recovered_strength": "One stack per actual own knife recovered; cap3; 8/16/25% per stack for whole next damaging direct cast; no DoT; spend on miss.",
+    "bottled_venom": "Immediate pulse and start of next two own turns; Manhattan radius2;70% base poison chance;40% average attack per tick for3 turns; normal poison bonuses/resistance; applied poison survives exit."
+  },
+  "tests": {
+    "runs": [
+      {
+        "file": "LocalHandoffs/cp2-07-scout-t5-20261102/runtime-first.xml",
+        "sha256": "56b1a91db6ced7bf064fb659fd50191e1573cddf0fe68b56087de967c683ed55",
+        "total": 69,
+        "passed": 69,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-07-scout-t5-20261102/regression-first.xml",
+        "sha256": "f8acd7fc50378046201c2569ec88e09de207573a4658c8ab2f1a0f2578b45fc3",
+        "total": 623,
+        "passed": 621,
+        "failed": 2,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-07-scout-t5-20261102/regression-final.xml",
+        "sha256": "011f6460c092d2fdcbce860a770f8e0a7f20ac492f83acd52aac9568697d7d79",
+        "total": 138,
+        "passed": 138,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-07-scout-t5-20261102/preview-final.xml",
+        "sha256": "c129dad66e5fff042a91473fcf71a5a6ea0f5118b9560b2d6ccacdd8da03f841",
+        "total": 106,
+        "passed": 103,
+        "failed": 3,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-07-scout-t5-20261102/copy-final.xml",
+        "sha256": "4ac4fd606cc8303cf56200e4bbdf5873c9a1d78695f5e8b9b8bc0c8aad3dea1a",
+        "total": 92,
+        "passed": 92,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "latest_per_distinct_functional_case": {
+      "passed": 642,
+      "failed": 0,
+      "skipped": 0
+    },
+    "graphics_exports_unverified_in_headless": [
+      "Godmist.Tests.EditMode.SkillTooltipReviewImplementationTests.ExportActualCharacterScreens",
+      "Godmist.Tests.EditMode.SkillTooltipReviewImplementationTests.ExportAllCalculationScreens"
+    ],
+    "graphics_note": "The optional broad tooltip fixture included two screenshot exporters. ActualCharacterScreens failed RenderTexture.Create under -nographics; AllCalculationScreens initially stopped on unlinked numbers. Text coverage was fixed/retested separately; neither screenshot export is claimed PASS."
+  },
+  "authoring": {
+    "evidence_sha256": "347767e89a32aeb635302bec4d083cb0b81c97417768c52d0f58983c9ecaa0f6",
+    "older_node_records_preserved": 40,
+    "class_assets_unchanged": true,
+    "repeat_byte_identical": true,
+    "exact_unity_authored_files": [
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a1-32.png",
+        "sha256": "c31f43f142f6eaaffc7b3a0943963f5fa7101092d28625d3220a3370c4b332e6"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a1-32.png.meta",
+        "sha256": "bc9708722d73accbf908baa33c7f9f9305f5d48af2ad23073d5c544ec6d1dcea"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a2-32.png",
+        "sha256": "0472c219f7353218f7edaca637266a4c2e3cc8d100e4f706d1e0e9c4d0b0d842"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a2-32.png.meta",
+        "sha256": "49143b46b24294748e9cad04b3b4b233b6a5ef7440d2973d6c07e9d4ce8ca038"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a3-32.png",
+        "sha256": "39c48214c53515bdc062575ecf5d486b1bc58fac5fdf0122c7c7b133eff74ed2"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a3-32.png.meta",
+        "sha256": "80b9db8813eea8ff281e4711ca52b06bc79e8a457a408646c5f3aaaf9c252ca0"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a4-32.png",
+        "sha256": "d68e7b417885b1e3982e34e2fed1e887082ebf6526638b4ea07949997e64630c"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a4-32.png.meta",
+        "sha256": "ef21d18b529da20538df4bcf1d2c2ae2c9fc73b11118126f276805fe49774677"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a5-32.png",
+        "sha256": "9834b9b609fbf7b71df8c7e86f1bafacdbb4bc7307993479eafafd1332aae43e"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a5-32.png.meta",
+        "sha256": "ed2b23cdec98b4be1a6e94981219c3169d43795cedbc2e94e67a7df445c573bd"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b1-32.png",
+        "sha256": "d15dd89b0c91e9cd8a69fae71fd04243eedee3fd1c1bb6406d394efb52162235"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b1-32.png.meta",
+        "sha256": "92aca746fd9a095ba66b65613b2224da323d37a65308abc237de5ae2fb702678"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b2-32.png",
+        "sha256": "e7be7b1b31acd7a9f83c388dc1c6e462692214470d63a48ab041e724c2b6ce52"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b2-32.png.meta",
+        "sha256": "6b1ce9acd15885c4085f0bf8c2619aa9b57ab17ea8482dcba315e73f14ac7577"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b3-32.png",
+        "sha256": "8622b8ded4b2b5c6c4cfce602686faf25a6ad6d532cfaa4a11f2125b308d78ab"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b3-32.png.meta",
+        "sha256": "1931019e539b171d34f7a473bae09742ee985a21803a1694adaf002b9287f097"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b4-32.png",
+        "sha256": "e21a9df3a91de9fb7db157ac2b80305b1916309dcd28eaa3615d4820d8103c12"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b4-32.png.meta",
+        "sha256": "d3f928dd6591846af603269352ecdaeb8f7725c295207eff9c4ccb8b1b2f8ea6"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b5-32.png",
+        "sha256": "4f4b195e47783d2f640096791537e21889569b7fd42d61ce6b20f40bf02dfa9e"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b5-32.png.meta",
+        "sha256": "ee2e9b6e0f5e970ea29f566a4bcb2facc91140ce2a605890b4d2e5c7e79ca244"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5.meta",
+        "sha256": "3788673bbd994f035e21379e6f9dab494202036166dd1b7cbb6fbec9428d1792"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutT5_a2.asset",
+        "sha256": "83d62e3b8720b2633ae2caa1c7a3e6776dc70ee4d12d4338ea51c377587989ce"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutT5_a2.asset.meta",
+        "sha256": "9f82c9a138b8ec9b0f9d55932e8047b4c614cd2976ab7bbb3e399eb13d1cab19"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutT5_b1.asset",
+        "sha256": "4e62acdfb367736b4985ebb032d69e2b7b71ff20e43aef9ce3c67e9431b3bf55"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutT5_b1.asset.meta",
+        "sha256": "7058c0ef3d880f6142a74fbb66bc5fa748592a5b8944c8fa30a8aa16a25012ef"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutT5_b4.asset",
+        "sha256": "5e8e20a386d0198974b9abd77f7d1bc37f61febc999b01c3e33cd72c3cf260f0"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_ScoutT5_b4.asset.meta",
+        "sha256": "6f3b6a82e21fd463253bf114562618b1e36b75a919a9c35c0f293c665b7c890a"
+      },
+      {
+        "path": "Assets/_Project/Scripts/Systems/Combat/ScoutCombatSystem.Tier5.cs.meta",
+        "sha256": "a9634d80e6ebb5f57fd04242947cae0bd7f56fc5b2075cdcacc1d048547f5fca"
+      },
+      {
+        "path": "Assets/_Project/Scripts/Editor/ContentPass2ScoutT5Setup.cs.meta",
+        "sha256": "97f2a5727309ae6d50652b6130ea3012d67f067d45bd5cd0ac181716227b564c"
+      },
+      {
+        "path": "Assets/_Project/Tests/EditModeTests/ScoutContentTests.Tier5.cs.meta",
+        "sha256": "b3f21a3217f6bfee886bbf35ba3946971d10e3dffcbf85fc9b0b7c394ec4fcfe"
+      },
+      {
+        "path": "Assets/_Project/Tests/EditModeTests/ScoutContentTests.Tier5Integration.cs.meta",
+        "sha256": "caa349eb3a32ed9999d2ca17f8e3b4d985a8923e3c363db66e00a277f7fae74f"
+      },
+      {
+        "path": "Assets/_Project/Tests/EditModeTests/SkillTreePresentationTests.ScoutT5.cs.meta",
+        "sha256": "7e76009c3b83e9c9a78bfa03bfb9691c4b5862bd35442ca81b1a58d095530f31"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_Assassin.asset",
+        "sha256": "eccc1bf2ac073c7c2572f8ef02b6ea6af75fbf4055f75667c76f42e2866efad9"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_BladeDancer.asset",
+        "sha256": "4c9da266a37e743bc40c8ee845ed7e5157355745f06b1de3622f25daa1d1381e"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset",
+        "sha256": "27566e788f21ae4a43273a786a75a1505b30cb00a7a1eca600cdbdf243a677aa"
+      }
+    ]
+  },
+  "icons": {
+    "nearest_sampling_passed": 10,
+    "aseprite_roundtrip_passed": 10,
+    "records_sha256": "38e26cf8f0eebc9a7872759b87b91c77a31036cae21b48b24391bae9703750f6",
+    "visual_review": "native and nearest4x grid inspected",
+    "original_records_sha256": "f3e3fd056f445bc374e0cc7af969795286c7ad2e70e85c7b8d45bc955415f164"
+  },
+  "source_snapshot_parity": {
+    "tracked_changed_cs": 24,
+    "new_cs": 5,
+    "pose_catalog_sha256": "bd3a175e3da47c326dc9d04477b479c59604fc81b2056adff749755c47cf6ced"
+  },
+  "planning_validation": {
+    "passed": 30,
+    "failed": 0
+  },
+  "debug_history": [
+    "First author attempt rejected missing stable effect reference; fixed explicit referencedEffectId=move and reran idempotent authoring.",
+    "First regression failures: mistaken old recovery-cost expectation25 corrected back to unchanged20; stale four-tier no-scroll UI expectation replaced with overflow/reachability check.",
+    "Retest compile caught missing namespace on historical setup hook; fixed Godmist.Editor qualifier.",
+    "Final self-review fixed roll preview with critical avoidance to keep only one guaranteed critical across the cast.",
+    "Numeric tooltip coverage found unlinked values in new Scout skills and two existing Man-at-Arms descriptions; linked them through the shared value-detail formatter."
+  ],
+  "save": "No schema changes. New counters are BattleUnit-local; existing SP/ranks and legacy node IDs preserved.",
+  "limitations": [
+    "No player build",
+    "No FPS measurement",
+    "No manual game-window rendering or gameplay smoke by agent",
+    "Existing Jerzy shadow/tonic/throw/melee poses reused; no dedicated new roll animation"
+  ],
+  "git": "No CP2-07 stage/commit/push. Existing CP2-03/04 and unrelated user changes remain local.",
+  "palette_followup": {
+    "status": "ACCEPTED",
+    "date": "2026-11-02",
+    "report": "Tools/Art/IconPaletteFix20261102/validation.json",
+    "original_authoring_hashes_are_historical": true,
+    "note": "Production PNG bytes were subsequently corrected. All original asset/meta/reference/code hashes remain unchanged; current icon hashes are in updated records.json and palette validation."
+  },
+  "user_acceptance": {
+    "date": "2026-11-02",
+    "message": "akceptuje, mozesz robic nastepną karte"
+  }
+}

@@ -260,3 +260,67 @@ MonoBehaviour:
     <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.blade_dancer.t5_1
+    <DisplayName>k__BackingField: Jad w Butelce
+    <Description>k__BackingField: "Przez 3 pulsy pr\xF3buje zatru\u0107 wrog\xF3w
+      w promieniu 2: 70% szansy, 40% \u015Bredniego ataku na tur\u0119 przez 3 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0e2d074d09f99244880ce4ed200ed2ca, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 8b8f5ee0a93442e4cb027c034e104ecc, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.blade_dancer.t5_2
+    <DisplayName>k__BackingField: "Odzyskana Si\u0142a"
+    <Description>k__BackingField: "Ka\u017Cdy odzyskany sztylet zwi\u0119ksza obra\u017Cenia
+      nast\u0119pnego ataku o 8%, maksymalnie do 24%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: d8fda828ef39c9d4d905ffc9582fd501, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.scout.blade_dancer.efficient_recovery
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.blade_dancer.t5_3
+    <DisplayName>k__BackingField: Sokoli Wzrok
+    <Description>k__BackingField: "Zwi\u0119ksza zasi\u0119g umiej\u0119tno\u015Bci
+      dystansowych o 2 pola."
+    <Icon>k__BackingField: {fileID: 21300000, guid: fe4727b529fa4a14594ff3cca21fb1d6, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.scout.blade_dancer.accurate_throw
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.blade_dancer.t5_4
+    <DisplayName>k__BackingField: "Kl\u0105twa Schorowanych"
+    <Description>k__BackingField: "Zadaje losowe obra\u017Cenia fizyczne, w zwarciu
+      60%. Przeciw zatrutemu celowi: +40% obra\u017Ce\u0144 i przed\u0142u\u017Cenie
+      zatrucia o 1 tur\u0119 po trafieniu."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7894427f644407743a0e35a1d3d0bb17, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: b01edb798797f374798e31119844ac79, type: 2}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.scout.blade_dancer.poison_master
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.blade_dancer.t5_5
+    <DisplayName>k__BackingField: Worek na Sztylety
+    <Description>k__BackingField: "Zwi\u0119ksza maksymaln\u0105 liczb\u0119 sztylet\xF3w
+      o 2."
+    <Icon>k__BackingField: {fileID: 21300000, guid: c2238da9d01a92241a71858a3673812d, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.scout.blade_dancer.spare_daggers
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []

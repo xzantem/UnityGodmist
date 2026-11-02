@@ -48,6 +48,7 @@ MonoBehaviour:
           <Scale>k__BackingField: 1
           <Offset>k__BackingField: 0
         <DurationTurns>k__BackingField: 0
+        <CooldownTurns>k__BackingField: 5
         <Parameters>k__BackingField: []
       <Tooltip>k__BackingField:
         <TitleOverride>k__BackingField: 
@@ -306,5 +307,63 @@ MonoBehaviour:
     <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField:
     - <NodeId>k__BackingField: node.scout.assassin.throat_cut
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.assassin.t5_1
+    <DisplayName>k__BackingField: Kondycja
+    <Description>k__BackingField: "Zmniejsza koszt Przewrotu w Prz\xF3d do 40% maksymalnych
+      punkt\xF3w akcji."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8993cc84b89bcc445a7bb2e914079c95, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.scout.assassin.t5_2
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.assassin.t5_2
+    <DisplayName>k__BackingField: "Przewr\xF3t w Prz\xF3d"
+    <Description>k__BackingField: "Przemieszcza o 1\u20132 pola. Zapewnia jeden krytyk
+      w nast\u0119pnym ataku i jeden gwarantowany unik."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 014f6abbf074c574589cc8d6cc790adb, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 634a6f99380dcf04db3950abe6652838, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.assassin.t5_3
+    <DisplayName>k__BackingField: Przewidywanie
+    <Description>k__BackingField: "Daje 20% szansy na zamian\u0119 chybienia w trafienie."
+    <Icon>k__BackingField: {fileID: 21300000, guid: c6082aad98e682d4fa8027761f26e0e2, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.assassin.t5_4
+    <DisplayName>k__BackingField: "Cios Poni\u017Cej Pasa"
+    <Description>k__BackingField: "Krytyczne trafienia maj\u0105 30% szansy na og\u0142uszenie
+      na 1 tur\u0119."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8bc34d72ba728af47bb6b8057c2005b3, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.scout.assassin.t5_5
+    <DisplayName>k__BackingField: "Ci\u0119cie bez Honoru"
+    <Description>k__BackingField: "Podwaja szans\u0119 Podci\u0119cia Gard\u0142a
+      przeciw og\u0142uszonym przeciwnikom."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 9f8d9c0bf1ef90747a7a2f84e334fa76, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.scout.assassin.pommel_strike
       <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []

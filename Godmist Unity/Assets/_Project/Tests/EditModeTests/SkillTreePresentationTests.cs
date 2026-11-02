@@ -99,13 +99,16 @@ namespace Godmist.Tests.EditMode
                 Assert.That(((Image)Field(availableCard,"disabledOverlay")).enabled,Is.False,"No points must not look like a structural lock.");
                 Assert.That(((TMP_Text)Field(view,"investmentBlockText")).text,Does.Contain("Brak dostępnych punktów"));
                 var tabs=(Transform)Field(view,"treeTabRoot");var second=tabs.GetComponentsInChildren<Button>().Last();second.onClick.Invoke();
-                Assert.That(((SkillTreeDefinition)Field(view,"selectedTree")).Id,Is.EqualTo(character.ClassData.SkillTrees[1].Id));
+                Assert.That(((SkillTreeDefinition)Field(view,"selectedTree")).Id,Is.EqualTo(character.ClassData.SkillTrees.Last().Id));
                 Assert.That(character.AvailableSkillPoints,Is.Zero);
-                Assert.That(tabs.GetComponentsInChildren<Button>().Last().GetComponentInChildren<TMP_Text>().text,Does.Contain(character.ClassData.SkillTrees[1].DisplayName));
+                Assert.That(tabs.GetComponentsInChildren<Button>().Last().GetComponentInChildren<TMP_Text>().text,Does.Contain(character.ClassData.SkillTrees.Last().DisplayName));
                 yield return null;yield return null;yield return null;
                 var detailScroll=(ScrollRect)Field(view,"detailsScroll");
                 Assert.That(detailScroll.verticalScrollbar.gameObject.activeSelf,Is.EqualTo(detailScroll.content.rect.height > detailScroll.viewport.rect.height + .01f),"Scrollbar visibility must match actual detail overflow.");
-                Assert.That(((ScrollRect)Field(view,"treeScroll")).verticalScrollbar.gameObject.activeSelf,Is.False,"Four tiers fit the default window.");
+                var treeScroll=(ScrollRect)Field(view,"treeScroll");
+                Assert.That(treeScroll.verticalScrollbar.gameObject.activeSelf,
+                    Is.EqualTo(treeScroll.content.rect.height>treeScroll.viewport.rect.height+.01f),
+                    "Five tiers must remain reachable through scrolling when they exceed the viewport.");
             }
             finally{Object.DestroyImmediate(root);}
             yield return new ExitPlayMode();

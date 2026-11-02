@@ -1,0 +1,228 @@
+{
+  "status": "ACCEPTED",
+  "scope": "Color corrections only; no code/mechanics/serialized references changed.",
+  "corrected": [
+    {
+      "key": "scout_a1",
+      "id": "node.scout.assassin.t5_1",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a1-32.png",
+      "sha256": "a2fa3d6466c15cee98909818a3085681699597b136fad54952d33628c42042f1",
+      "unchanged_meta_sha256": "bc9708722d73accbf908baa33c7f9f9305f5d48af2ad23073d5c544ec6d1dcea",
+      "background": "plum",
+      "dark_border_mean_rgb": [
+        42.68,
+        27.44,
+        44.36
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_a2",
+      "id": "node.scout.assassin.t5_2",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a2-32.png",
+      "sha256": "7297bc782c1c125739b12a33cb7fdd1fa0fe4c49223d2a32082d44d90e8dfc39",
+      "unchanged_meta_sha256": "49143b46b24294748e9cad04b3b4b233b6a5ef7440d2973d6c07e9d4ce8ca038",
+      "background": "mobility",
+      "dark_border_mean_rgb": [
+        20.14,
+        11.52,
+        97.11
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_a3",
+      "id": "node.scout.assassin.t5_3",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a3-32.png",
+      "sha256": "40c7a5018dd805dc4b8c19bc186e07afb967b22a8923f6cf3e732ee977bb03fe",
+      "unchanged_meta_sha256": "80b9db8813eea8ff281e4711ca52b06bc79e8a457a408646c5f3aaaf9c252ca0",
+      "background": "plum",
+      "dark_border_mean_rgb": [
+        40.21,
+        26.44,
+        47.27
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_a4",
+      "id": "node.scout.assassin.t5_4",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a4-32.png",
+      "sha256": "0ce11f97aaeea2a3e7b936b4790f16c854c284e81e4f4906a7fa2fd91a342d16",
+      "unchanged_meta_sha256": "ef21d18b529da20538df4bcf1d2c2ae2c9fc73b11118126f276805fe49774677",
+      "background": "plum",
+      "dark_border_mean_rgb": [
+        50.08,
+        36.54,
+        50.7
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_a5",
+      "id": "node.scout.assassin.t5_5",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/a5-32.png",
+      "sha256": "e1815d142260b4e6c174332af55f72a30a3c5d6db440aac5b496b68e7719dd64",
+      "unchanged_meta_sha256": "ed2b23cdec98b4be1a6e94981219c3169d43795cedbc2e94e67a7df445c573bd",
+      "background": "plum",
+      "dark_border_mean_rgb": [
+        39.87,
+        27.98,
+        47.15
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_b1",
+      "id": "node.scout.blade_dancer.t5_1",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b1-32.png",
+      "sha256": "29bd366f59e6a865013a4d92d403e38b53bd1efb0f04e5e3f0325da3f490db66",
+      "unchanged_meta_sha256": "92aca746fd9a095ba66b65613b2224da323d37a65308abc237de5ae2fb702678",
+      "background": "poison",
+      "dark_border_mean_rgb": [
+        43.39,
+        52.51,
+        20.37
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_b2",
+      "id": "node.scout.blade_dancer.t5_2",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b2-32.png",
+      "sha256": "fd5d7f3bcfa312fe190d3d6eccef18070cd3913dbc205e73fb9a30b1f60f7296",
+      "unchanged_meta_sha256": "6b1ce9acd15885c4085f0bf8c2619aa9b57ab17ea8482dcba315e73f14ac7577",
+      "background": "teal",
+      "dark_border_mean_rgb": [
+        18.82,
+        48.54,
+        52.16
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_b3",
+      "id": "node.scout.blade_dancer.t5_3",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b3-32.png",
+      "sha256": "3c90207f1e7ad0ace7eaa85a1aec0c7a7d6552c38ca675bc1a9eb0c2e087864c",
+      "unchanged_meta_sha256": "1931019e539b171d34f7a473bae09742ee985a21803a1694adaf002b9287f097",
+      "background": "teal",
+      "dark_border_mean_rgb": [
+        28.04,
+        42.91,
+        44.98
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_b4",
+      "id": "node.scout.blade_dancer.t5_4",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b4-32.png",
+      "sha256": "4d2c9b87844546ab62a0ab0ccb78ea0b5dd3b87c2e80b991b829ccf3e74fc39c",
+      "unchanged_meta_sha256": "d3f928dd6591846af603269352ecdaeb8f7725c295207eff9c4ccb8b1b2f8ea6",
+      "background": "poison",
+      "dark_border_mean_rgb": [
+        34.64,
+        43.12,
+        12.49
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "scout_b5",
+      "id": "node.scout.blade_dancer.t5_5",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/ScoutT5/b5-32.png",
+      "sha256": "bf620f859646e32d1f65759e93b17c4a6fbfe14b7fad9d86dc5697e41ffe4671",
+      "unchanged_meta_sha256": "ee2e9b6e0f5e970ea29f566a4bcb2facc91140ce2a605890b4d2e5c7e79ca244",
+      "background": "teal",
+      "dark_border_mean_rgb": [
+        17.1,
+        43.91,
+        47.07
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "armored_t1_2",
+      "id": "node.warrior.man_at_arms.t1_2",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_2-32.png",
+      "sha256": "16e04009a2ee146173fc5d8ace10b6f7979717a5dc8aa7f0ff031732f033175b",
+      "unchanged_meta_sha256": "54ebf551f253f3b9123ace1206eb05c5761b8cea0c6e0ad23dbb76ba6bac7daf",
+      "background": "burgundy",
+      "dark_border_mean_rgb": [
+        38.85,
+        6.32,
+        12.87
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "armored_t2_3",
+      "id": "node.warrior.man_at_arms.t2_3",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_3-32.png",
+      "sha256": "981c84f21c0c06ad7f44cb2bed7023f4541547cb8ac9c106ff771ff8df59b9ed",
+      "unchanged_meta_sha256": "e44990929eced8db7b15d69a18cb99b32dd7f435dc4470a4b096bc20d809f092",
+      "background": "burgundy",
+      "dark_border_mean_rgb": [
+        51.24,
+        28.44,
+        36.44
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "armored_t4_1",
+      "id": "node.warrior.man_at_arms.t4_1",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_1-32.png",
+      "sha256": "5fd40c14f8f99c798e1c53350c6db733995cc9bfe92d4b9afcc85b9b5d33ec5e",
+      "unchanged_meta_sha256": "7c68fe6699e32278605d141f140c4fbda1688c487ff169ea334c8243f55fee72",
+      "background": "burgundy",
+      "dark_border_mean_rgb": [
+        56.49,
+        23.67,
+        29.96
+      ],
+      "background_family_check": "PASS"
+    },
+    {
+      "key": "armored_t5_3",
+      "id": "node.warrior.man_at_arms.t5_3",
+      "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_3-32.png",
+      "sha256": "8401dd95dfe2bcc778502a3beccd494414dd84f7d33a9e8e83f62d3dee7e2e08",
+      "unchanged_meta_sha256": "b000c4c96d7a822acb978e1961024610c4ce9b265dd675bd46b42aac475a8a61",
+      "background": "burgundy",
+      "dark_border_mean_rgb": [
+        53.04,
+        16.73,
+        24.25
+      ],
+      "background_family_check": "PASS"
+    }
+  ],
+  "changed_production_pngs": 14,
+  "unchanged_code_asset_meta_and_other_icon_files": 6675,
+  "warrior_audit": {
+    "commander_T5": "5/5 backgrounds match existing navy; left untouched",
+    "brawler_T5": "5/5 backgrounds match existing burgundy; left untouched",
+    "man_at_arms": "21 passive icons retain CP2-06 brown tree palette;4 active icons restored to Warrior burgundy with semantic accents"
+  },
+  "scout_audit": "4 Assassin passives restored to plum;3 Blade Dancer passives to documented teal;3 actives use ability-specific movement/poison palettes",
+  "export_checks": {
+    "native_rgba_opaque": 14,
+    "source_nearest_sampling": 35,
+    "aseprite_roundtrip": 35
+  },
+  "unity_import": "PASS:14 corrected native32 icons;stable node paths and active skill references;Point/32PPU/no mipmaps;125 nodes retain valid icons. No asset/meta authoring.",
+  "unity_import_evidence_sha256": "53cd0f6e8e2e2f48cc95bc40174a85601360895bee25c48f25eea05d66810464",
+  "visual_review": "Before/after/reference grid inspected at native32 and nearest4x. Crimson wound kept crimson, stun accents muted blue; materials preserved.",
+  "generation": "Built-in image_gen,14 individual initial edits plus4 targeted refinements; prompt/provenance and before sources retained in Tools/Art/IconPaletteFix20261102.",
+  "limitations": [
+    "No manual game-window visual smoke",
+    "No gameplay regression rerun: code/test/asset/meta content unchanged by this correction"
+  ],
+  "git": "No commit or push.",
+  "user_acceptance": {
+    "date": "2026-11-02",
+    "message": "akceptuje, mozesz robic nastepną karte"
+  }
+}

@@ -1,6 +1,7 @@
 using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 
@@ -14,6 +15,8 @@ namespace Godmist.Views.UI
         {
             public string Id;
             public Sprite Icon;
+            // Runtime contextual names; ordinary glossary aliases remain case-insensitive.
+            public bool MatchCase { get; set; }
             public string Title;
             [Tooltip("Dodatkowe formy nazwy wykrywane w opisach, np. 'jednostkę', 'jednostki'.")]
             public List<string> Aliases = new();
@@ -53,7 +56,7 @@ namespace Godmist.Views.UI
             {
                 Id = entry.Id, Icon = entry.Icon,
                 Title = title,
-                Description = description, Aliases = aliases
+                Description = description, Aliases = aliases, MatchCase = entry.MatchCase
             };
         }
 
@@ -78,6 +81,12 @@ namespace Godmist.Views.UI
         {
             return LinkifyEntries(richText, null, excludedId);
         }
+
+        public string Linkify(string text, string excludedId, IEnumerable<Entry> contextualEntries)
+            => LinkifyEntries(text, (contextualEntries ?? Array.Empty<Entry>()).Concat(entries ?? new List<Entry>()), excludedId);
+
+        public static string LinkifyWithEntries(string text, IEnumerable<Entry> contextualEntries, string excludedId = null)
+            => LinkifyEntries(text, contextualEntries, excludedId);
 
         private static string LinkifyEntries(
             string richText,
@@ -157,11 +166,16 @@ namespace Godmist.Views.UI
                     }
                 }
                 if (linkDepth == 0
-                    && TryMatchCandidate(richText, index, candidates, linkedIds, excludedId, out var entry, out var length))
+                    && TryMatchCandidate(richText, index, candidates, out var entry, out var length))
                 {
-                    result.Append("<link=\"").Append(entry.Id).Append("\"><color=#7EDBFF>")
-                        .Append(richText, index, length).Append("</color></link>");
-                    linkedIds.Add(entry.Id);
+                    if (string.Equals(entry.Id, excludedId, StringComparison.OrdinalIgnoreCase) || linkedIds.Contains(entry.Id))
+                        result.Append(richText, index, length);
+                    else
+                    {
+                        result.Append("<link=\"").Append(entry.Id).Append("\"><color=#7EDBFF>")
+                            .Append(richText, index, length).Append("</color></link>");
+                        linkedIds.Add(entry.Id);
+                    }
                     index += length;
                     continue;
                 }
@@ -197,19 +211,15 @@ namespace Godmist.Views.UI
             string text,
             int start,
             List<(Entry Entry, string Term, int Priority, int Order)> candidates,
-            HashSet<string> linkedIds,
-            string excludedId,
             out Entry entry,
             out int length)
         {
             foreach (var candidate in candidates)
             {
-                if (candidate.Entry == null
-                    || string.Equals(candidate.Entry.Id, excludedId, StringComparison.OrdinalIgnoreCase)
-                    || linkedIds.Contains(candidate.Entry.Id)) continue;
+                if (candidate.Entry == null) continue;
                 length = candidate.Term.Length;
                 if (start + length <= text.Length
-                    && string.Compare(text, start, candidate.Term, 0, length, StringComparison.OrdinalIgnoreCase) == 0
+                    && string.Compare(text, start, candidate.Term, 0, length, candidate.Entry.MatchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase) == 0
                     && HasTermBoundaries(text, start, length))
                 {
                     entry = candidate.Entry;

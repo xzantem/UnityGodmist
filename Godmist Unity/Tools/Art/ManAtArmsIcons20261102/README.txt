@@ -14,3 +14,5 @@ nie nadpisuje records.json i nie deklaruje ponownego roundtripu.
 Unity import: Sprite Single, 32 PPU, Point, Clamp, bez mipmap i kompresji;
 przez ContentPass2ManAtArmsSetup oraz AssetDatabase, z zachowaniem GUID.
 Nie uruchamiaj pełnego przebudowywania dawnych drzew dla tej karty.
+
+Korekta palet 2026-11-02: finalne źródła/PNG/Aseprite i records.json zaktualizowane. Oryginalne źródła, edycje image_gen i wzorce: ../IconPaletteFix20261102. Konwencja: ../ICON_COLOR_CONVENTIONS.md. Początkowy prompt pozostaje w initial_prompt; finalne wejścia edycji w referenced_image_paths.

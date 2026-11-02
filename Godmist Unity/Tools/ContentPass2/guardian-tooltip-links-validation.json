@@ -1,0 +1,96 @@
+{
+  "card": "CP2-09 tooltip reference correction",
+  "date": "2026-11-02",
+  "status": "ACCEPTED",
+  "root_cause": "Guardian node names absent from glossary candidates; shorter boss term Odwet matched inside Szybki Odwet. Skipping repeated/excluded full terms also exposed shorter suffixes.",
+  "fix": [
+    "Register references for all 25 real Guardian nodes, with node icon and actual/next-rank copy",
+    "Recognize Polish inflections used in descriptions and rules",
+    "Reuse entries in final rich-text linking; preserve already-authored links",
+    "Consume full matched term even when already linked or excluded; do not link a shorter suffix",
+    "Keep bare boss Odwet mapped to original Skeleton Slayer entry",
+    "Verify actual hover tooltip, not unlinked details-panel summary"
+  ],
+  "runs": [
+    {
+      "report": "LocalHandoffs/cp2-09-tooltip-links-20261102/tests.xml",
+      "passed": 27,
+      "failed": 0,
+      "sha256": "b9abb99062896ce32ffe90df22a4d353b9cd5181a9796ce91e780bc519106980"
+    },
+    {
+      "report": "LocalHandoffs/cp2-09-tooltip-links-20261102/final.xml",
+      "passed": 80,
+      "failed": 3,
+      "sha256": "4d0f51f887035999dcdf7e9ccb332b117d27dffcb81a01d87bb01894d4cfcdb2"
+    },
+    {
+      "report": "LocalHandoffs/cp2-09-tooltip-links-20261102/verified.xml",
+      "passed": 51,
+      "failed": 1,
+      "sha256": "131b9c1d5236f611705d0eea7e0bd0fcd6e2659edbea58f2312d9f1d59128c36"
+    },
+    {
+      "report": "LocalHandoffs/cp2-09-tooltip-links-20261102/glossary-retest.xml",
+      "passed": 14,
+      "failed": 0,
+      "sha256": "6f400a8b93b813ad69c24073677ab256730aca178fcb624e8b099673276da146"
+    }
+  ],
+  "latest_current_tests": {
+    "passed": 83,
+    "failed": 0
+  },
+  "resolutions": [
+    "Initial broader headless run: corrected test assertion to inspect actual hover builder rather than intentionally plain panel summary",
+    "Render-status regression rerun with graphics enabled and its expected output directory created",
+    "Existing mana-description assertion checked obsolete word pozostała; now checks accepted 200%/100%/25% regeneration rule, production copy unchanged"
+  ],
+  "obsolete_test_replaced": [
+    "Godmist.Tests.EditMode.GlossaryMechanicsTests.ProductionGlossaryExplainsActualMechanics(\"mana\",\"pozostała\")"
+  ],
+  "checks": {
+    "all_25_node_titles_icons_and_descriptions": true,
+    "polish_inflections": true,
+    "boss_bare_name_preserved": true,
+    "full_name_repeated_and_excluded": true,
+    "no_serialized_asset_changes_required": true,
+    "git_diff_check": "PASS",
+    "desktop_control_used": false
+  },
+  "files": [
+    {
+      "path": "Assets/_Project/Scripts/Views/UI/CombatTooltipGlossary.cs",
+      "sha256": "52e9a2db8ce5177ad64724fcf4bdfdb62e72a8276747ca26b0be820ea880d046"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Views/UI/Workspace/GuardianDesignPreviewCopy.cs",
+      "sha256": "893361e2792c3ef34995fbc97e9a8f786afab3f30949e36ef8d44153dc094402"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Views/UI/Workspace/SkillTreeTooltipPresentation.cs",
+      "sha256": "cc713a1e94a147172a52d73d074c77bbad2e4ab8e50bfe57bc6a1b5371565103"
+    },
+    {
+      "path": "Assets/_Project/Scripts/Views/UI/Workspace/UIWorkspaceTooltipView.cs",
+      "sha256": "e66205e94e9d4b3cd6b580aa6abb59c0f1dcf258fd50718ef6eed30a2f64d098"
+    },
+    {
+      "path": "Assets/_Project/Tests/EditModeTests/CombatTooltipGlossaryTests.cs",
+      "sha256": "d3f5c0b5779c181b5f502850531d93d6d843def6e14d242ce038d1dc1bce2993"
+    },
+    {
+      "path": "Assets/_Project/Tests/EditModeTests/SkillTreePresentationTests.GuardianPreview.cs",
+      "sha256": "299e3377cce98d95144b62069a6b6bb70e7631de795839892ddffc0b1e0d0e27"
+    },
+    {
+      "path": "Assets/_Project/Tests/EditModeTests/GlossaryMechanicsTests.cs",
+      "sha256": "488481ce9dd01da7079b7f6357a4f5e0a7215b9647d4ae56a413e37c34ecd24f"
+    },
+    {
+      "path": "Tools/ContentPass2/guardian-content.json",
+      "sha256": "bf33aa5fdb05fee2195804eb974ce9e16f00d6f6322c3cdd1eca86d8e60e19f0"
+    }
+  ],
+  "acceptance": "User accepted smoke and explicitly authorized commit/push on 2026-11-02"
+}

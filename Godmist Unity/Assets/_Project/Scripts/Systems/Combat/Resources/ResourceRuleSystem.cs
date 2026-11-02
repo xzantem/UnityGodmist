@@ -115,7 +115,7 @@ namespace Godmist.Systems.Combat
             var change = Execute(
                 unit,
                 (rule, pool) => rule is MomentumResourceRule momentum
-                    ? momentum.ProcessMovementSteps(pool, unit.MovementStepsThisTurn, completedSteps)
+                    ? momentum.ProcessMovementSteps(pool, GuardianCombatSystem.PaidSteps(unit), completedSteps)
                     : rule.ProcessMovement(pool, spentActionPoints));
 
             if (change > 0)

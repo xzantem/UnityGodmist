@@ -40,7 +40,9 @@ namespace Godmist.Systems.Combat
             if (skill == null) return 0;
             if (skill.SkillId == WarriorDischargeRules.SkillId) return WarriorDischargeRules.Cost(owner);
             explanation?.Add("resource_base",skill.ResourceCost);
-            var parameter=ResolveParameter(owner,skill,"resource_cost",skill.ResourceCost,explanation:explanation);
+            var baseCost=GuardianCombatSystem.DiscountedBaseCost(owner,skill,skill.ResourceCost);
+            if(baseCost!=skill.ResourceCost)explanation?.Add("Opanowanie",baseCost);
+            var parameter=ResolveParameter(owner,skill,"resource_cost",baseCost,explanation:explanation);
             var cost=Mathf.Max(0,Mathf.CeilToInt(parameter-.00001f));
             explanation?.Add("parameter_rounding",cost);
             cost=WarriorCombatSystem.Cost(owner,skill,cost);
@@ -62,6 +64,7 @@ namespace Godmist.Systems.Combat
             var index = -1;
             for (var i = 0; skill != null && i < skill.Effects.Count; i++) if (ReferenceEquals(skill.Effects[i], effect)) { index = i; break; }
             effect = MageCombatSystem.ResolveEffect(owner,skill,WarriorCombatSystem.ResolveEffect(owner,skill,ScoutCombatSystem.ResolveEffect(owner, skill, effect)));
+            effect = GuardianCombatSystem.ResolveEffect(owner,skill,effect);
             if(skill?.SkillId=="skill.paladin.grounding_wave")effect=effect.WithDisplacementDistance(1+PaladinCombatSystem.C(owner,"destruction_wave"));
             return effect.WithRuntimeParameters(
                 Mathf.RoundToInt(ResolveParameter(owner, skill, "hit_count", effect.DamageHitCount, effectIndex: index)),
@@ -75,7 +78,7 @@ namespace Godmist.Systems.Combat
             if (mode == null) return null;
             var index = -1;
             for (var i = 0; skill != null && i < skill.TargetModes.Count; i++) if (ReferenceEquals(skill.TargetModes[i], mode)) { index = i; break; }
-            var orderRange = WarriorCombatSystem.OrderRangeBonus(owner, skill);
+            var orderRange = WarriorCombatSystem.OrderRangeBonus(owner, skill)+(int)ScoutCombatSystem.RangeBonus(owner,skill);
             var extra = skill?.SkillId == "skill.scout.ricochet" ? ScoutCombatSystem.AssassinRank(owner,"farsight") switch {1=>1,2=>3,_=>0} : 0;
             if (skill?.SkillId == "skill.mage.sacrifice") mode = mode.WithChainTargets(1 + MageCombatSystem.W(owner, "mass_sacrifice"));
             return mode.WithChainTargets(mode.ChainTargets+(skill?.SkillId == "skill.scout.ricochet" ? 2*ScoutCombatSystem.AssassinRank(owner,"knife_bounce") : 0)).WithRuntimeRanges(
@@ -91,6 +94,7 @@ namespace Godmist.Systems.Combat
                 skill: skill, skillId: skill.SkillId, attackType: skill.AttackType,
                 resourceType: skill.ResourceType, resourceAmount: skill.ResourceCost);
             float flat = parameter == "accuracy" ? WarriorCombatSystem.AccuracyBonus(owner, skill) : 0, percent = 0, multiplier = 1;
+            if(parameter=="accuracy")flat-=GuardianCombatSystem.AccuracyPenalty(owner);
             if (flat != 0) explanation?.Add("Trening Skupienia", flat);
             foreach (var runtime in owner.Character.PassiveEffects ?? new List<PassiveEffectRuntime>())
             {

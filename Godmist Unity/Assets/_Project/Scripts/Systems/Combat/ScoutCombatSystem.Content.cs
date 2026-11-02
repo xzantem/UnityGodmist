@@ -44,6 +44,8 @@ namespace Godmist.Systems.Combat
             Add("node.scout.assassin.surprise",.3f*AssassinRank(source,"surprise"),StatusEffectSystem.IsInvisible(source));
             Add("node.scout.blade_dancer.accurate_throw",.02f*BladeRank(source,"accurate_throw")*Math.Max(0,context.Distance),context.Target!=null);
             if(context.SkillId=="skill.scout.ricochet")Add("node.scout.assassin.throw_power",ChainIndex(context)*.1f*AssassinRank(source,"throw_power"));
+            if(context.Skill!=null)Add("node.scout.blade_dancer.t5_2",RecoveredBonus(source));
+            if(context.SkillId==SickenedCurse)Add(SickenedCurse,.4f,StatusEffectSystem.HasStatus(context.Target,StatusEffectIds.Poison));
             return 1+bonus;
         }
         static int ChainIndex(PassiveEffectCombatContext context)
@@ -108,6 +110,7 @@ namespace Godmist.Systems.Combat
         public static void AfterSkillHit(CombatSession session, BattleUnit source, BattleUnit target, SkillData skill, bool combo, StatusEffectSystem statuses)
         {
             if (target?.Character?.LifeState != CharacterLifeState.Alive || statuses==null)return;
+            if(skill.SkillId==SickenedCurse)ExtendPoison(target);
             if (skill.SkillId=="skill.knife_toss" && UnityEngine.Random.value < .1f*BladeRank(source,"knee_throw"))
                 TimedStat(source,target,CharacterStatType.Speed,-15,3,"scout.knee_throw");
             if (combo && BladeRank(source,"combo_master")>0)
@@ -140,7 +143,7 @@ namespace Godmist.Systems.Combat
         {
             var rank=AssassinRank(context?.Source,"throat_cut");
             if(rank==0 || context.AttackType!=AttackType.Melee || context.Target?.Character==null)return damage;
-            var success=(roll?.Invoke() ?? UnityEngine.Random.value) < .01f*(1+rank*3);
+            var success=(roll?.Invoke() ?? UnityEngine.Random.value) < ThroatChance(context.Source,context.Target);
             if(success && context.Target.IsBoss)return damage*2;
             var effective=new CombatVariableSystem().ApplyDamageModifiers(context.Source,context.Target,damage);
             if(success && context.Target.Character.CurrentHealth+(context.Target.Character.ShieldPool?.TotalShield??0)<=effective*5)return damage*5;

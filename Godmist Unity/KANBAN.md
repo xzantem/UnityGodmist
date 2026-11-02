@@ -1,3 +1,66 @@
+## Audyt odwołań wszystkich drzewek — 2026-11-02 — ZAAKCEPTOWANY
+
+Rozszerzono poprawkę Strażnika na 10 drzewek/230 węzłów czterech klas.
+Właściwe node ID, ikony, opisy i odmiany nazw; rozróżnianie Przewidywania
+Zbrojnego/Skrytobójcy, zachowanie statusów i ogólnego leczenia. Opis
+odczytywany wspólnym rendererem w momencie otwarcia, z aktualną rangą.
+135/135 testów PASS; 460 wariantów przed zakupem i na maks. randze.
+Bez zmian istniejących serialized assets i mechanik. Odbiór użytkownika: smoke zaakceptowany, commit/push zlecony.
+Raport: CONTENT_PASS_2_TALENT_REFERENCE_AUDIT.md.
+Dowody: Tools/ContentPass2/talent-reference-audit-validation.json.
+Smoke: lokalny UNITY_HANDOFF.md.
+
+## CP2-09 — Strażnik T1–T5 — 2026-11-02 — ZAAKCEPTOWANA
+
+Korekta smoke: nazwy 25 węzłów Strażnika i ich odmiany prowadzą do
+realnych talentów z właściwą ikoną i rangą. Szybki Odwet nie odsyła do
+Odwetowego efektu Zabójcy Szkieletów. Parser chroni pełną nazwę także przy
+powtórzeniu lub wykluczeniu linku do siebie. Dowody:
+Tools/ContentPass2/guardian-tooltip-links-validation.json.
+
+CP2-08 v6 zaakceptowany do realizacji. Wdrożono 25 węzłów/44 rangi,
+trzy aktywne: Osłona w Ruchu, Prowokacja, Kontratak. T6/T7 usunięte
+z gry; pełny projekt zachowany. Zamiana Czujność/Refleks i standardowe
+Następne/Aktualne pozostają. 25 nowych ikon 32×32, edytowalne Aseprite,
+paleta Strażnika i kolory aktywnych zgodne z konwencją.
+
+Mechaniki, czasy, reakcje, ochrony pozycyjne, płatne/darmowe kroki,
+zniżka/refund Impetu, podglądy i AI podłączone do istniejącego systemu.
+Bez nowego schematu save i bez zmiany startera Jerzego/bazowego Impetu.
+Authoring Unity API: idempotencja, zachowanie pozostałych drzew/klasy,
+kolejności katalogu i istniejących ID. Assety przeniesione do aktywnego
+projektu, 65 plików zweryfikowanych byte-for-byte. Bez ręcznego wiring.
+
+Końcowy przebieg 911/911 PASS + retest 336/336 PASS (913 różnych testów), w tym panel drzewka, zakup/wyposażanie,
+walka, AI, statystyki, loadout i zapisy. Art native/Aseprite: 25/25 PASS.
+Dowody: Tools/ContentPass2/guardian-validation.json.
+Opis: CONTENT_PASS_2_GUARDIAN.md. Smoke: lokalny UNITY_HANDOFF.md.
+Nie sterowano pulpitem ani otwartym Editorem. Smoke zaakceptowany; commit/push zlecony.
+
+## Korekta palet ikon CP2-05/06/07 — 2026-11-02 — ZAAKCEPTOWANA
+
+Audyt oryginalnych wzorców: T5 Dowódcy/Awanturnika zgodne. Poprawiono
+4 aktywne ikony Zbrojnego i 10 nowych ikon skauta. W produkcji zmieniło się
+14 PNG, bez zmian kodu, mechanik, assetów, meta i GUID. Native nearest32 /
+Aseprite roundtrip 35/35 PASS; kontrola importu i referencji w raporcie
+Tools/Art/IconPaletteFix20261102/validation.json. Konwencja zapisana
+w Tools/Art/ICON_COLOR_CONVENTIONS.md i podlinkowana z CONVENTIONS.md.
+Użytkownik zaakceptował korektę i polecił przejście do CP2-08. Bez automatycznego commit/push.
+
+## CP2-07 — T5 Skrytobójcy i Tancerza Ostrzy — 2026-11-02 — ZAAKCEPTOWANA
+
+Dziesięć węzłów T5, trzy aktywne skille, dziesięć dedykowanych ikon i opisy
+każdej rangi. Decyzje użytkownika zamknięte: Przewrót daje jeden krytyk,
+Odzyskana Siła nalicza za każdy nóż, Jad pulsuje od razu i przez dwa kolejne
+początki tur. Authoring addytywny i idempotentny, 40 dawnych węzłów i class
+assets zachowane. Focused 69/69 PASS; szersza regresja 621/623, po poprawie
+dwóch oczekiwań testów retest 138/138 PASS. UI obu rzędów i tooltipy PASS.
+Końcowy retest podglądów/tekstów 92/92 PASS; 642 różne końcowe funkcjonalne PASS.
+Dwa eksportery screenshotów nieweryfikowane bez grafiki. Pełny raport:
+Tools/ContentPass2/scout-t5-validation.json.
+Specyfikacja: CONTENT_PASS_2_SCOUT_T5.md. Użytkownik zaakceptował i polecił następną kartę.
+Bez commit/push i bez przejmowania okien. CP2-06 zaakceptowana/wypchnięta 3f7db1797.
+
 ## CP2-06 — Zbrojny — 2026-11-02 — ZAAKCEPTOWANA
 
 25 węzłów T1–T5 i 4 skille trzeciego drzewa Wojownika, 25 dedykowanych ikon,
@@ -18,6 +81,22 @@ Uzupełnienie2026-11-01:10 dedykowanych ikonT5 wygenerowanych osobno image_gen, 
 Uzupełnienie opisów2026-11-01:10T5 ma dedykowane teksty każdej rangi w SkillTreeTooltipCopy,7 rozwijanych Zasad działania, spójne jednostki i porównania rang. Tooltipy/UI44/44PASS (katalog143 pasywek); bez gameplayu/assetów. Dowody ../LocalHandoffs/cp2-05-copy-20261101/.
 
 Użytkownik zaakceptował kartę i polecił commit/push oraz przejście doCP2-06 dnia2026-11-01. Powyższe ograniczenia opisują wykonane testy; ręczny odbiór zaakceptowany poleceniem użytkownika.
+
+## CP2-04 — kontrakt progresji L1–40 — 2026-10-31 — READY_FOR_SMOKE
+
+Użytkownik zatwierdził content do40 przy zachowaniu capu postaci50, aktualnej bazy XP/SP/wzrostu i progów tierów oraz dostępności wszystkich pięciu biomów od początku. Przygotowano `CONTENT_PASS_2_PROGRESSION.md`, pełną tabelę40 poziomów z separatorem `|`, profile czterech bohaterów, legalne sekwencje istniejących rang dziewięciu drzew i cztery przykładowe40-punktowe ścieżki rozwoju. Pierwszy T5 kosztuje co najmniej21SP; T5 dwóch różnych drzew co najmniej42SP. Nowy T5 w przykładowym planie nadal wymaga implementacji karty autora.
+
+Nie było rzeczywistej blokadyL20 do usunięcia. Rozszerzono trzy fixture'y testów: granice awansów20/21/30/31/40/41, SP/overflow, wzrost oraz możliwość oferowania pięciu zdefiniowanych biomów odL1. Unity: **90 różnych testów PASS po jednym reteście**, w tym istniejące testy dwóch cykli legacy save/load, drzewek, konfiguracji i snapshotu aktywnego lochu. Zachowano XML89PASS/1FAIL i retest1PASS/0FAIL; failure widoku drzewka przy przejściu PlayMode/EditMode nie odtworzył się bez reloadu runnera, nie zmieniano kodu produkcyjnego. Test pięciu biomów używa danych w pamięci, nie dodaje rzeczywistych assetów. Obecne oferty do50 zachowane; zakres opracowania40 nie tworzy nowej blokady wypraw. CP2-31/36/41 wykonają authoring biomów, a19 sprawdzi mapowania alchemii. Brak zmian kodu produkcyjnego, XP/SP, XLSX, schematu save i referencji. Wcześniejsze zmiany użytkownika zachowane, runnery lokalne usunięte, sześć wartości materiałów po testach odtworzone przez Editor API. Manual smoke/build NOT RUN; odbiór przez przegląd kontraktu i regresji. Bez commit/push.
+
+Wyniki i kontrola plików: `../LocalHandoffs/cp2-04-progression-20261031/verification.json`; wersjonowany skrót `Tools/ContentPass2/progression-validation.json`. Źródła/liczby: `progression-plan.json`, `progression-levels.txt`, generator tylko do odczytu `build_progression_plan.py`.
+
+## CP2-03 — audyt gotowości systemów — 2026-10-31 — READY_FOR_SMOKE
+
+Przygotowano `CONTENT_PASS_2_SYSTEM_AUDIT.md`: macierz wymagań aktywnych mechanik → obecny kontrakt → owner → luka → test ryzyka; osobno decyzje projektowe, podkarty i wpływ na save. Zidentyfikowano potrzebę wspólnych kontraktów geometrii2×2, typowanego terenu, raportu obrażeń/leczenia, śmierci/wskrzeszenia, obszarów, summonów/klonów, faz i budżetu akcji. API teleportu już przyjmuje osobnego targeta; nie trzeba drugiego systemu dla sojusznika. Ogólna obsługa pasywek jest węższa od enumów. Morze ma istniejący DungeonTheme.Docks. Zapis podczas walki jest blokowany; dungeon stacks Zbrojnego wymagają osobnej persystencji.
+
+Wymagane przed biomami: Ruiny — flying/levitation i Cerber2×2; Morze — woda i Shark2×2; Bagno — błoto, stationary, footprint i korzenie. 3×3 i Indestructible przypisano przyszłym przeciwnikom, więc zaproponowano odłożenie pełnej implementacji. Pytania o fazy, głowy Cerbera, granice terenu, klony/papugę i niespójne rangi mrozu zebrano razem w dokumencie; nie blokują CP2-04. Walidacja referencji i hasha: `Tools/ContentPass2/system-audit-validation.json`; ponowny walidator katalogu 30 PASS/0 FAIL. Testy runtime w macierzy są kryteriami przyszłych kart, nie wykonanymi testami.
+
+Bez zmian gameplayu, XLSX, serialized state Unity i save; Unity nie uruchamiano. Odbiór przez przegląd audytu; brak ręcznego handoffu Editora. CP2-02 zaakceptowana i wypchnięta jako `889456c9c`. CP2-03 bez commit/push do akceptacji.
 
 ## CP2-02 — katalog contentu i źródła L1–40 — 2026-10-31 — ZAAKCEPTOWANA
 

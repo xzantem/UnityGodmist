@@ -128,6 +128,7 @@ namespace Godmist.Systems.Combat
             else if (succeeded)
                 cue = EnemySupportCue(skill, effect) ?? (skill.SkillId, effect.EffectType) switch
                 {
+                    (ScoutCombatSystem.BottledVenom, EffectType.ApplyUniqueBuff) => CombatTargetVfxKind.ToxicContact,
                     ("skill.warrior.death_wish", EffectType.ModifyVar) => CombatTargetVfxKind.DeathWish,
                     ("skill.mage.offering", EffectType.ApplyUniqueBuff) => CombatTargetVfxKind.Offering,
                     ("skill.mage.tiring", EffectType.BlockResourceRegeneration) => CombatTargetVfxKind.Fatigue,
@@ -151,7 +152,8 @@ namespace Godmist.Systems.Combat
                 };
             if (effect.EffectType == EffectType.DealDamage)
             {
-                if (skill.SkillId == "skill.paladin.transfusion" && succeeded) cue = CombatTargetVfxKind.Transfusion;
+                if (skill.SkillId == ScoutCombatSystem.SickenedCurse && succeeded) cue = healthDamage>0&&HasBlood(target)?CombatTargetVfxKind.PierceBlood:CombatTargetVfxKind.CutFragments;
+                else if (skill.SkillId == "skill.paladin.transfusion" && succeeded) cue = CombatTargetVfxKind.Transfusion;
                 else if (succeeded && skill.SkillId is "skill.enemy.catacombs.dead_king_blade" or "skill.enemy.catacombs.dead_king_wave")
                     cue = CombatTargetVfxKind.SpectralContact;
                 else if (succeeded && skill.SkillId == "skill.enemy.forest.druid_nature_wrath"
