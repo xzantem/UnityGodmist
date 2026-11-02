@@ -236,14 +236,17 @@ namespace Godmist.Views.UI.Workspace
                         : equipmentService.TryEquip(character, item.InstanceId);
                     if (success) itemActionPopup.RefreshOwners(session);
                     else itemActionPopup.ShowNotice("Nie można zmienić wyposażenia. Sprawdź wymagania i miejsce w plecaku.");
-                }, free && canStore && (equipped || EquipmentService.MeetsRequirements(character, equipment))));
+                }, free && canStore && (equipped || EquipmentService.MeetsRequirements(character, equipment)),
+                    disabledReason: !free ? "Nie można zmieniać wyposażenia podczas walki."
+                        : !canStore ? "Brak miejsca w plecaku. Sprawdź limit wagi."
+                        : "Postać nie spełnia wymagań przedmiotu."));
             }
             else if (Godmist.Systems.Dungeons.DungeonCampService.IsCampingKit(item))
-                entries.Add(new PartyRailMenuView.Entry("Rozbij obóz", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseCampingKit(item); }, free));
+                entries.Add(new PartyRailMenuView.Entry("Rozbij obóz", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseCampingKit(item); }, free, disabledReason: "Nie można rozbić obozu podczas walki."));
             else if (item is LootBagItemInstance)
-                entries.Add(new PartyRailMenuView.Entry("Otwórz", () => { if (ItemOwnershipActions.Owns(character, item)) TryOpenLootBag(item); }, free));
+                entries.Add(new PartyRailMenuView.Entry("Otwórz", () => { if (ItemOwnershipActions.Owns(character, item)) TryOpenLootBag(item); }, free, disabledReason: "Nie można otwierać toreb podczas walki."));
             else if (item is ConsumableItemInstance consumable)
-                entries.Add(new PartyRailMenuView.Entry(consumable.IsFood ? "Zjedz" : "Użyj", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseConsumable(item); }, free));
+                entries.Add(new PartyRailMenuView.Entry(consumable.IsFood ? "Zjedz" : "Użyj", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseConsumable(item); }, free, disabledReason: "Podczas walki użyj przedmiotu z paska akcji."));
             itemActionPopup.AddOwnedEntries(entries, session, character, item, null);
             itemActionPopup.ShowMenu(position, entries, item, hint);
         }

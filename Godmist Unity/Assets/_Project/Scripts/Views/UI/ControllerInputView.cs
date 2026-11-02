@@ -361,7 +361,8 @@ namespace Godmist.Views.UI
         private bool WithinScope(Transform target) => TopScope == null || target == TopScope.transform || target.IsChildOf(TopScope.transform);
         private bool CanNavigate(Selectable candidate)
         {
-            if (!candidate.IsActive() || !candidate.IsInteractable() || !WithinScope(candidate.transform)
+            if (!candidate.IsActive() || (!candidate.IsInteractable()
+                && candidate.GetComponent<ContextMenuAvailabilityHint>()?.CanInspect != true) || !WithinScope(candidate.transform)
                 || candidate.GetComponentInParent<DevConsoleView>() != null) return false;
             for (var parent = candidate.transform; parent != null; parent = parent.parent)
                 if (parent.TryGetComponent<Canvas>(out var parentCanvas) && !parentCanvas.isActiveAndEnabled) return false;

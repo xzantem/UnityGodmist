@@ -65,12 +65,15 @@ namespace Godmist.Views.UI.Workspace
                 && (session.PlayerParty.IsActiveMember(character.CharacterId)
                     || InCity() && session.PlayerParty.BenchMemberIds.Contains(character.CharacterId)))
                 .Select(character => new PartyRailMenuView.Entry(character.Definition?.DisplayName ?? character.CharacterId,
-                    () => Transfer(character, false), ItemOwnershipActions.CanReceive(session, character, InCity()))).ToList();
+                    () => Transfer(character, false), ItemOwnershipActions.CanReceive(session, character, InCity()),
+                    disabledReason: "Ten towarzysz nie może teraz przyjąć przedmiotu.")).ToList();
             var free = !session.IsCharacterInCombat(owner.CharacterId);
             entries.Add(new PartyRailMenuView.Entry("Przekaż towarzyszowi…", enabled: free && recipients.Any(entry => entry.Enabled),
-                separatorBefore: entries.Count > 0, children: recipients, childrenHint: "Wybierz odbiorcę przedmiotu."));
+                separatorBefore: entries.Count > 0, children: recipients, childrenHint: "Wybierz odbiorcę przedmiotu.",
+                disabledReason: !free ? "Przedmiotów nie można przekazywać podczas walki." : "Brak dostępnego odbiorcy."));
             entries.Add(new PartyRailMenuView.Entry(InCity() ? "Przenieś do schowka…" : "Schowek — tylko w mieście",
-                () => Transfer(null, true), free && InCity()));
+                () => Transfer(null, true), free && InCity(),
+                disabledReason: !free ? "Przedmiotów nie można przekazywać podczas walki." : "Schowek jest dostępny tylko w mieście."));
             AddCompare(entries, owner, item);
             var protect = !item.IsSaleProtected;
             entries.Add(new PartyRailMenuView.Entry(protect ? "Zablokuj sprzedaż" : "Odblokuj sprzedaż", () =>
@@ -129,7 +132,8 @@ namespace Godmist.Views.UI.Workspace
         {
             if (item is not EquipmentItemInstance equipment) return;
             entries.Add(new PartyRailMenuView.Entry("Porównaj z założonym", () => ShowComparison(owner, equipment),
-                !ReferenceEquals(owner?.Equipment?.GetItem(equipment.EquipmentSlot), equipment)));
+                !ReferenceEquals(owner?.Equipment?.GetItem(equipment.EquipmentSlot), equipment),
+                disabledReason: "Ten przedmiot jest już założony."));
         }
 
         private void OpenModal(GameObject panel)

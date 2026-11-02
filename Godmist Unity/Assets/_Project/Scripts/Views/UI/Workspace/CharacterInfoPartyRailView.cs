@@ -122,7 +122,8 @@ namespace Godmist.Views.UI.Workspace
                 new("Karta postaci", () => OpenCharacterInfo(character), characterInfoWindowPrefab != null),
                 new("Statystyki i efekty", () => Inspect(character), inspectTemplate != null),
                 new("Wycentruj kamerę", () => Center(id), partyController != null),
-                new("Odłącz od grupy", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1, separatorBefore: true)
+                new("Odłącz od grupy", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1, separatorBefore: true,
+                    disabledReason: "Postać jest już w osobnej grupie.")
             };
             var groups = new List<PartyRailMenuView.Entry>();
             for (var i = 0; i < party.GroupCount; i++)

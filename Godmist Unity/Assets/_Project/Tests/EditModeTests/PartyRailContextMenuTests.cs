@@ -46,6 +46,30 @@ namespace Godmist.Tests.EditMode
             typeof(EventSystem).GetMethod("OnDisable", Fields).Invoke(eventsObject.GetComponent<EventSystem>(), null);
             Object.DestroyImmediate(canvasObject); Object.DestroyImmediate(cameraObject); Object.DestroyImmediate(eventsObject);
         }
+        [Test] public void BlockedExplanationCanReceiveFocusButCannotExecute()
+        {
+            var calls = 0;
+            menu.Show(Vector2.zero, new[] {
+                new PartyRailMenuView.Entry("Dostępna", () => calls++),
+                new PartyRailMenuView.Entry("Zablokowana", () => calls++, false, disabledReason: "Podczas walki."),
+                new PartyRailMenuView.Entry("Stara blokada", enabled: false)
+            }, "Menu");
+            var blocked = Buttons(menu)[1];
+            menu.MoveFocus(1);
+            Assert.That(EventSystem.current.currentSelectedGameObject, Is.SameAs(blocked.gameObject));
+            Assert.That(blocked.interactable, Is.False);
+            blocked.onClick.Invoke();
+            ExecuteEvents.Execute(blocked.gameObject, new BaseEventData(EventSystem.current), ExecuteEvents.submitHandler);
+            Assert.That(calls, Is.Zero);
+            Assert.That(menu.gameObject.activeSelf, Is.True);
+            menu.MoveFocus(1);
+            Assert.That(EventSystem.current.currentSelectedGameObject, Is.SameAs(Buttons(menu)[0].gameObject));
+            menu.Show(Vector2.zero, new[] { new PartyRailMenuView.Entry("Ponownie dostępna", disabledReason: "Stary powód") }, "Menu");
+            Assert.That(Buttons(menu)[0].GetComponent<ContextMenuAvailabilityHint>().CanInspect, Is.False);
+            Assert.That(Get<bool>(Buttons(menu)[0].GetComponent<ContextMenuAvailabilityHint>(), "selected"), Is.True,
+                "Rebinding a pooled selected row must deliver focus to its new content.");
+        }
+
         [Test] public void SubmenuDoesNotRunAnActionUntilDestinationIsChosenAndBackRestoresRoot()
         {
             var calls = 0;
