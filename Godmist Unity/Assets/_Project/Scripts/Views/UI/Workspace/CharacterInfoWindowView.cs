@@ -16,7 +16,7 @@ using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
 {
-    public sealed class CharacterInfoWindowView : MonoBehaviour
+    public sealed partial class CharacterInfoWindowView : MonoBehaviour
     {
         private static readonly HashSet<CharacterInfoWindowView> OpenWindows = new();
         private readonly CharacterStatHoverController statHover = new();
@@ -52,14 +52,8 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private PartyRailMenuView equipmentMenuPrefab;
         [SerializeField] private ItemActionPopupView itemActionPopupPrefab;
         private ItemActionPopupView itemActionPopup;
-        [SerializeField] private GameObject itemDetailsPanel;
         [SerializeField] private RectTransform inventoryScrollRect;
-        [SerializeField] private TMP_Text itemDetailsTitle, itemDetailsBody, itemDetailsMeta;
-        [SerializeField] private Image itemDetailsIcon;
-        [SerializeField] private Button closeItemDetailsButton;
-        [SerializeField] private ScrollRect itemDetailsScroll;
         private CharacterInfoEquipmentSlotView selectedEquipmentSlot;
-        private EquipmentItemInstance pinnedItem;
         private PartyRailMenuView equipmentMenu;
 
         private readonly InventoryService inventoryService = new();
@@ -75,6 +69,7 @@ namespace Godmist.Views.UI.Workspace
         private TMP_Text developmentButtonLabel;
         private int displayedDevelopmentPoints = int.MinValue;
         private ItemInstance draggedItem;
+        private List<string> draggedItemIds;
         private CharacterInfoEquipmentSlotView draggedEquipmentSlot;
         private GameObject dragGhost;
         private SkillLoadoutModalView skillLoadoutWindow;
@@ -118,7 +113,7 @@ namespace Godmist.Views.UI.Workspace
             UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
             itemActionPopup?.HideAll();
             equipmentMenu?.Hide();
-            CloseItemDetails();
+            ClearItemSelection();
             if (draggedItem != null || draggedEquipmentSlot != null || dragGhost != null) EndDrag();
             OpenWindows.Remove(this);
             if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
@@ -131,8 +126,6 @@ namespace Godmist.Views.UI.Workspace
             if (skillLoadoutButton != null) skillLoadoutButton.onClick.AddListener(OpenSkillLoadout);
             if (skillTreeButton != null) skillTreeButton.onClick.AddListener(OpenSkillTree);
             if (clearSearchButton != null) clearSearchButton.onClick.AddListener(ClearInventorySearch);
-            if (closeItemDetailsButton != null) closeItemDetailsButton.onClick.AddListener(CloseItemDetails);
-            if (itemDetailsPanel != null) itemDetailsPanel.SetActive(false);
 
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
             {
@@ -145,7 +138,6 @@ namespace Godmist.Views.UI.Workspace
             if (itemActionPopup != null) DestroyView(itemActionPopup.gameObject);
             if (equipmentMenu != null) DestroyView(equipmentMenu.gameObject);
             if (clearSearchButton != null) clearSearchButton.onClick.RemoveListener(ClearInventorySearch);
-            if (closeItemDetailsButton != null) closeItemDetailsButton.onClick.RemoveListener(CloseItemDetails);
             if (inventorySearchInput != null) inventorySearchInput.onValueChanged.RemoveAllListeners();
             if (skillLoadoutButton != null) skillLoadoutButton.onClick.RemoveListener(OpenSkillLoadout);
             if (skillTreeButton != null) skillTreeButton.onClick.RemoveListener(OpenSkillTree);
@@ -153,10 +145,11 @@ namespace Godmist.Views.UI.Workspace
 
         public void Initialize(GameSession nextSession, string characterId)
         {
+            if (draggedItem != null || dragGhost != null) EndDrag();
             UIWorkspaceTooltipView.ActiveInstance?.HideForSourceWithin(transform);
             itemActionPopup?.HideAll();
             if (session != null) session.CharacterProgressionChanged -= OnCharacterProgressionChanged;
-            CloseItemDetails();
+            ClearItemSelection();
             session = nextSession;
             character = null;
             session?.CharactersById.TryGetValue(characterId, out character);
@@ -184,6 +177,7 @@ namespace Godmist.Views.UI.Workspace
         private void LateUpdate()
         {
             RefreshProgressionButtons();
+            RefreshRecipientDragPreview();
             if (character != null)
             {
                 RefreshVitals();
@@ -200,45 +194,20 @@ namespace Godmist.Views.UI.Workspace
         public void SelectEquipmentSlot(CharacterInfoEquipmentSlotView slot)
         {
             selectedEquipmentSlot = slot;
-            pinnedItem = slot?.Item;
             foreach (var entry in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
-                entry?.SetSelected(entry == slot);
-            RefreshItemDetails();
-            UIWorkspaceTooltipView.ActiveInstance?.Hide();
+                entry?.SetSelected(entry == slot && slot?.Item != null);
         }
 
-        public void CloseItemDetails()
+        public void SelectInventoryItem(ItemInstance item)
+        {
+            if (!isActiveAndEnabled || character?.Inventory?.Items.Contains(item) != true) return;
+            ClearItemSelection();
+        }
+
+        public void ClearItemSelection()
         {
             selectedEquipmentSlot = null;
-            pinnedItem = null;
             foreach (var entry in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>()) entry?.SetSelected(false);
-            if (itemDetailsPanel != null) itemDetailsPanel.SetActive(false);
-            SetInventoryDetailsInset(false);
-        }
-
-        private void SetInventoryDetailsInset(bool visible)
-        {
-            if (inventoryScrollRect != null)
-                inventoryScrollRect.offsetMin = new Vector2(inventoryScrollRect.offsetMin.x, visible ? 406 : 86);
-        }
-
-        private ItemRarityBorderGraphic itemDetailsRarityBorder;
-
-        private void RefreshItemDetails()
-        {
-            if (itemDetailsPanel == null) return;
-            if (pinnedItem?.Definition == null || selectedEquipmentSlot == null
-                || !ReferenceEquals(character?.Equipment?.GetItem(selectedEquipmentSlot.Slot), pinnedItem))
-            { CloseItemDetails(); return; }
-            itemDetailsPanel.SetActive(true);
-            SetInventoryDetailsInset(true);
-            itemDetailsTitle.text = ItemRarityPresentation.Name(pinnedItem);
-            itemDetailsIcon.sprite = ItemIconPresentation.GetIcon(pinnedItem);
-            ItemRarityPresentation.ApplyBorder(ref itemDetailsRarityBorder, itemDetailsIcon.rectTransform, pinnedItem, 0f);
-            itemDetailsIcon.enabled = itemDetailsIcon.sprite != null;
-            itemDetailsBody.text = UIWorkspaceTooltipView.BuildEquipmentDetails(pinnedItem, character);
-            itemDetailsMeta.text = UIWorkspaceTooltipView.BuildItemMeta(pinnedItem);
-            if (itemDetailsScroll != null) itemDetailsScroll.verticalNormalizedPosition = 1;
         }
 
         public void ShowEquipmentMenu(CharacterInfoEquipmentSlotView slot, Vector2 screenPosition)
@@ -268,14 +237,17 @@ namespace Godmist.Views.UI.Workspace
                         : equipmentService.TryEquip(character, item.InstanceId);
                     if (success) itemActionPopup.RefreshOwners(session);
                     else itemActionPopup.ShowNotice("Nie można zmienić wyposażenia. Sprawdź wymagania i miejsce w plecaku.");
-                }, free && canStore && (equipped || EquipmentService.MeetsRequirements(character, equipment))));
+                }, free && canStore && (equipped || EquipmentService.MeetsRequirements(character, equipment)),
+                    disabledReason: !free ? "Nie można zmieniać wyposażenia podczas walki."
+                        : !canStore ? "Brak miejsca w plecaku. Sprawdź limit wagi."
+                        : "Postać nie spełnia wymagań przedmiotu."));
             }
             else if (Godmist.Systems.Dungeons.DungeonCampService.IsCampingKit(item))
-                entries.Add(new PartyRailMenuView.Entry("Rozbij obóz", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseCampingKit(item); }, free));
+                entries.Add(new PartyRailMenuView.Entry("Rozbij obóz", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseCampingKit(item); }, free, disabledReason: "Nie można rozbić obozu podczas walki."));
             else if (item is LootBagItemInstance)
-                entries.Add(new PartyRailMenuView.Entry("Otwórz", () => { if (ItemOwnershipActions.Owns(character, item)) TryOpenLootBag(item); }, free));
+                entries.Add(new PartyRailMenuView.Entry("Otwórz", () => { if (ItemOwnershipActions.Owns(character, item)) TryOpenLootBag(item); }, free, disabledReason: "Nie można otwierać toreb podczas walki."));
             else if (item is ConsumableItemInstance consumable)
-                entries.Add(new PartyRailMenuView.Entry(consumable.IsFood ? "Zjedz" : "Użyj", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseConsumable(item); }, free));
+                entries.Add(new PartyRailMenuView.Entry(consumable.IsFood ? "Zjedz" : "Użyj", () => { if (ItemOwnershipActions.Owns(character, item)) TryUseConsumable(item); }, free, disabledReason: "Podczas walki użyj przedmiotu z paska akcji."));
             itemActionPopup.AddOwnedEntries(entries, session, character, item, null);
             itemActionPopup.ShowMenu(position, entries, item, hint);
         }
@@ -466,6 +438,7 @@ namespace Godmist.Views.UI.Workspace
         {
             if (item == null || character == null || session?.IsCharacterInCombat(character.CharacterId) == true) return;
             draggedItem = item;
+            draggedItemIds = ItemOwnershipActions.CaptureStack(character, item);
             UIWorkspaceTooltipView.ActiveInstance?.BeginDragSuppression();
             draggedEquipmentSlot = null;
             if (item is EquipmentItemInstance equipment)
@@ -481,6 +454,7 @@ namespace Godmist.Views.UI.Workspace
         {
             if (sourceSlot?.Item == null || character == null || session?.IsCharacterInCombat(character.CharacterId) == true) return;
             draggedItem = sourceSlot.Item;
+            draggedItemIds = ItemOwnershipActions.CaptureStack(character, sourceSlot.Item);
             UIWorkspaceTooltipView.ActiveInstance?.BeginDragSuppression();
             draggedEquipmentSlot = sourceSlot;
             CreateDragGhost(sourceSlot.Item, eventData);
@@ -501,7 +475,7 @@ namespace Godmist.Views.UI.Workspace
                 icon.enabled = icon.sprite != null;
             }
             var countLabel = dragGhost.transform.Find("CountLabel");
-            if (countLabel != null) countLabel.gameObject.SetActive(false);
+            ConfigureRecipientDragLabel(countLabel);
             UpdateDrag(eventData);
         }
 
@@ -512,20 +486,24 @@ namespace Godmist.Views.UI.Workspace
             var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(window.Manager.WorkspaceRoot, eventData.position, camera, out var point))
                 dragGhost.GetComponent<RectTransform>().anchoredPosition = point;
+            UpdateRecipientDragTarget(eventData);
         }
 
         public void EndDrag()
         {
+            ClearRecipientDragPreview();
             UIWorkspaceTooltipView.ActiveInstance?.EndDragSuppression();
             draggedItem = null;
+            draggedItemIds = null;
             draggedEquipmentSlot = null;
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>()) slot?.SetDropHighlight(false);
-            if (dragGhost != null) Destroy(dragGhost);
+            if (dragGhost != null) DestroyView(dragGhost);
             dragGhost = null;
         }
 
         public void TryDropToCampaignStorage(ItemInstance item, PointerEventData eventData)
         {
+            if (!ReferenceEquals(draggedItem, item)) return;
             CampaignStorageWindowView.Active?.TryDepositAtScreenPoint(
                 this,
                 item,
@@ -555,33 +533,26 @@ namespace Godmist.Views.UI.Workspace
             EndDrag();
         }
 
-        public void TryReceiveInventoryTransfer(
-            CharacterInfoWindowView sourceWindow,
-            ItemInstance item)
+        public void TryReceiveInventoryTransfer(CharacterInfoWindowView sourceWindow, ItemInstance item)
         {
-            if (sourceWindow == null
-                || sourceWindow == this
-                || sourceWindow.session != session
-                || sourceWindow.character?.Inventory == null
-                || character?.Inventory == null
-                || session?.IsCharacterInCombat(character.CharacterId) == true
-                || session?.IsCharacterInCombat(sourceWindow.character.CharacterId) == true
-                || item == null)
-            {
-                return;
-            }
+            sourceWindow?.TryTransferDraggedItem(session, character?.CharacterId, item);
+        }
 
-            if (!inventoryService.TryTransferItem(
-                    sourceWindow.character.Inventory,
-                    character.Inventory,
-                    item.InstanceId))
-            {
-                return;
-            }
-
-            sourceWindow.EndDrag();
-            sourceWindow.Refresh();
-            Refresh();
+        public void TryTransferDraggedItem(GameSession destinationSession, string recipientId, ItemInstance expectedItem)
+        {
+            if (!isActiveAndEnabled || destinationSession != session || session == null
+                || expectedItem == null || !ReferenceEquals(draggedItem, expectedItem)
+                || !session.CharactersById.TryGetValue(recipientId ?? string.Empty, out var recipient)) return;
+            // Releasing over the owner is a cancelled transfer, not a second use/equip action.
+            if (ReferenceEquals(recipient, character)) { EndDrag(); return; }
+            var ids = draggedItemIds;
+            var owner = character;
+            var root = window?.Manager?.WorkspaceRoot;
+            EndDrag();
+            if (root == null || itemActionPopupPrefab == null) return;
+            if (itemActionPopup == null) itemActionPopup = Instantiate(itemActionPopupPrefab, root);
+            itemActionPopup.RequestTransfer(session, owner, expectedItem, recipient, false,
+                () => Godmist.Views.Game.GameBootstrap.Instance?.IsDungeonScene != true, capturedIds: ids);
         }
 
         public void TryReceiveLootItem(
@@ -660,7 +631,7 @@ namespace Godmist.Views.UI.Workspace
         {
             foreach (var slot in equipmentSlots ?? Array.Empty<CharacterInfoEquipmentSlotView>())
                 slot?.Bind(character?.Equipment?.GetItem(slot.Slot));
-            RefreshItemDetails();
+            if (selectedEquipmentSlot != null && selectedEquipmentSlot.Item == null) ClearItemSelection();
         }
 
         private static List<ItemStackEntry> BuildItemStacks(IEnumerable<ItemInstance> items)

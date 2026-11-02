@@ -165,24 +165,20 @@ namespace Godmist.Tests.EditMode
             Assert.That(Get<TMP_Text>(view,"inventoryEmptyText").gameObject.activeSelf,Is.False);
             Assert.That(Get<Transform>(view,"inventoryRoot").GetComponentsInChildren<CharacterInfoItemView>().Length,Is.EqualTo(1));
         }
-        [Test] public void ClickingEquippedItemPinsDetailsAndClosingRestoresInventory()
+        [Test] public void ClickingEquippedItemSelectsWithoutDetailsOrReducingInventory()
         {
             var slot=EquipForPresentation();
+            var before=Get<RectTransform>(view,"inventoryScrollRect").offsetMin;
             Get<Button>(slot,"button").onClick.Invoke();
-            Assert.That(Get<GameObject>(view,"itemDetailsPanel").activeSelf,Is.True);
-            var itemTitle=Get<TMP_Text>(view,"itemDetailsTitle");itemTitle.ForceMeshUpdate(true,true);
-            Assert.That(itemTitle.GetParsedText(),Is.EqualTo(slot.Item.DisplayName));
-            Assert.That(Get<RectTransform>(view,"inventoryScrollRect").offsetMin.y,Is.EqualTo(406));
-            Get<Button>(view,"closeItemDetailsButton").onClick.Invoke();
-            Assert.That(Get<GameObject>(view,"itemDetailsPanel").activeSelf,Is.False);
-            Assert.That(Get<RectTransform>(view,"inventoryScrollRect").offsetMin.y,Is.EqualTo(86));
-            Assert.That(Get<Image>(slot,"selectionBorder").enabled,Is.False);
+            Assert.That(Get<Image>(slot,"selectionBorder").enabled,Is.True);
+            Assert.That(Get<RectTransform>(view,"inventoryScrollRect").offsetMin,Is.EqualTo(before));
+            Assert.That(view.GetComponentsInChildren<Transform>(true).Any(t=>t.name=="PinnedItemDetails"),Is.False);
         }
-        [Test] public void ReplacingPinnedItemClearsDetailsAndEmptySlotsHaveGhostIcons()
+        [Test] public void RemovingSelectedItemClearsSelectionAndEmptySlotsKeepGhostIcons()
         {
             var slot=EquipForPresentation();
             view.SelectEquipmentSlot(slot);character.Equipment.SetItem(slot.Slot,null);view.Refresh();
-            Assert.That(Get<GameObject>(view,"itemDetailsPanel").activeSelf,Is.False);
+            Assert.That(Get<Image>(slot,"selectionBorder").enabled,Is.False);
             Assert.That(Get<Image>(slot,"emptySlotIcon").enabled,Is.True);
             Assert.That(Get<Image>(slot,"emptySlotIcon").sprite,Is.Not.Null);
             Assert.That(Get<Image>(slot,"icon").enabled,Is.False);

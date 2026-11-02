@@ -1,3 +1,4 @@
+using Godmist.Runtime.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,7 +123,8 @@ namespace Godmist.Views.UI.Workspace
                 new("Karta postaci", () => OpenCharacterInfo(character), characterInfoWindowPrefab != null),
                 new("Statystyki i efekty", () => Inspect(character), inspectTemplate != null),
                 new("Wycentruj kamerę", () => Center(id), partyController != null),
-                new("Odłącz od grupy", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1, separatorBefore: true)
+                new("Odłącz od grupy", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1, separatorBefore: true,
+                    disabledReason: "Postać jest już w osobnej grupie.")
             };
             var groups = new List<PartyRailMenuView.Entry>();
             for (var i = 0; i < party.GroupCount; i++)
@@ -212,6 +214,26 @@ namespace Godmist.Views.UI.Workspace
             foreach (var row in portraits) if (row != null) row.MarkInsertion(false, false);
             foreach (var group in groupViews) if (group != null) group.Highlight(false);
         }
+        public bool CanPreviewItemDrop(CharacterInfoWindowView source, string recipientId,
+            ItemInstance item, out string reason)
+        {
+            reason = "Przedmiot nie jest już dostępny.";
+            return source != null && source.CanPreviewRecipientDrop(session, recipientId, item, out reason);
+        }
+
+        public void ReceiveItemDrop(string recipientId, PointerEventData eventData)
+        {
+            if (eventData?.button != PointerEventData.InputButton.Left || session == null || eventData.pointerDrag == null) return;
+            var inventoryItem = eventData.pointerDrag?.GetComponent<CharacterInfoItemView>();
+            if (inventoryItem != null)
+                inventoryItem.Owner?.TryTransferDraggedItem(session, recipientId, inventoryItem.Item);
+            else
+            {
+                var equipmentItem = eventData.pointerDrag?.GetComponent<CharacterInfoEquipmentSlotView>();
+                equipmentItem?.Owner?.TryTransferDraggedItem(session, recipientId, equipmentItem.Item);
+            }
+        }
+
         public bool CanOpenDevelopment(CharacterInstance character) => character != null && session != null
             && session.CharactersById.TryGetValue(character.CharacterId, out var registered) && ReferenceEquals(registered, character)
             && character.AvailableSkillPoints > 0 && !session.IsCharacterInCombat(character.CharacterId);

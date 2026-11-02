@@ -414,7 +414,8 @@ namespace Godmist.Views.UI
         private bool CanNavigate(Selectable candidate)
         {
             if (!candidate.IsActive() || (!candidate.IsInteractable() && candidate.GetComponentInParent<CombatSkillSlotView>() == null
-                && candidate.GetComponent<ControllerAvailabilityHint>()?.CanInspect != true) || !WithinScope(candidate.transform)
+                && candidate.GetComponent<ControllerAvailabilityHint>()?.CanInspect != true
+                && candidate.GetComponent<ContextMenuAvailabilityHint>()?.CanInspect != true) || !WithinScope(candidate.transform)
                 || candidate.GetComponentInParent<DevConsoleView>() != null) return false;
             for (var parent = candidate.transform; parent != null; parent = parent.parent)
                 if (parent.TryGetComponent<Canvas>(out var parentCanvas) && !parentCanvas.isActiveAndEnabled) return false;

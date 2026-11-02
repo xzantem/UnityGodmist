@@ -758,6 +758,8 @@ Current goal:
   - a rotating inventory that changes after completing a dungeon
   - an inventory of items bought from the player
 - Inventory is weight-limited rather than slot-limited.
+- Inventory and worn-equipment interactions share the same contract: single LMB selects, double-click performs the default equip/use/unequip action, and RMB opens the context menu. Descriptions remain in hover tooltips; neither inventory nor equipped items open a duplicate details panel or shrink the inventory viewport. Selection is immediate, without a delayed-click coroutine.
+- Dropping an owned item onto another party member's portrait or open inventory shares the context-menu transfer contract: a stack opens quantity selection; a worn item is unequipped into the recipient's backpack without auto-equipping. Source identity and stack IDs are captured at drag start and ownership, party eligibility, combat restrictions and capacity are revalidated on confirmation. Failed or cancelled transfers retain ownership and show their reason; self-drops cancel the transfer. Party portrait dragging still reorders/groups members independently.
 - Most items are weightless except weapons, armor, and galdurytes.
 - The city hub has an infinite-capacity storage stash/chest.
 - Stackable items occupy one inventory entry.

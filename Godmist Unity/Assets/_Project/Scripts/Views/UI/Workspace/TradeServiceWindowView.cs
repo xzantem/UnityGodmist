@@ -177,14 +177,17 @@ namespace Godmist.Views.UI.Workspace
             if (ids.Count == 0) return;
             var sell = source == TradeItemSlotSource.PlayerInventory;
             var verb = sell ? "Sprzedaj" : "Kup";
-            var allowed = !sell || tradeService.CanSellItem(trader, item, out _);
+            string blockedReason = null;
+            var allowed = !sell || tradeService.CanSellItem(trader, item, out blockedReason);
             var entries = new List<PartyRailMenuView.Entry>
             {
-                new($"{verb} 1", () => Transact(source, ids.Take(1).ToArray()), allowed),
+                new($"{verb} 1", () => Transact(source, ids.Take(1).ToArray()), allowed, disabledReason: blockedReason),
                 new($"{verb} X…", () => Popup.RequestQuantity($"{verb} przedmioty", ids.Count,
                     count => item.DisplayName + "\n" + DescribeTransaction(source, ids.Take(count).ToArray()),
-                    count => Transact(source, ids.Take(count).ToArray(), fromQuantity: true)), allowed && ids.Count > 1),
-                new($"{verb} cały stos ({ids.Count})", () => Transact(source, ids), allowed && ids.Count > 1)
+                    count => Transact(source, ids.Take(count).ToArray(), fromQuantity: true)), allowed && ids.Count > 1,
+                    disabledReason: !allowed ? blockedReason : "Ten stos zawiera tylko jedną sztukę."),
+                new($"{verb} cały stos ({ids.Count})", () => Transact(source, ids), allowed && ids.Count > 1,
+                    disabledReason: !allowed ? blockedReason : "Ten stos zawiera tylko jedną sztukę.")
             };
             if (sell) Popup.AddOwnedEntries(entries, session, tradingCharacter, item, null);
             else Popup.AddCompare(entries, tradingCharacter, item);

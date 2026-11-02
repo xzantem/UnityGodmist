@@ -479,7 +479,7 @@ namespace Godmist.Views.UI.Workspace
             return $"Pozostało: {ExplorationStatusSeconds(presentation)} s";
         }
 
-        public void ShowCompactText(string title, string body, object source)
+        public void ShowCompactText(string title, string body, object source, Vector2? screenPosition = null)
         {
             title = UiTerms.Present(title);
             body = UiTerms.Present(body);
@@ -489,7 +489,7 @@ namespace Godmist.Views.UI.Workspace
                 var bodyWidth = bodyText != null ? bodyText.GetPreferredValues(body, 10000f, 0f).x : 0f;
                 SetTooltipWidth(ClampTooltipWidth(Mathf.Clamp(Mathf.Ceil(Mathf.Max(titleWidth, bodyWidth)) + TitleOnlyTooltipHorizontalPadding, 120f, defaultTooltipWidth > 1f ? defaultTooltipWidth : 360f)));
                 ResizeForContent();
-                PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
+                PlaceAt(screenPosition ?? (Vector2)Godmist.Views.UI.ControllerInput.PointerPosition);
             });
         }
 
