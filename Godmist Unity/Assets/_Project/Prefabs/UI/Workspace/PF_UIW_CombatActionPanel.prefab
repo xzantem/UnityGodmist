@@ -2409,14 +2409,14 @@ PrefabInstance:
     - target: {fileID: 4431338624723395347, guid: 62d7d61c63958cb4e932fa7cd73dadaf, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 5793611358319359223, guid: 96def5153af6bff4c91c168534d474fa, type: 3}
+      objectReference: {fileID: 21300000, guid: e8be461f52acdca45b338c5f5989167e, type: 3}
     - target: {fileID: 5534730461097940008, guid: 62d7d61c63958cb4e932fa7cd73dadaf, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071068
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5534730461097940008, guid: 62d7d61c63958cb4e932fa7cd73dadaf, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.7071068
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8648010686032150084, guid: 62d7d61c63958cb4e932fa7cd73dadaf, type: 3}
       propertyPath: m_Name
@@ -2558,7 +2558,7 @@ PrefabInstance:
     - target: {fileID: 4431338624723395347, guid: 62d7d61c63958cb4e932fa7cd73dadaf, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 771779622273499393, guid: d601c9de68016834889fd954f4efa9ef, type: 3}
+      objectReference: {fileID: 21300000, guid: 16067df708bc74843b35cfb162a75a12, type: 3}
     - target: {fileID: 8648010686032150084, guid: 62d7d61c63958cb4e932fa7cd73dadaf, type: 3}
       propertyPath: m_Name
       value: PF_UIW_CombatIconButton

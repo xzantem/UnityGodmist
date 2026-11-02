@@ -1,0 +1,22 @@
+{
+  "tool": "built-in image_gen",
+  "specs": [
+    {
+      "id": "end-turn",
+      "file": "icon_combat_end_turn-32.png",
+      "reused": false,
+      "sourceArchive": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17b0e-047f-7e70-8235-f2317a5d85da\\exec-60cae309-2d9a-40ab-9dca-8290e23fb60a.png",
+      "sourceSha256": "7597e5fa75a64f4f8f91b593a85c63e97037986454f068efa8ec9ebf698a4fc4",
+      "footprintReference": "camping-kit-32-v1.png (28x26 alpha footprint; matching physical 32px escape icon footprint)"
+    },
+    {
+      "id": "items",
+      "file": "icon_combat_items-32.png",
+      "reused": false,
+      "sourceArchive": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17b0e-047f-7e70-8235-f2317a5d85da\\exec-5e34f5bd-5fef-4731-8017-4ed891ead855.png",
+      "sourceSha256": "b11139124acfee2d6deef393654a72faa4daecdd8de30aa00100f4f25cb4912e",
+      "footprintReference": "camping-kit-32-v1.png (28x26 alpha footprint; matching physical 32px escape icon footprint)"
+    }
+  ],
+  "exportMethod": "Original item-equipment-utility-restyle-v1/export.lua: premultiplied area average, alpha>=0.5, 24 colors octree, no dithering"
+}
