@@ -8,6 +8,19 @@ namespace Godmist.Systems.Combat
 {
     public class CombatRecoverySystem
     {
+        public readonly struct HealingResult
+        {
+            public readonly int Requested, Restored, Overflow;
+            public HealingResult(int requested,int restored,int overflow)
+            {Requested=requested;Restored=restored;Overflow=overflow;}
+        }
+        public HealingResult HealWithResult(BattleUnit target,int amount,string reportingSourceId=null)
+        {
+            if(target?.Character?.Stats==null||target.Character.LifeState==CharacterLifeState.Dead||amount<=0)return default;
+            var capacity=Math.Max(0,target.Character.MaximumHealth-target.Character.CurrentHealth);
+            var restored=Heal(target,amount,reportingSourceId:reportingSourceId);
+            return new HealingResult(amount,restored,Math.Max(0,amount-capacity));
+        }
         private readonly Action<string> battleLog;
         private readonly CombatFeedbackBus feedbackBus;
 

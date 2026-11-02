@@ -100,6 +100,8 @@ namespace Godmist.Systems.Combat
         {
             if (caster?.Character == null || target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return null;
             var maximum = target.Character.MaximumHealth;
+            if(skill?.SkillId==WarriorCombatSystem.EnergyRenewal)
+                return Mathf.Min(Mathf.Max(0,maximum-target.Character.CurrentHealth),2*Mathf.CeilToInt(maximum*.2f));
             var missing = Mathf.Max(0, maximum - target.Character.CurrentHealth);
             var total = 0;
             var hasHealing = false;
@@ -375,6 +377,7 @@ namespace Godmist.Systems.Combat
             var maximumProtectionUsed = minimumProtectionUsed;
             var minimumShield = target?.Character?.ShieldPool?.TotalShield ?? 0;
             var maximumShield = minimumShield;
+            var armoredBonusAvailable=openingDamage;
             string statusId = null;
             var statusChance = 0f;
 
@@ -414,8 +417,9 @@ namespace Godmist.Systems.Combat
                         var exposure=target?.Character?.PassiveEffects?.Find(e=>e.EffectId=="paladin.exposure");
                         opening*=1f+(float)(exposure?.GetStateValue("strength")?.NumberValue ?? 0);
                     }
-                    var minimumRaw=Mathf.CeilToInt((range.Minimum+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0))*opening);
-                    var maximumRaw=Mathf.CeilToInt((range.Maximum+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0))*opening);
+                    var armoredBonus=armoredBonusAvailable&&hitIndex==0?WarriorCombatSystem.PreviewArmoredAttack(caster):0;
+                    var minimumRaw=Mathf.CeilToInt((range.Minimum+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0)+armoredBonus)*opening);
+                    var maximumRaw=Mathf.CeilToInt((range.Maximum+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0)+armoredBonus)*opening);
                     if(StatusEffectSystem.HasStatus(caster,StatusEffectIds.Weakening))
                     {minimumRaw=Mathf.CeilToInt(minimumRaw*.8f);maximumRaw=Mathf.CeilToInt(maximumRaw*.8f);}
                     var minimumAfterDefense = CombatDamageSystem.ApplyDefense(
@@ -447,6 +451,7 @@ namespace Godmist.Systems.Combat
                     maximumShield = Mathf.Max(0, maximumShield - maximumAmount);
                 }
                 hasDamage = true;
+                armoredBonusAvailable=false;
 
                 if (!effect.AlwaysHits
                     && !CombatDamageSystem.IsGuaranteedHitDamageType(effect.DamageType))
@@ -559,6 +564,8 @@ namespace Godmist.Systems.Combat
             SkillData skill, int statusIndex, string statusId, float baseChance)
         {
             var unchanged = StatusEffectSystem.CalculateStatusApplicationChance(caster,target,statusId,baseChance);
+            if(skill.SkillId==WarriorCombatSystem.PommelStrike&&statusId==StatusEffectIds.Stun)
+                return .1f*unchanged+.9f*StatusEffectSystem.CalculateStatusApplicationChance(caster,target,statusId,baseChance,-.5f);
             if (!StatusEffectIds.UsesSuppressionResistance(statusId)) return unchanged;
             var current = skill.Effects[statusIndex];
             // A preceding modifier gated by the same hit is rolled before the

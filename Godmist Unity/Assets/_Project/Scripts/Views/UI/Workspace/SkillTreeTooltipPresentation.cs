@@ -114,6 +114,17 @@ namespace Godmist.Views.UI.Workspace
             text=UiTerms.Present(text,preview?.ResourcePool?.ResourceType ?? ResourceType.None);
             var details=node.Id switch
             {
+                "node.warrior.man_at_arms.t1_3"=>"Premia jest względna: tarcza równa 20% maksymalnego zdrowia wzrasta do 22%.",
+                "node.warrior.man_at_arms.t1_4"=>"Usuwa jeden tick obrażeń wraz z odpowiadającą mu turą. Jednoturowe krwawienie, zatrucie lub podpalenie nie zostaje nałożone. Pozostałe ticki zachowują swoją siłę.",
+                "node.warrior.man_at_arms.t2_1"=>"Odbicie zmniejsza obrażenia fizyczne o 70%, nie odbija ich w atakującego. Nie chroni przed obrażeniami okresowymi.",
+                "node.warrior.man_at_arms.t2_4"=>"Wymaga trafienia Ciosem Rękojeścią i nieudanego ogłuszenia. Limit dotyczy końcowej szansy trafienia wszystkich ataków celu do końca jego następnej tury.",
+                "node.warrior.man_at_arms.t3_3"=>"Zmniejszenie dotyczy odporności na krwawienie, truciznę, ogień, osłabienie i ruch. Odporność na supresję zmniejsza już podstawowy Cios Rękojeścią. Premia jest procentowa, a nie wyrażona w punktach procentowych.",
+                "node.warrior.man_at_arms.t3_4"=>"Liczy przeciwników pokonanych przez tę postać, również obrażeniami okresowymi. Do 25 stosów. Stosy pozostają między walkami i przy zapisie gry; opuszczenie lochu zeruje je.",
+                "node.warrior.man_at_arms.t3_5"=>"Rozpoznaje konkretną umiejętność, a nie przeciwnika lub jej nazwę. Otrzymane obrażenia przygotowują ochronę na następną własną turę; samo pudło, unik lub utrata wyłącznie tarczy jej nie uruchamia.",
+                "node.warrior.man_at_arms.t4_4"=>"Tarcza obejmuje tylko nadmiar leczenia z Wampiryzmu. Kolejne nałożenia sumują jej pozostałą wartość do limitu 10% maksymalnego zdrowia i odświeżają czas do 5 tur. Pozostałe tarcze pozostają niezależne.",
+                "node.warrior.man_at_arms.t4_5"=>"Liczy faktycznie utracone zdrowie przeciwników od obrażeń bezpośrednich i okresowych tej postaci. Nie liczy tarcz, nadmiaru obrażeń ponad zdrowie, odbicia ani samookaleczenia.",
+                "node.warrior.man_at_arms.t5_4"=>"Powodzenie zatrzymuje powalenie lub ostateczną śmierć. Postać zachowuje aktywne efekty i miejsce w kolejce. Odnowienie trwa 5 własnych tur i rozpoczyna się tylko po udanym uruchomieniu.",
+                "node.warrior.man_at_arms.t5_5"=>"Warunek jest sprawdzany przed leczeniem. Przy dokładnie połowie maksymalnego zdrowia premia nie działa.",
                 "node.warrior.commander.t5_2"=>"Próg zabicia uwzględnia aktualne zdrowie, tarczę i redukcje obrażeń celu. Szansa jest sprawdzana przy trafieniu krytycznym; przeciw bossowi podwojenie obrażeń podlega tej samej szansie.",
                 "node.warrior.commander.t5_4"=>"Seria obejmuje maksymalnie pięć ataków. Pierwszy atak od razu otrzymuje premię. Jedno użycie umiejętności liczy się jako jeden atak, także przy pudle i niezależnie od liczby trafień. Zmiana celu lub atak obszarowy albo wielocelowy resetuje serię. Ruch i umiejętności wsparcia nie budują ani nie przerywają serii.",
                 "node.warrior.commander.t5_5"=>"Zwiększa odległość wyboru celu trzech rozkazów. Nie powiększa ich obszaru działania.",

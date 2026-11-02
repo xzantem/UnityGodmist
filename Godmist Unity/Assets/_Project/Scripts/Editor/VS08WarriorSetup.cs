@@ -137,7 +137,7 @@ public static partial class VS08WarriorSetup
         var trees=cls.FindProperty(F("SkillTrees"));trees.arraySize=2;trees.GetArrayElementAtIndex(0).objectReferenceValue=Load<SkillTreeDefinition>("Skills/SkillTrees/ST_Warrior_Commander.asset");trees.GetArrayElementAtIndex(1).objectReferenceValue=Load<SkillTreeDefinition>("Skills/SkillTrees/ST_Warrior_Brawler.asset");cls.ApplyModifiedPropertiesWithoutUndo();
         var catalog=new SerializedObject(Load<GameContentCatalog>("World/GC_MainContentCatalog.asset"));var list=catalog.FindProperty(F("SkillDefinitions"));
         foreach(var skill in skills.Values){var found=false;for(var i=0;i<list.arraySize;i++)found|=list.GetArrayElementAtIndex(i).objectReferenceValue==skill;if(!found){list.InsertArrayElementAtIndex(list.arraySize);list.GetArrayElementAtIndex(list.arraySize-1).objectReferenceValue=skill;}}
-        catalog.ApplyModifiedPropertiesWithoutUndo();AssetDatabase.SaveAssets();
+        catalog.ApplyModifiedPropertiesWithoutUndo();Godmist.Editor.ContentPass2ManAtArmsSetup.AppendToWarrior();AssetDatabase.SaveAssets();
     }
     static readonly string[][] Nodes = {
         new[]{"commander","destruction","Rozkaz Unicestwienia","[90%] Zwiększa obrażenia zadawane celowi przez wszystkich sojuszników o 20% na 3 tury","","destruction","1","1","1"},

@@ -15,6 +15,7 @@ namespace Godmist.Systems.Combat
             var hits=e.DamageHitCount;var turns=e.DurationTurns;var chance=e.BaseChance;var dot=e.StatusDamageMultiplier;var value=e.ModifierValue;
             switch(skill?.SkillId)
             {
+                case DefensiveStance:return e.WithShieldMaxHealthPercent(.2f*(1+.1f*M(u,"t1_3")));
                 // The former bleed talents now belong to Discharge; the starter bleed has its authored values.
                 case "skill.warrior.immobilize":turns+=2*C(u,"broken_bones");break;
                 case "skill.warrior.shout":turns=u.LastSkillResourceSpent>=50?2:1;break;
@@ -60,7 +61,7 @@ namespace Godmist.Systems.Combat
             source.WarriorState.TrueDamageRemainder+=bonus;var extra=Mathf.FloorToInt(source.WarriorState.TrueDamageRemainder);source.WarriorState.TrueDamageRemainder-=extra;
             if(extra>0)damage.ApplyDamage(session,source,target,extra,DamageType.Inevitable,allowWarriorProcs:false);
             if(target.WarriorState.ProtectionTurns>0 && target.WarriorState.Riposte && source!=target)
-                damage.ApplyDamage(session,target,source,Mathf.RoundToInt(beforeDefense*.3f),DamageType.Inevitable,allowWarriorProcs:false);
+                damage.ApplyDamage(session,target,source,Mathf.RoundToInt(beforeDefense*.3f),DamageType.Inevitable,allowWarriorProcs:false,allowVampirism:false);
             Refresh(source);
         }
         public static void DamageTaken(BattleUnit target,int healthDamage)
@@ -88,7 +89,7 @@ namespace Godmist.Systems.Combat
                 var amount=Mathf.RoundToInt(source.Character.Stats.MaxHealth.GetValue()*(rise==1?.03f:.07f));
                 if(UnityEngine.Random.value<Mathf.Clamp01(target.Character.Stats.CritChance.GetValue()+.1f))amount=Mathf.CeilToInt(amount*Mathf.Max(1,target.Character.Stats.CritDamage.GetValue()));
                 var final=CombatDamageSystem.ApplyDefense(target,source,amount,DamageType.Magical);
-                damage.ApplyDamage(target.WarriorState.Session,target,source,final,DamageType.Magical,allowWarriorProcs:false);
+                damage.ApplyDamage(target.WarriorState.Session,target,source,final,DamageType.Magical,allowWarriorProcs:false,allowVampirism:false);
             }
             return true;
         }

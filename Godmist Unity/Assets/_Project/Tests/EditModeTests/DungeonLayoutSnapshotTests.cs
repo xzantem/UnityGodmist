@@ -20,7 +20,7 @@ using UnityEngine.TestTools;
 
 namespace Godmist.Tests.EditMode
 {
-    public class DungeonLayoutSnapshotTests
+    public partial class DungeonLayoutSnapshotTests
     {
         private readonly List<Object> assets = new();
         private GameContentCatalog catalog;

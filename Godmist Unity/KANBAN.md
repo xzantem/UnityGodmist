@@ -1,3 +1,12 @@
+## CP2-06 — Zbrojny — 2026-11-02 — ZAAKCEPTOWANA
+
+25 węzłów T1–T5 i 4 skille trzeciego drzewa Wojownika, 25 dedykowanych ikon,
+opisy rang i szczegóły mechanik. T6/T7 odłożone. Pasyw i wszystkie sześć reguł
+zaakceptowane przez użytkownika. Finalna regresja mechanik 511/511 PASS;
+authoring, zachowanie dawnych drzew, save roundtrip i UI PASS.
+Zakres: CONTENT_PASS_2_ARMORED_DESIGN.md. Wyniki: Tools/ContentPass2/man-at-arms-validation.json.
+Smoke użytkownika PASS dnia 2026-11-02; polecenie commit/push CP2-06 i przejścia do CP2-07.
+
 ## CP2-05 — T5 Dowódcy i Awanturnika — 2026-11-01 — ZAAKCEPTOWANA
 
 Przygotowano `CONTENT_PASS_2_WARRIOR_T5.md`:10 zarezerwowanychID, rangi/prerequisite, mapa punktów integracji, authoring i testy. Trzy doprecyzowania zatwierdzone: Powrót do Żywych wypłaca bank po każdym wyłączeniu, także ręcznym; Szermierka liczy użycia ataków z pierwszym ładunkiem od pierwszego ataku, pudłami i resetem po zmianie celu/AoE; Egzekucja na bossie daje podwójny damage zamiast zabicia. Rozkaz Przegrupowania z arkusza mapuje się na obecny Rozkaz Gotowości, to samo skill.warrior.regroup.

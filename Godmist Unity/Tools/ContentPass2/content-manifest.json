@@ -3,7 +3,7 @@
   "source_workbook": "design/content_pass_2.xlsx",
   "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
   "natural_contract_sha256": "9dae030880234ac08233a038bc37e5cc16950cd967a812413b400c0ee6345cea",
-  "baseline_commit": "889456c9c9c2f8ee8af2dff47e84cf9316a1f606",
+  "baseline_commit": "c4ec11a394da6de2eb0f983ab0253960954edd31",
   "runtime_changed": false,
   "entities": [
     {
@@ -40300,7 +40300,7 @@
       "kind": "SkillTreeNode",
       "tree": "tree.warrior.man_at_arms",
       "slot": "T6:2",
-      "status": "scope_decision_t6_t7",
+      "status": "deferred_outside_v0.2.0",
       "reference": "Drzewka!A40:G40",
       "declared_rank_or_cost": "Pełne Odnowienie [2]",
       "description": "Zwiększa czas trwania Odnowienia Energii o 1/3 tury",
@@ -40312,7 +40312,7 @@
       "kind": "SkillTreeNode",
       "tree": "tree.warrior.man_at_arms",
       "slot": "T6:3",
-      "status": "scope_decision_t6_t7",
+      "status": "deferred_outside_v0.2.0",
       "reference": "Drzewka!A41:G41",
       "declared_rank_or_cost": "Wyrwanie Się [1]",
       "description": "Odnowienie Energii można przerwać w dowolnym momencie",
@@ -40324,7 +40324,7 @@
       "kind": "SkillTreeNode",
       "tree": "tree.warrior.man_at_arms",
       "slot": "T6:4",
-      "status": "scope_decision_t6_t7",
+      "status": "deferred_outside_v0.2.0",
       "reference": "Drzewka!A42:G42",
       "declared_rank_or_cost": "Wieczny Żywot [2]",
       "description": "Zwiększa szansę na efekt Nieugiętości o 5%/10%",
@@ -40336,7 +40336,7 @@
       "kind": "SkillTreeNode",
       "tree": "tree.warrior.man_at_arms",
       "slot": "T7",
-      "status": "scope_decision_t6_t7",
+      "status": "deferred_outside_v0.2.0",
       "reference": "Drzewka!A43:G43",
       "declared_rank_or_cost": "Żelazna Ostoja [50 PW, 80% PA]",
       "description": "Przez 5 tur przyjmujesz 60% obrażeń otrzymanych przez sojuszników i mitygujesz je o 75%",
@@ -40348,7 +40348,7 @@
       "name": "Żelazna Ostoja",
       "kind": "SkillData",
       "owner": "node.warrior.man_at_arms.t7",
-      "status": "scope_decision_t6_t7",
+      "status": "deferred_outside_v0.2.0",
       "reference": "Drzewka!C43:G43"
     },
     {
@@ -41666,7 +41666,7 @@
       "id": "tree.warrior.man_at_arms",
       "name": "Zbrojny",
       "kind": "SkillTreeDefinition",
-      "status": "proposed_not_runtime"
+      "status": "existing_definition_review_assignment"
     },
     {
       "id": "tree.scout.guardian",
@@ -42452,7 +42452,7 @@
     "CharacterDefinitions": 31,
     "CharacterClasses": 9,
     "EquipmentPartDefinitions": 219,
-    "SkillDefinitions": 136,
+    "SkillDefinitions": 140,
     "DungeonDefinitions": 16
   }
 }

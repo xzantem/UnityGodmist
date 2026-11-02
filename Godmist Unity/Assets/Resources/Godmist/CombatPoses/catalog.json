@@ -1221,6 +1221,10 @@
       "actorSize": 64,
       "pivotBottomPixels": 4,
       "skills": [
+        {"id": "skill.warrior.man_at_arms.t1_2", "action": "command", "meleeAction": "", "frontOnly": false},
+        {"id": "skill.warrior.man_at_arms.t2_3", "action": "punch", "meleeAction": "", "frontOnly": false},
+        {"id": "skill.warrior.man_at_arms.t4_1", "action": "command", "meleeAction": "", "frontOnly": false},
+        {"id": "skill.warrior.man_at_arms.t5_3", "action": "bandage", "meleeAction": "", "frontOnly": false},
         {
           "id": "skill.warrior.cut",
           "action": "slash",

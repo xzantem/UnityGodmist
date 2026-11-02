@@ -1,0 +1,355 @@
+{
+  "card": "CP2-06",
+  "status": "ACCEPTED",
+  "branch": "codex/v0.2.0-content-pass-2",
+  "scope": {
+    "nodes": 25,
+    "ranks": 44,
+    "tiers": "T1-T5",
+    "active_skills": 4,
+    "icons": 25,
+    "T6_T7": "deferred_outside_v0.2.0"
+  },
+  "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
+  "tests": {
+    "runs": [
+      {
+        "file": "LocalHandoffs/cp2-06-armored-20261102/runtime-first.xml",
+        "sha256": "03e0dd74e4b04e2ca02683938d0f519f0f6c70e56c91237745aa3a237321d4b5",
+        "total": 16,
+        "passed": 16,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-06-armored-20261102/regression-first.xml",
+        "sha256": "43b2d90d013e08ec6c2ff9e5c22b1b8d76233ab143bb090e04f453630d8c07ed",
+        "total": 631,
+        "passed": 626,
+        "failed": 5,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-06-armored-20261102/regression-second.xml",
+        "sha256": "f7c100effc84ffa029a6f9fb900569ecc64763cbe0e879e76057bb05d3e42220",
+        "total": 548,
+        "passed": 545,
+        "failed": 3,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-06-armored-20261102/regression-final.xml",
+        "sha256": "85937244116771d45a3eec1d8fdf67bc8a9f63ea606e61ffda47c4c84b4ef2d5",
+        "total": 511,
+        "passed": 511,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "file": "LocalHandoffs/cp2-06-armored-20261102/presentation-final.xml",
+        "sha256": "a5071c47a4330c2c6aac3cb026ea106800895aa57624c0a76e28d5de7c3680d2",
+        "total": 89,
+        "passed": 89,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "latest_per_distinct_case": {
+      "passed": 636,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "authoring": {
+    "evidence": "LocalHandoffs/cp2-06-armored-20261102/authoring.txt",
+    "evidence_sha256": "6ebd17551c420dd76e334040a17c0111640d4e67ff8e43e599bed8f5f0efb240",
+    "repeat_byte_identical": true,
+    "old_trees_preserved": [
+      "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_Brawler.asset",
+      "Godmist Unity/Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_Commander.asset"
+    ],
+    "older_nodes_preserved": 50,
+    "copied_exact_unity_authored_files": [
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_1-32.png",
+        "sha256": "2c2ec171e1c99cdd71ce1cca8dd240e98436a2b71fea31ee923dfdafeab3084f"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_1-32.png.meta",
+        "sha256": "b2a8e30ac4d83ac047e2f0e52c0f3f06f021d48b86a329f666f1dce21c073d83"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_2-32.png",
+        "sha256": "b9ea86c137532203929cfa1e3004b33af905916a6b38368247be8d7113ac430e"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_2-32.png.meta",
+        "sha256": "54ebf551f253f3b9123ace1206eb05c5761b8cea0c6e0ad23dbb76ba6bac7daf"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_3-32.png",
+        "sha256": "8ff9b17f33f9a1b72bc2cb7c5308b009031cd07fad167bfe8193b4329b2e0e40"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_3-32.png.meta",
+        "sha256": "872459adb087bebb087cb5b45b6e6bfc05a3b69c6d5f3fc4eaec31acb266cd90"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_4-32.png",
+        "sha256": "62f9dea8c09f76d66febf11729de41cb697d6461b8dc31cc297667e25d831e1d"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_4-32.png.meta",
+        "sha256": "be8160bd8bb507d94dde9ffe4c5bc873a21b25277f5343453a6e976bc39c99df"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_5-32.png",
+        "sha256": "a391bcb2c7cca1fd3fb61d88856003d8bd3215f80517cc4d08c8de1584c4a4f5"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_5-32.png.meta",
+        "sha256": "70a4bceae717c432cff0818cc02f768105a8464b9b987e3c1763553c08d6cc4e"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_1-32.png",
+        "sha256": "6a196ec2c0053336015efbaf4a0970552f4d08266536d9001d27bed68149f9b3"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_1-32.png.meta",
+        "sha256": "ded9540cc8e8bf0d864fad7449bd769093e614f3c655d6420f953d6bb6b807e0"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_2-32.png",
+        "sha256": "6cb97534b34260c72c068049d20352ada79c5f5e3a7073793226cb8e74fb03f1"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_2-32.png.meta",
+        "sha256": "7eada129c61792c241dde6ed93692cbd7aa17b3da93447bed5089e9b8e681dac"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_3-32.png",
+        "sha256": "6a79dbcc9b104b5138bcb24e0ecf9aef0fb2c2d72057c51c92587eb580d4f8d0"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_3-32.png.meta",
+        "sha256": "e44990929eced8db7b15d69a18cb99b32dd7f435dc4470a4b096bc20d809f092"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_4-32.png",
+        "sha256": "df47a3946f260abec5e26de6c0946047bebaeeeb51caff9f4574179b18004cee"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_4-32.png.meta",
+        "sha256": "b543d565157b57315755cffb0216baa2cedd7e5386d8d6ee59b7b30300e3c07c"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_5-32.png",
+        "sha256": "cdadd3f2f67979fc32c71c71efc65fede77e3ae1163c3deead4e29cdec497310"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_5-32.png.meta",
+        "sha256": "b5ab98ff0272fb34b67c5305e268e639fe2327138364080db22eee78a6ec79d9"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_1-32.png",
+        "sha256": "4ebc0996785d26a1f8d6550b90c764e9e8756c7659a02714433080e5709a5b6a"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_1-32.png.meta",
+        "sha256": "998f84495c21cd3d97653530b7d96f99d05157f852595e48267c92962c6516bc"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_2-32.png",
+        "sha256": "798a331d2892d13a59c8a2aad391def4900d23a77943c01e587bb7660eb09795"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_2-32.png.meta",
+        "sha256": "a7afd602b4486442a56754d0f7c53e14d3577891cd6e8a8d6e35a40cab4b48be"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_3-32.png",
+        "sha256": "4b6dbdf1bada4b26979c71e7e6301215ba86b1184162eea4af3e1d2595a3f4e0"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_3-32.png.meta",
+        "sha256": "8b12811905c6579752d7b90c0e9f4a2a9a67e3ad96716646ce47bc413e59791c"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_4-32.png",
+        "sha256": "ea15c5a5e105ce8dbf148d86942fc8df719cf8c2a563b9c4da253bb1344df38d"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_4-32.png.meta",
+        "sha256": "3d4654fd9e281d33563dccb68d5a058de15d1edcf5d437ac309899314944c270"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_5-32.png",
+        "sha256": "7786742ece57e77998c294b64b3e91bfa7ac6ab0a617f070d00db06616ab4bb6"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_5-32.png.meta",
+        "sha256": "ed070f9df657770b0a98608bba835dcff62d5d477d3834210a6a88379ad24d8b"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_1-32.png",
+        "sha256": "b2b2cde6d6d2ae7ef4efff576ac4e6e7eebac38f96eb7f55ba4afeb19fbf465d"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_1-32.png.meta",
+        "sha256": "7c68fe6699e32278605d141f140c4fbda1688c487ff169ea334c8243f55fee72"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_2-32.png",
+        "sha256": "2a9b49eb33e41c408172dc0776cb2d62e858f6de9cea42b4c754c697baf5e078"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_2-32.png.meta",
+        "sha256": "b0c818935b7a75d092c8f84b0e4431bf510029c745dbec8792e56f8ea59c4091"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_3-32.png",
+        "sha256": "847d9af5889963622aa2ad1da2335ce311839704260eba03d7dc6316095c3d46"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_3-32.png.meta",
+        "sha256": "fdf31f492466344375e3f5893cd8c4c3f2c5b2bdfb8ee8a8f91e9bc2555aad2e"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_4-32.png",
+        "sha256": "27ee9ceb1546f4e98f6b1b843ede72e63827f2209f21972120bb0b41fafc2b4a"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_4-32.png.meta",
+        "sha256": "56eb5f979ebeab5b99c37639dbf1f0bfeabdc1f7f0dc1962c92a83e8220b8201"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_5-32.png",
+        "sha256": "4eb6787964be9605be3c4740e9f01ca0e3f244c5e27097e1eb90f20673d392b0"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_5-32.png.meta",
+        "sha256": "afe0fad773b4c87123c87f16cb4efc58d3dd77145c913f6560dd5d97f2520c51"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_1-32.png",
+        "sha256": "bc59e8d01ef95a3237215b01d522e54cc03dc427a9d42788758d4bdf57fcbe3d"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_1-32.png.meta",
+        "sha256": "45d1db132c7ae451ef65f508381920787f1eeef5d1c0ad238e722e841e9b9645"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_2-32.png",
+        "sha256": "045971ec20093315e9a6446fead9e3b1c628c80a8717c0a9069538f8e394770f"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_2-32.png.meta",
+        "sha256": "914fa4d47372280eca0e74908068ef7e49dda5f31c02787058e0e99dba7dce44"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_3-32.png",
+        "sha256": "e0e3b65aa36801b64e15e6ba2c91c7e4e77fe226ef8f9f8006ec659cd0918651"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_3-32.png.meta",
+        "sha256": "b000c4c96d7a822acb978e1961024610c4ce9b265dd675bd46b42aac475a8a61"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_4-32.png",
+        "sha256": "838e9a0b3b5669ce32f860327eb11a7be41d1f5ab7fad3afaf20ab95531653ed"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_4-32.png.meta",
+        "sha256": "22d003a8039e8957e6284741d0ea19c4673252be778bed222baba37bad652586"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_5-32.png",
+        "sha256": "c8041f859683344513f9de6af987ae0ddf914e42678fa9a3b4ae1aec974996dd"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_5-32.png.meta",
+        "sha256": "e62555d80baf8b6e4d7398e0f6cb76f10d5e58f09b15d65f8c27efa43d96a39f"
+      },
+      {
+        "path": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms.meta",
+        "sha256": "82cd59c93ec257a2c3df7942d7528a43bb10fb7786e69b669127850ea6a725b4"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t1_2.asset",
+        "sha256": "c07c89bc93dbfad0f9cd0c665c7633e48db9a1a966685f94a5d2c0a77b0efa84"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t1_2.asset.meta",
+        "sha256": "16ccb11a29667a7d85e38ae4bba6308e2c75b01563bd9a1ae96142bfdf1209ec"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t2_3.asset",
+        "sha256": "ae9352d4c66330d0f1039fdc9519052c3e7f94bbe3c5547f30db89cfce2565f3"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t2_3.asset.meta",
+        "sha256": "c5f667979d90681d8c38e92a0176028a6c5cb366deaa6213e589c28b7999a14d"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t4_1.asset",
+        "sha256": "2d6b1632b965abaa2dd6841db74f5e31a445a4be4235314982e0b68da35fbd91"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t4_1.asset.meta",
+        "sha256": "dd36ed2cb7ffb213a4568d4728d6f34c3db3edc5b2fbe92c74296d5aa35e65ed"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t5_3.asset",
+        "sha256": "4907fbb00d94284c0b4c18565547f4eb06b8d0ddd56170f3da8249d9a8e0f9d4"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SD_WarriorManAtArms_t5_3.asset.meta",
+        "sha256": "ae5f4ce4bcaad9e851ab018b99cb45c7d3c4a220d3e882423df2a999d4bbebb5"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_ManAtArms.asset",
+        "sha256": "6ef76baf05efdc5c04d401b1275f3c2c21671495ae359448412947fc634fc950"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_ManAtArms.asset.meta",
+        "sha256": "2d5da0c274c204033b3bb47e79790432686bcddaf12866b3f9889b082b9979c1"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/Classes/CCD_Warrior.asset",
+        "sha256": "3409a3d53a56dd9840133be70b0bbf282a9fb976c504d522b68affa16ab1cf2e"
+      },
+      {
+        "path": "Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset",
+        "sha256": "7c49f6c608d41b7e8a2c7ea98ab8fc8c658d75d48ce397b04198a97ef5a64901"
+      }
+    ]
+  },
+  "icons": {
+    "nearest_sampling": 25,
+    "aseprite_roundtrip": 25,
+    "records_sha256": "5484f206584bda7afb3969ec3d7ff032f83889e329bd2e16cf7f16287f31af4c"
+  },
+  "source_snapshot_parity": {
+    "tracked_changed_cs": 35,
+    "new_cs": 5,
+    "pose_catalog": "376a7a7e306fea91f53cc9449399d387a52408179d098d53ce4187811491e553"
+  },
+  "save": "Optional ManAtArmsDungeonKills defaults0; clamp0-25; two JSON roundtrips/legacy missing-field/dungeon exit PASS; no save schema version bump.",
+  "presentation": "25 unique icons and rank tooltips; third tab interaction; four cast IDs resolve eight facings using existing poses.",
+  "planning_validation": {
+    "passed": 30,
+    "failed": 0
+  },
+  "limitations": [
+    "No player build",
+    "No FPS measurement",
+    "No manual gameplay smoke or game-window render",
+    "Existing command/punch/bandage poses reused; no new actor animations"
+  ],
+  "git": "User explicitly requested scoped commit and push after smoke PASS.",
+  "smoke": {
+    "result": "PASS",
+    "accepted_by": "user",
+    "date": "2026-11-02"
+  }
+}

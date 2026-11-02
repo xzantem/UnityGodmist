@@ -224,6 +224,7 @@ namespace Godmist.Systems.Combat
             using var equipmentAction = new EquipmentActionScope(session, caster, actionId, !isPassiveDuplicate);
             using var tiringCast = new MageTiringSpellSystem.CastScope(session, caster, actionId);
             using var warriorCast = new WarriorCombatSystem.CastScope(caster, skill);
+            using var armoredCast = new WarriorCombatSystem.ArmoredAttackScope(caster,skill,isPassiveDuplicate);
             var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
             WarriorCombatSystem.BeginSkill(caster,skill,knifeTargets,isPassiveDuplicate,
                 targetsByModeIndex?.Values.SelectMany(targets => targets ?? Array.Empty<BattleUnit>()).Distinct().ToArray());
@@ -792,6 +793,8 @@ namespace Godmist.Systems.Combat
             GridPosition? selectedTargetPosition = null, string presentationActionId = null, WarriorDischargeCast dischargeCast = null)
         {
             var vfxActionId = presentationActionId ?? actionId;
+            if(WarriorCombatSystem.IsArmoredActive(skill.SkillId))
+                return new EffectExecutionResult{Succeeded=WarriorCombatSystem.ExecuteArmored(caster,target,skill,statusEffectSystem,shieldSystem)};
             switch (effect.EffectType)
             {
                 case EffectType.PaladinHeal:

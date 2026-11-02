@@ -47,7 +47,7 @@ namespace Godmist.Tests.EditMode
                 var invest=(Button)Field(view,"investButton");Assert.That(invest.interactable,Is.True);
                 invest.onClick.Invoke();Assert.That(character.AvailableSkillPoints,Is.Zero);
                 Assert.That(SkillTreeProgressionSystem.GetInvestedRanks(character,tree.Id),Is.EqualTo(21));
-                var tabs=(Transform)Field(view,"treeTabRoot");tabs.GetComponentsInChildren<Button>().Last().onClick.Invoke();
+                var tabs=(Transform)Field(view,"treeTabRoot");tabs.GetComponentsInChildren<Button>()[1].onClick.Invoke();
                 var second=character.ClassData.SkillTrees[1];
                 foreach(var node in second.Nodes.Where(n=>n.Tier==5))
                 {

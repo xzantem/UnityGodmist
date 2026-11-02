@@ -95,14 +95,7 @@ namespace Godmist.Systems.Combat
                 return 0;
             }
 
-            var dealtMultiplier = GetMultiplier(
-                source?.Character,
-                GameplayVariableType.DamageDealtPercent,explanation:explanation);
-            if(previewSkill!=null)dealtMultiplier=WarriorCombatSystem.PreviewDealtMultiplier(source,previewSkill,dealtMultiplier);
-            var lowHealthBonus = WarriorCombatSystem.LowHealthDamageBonus(source,previewSkill);
-            dealtMultiplier += lowHealthBonus;
-            if (lowHealthBonus != 0) explanation?.Add("Szał Bitewny", lowHealthBonus);
-            explanation?.Add("damage_dealt",dealtMultiplier);
+            var dealtMultiplier = GetOutgoingDamageMultiplier(source,explanation,previewSkill);
 
             var angerMultiplier = ScoutCombatSystem.ReceivedDamageMultiplier(source, target);
             var receivedMultiplier = GetMultiplier(
@@ -113,6 +106,16 @@ namespace Godmist.Systems.Combat
                 0,
                 Mathf.RoundToInt(
                     requestedDamage * dealtMultiplier * receivedMultiplier * angerMultiplier));
+        }
+        public float GetOutgoingDamageMultiplier(BattleUnit source,CombatValueExplanation explanation=null,Godmist.Data.Skills.SkillData previewSkill=null)
+        {
+            var value=GetMultiplier(source?.Character,GameplayVariableType.DamageDealtPercent,explanation:explanation);
+            if(previewSkill!=null)value=WarriorCombatSystem.PreviewDealtMultiplier(source,previewSkill,value);
+            var lowHealthBonus=WarriorCombatSystem.LowHealthDamageBonus(source,previewSkill);
+            value+=lowHealthBonus;
+            if(lowHealthBonus!=0)explanation?.Add("Szał Bitewny",lowHealthBonus);
+            explanation?.Add("damage_dealt",value);
+            return value;
         }
     }
 }

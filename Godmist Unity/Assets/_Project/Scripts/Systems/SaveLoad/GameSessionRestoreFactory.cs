@@ -700,6 +700,7 @@ namespace Godmist.Systems.SaveLoad
                 classData);
             LegacySaveMigrations.RecoverSkillPointTotal(character);
             character.CurrentHealth = saveData.CurrentHealth;
+            character.ManAtArmsDungeonKills = Math.Clamp(saveData.ManAtArmsDungeonKills,0,25);
             character.EquipmentHealthCarry = SafeEquipmentCarry(saveData.EquipmentHealthCarry);
             character.EquipmentResourceCarry = SafeEquipmentCarry(saveData.EquipmentResourceCarry);
             character.EquipmentGenerationCarry = SafeEquipmentCarry(saveData.EquipmentGenerationCarry);
@@ -1964,7 +1965,7 @@ namespace Godmist.Systems.SaveLoad
                     assignedItemIds, context))
                 return context.Reject(SaveRestoreErrorCode.ContractRejected, "FloorDeltas", "Nie spełniono warunku danych: !TryRestoreDungeonFloorDeltas( dungeon, saveData.FloorDeltas, saveData.EncounterDeltas, itemsById, assignedItemIds, context)");
 
-            if (!session.TrySetActiveDungeon(dungeon))
+            if (!session.TrySetActiveDungeon(dungeon,preserveCharacterDungeonState:true))
                 return context.Reject(SaveRestoreErrorCode.InvalidValue, "", "Nie spełniono warunku danych: !session.TrySetActiveDungeon(dungeon)");
 
             return true;

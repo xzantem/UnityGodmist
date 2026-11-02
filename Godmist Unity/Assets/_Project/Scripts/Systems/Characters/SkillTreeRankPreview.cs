@@ -24,7 +24,7 @@ namespace Godmist.Systems.Characters
                 ResourcePool = source.ResourcePool == null ? null : new ResourcePool(source.ResourcePool.ResourceType,
                     source.ResourcePool.CurrentValue,source.ResourcePool.MaxValue,source.ResourcePool.Regeneration),
                 PassiveEffects = new List<PassiveEffectRuntime>(source.PassiveEffects ?? new()),
-                Skills = new(source.Skills ?? new()),
+                Skills = new(source.Skills ?? new()), ManAtArmsDungeonKills=source.ManAtArmsDungeonKills,
                 SkillTreeProgress = (source.SkillTreeProgress ?? new()).Select(p => new SkillTreeProgress
                 {
                     TreeId = p.TreeId, NodeInvestments = p.NodeInvestments.Select(n => new SkillTreeNodeInvestment

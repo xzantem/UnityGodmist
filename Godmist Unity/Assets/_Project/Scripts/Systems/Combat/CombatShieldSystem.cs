@@ -25,7 +25,8 @@ namespace Godmist.Systems.Combat
         public static int CalculateSkillShield(BattleUnit caster,SkillEffectData effect)
         {
             var average=CombatDamageValueCalculator.CalculateDamageValue(caster,DamageValueSource.AverageAttack,1f);
-            return effect.BaseValue+Mathf.FloorToInt(average*effect.ShieldAverageAttackMultiplier);
+            return effect.BaseValue+Mathf.FloorToInt(average*effect.ShieldAverageAttackMultiplier)
+                +Mathf.FloorToInt((caster?.Character?.MaximumHealth??0)*effect.ShieldMaxHealthPercent);
         }
 
         public int GrantShield(

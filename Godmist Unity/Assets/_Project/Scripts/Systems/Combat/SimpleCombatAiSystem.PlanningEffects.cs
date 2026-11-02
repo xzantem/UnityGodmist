@@ -67,6 +67,19 @@ namespace Godmist.Systems.Combat
                     var chance = EffectPrerequisiteChance(next, skill, effect, caster, target) * requiredChance;
                     if (chance <= 0f) continue;
                     var amount = 0f;
+                    if(skill.SkillId==WarriorCombatSystem.EnergyRenewal)
+                    {
+                        var healing=CombatSkillPreviewCalculator.CalculateHealing(caster,target,skill)??0;
+                        utility+=HealingUtility(live,actor,live.Units[next.World.Units.IndexOf(target)],healing);
+                        next.Terminal=true;
+                        continue;
+                    }
+                    if(skill.SkillId==WarriorCombatSystem.Prediction)
+                    {
+                        if(!StatusEffectSystem.HasStatus(caster,WarriorCombatSystem.Prediction))
+                            utility+=DefensiveModifierUtility(live,actor,live.Units[next.World.Units.IndexOf(target)],effect);
+                        WarriorCombatSystem.ArmoredBuff(caster,WarriorCombatSystem.Prediction,"Przewidywanie",5);next.Terminal=true;continue;
+                    }
                     switch (effect.EffectType)
                     {
                         case EffectType.DealDamage:
@@ -76,6 +89,7 @@ namespace Godmist.Systems.Combat
                             var shieldBefore = target.Character.ShieldPool?.TotalShield ?? 0;
                             amount = DamageUtility(next.World, previewCaster, target, skill, skill.Effects[index],live,actor);
                             var healthLoss = target.Character.ShieldPool?.AbsorbDamage(Mathf.RoundToInt(expected)) ?? Mathf.RoundToInt(expected);
+                            caster.WarriorState.MitigatedBank=0;
                             var certainKill = preview.HitChance >= 1f && preview.Damage.Minimum >= target.Character.CurrentHealth
                                 + shieldBefore;
                             target.Character.CurrentHealth = Mathf.Max(certainKill ? 0 : 1, target.Character.CurrentHealth - healthLoss);

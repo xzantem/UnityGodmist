@@ -620,6 +620,7 @@ namespace Godmist.Systems.SaveLoad
                 CurrentExperience = character.CurrentExperience,
                 AvailableSkillPoints = character.AvailableSkillPoints,
                 CurrentHealth = character.CurrentHealth,
+                ManAtArmsDungeonKills = Math.Clamp(character.ManAtArmsDungeonKills,0,25),
                 EquipmentHealthCarry = character.EquipmentHealthCarry,
                 EquipmentResourceCarry = character.EquipmentResourceCarry,
                 EquipmentGenerationCarry = character.EquipmentGenerationCarry,

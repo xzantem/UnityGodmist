@@ -1,0 +1,227 @@
+[
+  {
+    "id": "node.warrior.man_at_arms.t1_1",
+    "slot": "t1_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_1-32.png",
+    "source_sha256": "36d1ccc092f7c17d534477b24b1c766a46adc9e9c927ca2fcd27583a877aa56f",
+    "png_sha256": "2c2ec171e1c99cdd71ce1cca8dd240e98436a2b71fea31ee923dfdafeab3084f",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t1_2",
+    "slot": "t1_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_2-32.png",
+    "source_sha256": "90798d949c083415e9a420eacd8b7012226e2a648ad47d99a37179761f244609",
+    "png_sha256": "b9ea86c137532203929cfa1e3004b33af905916a6b38368247be8d7113ac430e",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t1_3",
+    "slot": "t1_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_3-32.png",
+    "source_sha256": "fe4d13044a4c7a99f644659603e3f2c4e4028e7d3d486a1b3c87f92eb696a3e3",
+    "png_sha256": "8ff9b17f33f9a1b72bc2cb7c5308b009031cd07fad167bfe8193b4329b2e0e40",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t1_4",
+    "slot": "t1_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_4-32.png",
+    "source_sha256": "f60d7ca3b4cb38fce9d341338251d3ffe6a42be917f18e91fde2053065627255",
+    "png_sha256": "62f9dea8c09f76d66febf11729de41cb697d6461b8dc31cc297667e25d831e1d",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t1_5",
+    "slot": "t1_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t1_5-32.png",
+    "source_sha256": "f620c357946c83e8a7e5df2a2ace5004df3eb3161306861dcce37704cc789a8c",
+    "png_sha256": "a391bcb2c7cca1fd3fb61d88856003d8bd3215f80517cc4d08c8de1584c4a4f5",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t2_1",
+    "slot": "t2_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_1-32.png",
+    "source_sha256": "638dc18c0caeb4e140b2d1b0ce76b48fe97dae5cce6b5c3eb5eb7846e6c9e8b4",
+    "png_sha256": "6a196ec2c0053336015efbaf4a0970552f4d08266536d9001d27bed68149f9b3",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t2_2",
+    "slot": "t2_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_2-32.png",
+    "source_sha256": "8c9b3cadaf54185f36ab93bb30400085a193d48339038e4a4733cb3bc8adeea1",
+    "png_sha256": "6cb97534b34260c72c068049d20352ada79c5f5e3a7073793226cb8e74fb03f1",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t2_3",
+    "slot": "t2_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_3-32.png",
+    "source_sha256": "dc51fd4c11058c651128507c1887b9a81e4b91b6e04efbf2811c98f2c899d1a7",
+    "png_sha256": "6a79dbcc9b104b5138bcb24e0ecf9aef0fb2c2d72057c51c92587eb580d4f8d0",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t2_4",
+    "slot": "t2_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_4-32.png",
+    "source_sha256": "90070028cacbd0ed1d9ca0f94075adcab05c6091b2ff93e0f40abb4d93e431f0",
+    "png_sha256": "df47a3946f260abec5e26de6c0946047bebaeeeb51caff9f4574179b18004cee",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t2_5",
+    "slot": "t2_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t2_5-32.png",
+    "source_sha256": "db928bf38203b8021654ba7a62714574ccc469be7382adc747beb695d1042ee0",
+    "png_sha256": "cdadd3f2f67979fc32c71c71efc65fede77e3ae1163c3deead4e29cdec497310",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t3_1",
+    "slot": "t3_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_1-32.png",
+    "source_sha256": "182db109787b79f76a4f1b3b3fdcec462877b9afbd2ca838f2c41a3fdec5aa12",
+    "png_sha256": "4ebc0996785d26a1f8d6550b90c764e9e8756c7659a02714433080e5709a5b6a",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t3_2",
+    "slot": "t3_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_2-32.png",
+    "source_sha256": "5ed29f00ace1783af52a3054b73c664b9f6b5a45959bf243d3a184c4a599c788",
+    "png_sha256": "798a331d2892d13a59c8a2aad391def4900d23a77943c01e587bb7660eb09795",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t3_3",
+    "slot": "t3_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_3-32.png",
+    "source_sha256": "ce06f5ad35b6653253898da091714d625b8137dbd6c979f543223eb03f7a5d34",
+    "png_sha256": "4b6dbdf1bada4b26979c71e7e6301215ba86b1184162eea4af3e1d2595a3f4e0",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t3_4",
+    "slot": "t3_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_4-32.png",
+    "source_sha256": "fdf0f5d0e1a6cbf68ec70f5f045094e17a2ed810b0676cc8d5db989a1a4b751c",
+    "png_sha256": "ea15c5a5e105ce8dbf148d86942fc8df719cf8c2a563b9c4da253bb1344df38d",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t3_5",
+    "slot": "t3_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t3_5-32.png",
+    "source_sha256": "f226aa33fa7a1ca18be0abcb72f872fbfc25288c907ce44eb95d961d39d38975",
+    "png_sha256": "7786742ece57e77998c294b64b3e91bfa7ac6ab0a617f070d00db06616ab4bb6",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t4_1",
+    "slot": "t4_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_1-32.png",
+    "source_sha256": "8ee8f6ea1123dc84209521e8d7ebe83bc97c98656f4a0808cd266fa8a785530b",
+    "png_sha256": "b2b2cde6d6d2ae7ef4efff576ac4e6e7eebac38f96eb7f55ba4afeb19fbf465d",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t4_2",
+    "slot": "t4_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_2-32.png",
+    "source_sha256": "f83a1534bfb37752148e44378978e16503467ed932862190ed3a2080d4d34946",
+    "png_sha256": "2a9b49eb33e41c408172dc0776cb2d62e858f6de9cea42b4c754c697baf5e078",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t4_3",
+    "slot": "t4_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_3-32.png",
+    "source_sha256": "21cae14028a87239d9760fda9132cc67a9ead6837ffacdf84ccb437c5a0b8cb2",
+    "png_sha256": "847d9af5889963622aa2ad1da2335ce311839704260eba03d7dc6316095c3d46",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t4_4",
+    "slot": "t4_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_4-32.png",
+    "source_sha256": "7fc661f09de9ba4b23a4493b1b83eb301ae78eccf76151ebe28766ceab46d101",
+    "png_sha256": "27ee9ceb1546f4e98f6b1b843ede72e63827f2209f21972120bb0b41fafc2b4a",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t4_5",
+    "slot": "t4_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t4_5-32.png",
+    "source_sha256": "99c58d37fa9db12adbf771e8ab546e0f8129d95afc6d8499b0e4d6ee291dcf93",
+    "png_sha256": "4eb6787964be9605be3c4740e9f01ca0e3f244c5e27097e1eb90f20673d392b0",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t5_1",
+    "slot": "t5_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_1-32.png",
+    "source_sha256": "b094f6f6a4b4a0e66ee70b40a85be7abc62b445fa6275696cf2c54ab1370392d",
+    "png_sha256": "bc59e8d01ef95a3237215b01d522e54cc03dc427a9d42788758d4bdf57fcbe3d",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t5_2",
+    "slot": "t5_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_2-32.png",
+    "source_sha256": "2e705fc920eaaa88430a347f210e791e83def4f3d2cb065f2e5e874ef054840e",
+    "png_sha256": "045971ec20093315e9a6446fead9e3b1c628c80a8717c0a9069538f8e394770f",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t5_3",
+    "slot": "t5_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_3-32.png",
+    "source_sha256": "4b5c81aad0ffb2edcf1d7c0bcbcddc2cf3d7fbb5a1ba70094342628554d880d1",
+    "png_sha256": "e0e3b65aa36801b64e15e6ba2c91c7e4e77fe226ef8f9f8006ec659cd0918651",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t5_4",
+    "slot": "t5_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_4-32.png",
+    "source_sha256": "9acaf7953a471e05805b8ccfbf6a99a8f29232d412765f604d7203126a8ff15f",
+    "png_sha256": "838e9a0b3b5669ce32f860327eb11a7be41d1f5ab7fad3afaf20ab95531653ed",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.warrior.man_at_arms.t5_5",
+    "slot": "t5_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/WarriorManAtArms/t5_5-32.png",
+    "source_sha256": "10d582e35019d5afe335506cf335a0b81d8afb0dc31789b2fb0f8f49c4077e44",
+    "png_sha256": "c8041f859683344513f9de6af987ae0ddf914e42678fa9a3b4ae1aec974996dd",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  }
+]

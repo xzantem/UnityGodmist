@@ -406,6 +406,8 @@ def main():
             node_id = reserve("node:"+key, ("passive." if is_global else "node.")
                               + tree.removeprefix("tree.") + "." + slug(slot), clean)
             status = "design_review_guardian" if tree == "tree.scout.guardian" else "scope_decision_t6_t7" if str(slot).startswith(("T6", "T7")) else "specified"
+            if tree == "tree.warrior.man_at_arms" and str(slot).startswith(("T6", "T7")):
+                status = "deferred_outside_v0.2.0"
             additions.append({"id": node_id, "name": clean, "kind": "GlobalPassive" if is_global else "SkillTreeNode", "tree": tree,
                 "slot": slot, "status": status, "reference": ref(s.title,f"A{row}:G{row}"), "declared_rank_or_cost": name,
                 "description": s[f"D{row}"].value, "requirements": s[f"E{row}"].value})

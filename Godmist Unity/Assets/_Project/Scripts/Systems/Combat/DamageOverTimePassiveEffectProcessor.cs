@@ -67,15 +67,22 @@ namespace Godmist.Systems.Combat
                 payload.RemainingTotalDamage - rawDamage);
 
             var finalDamage = CalculateEffectiveDamage(unit, effect.EffectId, adjustedDamage);
+            var sourceId=effect.Sources?.Count>0?effect.Sources[0].SourceId:null;
+            var separator=sourceId?.IndexOf(".effect.",StringComparison.Ordinal)??-1;
+            var originSkill=separator>0?sourceId.Substring(0,separator):null;
+            var dotContext=new PassiveEffectCombatContext(session:session,target:unit,skillId:originSkill,
+                damageType:GetDamageType(effect.EffectId));
 
             var actualDamage = damageSystem.ApplyDamage(
                 session,
                 source: null,
                 target: unit,
                 requestedDamage: finalDamage,
-                damageType: GetDamageType(effect.EffectId));
+                damageType: GetDamageType(effect.EffectId),preMitigationDamage:adjustedDamage,passiveContext:dotContext);
 
             PaladinCombatSystem.RecordDamageDealt(MageCombatSystem.BurnSource(session,effect),actualDamage);
+            WarriorCombatSystem.ArmoredDamageResolved(session,MageCombatSystem.BurnSource(session,effect),unit,
+                actualDamage,GetDamageType(effect.EffectId),dotContext,false);
             shouldExpire = payload.RemainingTotalDamage <= 0;
             MageCombatSystem.AfterBurnTick(session, effect, actualDamage, shouldExpire || effect.RemainingDuration <= 1);
 

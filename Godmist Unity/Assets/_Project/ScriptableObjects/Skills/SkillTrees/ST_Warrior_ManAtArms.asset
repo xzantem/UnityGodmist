@@ -1,0 +1,316 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Warrior_ManAtArms
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.warrior.man_at_arms
+  <DisplayName>k__BackingField: Zbrojny
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +15 maksymalnego zdrowia; 2% zredukowanych
+      obra\u017Ce\u0144 wzmacnia nast\u0119pny atak."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.warrior.man_at_arms.t1_1
+    <DisplayName>k__BackingField: "Os\u0142ona"
+    <Description>k__BackingField: "Zwi\u0119ksza obron\u0119 fizyczn\u0105 o 15%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 52e08aff4ffcd384e98b20b7630362b2, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t1_2
+    <DisplayName>k__BackingField: Postawa Defensywna
+    <Description>k__BackingField: "Zapewnia na 5 tur tarcz\u0119 r\xF3wn\u0105 20%
+      maksymalnego zdrowia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0203fe111c7823e479abb28b4f28b37d, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 4e243d236562fc9478a68e6af1fd3d65, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t1_3
+    <DisplayName>k__BackingField: Wzmocniona Defensywa
+    <Description>k__BackingField: "Zwi\u0119ksza si\u0142\u0119 tarczy Postawy Defensywnej
+      o 10%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0f8a94e372efd524ea53bee94e18b1cd, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t1_2
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t1_4
+    <DisplayName>k__BackingField: "Wytrwa\u0142o\u015B\u0107"
+    <Description>k__BackingField: "Skraca czas trwania krwawienia, zatrucia i podpalenia
+      o 1 tur\u0119."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 3d62132665b29f34abb3291ccde8b003, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t1_5
+    <DisplayName>k__BackingField: "Odwr\xF3cenie"
+    <Description>k__BackingField: "Zwi\u0119ksza obron\u0119 magiczn\u0105 o 15%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: ab7e230c8d5ec3048a5e80189b706434, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t2_1
+    <DisplayName>k__BackingField: Odbicie
+    <Description>k__BackingField: "Daje 10% szansy na zablokowanie 70% otrzymywanych
+      obra\u017Ce\u0144 fizycznych."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7e74435637a37ca479183a8a264a296f, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t1_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t2_2
+    <DisplayName>k__BackingField: Defensywne Odbicie
+    <Description>k__BackingField: "Postawa Defensywna zwi\u0119ksza szans\u0119 Odbicia
+      o 10 pp."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 6c7baa67f4d14b84bbb96ddb7184559f, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t1_2
+      <MinimumRanks>k__BackingField: 1
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t2_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t2_3
+    <DisplayName>k__BackingField: "Cios R\u0119koje\u015Bci\u0105"
+    <Description>k__BackingField: "Trafienie ma 90% szansy na zmniejszenie odporno\u015Bci
+      na supresj\u0119 o 50 pp na 3 tury, a nast\u0119pnie 70% szansy na og\u0142uszenie
+      na 3 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: cda3923292eda6742861c38c9fc620c9, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: ece439e732115804a92daca5eb7fc004, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t2_4
+    <DisplayName>k__BackingField: Dezorientacja
+    <Description>k__BackingField: "Je\u015Bli trafiony Cios R\u0119koje\u015Bci\u0105
+      nie og\u0142uszy, ogranicza szans\u0119 trafienia celu do 40% do ko\u0144ca
+      jego nast\u0119pnej tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: e13ee0369d58f734b84bee4cad825ab1, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t2_3
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t2_5
+    <DisplayName>k__BackingField: Rozproszenie
+    <Description>k__BackingField: "Daje 10% szansy na unikni\u0119cie obra\u017Ce\u0144
+      ataku magicznego."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8b7bbc32a9383a749979cc04a8d2c9e5, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t3_1
+    <DisplayName>k__BackingField: "Zwinno\u015B\u0107"
+    <Description>k__BackingField: "Zwi\u0119ksza unik o 8."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 868f84036fe3dc741bb8825c93e2ef80, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t3_2
+    <DisplayName>k__BackingField: "Zbroja P\u0142ytowa"
+    <Description>k__BackingField: "Zmniejsza otrzymywane obra\u017Cenia fizyczne
+      o 0,5 za ka\u017Cdy poziom zbroi."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8cd433224e441394584b14b7d47697b4, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t3_3
+    <DisplayName>k__BackingField: "Odebranie \u017Bywio\u0142u"
+    <Description>k__BackingField: "Cios R\u0119koje\u015Bci\u0105 zmniejsza pozosta\u0142e
+      odporno\u015Bci o 8% na 3 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: b92ee971906c8c74a9b7270f18a61d9e, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t3_4
+    <DisplayName>k__BackingField: "Odporno\u015B\u0107 Nabyta"
+    <Description>k__BackingField: "Ka\u017Cdy pokonany przeciwnik zmniejsza otrzymywane
+      obra\u017Cenia o 2% do wyj\u015Bcia z lochu, maksymalnie o 50%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 4cf570d15d2c9564ba2e95823e31b685, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t2_3
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t3_5
+    <DisplayName>k__BackingField: Adaptywny
+    <Description>k__BackingField: "Otrzymanie obra\u017Ce\u0144 od umiej\u0119tno\u015Bci
+      zmniejsza jej obra\u017Cenia w nast\u0119pnej turze o 15%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: a03d52feb143d314ead6e16dd1c72da9, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t4_1
+    <DisplayName>k__BackingField: Przewidywanie
+    <Description>k__BackingField: "Na 5 tur zwi\u0119ksza unik o 5 za ka\u017Cde
+      pole odleg\u0142o\u015Bci od atakuj\u0105cego."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 9f03925eab4f33f4896fd08e6f15fd17, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 20406949662de6541b022fbcc6b91d37, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t4_2
+    <DisplayName>k__BackingField: Przewidywanie Magiczne
+    <Description>k__BackingField: "Przewidywanie zmniejsza otrzymywane obra\u017Cenia
+      magiczne o 2% za ka\u017Cde pole odleg\u0142o\u015Bci od atakuj\u0105cego."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 79ca81e0e14d44246a4462892de7bd3a, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t4_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t4_3
+    <DisplayName>k__BackingField: "Witalno\u015B\u0107"
+    <Description>k__BackingField: "Zwi\u0119ksza maksymalne zdrowie o 10%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 608ea9bccc308e54eb0ea92cbbe21fa4, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t4_4
+    <DisplayName>k__BackingField: Bez Granic
+    <Description>k__BackingField: "Nadmiar leczenia z Wampiryzmu tworzy na 5 tur
+      tarcz\u0119 do 10% maksymalnego zdrowia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: e449a6aacad819c4c852b2d1eff1efed, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t4_5
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t4_5
+    <DisplayName>k__BackingField: Wampiryzm
+    <Description>k__BackingField: "Przywraca zdrowie r\xF3wne 5% obra\u017Ce\u0144
+      zadanych zdrowiu przeciwnik\xF3w."
+    <Icon>k__BackingField: {fileID: 21300000, guid: d0ad3547e101f994faaff5f0ee78ae38, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t5_1
+    <DisplayName>k__BackingField: Wigor
+    <Description>k__BackingField: "Na pocz\u0105tku walki daje na 5 tur tarcz\u0119
+      r\xF3wn\u0105 10% maksymalnego zdrowia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: c1385750bdf01e348ad2675adf6e76fb, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t5_2
+    <DisplayName>k__BackingField: Skupienie
+    <Description>k__BackingField: "Odnowienie Energii zmniejsza otrzymywane obra\u017Cenia
+      o 25%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 7e18442238892174ea53201cd8bfa345, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t5_3
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t5_3
+    <DisplayName>k__BackingField: Odnowienie Energii
+    <Description>k__BackingField: "Usypia na 2 tury i przywraca 20% maksymalnego
+      zdrowia na tur\u0119. Otrzymanie obra\u017Ce\u0144 ko\u0144czy efekt."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 00fda3e1865c8d8459182c9e55e7fbf7, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 0ba4db18160b00c4487bd34acc7c5724, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t5_4
+    <DisplayName>k__BackingField: "Nieugi\u0119to\u015B\u0107"
+    <Description>k__BackingField: "\u015Amiertelne obra\u017Cenia maj\u0105 20% szansy
+      na przywr\xF3cenie 25% maksymalnego zdrowia. Po sukcesie efekt odnawia si\u0119
+      przez 5 tur."
+    <Icon>k__BackingField: {fileID: 21300000, guid: cf14905ed1e8f7b41b6ca4658076b95a, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.warrior.man_at_arms.t5_5
+    <DisplayName>k__BackingField: Smak Krwi
+    <Description>k__BackingField: "Wampiryzm leczy o 50% wi\u0119cej poni\u017Cej
+      po\u0142owy maksymalnego zdrowia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: b591d7a3304fdb54da1b4e38b20bf21d, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t4_5
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []

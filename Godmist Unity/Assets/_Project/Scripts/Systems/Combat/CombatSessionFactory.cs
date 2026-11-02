@@ -538,7 +538,7 @@ namespace Godmist.Systems.Combat
                 0,
                 Mathf.RoundToInt(speed * actionPointsPerSpeed * ActionPointUnits.PerPoint));
 
-            return new BattleUnit
+            var unit = new BattleUnit
             {
                 Character = character,
                 Position = position,
@@ -550,6 +550,8 @@ namespace Godmist.Systems.Combat
                 DownedTurnsRemaining = character.LifeState == CharacterLifeState.Downed ? BattleUnit.DownedTurnLimit : 0,
                 IsPlayerSide = isPlayerSide
             };
+            WarriorCombatSystem.InitializeArmored(unit);
+            return unit;
         }
 
         private CombatRewardResult ResolveRewards(

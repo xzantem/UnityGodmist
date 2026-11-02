@@ -293,13 +293,14 @@ namespace Godmist.Runtime.Game
             return true;
         }
 
-        public bool TrySetActiveDungeon(DungeonInstance dungeon)
+        public bool TrySetActiveDungeon(DungeonInstance dungeon, bool preserveCharacterDungeonState = false)
         {
             if (HasCombat) return false;
             if (dungeon == null || string.IsNullOrWhiteSpace(dungeon.DungeonId)) return false;
             if (ReferenceEquals(ActiveDungeon, dungeon)) return false;
 
             ActiveDungeon = dungeon;
+            if(!preserveCharacterDungeonState)foreach(var character in charactersById.Values)character.ManAtArmsDungeonKills=0;
             return true;
         }
 
@@ -308,6 +309,7 @@ namespace Godmist.Runtime.Game
             if (ActiveDungeon == null || HasCombat) return false;
 
             ActiveDungeon = null;
+            foreach(var character in charactersById.Values)character.ManAtArmsDungeonKills=0;
             return true;
         }
 

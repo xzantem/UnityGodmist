@@ -117,6 +117,7 @@ namespace Godmist.Data.Effects
         [SerializeField] private bool auraIncludesCaster;
         [SerializeField] private TargetingType auraTargetingType = TargetingType.Allies;
         [SerializeField, Range(0f, 10f)] private float shieldAverageAttackMultiplier;
+        [SerializeField, Range(0f, 1f)] private float shieldMaxHealthPercent;
         [SerializeField] private List<SkillEffectConditionData> conditions = new();
 
         public EffectType EffectType => effectType;
@@ -261,6 +262,9 @@ namespace Godmist.Data.Effects
         public bool AuraIncludesCaster => auraIncludesCaster;
         public TargetingType AuraTargetingType => auraTargetingType;
         public float ShieldAverageAttackMultiplier => Mathf.Max(0f, shieldAverageAttackMultiplier);
+        public float ShieldMaxHealthPercent => Mathf.Clamp01(shieldMaxHealthPercent);
+        public SkillEffectData WithShieldMaxHealthPercent(float value)
+        {var copy=(SkillEffectData)MemberwiseClone();copy.shieldMaxHealthPercent=value;return copy;}
 
         public IReadOnlyList<SkillEffectConditionData>
             Conditions => conditions;

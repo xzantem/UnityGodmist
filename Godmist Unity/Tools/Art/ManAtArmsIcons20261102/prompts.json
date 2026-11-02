@@ -1,0 +1,367 @@
+{
+  "method": "built-in image_gen;one call per icon;full-canvas nearest32 Aseprite",
+  "entries": [
+    {
+      "slot": "t1_1",
+      "name": "Osłona",
+      "ranks": 3,
+      "requirements": [],
+      "descriptions": [
+        "Zwiększa obronę fizyczną o 15%.",
+        "Zwiększa obronę fizyczną o 25%.",
+        "Zwiększa obronę fizyczną o 40%."
+      ],
+      "id": "node.warrior.man_at_arms.t1_1",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Osłona. Subject: One large STEEL KITE SHIELD, broad bright steel facets and a thick reinforced central ridge. Physical defense; shield dominates, no extra weapons. One opaque square image."
+    },
+    {
+      "slot": "t1_2",
+      "name": "Postawa Defensywna",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Zapewnia na 5 tur tarczę równą 20% maksymalnego zdrowia."
+      ],
+      "active": {
+        "cost": 50,
+        "ap": 40,
+        "constant": "DefensiveStance",
+        "effect": "Shield"
+      },
+      "id": "node.warrior.man_at_arms.t1_2",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Postawa Defensywna. Subject: One broad steel SHIELD braced by a large armored FOREARM behind it. A single muted amber protective arch behind shield, defensive stance, no person. One opaque square image."
+    },
+    {
+      "slot": "t1_3",
+      "name": "Wzmocniona Defensywa",
+      "ranks": 1,
+      "requirements": [
+        "t1_2"
+      ],
+      "descriptions": [
+        "Zwiększa siłę tarczy Postawy Defensywnej o 10%."
+      ],
+      "id": "node.warrior.man_at_arms.t1_3",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Wzmocniona Defensywa. Subject: One large steel shield with a thick prominent second REINFORCING STEEL PLATE at center and two broad bronze corner braces. Layered reinforcement, no plus sign. One opaque square image."
+    },
+    {
+      "slot": "t1_4",
+      "name": "Wytrwałość",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Skraca czas trwania krwawienia, zatrucia i podpalenia o 1 turę."
+      ],
+      "id": "node.warrior.man_at_arms.t1_4",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Wytrwałość. Subject: One large armored BOOT stepping firmly through three broad fading color bands behind it: muted red, green and orange. Firm boot dominant, endurance against harm, no many particles. One opaque square image."
+    },
+    {
+      "slot": "t1_5",
+      "name": "Odwrócenie",
+      "ranks": 3,
+      "requirements": [],
+      "descriptions": [
+        "Zwiększa obronę magiczną o 15%.",
+        "Zwiększa obronę magiczną o 25%.",
+        "Zwiększa obronę magiczną o 40%."
+      ],
+      "id": "node.warrior.man_at_arms.t1_5",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Odwrócenie. Subject: One large steel shield reflecting a single broad VIOLET MAGIC BOLT sideways. Shield and bent bolt clearly separated, no text or runes. One opaque square image."
+    },
+    {
+      "slot": "t2_1",
+      "name": "Odbicie",
+      "ranks": 2,
+      "requirements": [
+        "t1_1"
+      ],
+      "descriptions": [
+        "Daje 10% szansy na zablokowanie 70% otrzymywanych obrażeń fizycznych.",
+        "Daje 20% szansy na zablokowanie 70% otrzymywanych obrażeń fizycznych."
+      ],
+      "id": "node.warrior.man_at_arms.t2_1",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Odbicie. Subject: A large steel shield blocking one steel SWORD edge at a clear angled contact point, one restrained amber impact wedge. Broad simple emblem. One opaque square image."
+    },
+    {
+      "slot": "t2_2",
+      "name": "Defensywne Odbicie",
+      "ranks": 2,
+      "requirements": [
+        "t1_2",
+        "t2_1"
+      ],
+      "descriptions": [
+        "Postawa Defensywna zwiększa szansę Odbicia o 10 pp.",
+        "Postawa Defensywna zwiększa szansę Odbicia o 20 pp."
+      ],
+      "id": "node.warrior.man_at_arms.t2_2",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Defensywne Odbicie. Subject: One large armored hand firmly GRIPPING the central strap of a broad steel shield. A single muted gold curved deflection arc outside shield. Distinct from plain shield. One opaque square image."
+    },
+    {
+      "slot": "t2_3",
+      "name": "Cios Rękojeścią",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Trafienie ma 90% szansy na zmniejszenie odporności na supresję o 50 pp na 3 tury, a następnie 70% szansy na ogłuszenie na 3 tury."
+      ],
+      "active": {
+        "cost": 40,
+        "ap": 70,
+        "constant": "PommelStrike",
+        "effect": "ApplyStatus"
+      },
+      "id": "node.warrior.man_at_arms.t2_3",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Cios Rękojeścią. Subject: One large armored hand holding a reversed sword, its heavy round steel POMMEL striking a small dark helmet to the right. Pommel is clearly contact weapon, blade points away. Compact amber impact. One opaque square image."
+    },
+    {
+      "slot": "t2_4",
+      "name": "Dezorientacja",
+      "ranks": 2,
+      "requirements": [
+        "t2_3"
+      ],
+      "descriptions": [
+        "Jeśli trafiony Cios Rękojeścią nie ogłuszy, ogranicza szansę trafienia celu do 40% do końca jego następnej tury.",
+        "Jeśli trafiony Cios Rękojeścią nie ogłuszy, ogranicza szansę trafienia celu do 20% do końca jego następnej tury."
+      ],
+      "id": "node.warrior.man_at_arms.t2_4",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Dezorientacja. Subject: One large tilted steel HELMET with two dull amber eyes pointing in slightly different directions and ONE broad muted blue wavering arc above it. Dazed confused enemy, no stars or letters. One opaque square image."
+    },
+    {
+      "slot": "t2_5",
+      "name": "Rozproszenie",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Daje 10% szansy na uniknięcie obrażeń ataku magicznego.",
+        "Daje 20% szansy na uniknięcie obrażeń ataku magicznego."
+      ],
+      "id": "node.warrior.man_at_arms.t2_5",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Rozproszenie. Subject: One broad violet magic orb SPLITTING into two large fading halves around a small dominant steel bracer at center. Magic dispersed aside, no particles. One opaque square image."
+    },
+    {
+      "slot": "t3_1",
+      "name": "Zwinność",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Zwiększa unik o 8.",
+        "Zwiększa unik o 16."
+      ],
+      "id": "node.warrior.man_at_arms.t3_1",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Zwinność. Subject: One large steel armored BOOT leaning diagonally in a quick sidestep, two broad pale blue trailing motion bands behind it. No extra legs. One opaque square image."
+    },
+    {
+      "slot": "t3_2",
+      "name": "Zbroja Płytowa",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Zmniejsza otrzymywane obrażenia fizyczne o 0,5 za każdy poziom zbroi.",
+        "Zmniejsza otrzymywane obrażenia fizyczne o 1 za każdy poziom zbroi."
+      ],
+      "id": "node.warrior.man_at_arms.t3_2",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Zbroja Płytowa. Subject: One large heavy steel BREASTPLATE, three broad overlapping horizontal armor plates at abdomen, strong silver highlights and bronze rivet heads. No helmet or person. One opaque square image."
+    },
+    {
+      "slot": "t3_3",
+      "name": "Odebranie Żywiołu",
+      "ranks": 3,
+      "requirements": [],
+      "descriptions": [
+        "Cios Rękojeścią zmniejsza pozostałe odporności o 8% na 3 tury.",
+        "Cios Rękojeścią zmniejsza pozostałe odporności o 16% na 3 tury.",
+        "Cios Rękojeścią zmniejsza pozostałe odporności o 24% na 3 tury."
+      ],
+      "id": "node.warrior.man_at_arms.t3_3",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Odebranie Żywiołu. Subject: One large steel sword POMMEL breaking a compact THREE-COLORED ward into broad red, green, violet pieces, just three pieces. Pommel dominant; elemental protection broken, no runic letters. One opaque square image."
+    },
+    {
+      "slot": "t3_4",
+      "name": "Odporność Nabyta",
+      "ranks": 1,
+      "requirements": [
+        "t2_3"
+      ],
+      "descriptions": [
+        "Każdy pokonany przeciwnik zmniejsza otrzymywane obrażenia o 2% do wyjścia z lochu, maksymalnie o 50%."
+      ],
+      "id": "node.warrior.man_at_arms.t3_4",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Odporność Nabyta. Subject: One broad battle-scarred steel shield above TWO small dark defeated helmets at bottom. Shield bears one bold repaired bronze seam, acquired resilience. No tiny scratches. One opaque square image."
+    },
+    {
+      "slot": "t3_5",
+      "name": "Adaptywny",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Otrzymanie obrażeń od umiejętności zmniejsza jej obrażenia w następnej turze o 15%.",
+        "Otrzymanie obrażeń od umiejętności zmniejsza jej obrażenia w następnej turze o 30%."
+      ],
+      "id": "node.warrior.man_at_arms.t3_5",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Adaptywny. Subject: One large steel bracer with two thick interlocking bronze armor segments shifting into place to block a single approaching blade tip. Adaptive armor, broad moving joint. One opaque square image."
+    },
+    {
+      "slot": "t4_1",
+      "name": "Przewidywanie",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Na 5 tur zwiększa unik o 5 za każde pole odległości od atakującego."
+      ],
+      "active": {
+        "cost": 50,
+        "ap": 40,
+        "constant": "Prediction",
+        "effect": "ModifyStat"
+      },
+      "id": "node.warrior.man_at_arms.t4_1",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Przewidywanie. Subject: One large watchful amber EYE in a steel helmet slit, above two broad separated pale blue distance bands. Horizontal composition eye dominant; no full face or text. One opaque square image."
+    },
+    {
+      "slot": "t4_2",
+      "name": "Przewidywanie Magiczne",
+      "ranks": 2,
+      "requirements": [
+        "t4_1"
+      ],
+      "descriptions": [
+        "Przewidywanie zmniejsza otrzymywane obrażenia magiczne o 2% za każde pole odległości od atakującego.",
+        "Przewidywanie zmniejsza otrzymywane obrażenia magiczne o 3% za każde pole odległości od atakującego."
+      ],
+      "id": "node.warrior.man_at_arms.t4_2",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Przewidywanie Magiczne. Subject: One large amber eye inside a simple steel brow with a broad VIOLET ward arc deflecting a magic bolt off to one side. Magic foresight, eye dominates, no rays or runes. One opaque square image."
+    },
+    {
+      "slot": "t4_3",
+      "name": "Witalność",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Zwiększa maksymalne zdrowie o 10%.",
+        "Zwiększa maksymalne zdrowie o 20%."
+      ],
+      "id": "node.warrior.man_at_arms.t4_3",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Witalność. Subject: One large vivid but restrained GREEN HEART encased along lower edge by two thick steel armor plates. Healthy resilient heart dominant, no medical cross. One opaque square image."
+    },
+    {
+      "slot": "t4_4",
+      "name": "Bez Granic",
+      "ranks": 1,
+      "requirements": [
+        "t4_5"
+      ],
+      "descriptions": [
+        "Nadmiar leczenia z Wampiryzmu tworzy na 5 tur tarczę do 10% maksymalnego zdrowia."
+      ],
+      "id": "node.warrior.man_at_arms.t4_4",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Bez Granic. Subject: One large crimson blood drop flowing through ONE broad green curved band into a compact steel SHIELD. Conversion from healing into protection, two dominant shapes separated. One opaque square image."
+    },
+    {
+      "slot": "t4_5",
+      "name": "Wampiryzm",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Przywraca zdrowie równe 5% obrażeń zadanych zdrowiu przeciwników.",
+        "Przywraca zdrowie równe 10% obrażeń zadanych zdrowiu przeciwników."
+      ],
+      "id": "node.warrior.man_at_arms.t4_5",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Wampiryzm. Subject: One large silver sword blade with a prominent CRIMSON DROP on its edge, one broad muted green return arc curving back toward blade hilt. Life stolen from strikes, no fangs or anatomy. One opaque square image."
+    },
+    {
+      "slot": "t5_1",
+      "name": "Wigor",
+      "ranks": 2,
+      "requirements": [],
+      "descriptions": [
+        "Na początku walki daje na 5 tur tarczę równą 10% maksymalnego zdrowia.",
+        "Na początku walki daje na 5 tur tarczę równą 20% maksymalnego zdrowia."
+      ],
+      "id": "node.warrior.man_at_arms.t5_1",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Wigor. Subject: One large steel shield rising before a broad muted GREEN sunrise-like protective arch. Strong fresh beginning, shield and green arch two clear shapes. One opaque square image."
+    },
+    {
+      "slot": "t5_2",
+      "name": "Skupienie",
+      "ranks": 2,
+      "requirements": [
+        "t5_3"
+      ],
+      "descriptions": [
+        "Odnowienie Energii zmniejsza otrzymywane obrażenia o 25%.",
+        "Odnowienie Energii zmniejsza otrzymywane obrażenia o 50%."
+      ],
+      "id": "node.warrior.man_at_arms.t5_2",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Skupienie. Subject: One large closed calm EYE in a steel helmet slit, surrounded behind by one thick green protective crescent. Meditation and protection, no open eye. One opaque square image."
+    },
+    {
+      "slot": "t5_3",
+      "name": "Odnowienie Energii",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Usypia na 2 tury i przywraca 20% maksymalnego zdrowia na turę. Otrzymanie obrażeń kończy efekt."
+      ],
+      "active": {
+        "cost": 55,
+        "ap": 100,
+        "constant": "EnergyRenewal",
+        "effect": "HealOverTimePercent"
+      },
+      "id": "node.warrior.man_at_arms.t5_3",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Odnowienie Energii. Subject: One large steel helmet with peacefully CLOSED eye slit resting above a large green healing HEART glow. Two simple shapes, quiet restorative sleep, no letters or sleep symbols. One opaque square image."
+    },
+    {
+      "slot": "t5_4",
+      "name": "Nieugiętość",
+      "ranks": 1,
+      "requirements": [],
+      "descriptions": [
+        "Śmiertelne obrażenia mają 20% szansy na przywrócenie 25% maksymalnego zdrowia. Po sukcesie efekt odnawia się przez 5 tur."
+      ],
+      "id": "node.warrior.man_at_arms.t5_4",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Nieugiętość. Subject: One large cracked steel helmet remaining upright, a prominent green rising life FLAME emerging through one broad crack. Surviving lethal injury; green life dominant accent, no skull or red rage. One opaque square image."
+    },
+    {
+      "slot": "t5_5",
+      "name": "Smak Krwi",
+      "ranks": 2,
+      "requirements": [
+        "t4_5"
+      ],
+      "descriptions": [
+        "Wampiryzm leczy o 50% więcej poniżej połowy maksymalnego zdrowia.",
+        "Wampiryzm leczy o 100% więcej poniżej połowy maksymalnego zdrowia."
+      ],
+      "id": "node.warrior.man_at_arms.t5_5",
+      "reference": "C:/Users/Patryczku/Documents/Godmist/Godmist Unity/Tools/Art/ManAtArmsIcons20261102/references/cut-b-v2-source-raw.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG skill/passive icon SOURCE, later reduced full-canvas nearest-neighbor to native32x32. Input image is STYLE ONLY: match approved chunky stepped pixel clusters, broad shaded steel facets, thick near-black outlines and foreground/background hierarchy. Do NOT copy the reference sword composition or burgundy backdrop. New Man-at-Arms tree uniform background: opaque dark muted BRONZE BROWN #302a20 with quiet #4c4030 planes. One or two LARGE SIMPLE foreground shapes fill the square, bright steel with bronze accents; green healing, violet magic, crimson wounds when appropriate. Very legible at32pixels. Crisp blocky edges, quiet broad color areas. No frame, text, letters, digits, UI, watermark, photorealism, smooth painterly gradients, noise, microtexture, tiny particles or repeated ornamental scratch rays. Passive/skill: Smak Krwi. Subject: One large CRIMSON DROP in a steel gauntlet palm, below a single bright green curved healing sweep. Blood restores wounded warrior, drop and palm dominant, no anatomical gore. One opaque square image."
+    }
+  ]
+}

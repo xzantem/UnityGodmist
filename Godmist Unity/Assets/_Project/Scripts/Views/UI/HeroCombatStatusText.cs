@@ -42,6 +42,11 @@ namespace Godmist.Views.UI
 
         public static string IconSource(string id) => Key(id) switch
         {
+            WarriorCombatSystem.DefensiveStance=>WarriorCombatSystem.DefensiveStance,
+            WarriorCombatSystem.Prediction=>WarriorCombatSystem.Prediction,
+            "warrior.man_at_arms.acquired"=>"node.warrior.man_at_arms.t3_4",
+            "warrior.man_at_arms.disorientation"=>"node.warrior.man_at_arms.t2_4",
+            "warrior.man_at_arms.revive_cooldown"=>"node.warrior.man_at_arms.t5_4",
             "mage.sacrifice" => "skill.mage.sacrifice",
             "mage.adaptation" => "node.mage.warlock.adaptation",
             "mage.erosion" => "node.mage.fire.erosion",
@@ -72,6 +77,21 @@ namespace Godmist.Views.UI
                 : session?.Units.FirstOrDefault(unit => unit.Character?.CharacterId == sourceId);
             switch (id)
             {
+                case WarriorCombatSystem.Prediction when owner!=null:
+                    Line("Unik: +5 za pole odległości od atakującego.");
+                    var foresight=WarriorCombatSystem.M(owner,"t4_2");
+                    if(foresight>0)Line("Obrażenia magiczne: -"+(foresight==1?2:3)+"% za pole odległości.");
+                    break;
+                case WarriorCombatSystem.DefensiveStance when owner!=null:
+                    if(WarriorCombatSystem.M(owner,"t2_2")>0)Line("Szansa Odbicia: +"+(10*WarriorCombatSystem.M(owner,"t2_2"))+" pp.");
+                    break;
+                case "warrior.man_at_arms.acquired" when owner!=null:
+                    Line("Stosy: "+owner.Character.ManAtArmsDungeonKills+"/25.");
+                    Line("Otrzymywane obrażenia: -"+(2*owner.Character.ManAtArmsDungeonKills)+"%.");break;
+                case "warrior.man_at_arms.disorientation" when owner!=null:
+                    Line("Maksymalna szansa trafienia: "+(owner.WarriorState.DisorientationCap*100).ToString("0",UiTerms.PolishCulture)+"%.");break;
+                case "warrior.man_at_arms.revive_cooldown" when owner!=null:
+                    Line("Odnowienie: "+owner.WarriorState.ReviveCooldown+" tur.");break;
                 case "scout.weak_point" when owner != null:
                     Line(UiTerms.IncomingCritChance + ": +10 pp");
                     Line(UiTerms.IncomingCritDamage + ": +" + (owner.ScoutState.WeakPointCritDamage * 100f).ToString("0.##", UiTerms.PolishCulture) + " pp");

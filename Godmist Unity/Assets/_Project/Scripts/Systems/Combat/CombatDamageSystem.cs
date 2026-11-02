@@ -10,6 +10,14 @@ namespace Godmist.Systems.Combat
 {
     public class CombatDamageSystem
     {
+        // One immutable result separates mitigation from shields, protection and HP.
+        public readonly struct DamageResolution
+        {
+            public readonly int BeforeMitigation,AfterMitigation,Redirected,ShieldAbsorbed,PreventedAtOneHealth,HealthLost;
+            public DamageResolution(int before,int after,int redirected,int shield,int prevented,int health)
+            {BeforeMitigation=before;AfterMitigation=after;Redirected=redirected;ShieldAbsorbed=shield;PreventedAtOneHealth=prevented;HealthLost=health;}
+            public int Mitigated=>Math.Max(0,BeforeMitigation-AfterMitigation-Redirected);
+        }
         private readonly Action<string> battleLog;
         private readonly Action<CombatSession> evaluateOutcome;
         private readonly Action<BattleUnit> removeUnitFromCombat;
@@ -162,6 +170,7 @@ namespace Godmist.Systems.Combat
         {
             ScoutCombatSystem.Face(source, target.Position);
             attackValue += SkeletonSlayerBossSystem.AttackBonus(source);
+            attackValue = (int)Math.Min(int.MaxValue,(long)attackValue+WarriorCombatSystem.ConsumeArmoredAttack(source));
             attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext) * HawkeyeDamageMultiplier(source, target, damageType));
             attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
             var freezeMultiplier = ConsumeFreezeDamageMultiplier(target);
@@ -222,7 +231,7 @@ namespace Godmist.Systems.Combat
         public int ApplyDamage(CombatSession session, BattleUnit source, BattleUnit target, 
             int requestedDamage, DamageType damageType, bool allowDamageRedirect = true,
             PassiveEffectCombatContext passiveContext = null, bool allowWarriorProcs = true,
-            int? preMitigationDamage = null)
+            int? preMitigationDamage = null, bool allowVampirism = true)
         {
             if (session == null || target?.Character == null)
             {
@@ -230,6 +239,7 @@ namespace Godmist.Systems.Combat
             }
             if (target.Character.Definition?.Id == DeadKingBossSystem.KnightId && IsDamageOverTime(damageType)) return 0;
             CombatStallWarningSystem.Synchronize(session);
+            WarriorCombatSystem.InitializeArmored(target);
             if (target.Character.LifeState == CharacterLifeState.Dead)
             {
                 return 0;
@@ -245,9 +255,14 @@ namespace Godmist.Systems.Combat
 
                 return 0;
             }
+            var rawBeforeTargetMitigation=CalculateRawBeforeTargetMitigation(session,source,target,
+                preMitigationDamage??requestedDamage,damageType,passiveContext);
             var incomingDamage=CalculateIncomingBeforeRedirect(session,source,target,requestedDamage,damageType,passiveContext,variables:combatVariableSystem);
+            if(WarriorCombatSystem.ArmoredAvoidMagic(target,damageType))return 0;
+            incomingDamage=WarriorCombatSystem.ArmoredBlock(target,incomingDamage,damageType);
             if (incomingDamage <= 0)
             {
+                WarriorCombatSystem.RecordArmoredMitigation(target,new DamageResolution(rawBeforeTargetMitigation,0,0,0,0,0));
                 SkeletonSlayerBossSystem.RecordPreMitigation(target,preMitigationDamage ?? requestedDamage);
                 return 0;
             }
@@ -275,11 +290,13 @@ namespace Godmist.Systems.Combat
             var remainingDamage = incomingDamage;
 
             var redirectedHealthDamage = 0;
+            var divertedDamage = 0;
             if (allowDamageRedirect
                 && TryResolveDamageRedirect(session, source, target, incomingDamage,
                     damageType, out var redirectedDamage, out redirectedHealthDamage))
             {
                 remainingDamage = Mathf.Max(0, incomingDamage - redirectedDamage);
+                divertedDamage = redirectedDamage;
             }
 
             remainingDamage = MageCombatSystem.AdaptIncoming(source, target, remainingDamage);
@@ -297,18 +314,24 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     target, CombatFeedbackType.ShieldLoss, shieldDamage, damageType, source: source));
             }
+            var preventedAtOneHealth=0;
             if(WarriorCombatSystem.DeathProtected(target))
             {
                 var permitted = Mathf.Min(remainingDamage,Mathf.Max(0,target.Character.CurrentHealth-1));
-                WarriorCombatSystem.RecordDeathWishPrevention(target, remainingDamage-permitted);
+                preventedAtOneHealth=remainingDamage-permitted;
+                WarriorCombatSystem.RecordDeathWishPrevention(target,preventedAtOneHealth);
                 remainingDamage = permitted;
             }
             remainingDamage = DeadKingBossSystem.KnightDamage(target, remainingDamage, damageType);
             var healthBeforeDamage = target.Character.CurrentHealth;
             var healthDamage = Mathf.Min(healthBeforeDamage, remainingDamage);
+            var resolution=new DamageResolution(rawBeforeTargetMitigation,damageBeforeShield,divertedDamage,shieldDamage,preventedAtOneHealth,healthDamage);
+            WarriorCombatSystem.RecordArmoredMitigation(target,resolution);
             UniqueEquipmentCombatRules.RecordHealthDamage(target, damageType, healthDamage);
             BanditLeaderBossSystem.RecordHealthDamage(target,healthDamage);
             target.Character.CurrentHealth -= healthDamage;
+            if(target.Character.CurrentHealth<=0)WarriorCombatSystem.TryArmoredRevive(target,recovery:new CombatRecoverySystem(battleLog,feedbackBus));
+            WarriorCombatSystem.ArmoredDamageResolved(session,source,target,resolution.HealthLost,damageType,passiveContext,!allowVampirism);
             UniqueEquipmentCombatRules.TryPoacherShield(target);
             if (healthDamage > 0 && !target.IsPlayerSide)
                 session.EnemyHealthChanged?.Invoke(target, healthBeforeDamage);
@@ -390,7 +413,7 @@ namespace Godmist.Systems.Combat
                 null,
                 target,
                 finalDamage,
-                damageType);
+                damageType,preMitigationDamage:requestedDamage);
         }
 
         private void Publish(
@@ -443,8 +466,8 @@ namespace Godmist.Systems.Combat
             var accuracy = alchemical ? 100f : skillAccuracy
                 ?? PassiveEffectCombatExecutionSystem.ResolveParameter(source, skill, "accuracy", skill?.SkillAccuracy ?? 0f);
             var chance = CalculateHitChance(alchemical ? 100f : source.Character.WeaponAccuracy,
-                accuracy, target.Character.Stats?.Dodge.GetValue() ?? 0f);
-            return ApplyHitChanceBonus(source.Character, chance);
+                accuracy, (target.Character.Stats?.Dodge.GetValue() ?? 0f)+WarriorCombatSystem.PredictionDodge(source,target));
+            return WarriorCombatSystem.ArmoredHitChance(source,ApplyHitChanceBonus(source.Character, chance));
         }
 
         public static bool IsGuaranteedHitDamageType(DamageType damageType)
@@ -566,7 +589,18 @@ namespace Godmist.Systems.Combat
                         incomingDamage)));
             explanation?.Add("equipment_outgoing",EquipmentEffectSystem.Outgoing(source,target,damageType,session));
             explanation?.Add("incoming_before_redirect",incomingDamage);
+            incomingDamage=WarriorCombatSystem.ArmoredIncoming(source,target,incomingDamage,damageType,passiveContext?.SkillId,roll:1f);
             return incomingDamage;
+        }
+
+        private int CalculateRawBeforeTargetMitigation(CombatSession session,BattleUnit source,BattleUnit target,int raw,
+            DamageType type,PassiveEffectCombatContext context)
+        {
+            var value=raw*combatVariableSystem.GetOutgoingDamageMultiplier(source)
+                *combatVariableSystem.GetDungeonThemeDamageMultiplier(source?.Character,session.DungeonTheme)
+                *EquipmentEffectSystem.Outgoing(source,target,type,session)
+                *WarriorCombatSystem.ArmorBonus(source,target)*MageCombatSystem.FireOutgoing(source,session);
+            return Mathf.Max(0,Mathf.RoundToInt(PassiveEffectCombatExecutionSystem.ApplyDamageMultiplier(session,context,value)));
         }
 
         public static int ApplyJewelryDamagePassive(

@@ -150,8 +150,7 @@ namespace Godmist.Systems.Combat
             return value;
         }
 
-        private static float ShieldAmount(BattleUnit caster,SkillEffectData effect) => Mathf.Max(0,effect.BaseValue
-            +Mathf.FloorToInt(CombatDamageValueCalculator.CalculateDamageValue(caster,DamageValueSource.AverageAttack,1f)*effect.ShieldAverageAttackMultiplier));
+        private static float ShieldAmount(BattleUnit caster,SkillEffectData effect) => CombatShieldSystem.CalculateSkillShield(caster,effect);
 
         private static float ShieldUtility(CombatSession session,BattleUnit caster,BattleUnit target,SkillEffectData effect, BattleUnit observer = null, BattleUnit observedRecipient = null)
         {

@@ -123,15 +123,21 @@ Duże karty, zwłaszcza 06, 11, 19, 25 i karty bossów, dzielić wykonawczo na: 
 
 ### CP2-06 Dodać drzewko Zbrojnego
 
-**Zależności:** 03–04; rozstrzygnięcie zakresu T6/T7.
+**Status:** ZAAKCEPTOWANA — 2026-11-02.
 
-**Zakres:** trzecie drzewko Wojownika wraz z pasywem i zatwierdzonymi tierami. Arkusz zawiera 30 opisanych pozycji, również T6 i T7; nie traktować ich obecności jako automatycznej zgody na rozszerzenie poza przyjęte progi L40.
+**Zależności:** 03–04. Wszystkie sześć decyzji projektowych zatwierdzone.
 
-**Przygotować:** zamkniętą listę node'ów i ich połączeń, budżet SP, znaczenie pasywu, kontrakty nowych efektów oraz layout trzeciego drzewa. Potwierdzić, czy T6/T7 wchodzą teraz, są przeskalowane, czy pozostają zablokowane poza wydaniem.
+**Zakres:** 25 węzłów T1–T5 trzeciego drzewa Wojownika, 44 rangi, pasyw za SP,
+cztery skille, ikony i opisy wszystkich rang. T6/T7 odłożone, bez assetów runtime.
 
-**Implementacja:** dodać drzewko do istniejącej klasy i progresji, bez tworzenia nowej postaci. Współdzielić mechaniki z pozostałymi drzewami; aktualizować UI i walidację grafu. Podział wykonawczy: model i mechaniki → node'y → integracja → testy buildów.
+**Wykonano:** wspólne rozliczenie redukcji i overhealu, bank następnego ataku,
+obrony, adaptację, regenerację, Wampiryzm, Nieugiętość, zapis licznika lochu,
+integrację klasy/katalogu/UI, preview i AI. Szczegóły: CONTENT_PASS_2_ARMORED_DESIGN.md.
 
-**Odbiór:** cały zatwierdzony graf jest osiągalny zgodnie z SP i level gatingiem; brak wycieków bonusów przy zmianie ekwipunku/resetach; stary Wladimir otrzymuje dostęp bez utraty istniejących punktów.
+**Weryfikacja:** końcowa regresja mechanik 511/511 PASS; authoring/idempotencja,
+50 dawnych węzłów, tooltipy, trzecia zakładka i save roundtrip PASS.
+25 ikon: nearest/Aseprite 25/25 PASS. Raport: Tools/ContentPass2/man-at-arms-validation.json.
+Smoke użytkownika PASS; commit/push zatwierdzone 2026-11-02.
 
 ### CP2-07 Dodać T5 Skrytobójcy i Tancerza Ostrzy
 

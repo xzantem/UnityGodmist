@@ -29,6 +29,16 @@ namespace Godmist.Views.UI.Workspace
             string Percent(float v)=>FormatPercent(v);
             string Turns(int t)=>FixedTurns(t,"Czas trwania: "+UiTerms.Present(skill.DisplayName));
             string F(string value,string title)=>BaseValue(value,title);
+            if(skill.SkillId==WarriorCombatSystem.DefensiveStance)
+                return "Zapewnia tarczę o wartości "+F(WarriorCombatSystem.ArmoredShield(caster).ToString(),"Tarcza")+" na "+Turns(5)+".";
+            if(skill.SkillId==WarriorCombatSystem.Prediction)return skill.TooltipDescription;
+            if(skill.SkillId==WarriorCombatSystem.EnergyRenewal)
+                return "Usypia na "+Turns(2)+". Przywraca "+F(Mathf.CeilToInt((caster?.Character?.MaximumHealth??0)*.2f).ToString(),"Leczenie na turę")+" zdrowia na turę przez "+Turns(2)+". Otrzymanie obrażeń kończy efekt.";
+            if(skill.SkillId==WarriorCombatSystem.PommelStrike)
+            {
+                var extra=WarriorCombatSystem.M(caster,"t3_3");
+                return skill.TooltipDescription+(extra>0?"\nZmniejsza pozostałe odporności o "+Percent(.08f*extra)+" na "+Turns(3)+".":"");
+            }
             string Param(string key,string value)=>LinkEffectParameter(skill,caster,effect,key,value);
             var duration=effect.DurationTurns>0 && effect.EffectType is not (EffectType.Push or EffectType.Pull) ? " na "+LinkEffectParameter(skill,caster,effect,"duration",FormatTurnCount(effect.DurationTurns)) : "";
             var sourceChance=effect.EffectType is EffectType.ApplyStatus or EffectType.MageFireAura ? StatusEffectSystem.CalculateSourceStatusChance(caster,effect.StatusId,effect.BaseChance) : effect.BaseChance;

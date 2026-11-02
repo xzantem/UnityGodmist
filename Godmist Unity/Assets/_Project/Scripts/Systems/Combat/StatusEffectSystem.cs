@@ -128,6 +128,13 @@ namespace Godmist.Systems.Combat
             }
 
             var runtimeEffect = CreateRuntimeEffect(source, skill, effect, effectIndex);
+            if(IsDamageOverTimeStatus(effect.StatusId)&&WarriorCombatSystem.M(target,"t1_4")>0)
+            {
+                if(effect.DurationTurns<=1)return false;
+                runtimeEffect.RemainingDuration=effect.DurationTurns-1;
+                var dot=runtimeEffect.GetPayload<DamageOverTimePayload>();
+                if(dot!=null)dot.RemainingTotalDamage=CalculateStatusDamagePerTurn(source,effect)*(effect.DurationTurns-1);
+            }
             MageCombatSystem.PrepareBurn(source, target, runtimeEffect);
 
             if (!TryApplySkillRuntimeEffect(
@@ -461,6 +468,8 @@ namespace Godmist.Systems.Combat
 
             if(statusId==StatusEffectIds.Stun && WarriorCombatSystem.AvoidStun(source,target,damageSystem))return false;
             var duration = Mathf.Max(1, durationTurns);
+            if(IsDamageOverTimeStatus(statusId)&&WarriorCombatSystem.M(target,"t1_4")>0)
+            {duration--;if(duration<=0)return false;}
             var damagePerTurn = !IsDamageOverTimeStatus(statusId)
                 ? 0
                 : statusDamagePerTurnOverride > 0

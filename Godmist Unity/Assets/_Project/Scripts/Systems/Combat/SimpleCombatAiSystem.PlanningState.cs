@@ -82,6 +82,7 @@ namespace Godmist.Systems.Combat
                 {
                     CharacterId = character.CharacterId, Definition = character.Definition, ClassData = character.ClassData,
                     Level = character.Level, CurrentHealth = character.CurrentHealth, LifeState = character.LifeState,
+                    ManAtArmsDungeonKills = character.ManAtArmsDungeonKills,
                     Stats = stats, WeaponAccuracy = character.WeaponAccuracy, Resistances = character.Resistances,
                     BaseResistances = character.BaseResistances, ShieldPool = shield,
                     ResourcePool = pool == null ? null : new ResourcePool(pool.ResourceType, pool.CurrentValue, pool.MaxValue, pool.Regeneration)
@@ -123,6 +124,7 @@ namespace Godmist.Systems.Combat
             copy.WarriorState.FencingStacks = source.WarriorState.FencingStacks;
             copy.WarriorState.HealingRemainder = source.WarriorState.HealingRemainder;
             copy.WarriorState.DeathWishPreventedDamage = source.WarriorState.DeathWishPreventedDamage;
+            copy.WarriorState.CopyArmoredFrom(source.WarriorState);
             copy.WarriorState.FreeMovementTurns = source.WarriorState.FreeMovementTurns;
             copy.WarriorState.FreeStepsUsed = source.WarriorState.FreeStepsUsed;
             copy.MageState.OffensiveTargetCount = source.MageState.OffensiveTargetCount;
@@ -164,6 +166,7 @@ namespace Godmist.Systems.Combat
                     Add(unit.WarriorState.FencingStacks);
                     Add(unit.WarriorState.HealingRemainder.GetHashCode());
                     Add(unit.WarriorState.DeathWishPreventedDamage.GetHashCode());
+                    Add(unit.WarriorState.ArmoredStateHash());Add(unit.Character.ManAtArmsDungeonKills);
                     Add(unit.AvailableKnives); Add(unit.MovementStepsThisTurn); Add(unit.ScoutState.Facing.GetHashCode());
                     foreach (var buff in unit.UniqueBuffs) Add((int)buff);
                     var resistances = unit.Character.Resistances;

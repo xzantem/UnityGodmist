@@ -16,6 +16,8 @@ namespace Godmist.Runtime.Characters
     [Serializable]
     public class CharacterInstance
     {
+        // Dungeon-scoped; cleared on leaving/replacing the active expedition.
+        public int ManAtArmsDungeonKills;
         public string CharacterId = string.Empty;
         
         public CharacterDefinition Definition;

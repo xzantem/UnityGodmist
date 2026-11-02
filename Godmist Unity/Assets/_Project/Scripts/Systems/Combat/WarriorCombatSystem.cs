@@ -18,7 +18,7 @@ namespace Godmist.Systems.Combat
         public const string Commander="tree.warrior.commander", Brawler="tree.warrior.brawler";
         public const string Cut="skill.warrior.cut", DeathWish="skill.warrior.death_wish";
         public static int Rank(CharacterInstance c,string tree,string id) => c?.SkillTreeProgress?
-            .FirstOrDefault(p=>p.TreeId==tree)?.NodeInvestments?.FirstOrDefault(n=>n.NodeId=="node.warrior."+(tree==Commander?"commander.":"brawler.")+id)?.Ranks ?? 0;
+            .FirstOrDefault(p=>p.TreeId==tree)?.NodeInvestments?.FirstOrDefault(n=>n.NodeId=="node.warrior."+(tree==Commander?"commander.":tree==ManAtArms?"man_at_arms.":"brawler.")+id)?.Ranks ?? 0;
         public static int C(BattleUnit u,string id)=>Rank(u?.Character,Commander,id);
         public static int B(BattleUnit u,string id)=>Rank(u?.Character,Brawler,id);
         public static int Points(CharacterInstance c,string tree)=>c?.SkillTreeProgress?.FirstOrDefault(p=>p.TreeId==tree)?.NodeInvestments?.Sum(n=>Math.Max(0,n.Ranks))??0;
@@ -67,6 +67,7 @@ namespace Godmist.Systems.Combat
         public static void ApplyStats(CharacterInstance c, System.Action<CharacterStatType,string,StatModifierOperation,float> observe = null)
         {
             if(c?.Stats==null)return;
+            ApplyArmoredStats(c,observe);
             var commander=Points(c,Commander);var brawler=Points(c,Brawler);
             if(commander+brawler==0)return;
             var s=c.Stats;
@@ -139,12 +140,14 @@ namespace Godmist.Systems.Combat
         public static void Moved(BattleUnit u){if(FreeStep(u))u.WarriorState.FreeStepsUsed++;}
         public static void TurnStart(BattleUnit u)
         {
+            ArmoredTurnStart(u);
             if(u==null)return;u.WarriorState.FreeStepsUsed=0;
             if(IsRage(u) && !GainBlocked(u) && B(u,"aggressive_nature")>0){u.Character.ResourcePool.Restore(3);u.Character.ResourcePool.HasGainedResourceSinceLastTurn=true;}
             Refresh(u);
         }
         public static void TurnEnd(BattleUnit u)
         {
+            ArmoredTurnEnd(u);
             if(u==null)return;var w=u.WarriorState;
             w.OrderTurns=Math.Max(0,w.OrderTurns-1);w.ProtectionTurns=Math.Max(0,w.ProtectionTurns-1);w.TraumaTurns=Math.Max(0,w.TraumaTurns-1);w.FreeMovementTurns=Math.Max(0,w.FreeMovementTurns-1);
             Refresh(u);
