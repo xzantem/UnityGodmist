@@ -72,6 +72,7 @@ namespace Godmist.Data.Effects
             StatModifierStacking.Additive;
         [field: SerializeField] public PassiveEffectValueDefinition Value { get; private set; } = new();
         [field: SerializeField, Min(0)] public int DurationTurns { get; private set; }
+        [field: SerializeField, Min(0)] public int CooldownTurns { get; private set; } = 5;
         [field: SerializeField] public List<PassiveEffectParameterDefinition> Parameters { get; private set; } = new();
     }
 

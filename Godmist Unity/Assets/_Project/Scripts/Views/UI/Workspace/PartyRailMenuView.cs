@@ -14,6 +14,7 @@ namespace Godmist.Views.UI.Workspace
         public sealed class Entry
         {
             public readonly string Label;
+            public readonly string DisabledReason;
             public readonly Action Action;
             public readonly bool Enabled, SeparatorBefore;
             public readonly IReadOnlyList<Entry> Children;
@@ -21,11 +22,12 @@ namespace Godmist.Views.UI.Workspace
 
             public Entry(string label, Action action = null, bool enabled = true,
                 bool separatorBefore = false, IReadOnlyList<Entry> children = null,
-                string childrenHint = "Wybierz grupę, do której dołączyć.")
+                string childrenHint = "Wybierz grupę, do której dołączyć.", string disabledReason = null)
             {
                 Label = label; Action = action; Enabled = enabled;
                 SeparatorBefore = separatorBefore; Children = children;
                 ChildrenHint = childrenHint;
+                DisabledReason = enabled ? null : disabledReason;
             }
         }
 
@@ -36,6 +38,22 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private RectTransform separatorTemplate;
         [SerializeField] private TMP_Text hintText;
         [SerializeField, Min(0)] private float anchorGap = 44; // 36px drawer handle + 8px breathing room.
+        public TMP_Text CreateControllerLabel(Transform parent, string labelName)
+        {
+            var label = Instantiate(header, parent); label.name = labelName; label.raycastTarget = false;
+            label.gameObject.SetActive(false); return label;
+        }
+
+        public ControllerWheelView CreateControllerWheel()
+        {
+            var node = new GameObject("Controller Action Wheel", typeof(RectTransform));
+            node.SetActive(false);
+            node.transform.SetParent(transform.parent, false);
+            var wheel = node.AddComponent<ControllerWheelView>();
+            wheel.Configure(entryTemplate, header, panel.GetComponentsInChildren<Image>(true).FirstOrDefault(image=>!image.fillCenter && image.sprite!=null) ?? panel.GetComponent<Image>());
+            return wheel;
+        }
+
         private readonly List<Button> entries = new();
         private readonly List<RectTransform> separators = new();
         private IReadOnlyList<Entry> rootActions;
@@ -87,6 +105,9 @@ namespace Godmist.Views.UI.Workspace
                 var normal = entryTemplate.GetComponentInChildren<TMP_Text>(true).color;
                 label.color = action.Enabled ? normal : new Color(normal.r * .55f, normal.g * .55f, normal.b * .55f, normal.a);
                 button.interactable = action.Enabled; button.onClick.RemoveAllListeners();
+                var availability = button.GetComponent<ContextMenuAvailabilityHint>();
+                if (availability == null) availability = button.gameObject.AddComponent<ContextMenuAvailabilityHint>();
+                availability.Bind(action.Label, action.DisabledReason);
                 button.onClick.AddListener(() =>
                 {
                     if (!action.Enabled) return;
@@ -111,22 +132,31 @@ namespace Godmist.Views.UI.Workspace
             PositionPanel();
         }
 
+        private static bool CanFocus(Button button) => button.gameObject.activeSelf
+            && (button.interactable || button.GetComponent<ContextMenuAvailabilityHint>()?.CanInspect == true);
+
         private void ConfigureNavigation()
         {
-            var enabled = entries.Where(button => button.gameObject.activeSelf && button.interactable).ToArray();
+            var focusable = entries.Where(CanFocus).ToArray();
             foreach (var button in entries) button.navigation = new Navigation { mode = Navigation.Mode.None };
-            if (enabled.Length > 0) EventSystem.current?.SetSelectedGameObject(enabled[0].gameObject);
+            if (focusable.Length > 0 && EventSystem.current != null)
+            {
+                // Pooled rows may keep the same selected object after changing content.
+                if (EventSystem.current.currentSelectedGameObject == focusable[0].gameObject)
+                    EventSystem.current.SetSelectedGameObject(null);
+                EventSystem.current.SetSelectedGameObject(focusable[0].gameObject);
+            }
         }
 
         public void MoveFocus(int direction)
         {
-            var enabled = entries.Where(button => button.gameObject.activeSelf && button.interactable).ToArray();
-            if (enabled.Length == 0) return;
+            var focusable = entries.Where(CanFocus).ToArray();
+            if (focusable.Length == 0) return;
             var selected = EventSystem.current?.currentSelectedGameObject;
-            var index = Array.FindIndex(enabled, button => button.gameObject == selected);
-            index = index < 0 ? (direction < 0 ? enabled.Length - 1 : 0)
-                : (index + (direction < 0 ? -1 : 1) + enabled.Length) % enabled.Length;
-            EventSystem.current?.SetSelectedGameObject(enabled[index].gameObject);
+            var index = Array.FindIndex(focusable, button => button.gameObject == selected);
+            index = index < 0 ? (direction < 0 ? focusable.Length - 1 : 0)
+                : (index + (direction < 0 ? -1 : 1) + focusable.Length) % focusable.Length;
+            EventSystem.current?.SetSelectedGameObject(focusable[index].gameObject);
         }
 
         private void PositionPanel()

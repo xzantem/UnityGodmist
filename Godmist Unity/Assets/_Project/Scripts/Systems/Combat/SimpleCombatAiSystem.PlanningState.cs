@@ -18,6 +18,7 @@ namespace Godmist.Systems.Combat
             public CombatSession World;
             public HashSet<Godmist.Data.Skills.SkillData> Used = new();
             public Dictionary<(int Unit, string Status), float> StatusConfidence = new();
+            public Dictionary<int, float> PendingHealing = new();
             public HashSet<GridPosition> Visited = new();
             public HashSet<int> OwnedUnits = new();
             public HashSet<Godmist.Data.Skills.SkillData> Preparations = new();
@@ -154,6 +155,7 @@ namespace Godmist.Systems.Combat
                     Add((int)unit.Character.LifeState);
                     Add(unit.Character.CurrentHealth); Add(unit.CurrentActionPoints); Add(unit.MaxActionPoints);
                     Add(unit.Character.ResourcePool?.CurrentValue ?? 0); Add(unit.Character.ShieldPool?.TotalShield ?? 0);
+                    Add(unit.PaladinState.HealingDiscount ? 1 : 0);
                     Add(unit.AvailableKnives); Add(unit.MovementStepsThisTurn); Add(unit.ScoutState.Facing.GetHashCode());
                     foreach (var buff in unit.UniqueBuffs) Add((int)buff);
                     var resistances = unit.Character.Resistances;
@@ -168,6 +170,12 @@ namespace Godmist.Systems.Combat
                     {
                         Add(effect?.EffectId?.GetHashCode() ?? 0); Add(effect?.RemainingDuration ?? 0); Add(effect?.Stacks ?? 0);
                         if (effect == null) continue;
+                        foreach (var state in effect.StateValues)
+                        {
+                            if (state == null) continue;
+                            Add(state.Key?.GetHashCode() ?? 0); Add((int)state.Type); Add(state.IntegerValue);
+                            Add(state.NumberValue.GetHashCode()); Add(state.BooleanValue ? 1 : 0); Add(state.TextValue?.GetHashCode() ?? 0);
+                        }
                         foreach (var source in effect.Sources) Add(source?.SourceCharacterId?.GetHashCode() ?? 0);
                         var variables = effect.GetPayload<VariableModifiersPayload>()?.Modifiers;
                         if (variables != null) foreach (var modifier in variables) Add(modifier?.Value.GetHashCode() ?? 0);

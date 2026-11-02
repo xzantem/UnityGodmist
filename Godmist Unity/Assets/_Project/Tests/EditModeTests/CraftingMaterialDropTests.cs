@@ -159,7 +159,8 @@ namespace Godmist.Tests.EditMode
             Assert.That((total-skins-wood-fibre)/total,Is.EqualTo(level==10?.55:.80).Within(1e-6));
             if(level<=10)return;
             var rune=means.Where(p=>!core.Any(c=>c.Key==p.Key)).ToArray();
-            Assert.That(rune.Single(p=>p.Key=="item.runic.solid_limestone").Value/rune.Sum(p=>p.Value),Is.EqualTo(.15).Within(1e-6));
+            // Obsidian (5.6% of the old runic pool) is now boss loot. Other absolute means stay fixed.
+            Assert.That(rune.Single(p=>p.Key=="item.runic.solid_limestone").Value/rune.Sum(p=>p.Value),Is.EqualTo(.15 / .944).Within(1e-6));
         }
         static (LootBagItemDefinition Bag,ItemDefinition[] Values) SelectionBag(float first,float second,int pools=1,bool distinct=false)
         {

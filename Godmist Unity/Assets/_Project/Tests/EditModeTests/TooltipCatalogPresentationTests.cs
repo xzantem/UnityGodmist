@@ -153,11 +153,11 @@ namespace Godmist.Tests.EditMode
             {
                 var view = node.GetComponent<UIWorkspaceTooltipView>();
                 var rays = AssetDatabase.LoadAssetAtPath<SkillData>("Assets/_Project/ScriptableObjects/Skills/SD_MageEnergySplit.asset");
-                Assert.That(CombatBody(view, rays), Does.Contain("trzy promienie: prosto i dwa ukośne"));
+                Assert.That(CombatBody(view, rays), Does.Contain("trzy promienie: jeden prosty i dwa ukośne"));
                 var pull = AssetDatabase.FindAssets("t:SkillData", new[] { "Assets/_Project/ScriptableObjects" })
                     .Select(guid => AssetDatabase.LoadAssetAtPath<SkillData>(AssetDatabase.GUIDToAssetPath(guid)))
                     .Single(skill => skill.SkillId == "skill.paladin.grounding_wave");
-                Assert.That(CombatBody(view, pull), Does.Contain("ku środkowi wybranego obszaru"));
+                Assert.That(CombatBody(view, pull), Does.Contain("w kierunku środka wybranego obszaru"));
             }
             finally { Object.DestroyImmediate(node); }
         }

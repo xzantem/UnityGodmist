@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8205a3f24f4e89bfe1b5cae4f317a8, type: 3}
+  m_Name: JGD_Jadeite
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.JewelryGemDefinition
+  <CraftingMaterial>k__BackingField: {fileID: 11400000, guid: e374b7ad133285542a0511ed0822b522, type: 2}
+  <Amount>k__BackingField: 1
+  <Modifiers>k__BackingField:
+  - <Target>k__BackingField: 2
+    <StatType>k__BackingField: 0
+    <ResistanceType>k__BackingField: 0
+    <GameplayVariable>k__BackingField: 4
+    <ReferenceId>k__BackingField: Forest
+    <Operation>k__BackingField: 1
+    <Value>k__BackingField: 0.035

@@ -36,18 +36,19 @@ namespace Godmist.Views.Combat
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
-        [SerializeField] private Color targetHighlightColor = new(1f, 0.72f, 0.2f, 0.65f);
-        [SerializeField] private Color absoluteRangeHighlightColor = new(0.25f, 0.55f, 1f, 0.25f);
+        private static Color targetHighlightColor => HighlightStyle.Hover;
+        private static Color absoluteRangeHighlightColor => HighlightStyle.WithAlpha(HighlightStyle.Range, .75f);
 
-        [SerializeField] private Color relativeRangeHighlightColor = new(1f, 0.3f, 0.12f, 0.42f);
+        private static Color relativeRangeHighlightColor => HighlightStyle.WithAlpha(HighlightStyle.Range, .85f);
 
-        [SerializeField] private Color affectedTargetHighlightColor = new(1f, 0.45f, 0.15f, 0.8f);
+        private static Color affectedTargetHighlightColor => HighlightStyle.Hover;
 
         private readonly HashSet<GridPosition> absoluteRangePositions = new();
 
         private readonly HashSet<GridPosition> selectablePositions = new();
 
         private readonly HashSet<GridPosition> eligibleTargetPositions = new();
+        private readonly HashSet<GridPosition> affectedTargetPositions = new();
 
         private GridPosition? previewedRelativeCenter;
         private int directionalRotationQuarterTurns;
@@ -61,6 +62,9 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<int, int> rotationsByModeIndex = new();
         private readonly Dictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = new();
         private int currentTargetModeIndex;
+        private bool controllerConfirmationRequired, controllerConfirmationPending;
+        private int controllerSelectionFrame;
+        public bool RequiresControllerConfirmation => controllerConfirmationPending;
         [System.NonSerialized] private SkillEffectData selectedTeleportEffect;
         private GridPosition selectedTeleportSourcePosition;
         private bool isSelectingTeleportDestination;
@@ -77,6 +81,11 @@ namespace Godmist.Views.Combat
         public GridPosition? HoveredPosition { get; private set; }
         public SkillData SelectedSkill => selectedSkill;
         public int CurrentTargetModeIndex => currentTargetModeIndex;
+        public bool IsControllerTarget(BattleUnit unit) => unit != null && IsSelectingTarget && !controllerConfirmationPending
+            && (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain
+                ? eligibleTargetPositions.Contains(unit.Position)
+                    || CanApproach(unit.Position) && sandboxBootstrap.IsPotentialApproachTarget(selectedSkill, currentTargetModeIndex, unit)
+                : selectablePositions.Contains(unit.Position));
         public System.Func<Vector3, BattleUnit> ResolvePointerUnit { get; set; }
         private SkillData hoveredSkill;
         private BattleUnit hoverActor;
@@ -118,7 +127,7 @@ namespace Godmist.Views.Combat
         {
             get
             {
-                if (!IsSelectingTarget || isSelectingTeleportDestination || isSelectingObjectPlacement)
+                if (!IsSelectingTarget || controllerConfirmationPending || isSelectingTeleportDestination || isSelectingObjectPlacement)
                     return false;
 
                 var mode = CurrentTargetMode;
@@ -133,7 +142,7 @@ namespace Godmist.Views.Combat
         {
             get
             {
-                if (!IsSelectingTarget || isSelectingTeleportDestination || isSelectingObjectPlacement)
+                if (!IsSelectingTarget || controllerConfirmationPending || isSelectingTeleportDestination || isSelectingObjectPlacement)
                     return false;
 
                 var mode = CurrentTargetMode;
@@ -157,7 +166,10 @@ namespace Godmist.Views.Combat
             }
         }
 
-        public void BeginTargetSelection(SkillData skill)
+        // Preserve the original single-argument entry point, including serialized UnityEvents.
+        public void BeginTargetSelection(SkillData skill) => BeginTargetSelectionCore(skill,false);
+        public void BeginControllerTargetSelection(SkillData skill) => BeginTargetSelectionCore(skill,true);
+        private void BeginTargetSelectionCore(SkillData skill, bool requireControllerConfirmation)
         {
             using var sample = BeginSelectionSample.Auto();
             if (skill != null && selectedSkill == skill)
@@ -179,6 +191,13 @@ namespace Godmist.Views.Combat
                 && session.ActiveUnit.ActiveToggleSkillIds != null
                 && session.ActiveUnit.ActiveToggleSkillIds.Contains(skill.SkillId))
             {
+                if (requireControllerConfirmation)
+                {
+                    CancelTargetSelection(); selectedSkill = skill;
+                    controllerConfirmationRequired = controllerConfirmationPending = true; controllerSelectionFrame = Time.frameCount;
+                    if (movementInputController != null) movementInputController.enabled = false;
+                    return;
+                }
                 sandboxBootstrap.TryExecuteSkill(
                     skill,
                     new Dictionary<int, GridPosition?>());
@@ -216,6 +235,8 @@ namespace Godmist.Views.Combat
             }
 
             selectedSkill = skill;
+            controllerConfirmationRequired = requireControllerConfirmation;
+            controllerConfirmationPending = false; controllerSelectionFrame = Time.frameCount;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
             chosenPositionsByModeIndex.Clear();
@@ -278,6 +299,11 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (controllerConfirmationRequired)
+            {
+                controllerConfirmationPending = true;
+                return;
+            }
             if (TryExecuteSelectedAction())
             {
                 CancelTargetSelection();
@@ -289,7 +315,9 @@ namespace Godmist.Views.Combat
 
         public void CancelTargetSelection()
         {
+            InvalidateSkillApproach();
             selectedSkill = null;
+            controllerConfirmationRequired = controllerConfirmationPending = false;
             selectedConsumable = null;
             selectedConsumableActor = null;
             currentTargetModeIndex = 0;
@@ -319,16 +347,25 @@ namespace Godmist.Views.Combat
         {
             ConsumedPrimaryClickThisFrame = false;
             if (sandboxBootstrap?.IsGameplaySuspended == true) { targetPreview?.Hide(); return; }
+            if (skillApproachRunning)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel
+                    || Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context) CancelTargetSelection();
+                return;
+            }
             RefreshSkillHover();
             RefreshJudgementField();
 
             if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedContextMenu() || !IsSelectingTarget)
             {
+                ClearSkillApproachPreview();
                 return;
             }
 
-            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Input.mousePosition))
+            if (UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
             {
+                ClearSkillApproachPreview();
+                ClearRelativeRangeHighlights();
                 HoveredUnit = null;
                 HoveredPosition = null;
                 targetPreview?.Hide();
@@ -345,18 +382,33 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            var mouseConfirm = Input.GetMouseButtonDown(0) && !UIWorkspaceInputRouter.IsPointerOverUi();
+            if (controllerConfirmationPending)
+            {
+                targetPreview?.Hide();
+                if (Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel
+                    || Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context) CancelTargetSelection();
+                else if (Time.frameCount > controllerSelectionFrame && (mouseConfirm || Godmist.Views.UI.ControllerInput.Confirm))
+                {
+                    controllerConfirmationRequired = controllerConfirmationPending = false;
+                    TryExecuteSelectedAction(); CancelTargetSelection();
+                }
+                return;
+            }
+            if (mouseConfirm || Godmist.Views.UI.ControllerInput.Confirm) controllerConfirmationRequired = false;
             if (!isSelectingTeleportDestination
                 && !isSelectingObjectPlacement)
             {
-                if (Input.GetKeyDown(KeyCode.R) && CanRotateCurrentSelection)
+                if ((Input.GetKeyDown(KeyCode.R) || Godmist.Views.UI.ControllerInput.Rotate || Godmist.Views.UI.ControllerInput.RotateBack) && CanRotateCurrentSelection)
                 {
                     directionalRotationQuarterTurns =
-                        (directionalRotationQuarterTurns + 1) % 4;
+                        (directionalRotationQuarterTurns + (Godmist.Views.UI.ControllerInput.RotateBack ? 3 : 1)) % 4;
                     previewedRelativeCenter = null;
                 }
                 UpdateRelativeRangePreview();
                 UpdateHoveredUnit(session);
                 UpdateCombatTargetPreview(session);
+                RefreshSkillApproachPreview();
             }
             else
             {
@@ -365,15 +417,15 @@ namespace Godmist.Views.Combat
                 targetPreview?.Hide();
             }
 
-            if (Input.GetKeyDown(KeyCode.Escape)
-                || Input.GetMouseButtonDown(1))
+            if ((Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel)
+                || (Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context))
             {
                 CancelTargetSelection();
                 return;
             }
 
             if (!isSelectingTeleportDestination && !isSelectingObjectPlacement
-                && Input.GetKeyDown(KeyCode.Return)
+                && (Input.GetKeyDown(KeyCode.Return) || Godmist.Views.UI.ControllerInput.CompleteTargets)
                 && CurrentTargetMode.TargetType == TargetType.MultipleChosen
                 && chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var confirmed)
                 && confirmed.Count > 0)
@@ -381,7 +433,7 @@ namespace Godmist.Views.Combat
                 AdvanceTargetMode();
                 return;
             }
-            if (!Input.GetMouseButtonDown(0)
+            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
                 || worldCamera == null)
             {
                 return;
@@ -426,6 +478,13 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            ConfirmTargetAt(targetPosition);
+        }
+
+        public void ConfirmTargetAt(GridPosition targetPosition)
+        {
+            var session = sandboxBootstrap?.Session;
+            if (session?.ActiveUnit == null || !IsSelectingTarget || skillApproachRunning) return;
             var targetMode = CurrentTargetMode;
 
             if (UsesGridClickOnlyAsConfirmation(targetMode))
@@ -443,6 +502,7 @@ namespace Godmist.Views.Combat
 
             if (!selectablePositions.Contains(targetPosition))
             {
+                TryBeginSkillApproach(targetPosition);
                 return;
             }
 
@@ -478,14 +538,20 @@ namespace Godmist.Views.Combat
 
         public void RefreshOpeningHighlights()
         {
-            if (IsSelectingTarget && !isSelectingTeleportDestination && !isSelectingObjectPlacement
-                && currentTargetModeIndex < selectedSkill.TargetModes.Count) RebuildTargetHighlights();
+            if (!IsSelectingTarget || skillApproachRunning) return;
+            if (isSelectingTeleportDestination) { TryBeginTeleportDestinationSelection(); return; }
+            if (isSelectingObjectPlacement) { TryBeginObjectPlacementSelection(); return; }
+            if (currentTargetModeIndex < selectedSkill.TargetModes.Count)
+            {
+                RebuildTargetHighlights(preserveApproachPreview: true);
+                RefreshSkillApproachPreview();
+            }
         }
 
-        private void RebuildTargetHighlights()
+        private void RebuildTargetHighlights(bool preserveApproachPreview = false)
         {
             using var sample = HighlightsSample.Auto();
-            ClearAllHighlights();
+            ClearAllHighlights(clearApproachPreview: !preserveApproachPreview);
 
             if (feedbackRenderer == null
                 || selectedSkill == null)
@@ -523,22 +589,19 @@ namespace Godmist.Views.Combat
                     selectablePositions.Add(position);
             }
 
-            if (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain)
-            {
-                foreach (var position in sandboxBootstrap.GetEligibleSkillTargetPositions(
-                             selectedSkill, CurrentTargetMode, currentTargetModeIndex))
-                    eligibleTargetPositions.Add(position);
-            }
+            foreach (var position in sandboxBootstrap.GetEligibleSkillTargetPositions(
+                         selectedSkill, CurrentTargetMode, currentTargetModeIndex))
+                eligibleTargetPositions.Add(position);
 
             if (chosenPositionsByModeIndex.TryGetValue(currentTargetModeIndex, out var selectedCells))
             {
-                feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.9f));
-                feedbackRenderer.ShowFill(CombatGridFeedbackLayer.ChosenSkillTargets,selectedCells,new Color(.3f,1f,.5f,.4f));
+                feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.ChosenSkillTargets, selectedCells, HighlightStyle.Hover, TargetCellColor);
             }
             if (!usesRedDirectionalFootprintOnly)
             {
                 SpawnHighlights(
-                    selectablePositions.ToList(),
+                    (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain
+                        ? selectablePositions : eligibleTargetPositions).ToList(),
                     targetHighlightColor,
                     CombatGridFeedbackLayer.SkillTarget);
                 feedbackRenderer.ShowFill(
@@ -566,8 +629,8 @@ namespace Godmist.Views.Combat
                 for(var y=Math.Max(0,field.Position.Y-radius);y<=Math.Min(session.Grid.Height-1,field.Position.Y+radius);y++)
                     foreach(var cell in session.Grid.GetPositionsAt(x,y))
                         if(PaladinCombatSystem.FieldContains(session,field,cell))cells.Add(cell);
-            feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.8f));
-            feedbackRenderer.ShowFill(CombatGridFeedbackLayer.JudgementField,cells,new Color(1f,.85f,.3f,.12f));
+            feedbackRenderer.ShowOutline(CombatGridFeedbackLayer.JudgementField,cells,HighlightStyle.WithAlpha(HighlightStyle.Selection, .8f));
+            feedbackRenderer.ShowFill(CombatGridFeedbackLayer.JudgementField,cells,HighlightStyle.WithAlpha(HighlightStyle.Selection, .12f));
         }
         private void UpdateRelativeRangePreview()
         {
@@ -583,7 +646,11 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (!TryGetGridPositionUnderMouse(out var hoveredPosition)) return;
+            if (!TryGetGridPositionUnderMouse(out var hoveredPosition))
+            {
+                ClearRelativeRangeHighlights();
+                return;
+            }
 
             if (previewedRelativeCenter.HasValue && previewedRelativeCenter.Value == hoveredPosition) return;
 
@@ -623,7 +690,11 @@ namespace Godmist.Views.Combat
                 IsRotatableShape(CurrentTargetMode)
                     ? directionalRotationQuarterTurns
                     : 0))
-                if (sandboxBootstrap.IsUnitVisible(target)) affectedPositions.Add(target.Position);
+                if (sandboxBootstrap.IsUnitVisible(target))
+                {
+                    affectedPositions.Add(target.Position);
+                    affectedTargetPositions.Add(target.Position);
+                }
 
             SpawnHighlights(affectedPositions, affectedTargetHighlightColor, CombatGridFeedbackLayer.AffectedArea);
             feedbackRenderer.ShowFill(
@@ -781,16 +852,36 @@ namespace Godmist.Views.Combat
             return false;
         }
 
+        private Color TargetCellColor(GridPosition position)
+        {
+            var session = sandboxBootstrap?.Session;
+            var caster = session?.ActiveUnit;
+            if (caster != null)
+                foreach (var unit in session.Units)
+                    if (unit != null && unit.Position == position && sandboxBootstrap.IsUnitVisible(unit))
+                        return HighlightStyle.Target(caster.IsPlayerSide, unit.IsPlayerSide);
+            return HighlightStyle.Hover;
+        }
+
+        public bool IsHighlightedSkillTarget(BattleUnit unit) => unit != null && IsSelectingTarget
+            && (eligibleTargetPositions.Contains(unit.Position) || affectedTargetPositions.Contains(unit.Position)
+                || approachPreviewPath != null && approachPreviewTarget == unit.Position);
+
+        public Color HoverTargetColor(BattleUnit unit) => IsHighlightedSkillTarget(unit)
+            ? TargetCellColor(unit.Position) : HighlightStyle.Hover;
+
         private void SpawnHighlights(
             IReadOnlyList<GridPosition> positions,
             Color color,
             CombatGridFeedbackLayer layer)
         {
-            feedbackRenderer?.ShowOutline(layer, positions, color);
+            feedbackRenderer?.ShowOutline(layer, positions, color,
+                layer is CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.AffectedArea
+                    ? TargetCellColor : null);
         }
         private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
-            var screenPosition = Input.mousePosition;
+            var screenPosition = Godmist.Views.UI.ControllerInput.PointerPosition;
             screenPosition.z =
                 Mathf.Abs(worldCamera.transform.position.z);
 
@@ -930,7 +1021,7 @@ namespace Godmist.Views.Combat
                     ?? UIWorkspaceTooltipView.ActiveInstance?.GetGlossaryIcon("debuff")
                 : null;
             targetPreview.Show(
-                Input.mousePosition,
+                Godmist.Views.UI.ControllerInput.PointerPosition,
                 damageText,
                 new Color(1f, 0.86f, 0.45f),
                 statusSprite,
@@ -957,8 +1048,9 @@ namespace Godmist.Views.Combat
                 : null;
         }
 
-        private void ClearAllHighlights()
+        private void ClearAllHighlights(bool clearApproachPreview = true)
         {
+            if (clearApproachPreview) ClearSkillApproachPreview();
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.ChosenSkillTargets);
             feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.ChosenSkillTargets);
             targetPreview?.Hide();
@@ -974,6 +1066,7 @@ namespace Godmist.Views.Combat
 
         private void ClearRelativeRangeHighlights()
         {
+            affectedTargetPositions.Clear();
             feedbackRenderer?.ClearOutline(CombatGridFeedbackLayer.RelativeRange);
             feedbackRenderer?.ClearFill(CombatGridFeedbackLayer.RelativeRange);
             previewedRelativeCenter = null;
@@ -989,6 +1082,7 @@ namespace Godmist.Views.Combat
 
         private void OnDisable()
         {
+            InvalidateSkillApproach();
             hoveredSkill = null;
             PresentSkillHover(null);
             judgementFieldSignature=null;

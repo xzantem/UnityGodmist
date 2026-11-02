@@ -38,7 +38,7 @@ namespace Godmist.Systems.Characters
                 character.Equipment.SetItem(EquipmentSlot.Weapon, weapon);
                 character.Equipment.SetItem(EquipmentSlot.Armor, armor);
                 new CharacterStatPipelineSystem().Refresh(character);
-                character.CurrentHealth = Mathf.RoundToInt(character.Stats.MaxHealth.GetValue());
+                character.CurrentHealth = character.MaximumHealth;
                 if (character.ResourcePool.ResourceType == ResourceType.Mana)
                     character.ResourcePool.CurrentValue = character.ResourcePool.MaxValue;
                 if (!candidate.TryRegisterCharacter(character)

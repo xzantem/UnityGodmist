@@ -148,11 +148,11 @@ namespace Godmist.Tests.EditMode
             };
 
             Assert.That(
-                CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character),
+                Godmist.Systems.SaveLoad.LegacySaveMigrations.RecoverSkillPointTotal(character),
                 Is.True);
             Assert.That(character.AvailableSkillPoints, Is.EqualTo(50));
             Assert.That(
-                CharacterProgressionSystem.TryMigrateLegacySkillPointTotal(character),
+                Godmist.Systems.SaveLoad.LegacySaveMigrations.RecoverSkillPointTotal(character),
                 Is.False);
         }
 

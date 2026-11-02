@@ -573,26 +573,38 @@ namespace Godmist.Views.Dungeons
                 var north=first.y>=second.y?first:second;
                 var clipMin=horizontal&&FullSide(left)?floorTilemap.CellToWorld(new Vector3Int(left.x,left.y,0)).x+DungeonWallSegmentView.NativeWallWidthWorld*.5f:float.NegativeInfinity;
                 var clipMax=horizontal&&FullSide(right)?floorTilemap.CellToWorld(new Vector3Int(right.x,right.y,0)).x-DungeonWallSegmentView.NativeWallWidthWorld*.5f:float.PositiveInfinity;
-                var clipTop=!horizontal&&WallsAtEndpoint(pair.Edge.Level,north).Any(e=>boundMap.GetWallType(e)==DungeonWallType.Full && ResolveWallSurfaceProfile(e)==DungeonWallSurfaceProfile.North)
+                bool FullFaceAtNorth(DungeonSurfaceEdge edge)
+                {
+                    if (boundMap.GetWallType(edge) != DungeonWallType.Full) return false;
+                    if (ResolveWallSurfaceProfile(edge) == DungeonWallSurfaceProfile.North) return true;
+                    GetEdgeEndpoints(edge.CellEdge, out var a, out var b);
+                    return (a == north ? b : a).y > north.y;
+                }
+                var clipTop=!horizontal&&WallsAtEndpoint(pair.Edge.Level,north).Any(FullFaceAtNorth)
                     ?floorTilemap.CellToWorld(new Vector3Int(north.x,north.y,0)).y:float.PositiveInfinity;
                 pair.View.ConfigureCroppedLowWall(pair.Edge.CellEdge,sprite,
                     (CellToWorldCenter(pair.Edge.FirstCell)+CellToWorldCenter(pair.Edge.SecondCell))*.5f,clipMin,clipMax,clipTop);
                 var firstArms=ResolveWallArmsAtVertex(pair.Edge.Level,first);
                 var secondArms=ResolveWallArmsAtVertex(pair.Edge.Level,second);
                 pair.View.ConfigureNativeLowWallJoins(wallSegmentPrefab.SideWallSprite,wallSegmentPrefab.NorthWallSprite,
-                    floorTilemap.CellToWorld(new Vector3Int(first.x,first.y,0)),
-                    floorTilemap.CellToWorld(new Vector3Int(second.x,second.y,0)),
-                    firstArms,secondArms,OwnsLowWallVertex(pair.Edge,first),OwnsLowWallVertex(pair.Edge,second));
+                    new DungeonWallSegmentView.LowWallJoinEndpoint(floorTilemap.CellToWorld(new Vector3Int(first.x,first.y,0)),
+                        firstArms,ResolveWallArmsAtVertex(pair.Edge.Level,first,DungeonWallType.Low),OwnsLowWallVertex(pair.Edge,first),
+                        WallsAtEndpoint(pair.Edge.Level,first).Any(e=>boundMap.GetWallType(e)==DungeonWallType.Full)),
+                    new DungeonWallSegmentView.LowWallJoinEndpoint(floorTilemap.CellToWorld(new Vector3Int(second.x,second.y,0)),
+                        secondArms,ResolveWallArmsAtVertex(pair.Edge.Level,second,DungeonWallType.Low),OwnsLowWallVertex(pair.Edge,second),
+                        WallsAtEndpoint(pair.Edge.Level,second).Any(e=>boundMap.GetWallType(e)==DungeonWallType.Full)));
             }
+            ConfigureMixedMasonryJunctions();
         }
 
         // Shared endpoint index also drives full-wall caps and miters. Bits
         // describe physical arms LEFT / RIGHT / DOWN / UP at the grid vertex.
-        private int ResolveWallArmsAtVertex(int level,Vector2Int vertex)
+        private int ResolveWallArmsAtVertex(int level,Vector2Int vertex,DungeonWallType? type=null)
         {
             var arms=0;
             foreach(var edge in WallsAtEndpoint(level,vertex))
             {
+                if(type.HasValue&&boundMap.GetWallType(edge)!=type.Value)continue;
                 GetEdgeEndpoints(edge.CellEdge,out var first,out var second);
                 var other=first==vertex?second:first;
                 arms|=other.x<vertex.x?1:other.x>vertex.x?2:other.y<vertex.y?4:8;
@@ -607,9 +619,18 @@ namespace Godmist.Views.Dungeons
             {
                 if(boundMap.GetWallType(edge)==DungeonWallType.Full)return false;
                 if(boundMap.GetWallType(edge)!=DungeonWallType.Low)continue;
-                if(!selected.HasValue || edge.FirstCell.x<selected.Value.FirstCell.x
+                // A horizontal low wall owns the standing face beneath a
+                // turn and sits above the vertical low-wall depth lane.
+                // Choosing only by coordinates can hand the turn to its
+                // vertical neighbour and leave half the corner without a face.
+                var horizontal=edge.FirstCell.x==edge.SecondCell.x;
+                var selectedHorizontal=selected.HasValue&&selected.Value.FirstCell.x==selected.Value.SecondCell.x;
+                if(!selected.HasValue){selected=edge;continue;}
+                if(horizontal!=selectedHorizontal){if(horizontal)selected=edge;continue;}
+                if(edge.FirstCell.x<selected.Value.FirstCell.x
                     || edge.FirstCell.x==selected.Value.FirstCell.x && (edge.FirstCell.y<selected.Value.FirstCell.y
-                    || edge.FirstCell.y==selected.Value.FirstCell.y && edge.SecondCell.x<selected.Value.SecondCell.x))selected=edge;
+                    || edge.FirstCell.y==selected.Value.FirstCell.y && (edge.SecondCell.x<selected.Value.SecondCell.x
+                    || edge.SecondCell.x==selected.Value.SecondCell.x && edge.SecondCell.y<selected.Value.SecondCell.y)))selected=edge;
             }
             return selected.HasValue&&selected.Value.Equals(owner);
         }
@@ -1026,6 +1047,7 @@ namespace Godmist.Views.Dungeons
                 GetEdgeEndpoints(edge.CellEdge, out var first, out var second);
                 bool Free(Vector2Int vertex) => !WallsAtEndpoint(edge.Level, vertex).Any(other =>
                     !other.Equals(edge) && (boundMap.GetWallType(other) == DungeonWallType.Full
+                        || catacombsArtPresentationEnabled && boundMap.GetWallType(other) == DungeonWallType.Low
                         || boundMap.SurfaceClosedProgressionGateEdges.Contains(other)));
                 wallSegment.ConfigureSideFreeEndCaps(Free(first), Free(second));
             }

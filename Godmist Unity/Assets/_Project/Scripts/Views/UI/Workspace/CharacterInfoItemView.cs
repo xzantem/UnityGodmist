@@ -27,7 +27,6 @@ namespace Godmist.Views.UI.Workspace
         public static Color RarityAccentColor(Godmist.Core.Enums.RarityTier rarity) => ItemRarityPresentation.Color(rarity);
 
         private void OnDisable() => UIWorkspaceTooltipView.ActiveInstance?.InvalidateSource(this);
-
         public void OnSubmit(BaseEventData eventData) => Activate();
 
         private void Activate()
@@ -40,8 +39,10 @@ namespace Godmist.Views.UI.Workspace
             int stackCount,
             CharacterInfoWindowView nextOwner)
         {
-            if (!ReferenceEquals(item, nextItem))
+            if (!ReferenceEquals(item, nextItem) || owner != nextOwner)
+            {
                 UIWorkspaceTooltipView.ActiveInstance?.InvalidateSource(this);
+            }
             item = nextItem; owner = nextOwner;
             if (saleProtectionBadge != null) saleProtectionBadge.gameObject.SetActive(item?.IsSaleProtected == true);
             if (rarityAccent != null)
@@ -85,8 +86,16 @@ namespace Godmist.Views.UI.Workspace
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData == null || eventData.dragging) return;
-            if (eventData.button == PointerEventData.InputButton.Left && eventData.clickCount == 2)
-                Activate();
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                if (!isActiveAndEnabled || button != null && (!button.IsActive() || !button.IsInteractable())) return;
+                if (eventData.clickCount == 2) Activate();
+                else
+                {
+                    owner?.SelectInventoryItem(item);
+                    button?.Select();
+                }
+            }
             if (eventData.button == PointerEventData.InputButton.Right)
             {
                 owner?.ShowItemMenu(item, eventData.position);

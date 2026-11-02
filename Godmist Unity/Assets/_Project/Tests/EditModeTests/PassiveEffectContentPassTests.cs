@@ -130,17 +130,22 @@ namespace Godmist.Tests.EditMode
             Set(definition.Operations[0], "ModifierOperation", StatModifierOperation.FlatAbsolute);
             Set(definition.Operations[0].Value, "NumberValue", 2f);
             var selector = new PassiveEffectParameterDefinition();
-            Set(selector, "Key", "effect_index"); Set(selector, "IntegerValue", 1);
+            Set(selector, "Key", "effect_id");
             definition.Operations[0].Parameters.Add(selector);
             var owner = ContentOwner(definition);
             var skill = ScriptableObject.CreateInstance<SkillData>();
             var first = new SkillEffectData(); var second = new SkillEffectData();
+            Set(selector, "StringValue", second.StableId);
             typeof(SkillData).GetField("effects", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .SetValue(skill, new List<SkillEffectData> { first, second });
             try
             {
                 Assert.That(PassiveEffectCombatExecutionSystem.ResolveEffect(owner, skill, first).DurationTurns, Is.EqualTo(first.DurationTurns));
                 Assert.That(PassiveEffectCombatExecutionSystem.ResolveEffect(owner, skill, second).DurationTurns, Is.EqualTo(second.DurationTurns + 2));
+                typeof(SkillData).GetField("effects", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .SetValue(skill, new List<SkillEffectData> { second, first });
+                Assert.That(PassiveEffectCombatExecutionSystem.ResolveEffect(owner, skill, second).DurationTurns, Is.EqualTo(second.DurationTurns + 2));
+                Assert.That(PassiveEffectCombatExecutionSystem.ResolveEffect(owner, skill, first).DurationTurns, Is.EqualTo(first.DurationTurns));
             }
             finally { DestroyOwner(owner); Object.DestroyImmediate(skill); }
         }

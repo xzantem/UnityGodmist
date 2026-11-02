@@ -338,7 +338,7 @@ namespace Godmist.Views.UI.Workspace
             if (item?.Owner == this && item.IsStashItem != targetStash) TryQuickTransfer(item, ControlHeld);
         }
 
-        private static bool ControlHeld => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+        private static bool ControlHeld => (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate) || Input.GetKey(KeyCode.RightControl);
         private static bool ShiftHeld => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 
         private void ResetClickSequence()
@@ -461,7 +461,7 @@ namespace Godmist.Views.UI.Workspace
                 if (stack == null) stacks.Add(new List<ItemInstance> { item });
                 else stack.Add(item);
             }
-            foreach (var stack in stacks)
+            foreach (var stack in ItemDisplayOrder.Sort(stacks, group => group[0]))
             {
                 var view = Instantiate(itemTemplate, root); view.gameObject.SetActive(true);
                 view.Bind(this, stack[0], stack.Count, isStash); spawned.Add(view);

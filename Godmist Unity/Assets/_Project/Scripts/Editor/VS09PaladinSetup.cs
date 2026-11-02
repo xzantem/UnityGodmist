@@ -153,7 +153,7 @@ public static partial class VS09PaladinSetup
         new[]{"priest","persistent_healer","Ratunek w Potrzebie","Zmniejsza koszt punktów akcji Uzdrowienia o 25%/50%/100%, jeśli cel otrzymał obrażenia większe niż 20% maksymalnego zdrowia w jednej turze. Użycie Uzdrowienia na tym celu zdejmuje zniżkę.","","","3","4","3"},
         new[]{"priest","encouragement","Pokrzepienie","Leczenia obejmujące tylko jedną osobę przyśpieszają jej akcję o 20%","","","3","5","1"},
         new[]{"priest","lasting_effect","Trwała Regeneracja","Święta Regeneracja po upłynięciu czasu trwania leczy 25% początkowej wartości przez kolejne 4/2 tury","haste","","4","1","2"},
-        new[]{"priest","salvation","Łaska Zwrotna","Rzucający otrzymuje dodatkowo 50% odnowionego surowca przez Łaskę","grace_collection","","4","2","1"},
+        new[]{"priest","salvation","Łaska Zwrotna","Rzucający otrzymuje dodatkowo 50% odnowionego surowca przez Gromadzenie Łaski","grace_collection","","4","2","1"},
         new[]{"priest","grace_collection","Gromadzenie Łaski","Otrzymywanie i zadawanie obrażeń pod działaniem Błogosławieństwa daje ładunek Łaski (max 6), po upłynięciu czasu trwania, cel regeneruje 4/8 surowca za każdy ładunek","blessing","","4","3","2"},
         new[]{"priest","blessing","Błogosławieństwo","Zwiększa zadawane obrażenia o 10%, zmniejsza przyjmowane obrażenia o 10% na 4 tury","","blessing","4","4","1"},
         new[]{"priest","strong_blessing","Silne Błogosławieństwo","Wzmacnia efekt Błogosławieństwa do 15%/20%","blessing","","4","5","2"},

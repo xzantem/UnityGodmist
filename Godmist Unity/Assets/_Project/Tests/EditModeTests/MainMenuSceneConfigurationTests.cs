@@ -18,7 +18,7 @@ namespace Godmist.Tests.EditMode
         public void OpenPreview()
         {
             scene = EditorSceneManager.OpenPreviewScene(BootstrapPath);
-            canvas = scene.GetRootGameObjects().Single(x => x.name == "Canvas").transform;
+            canvas = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Canvas>(true)).Single(x => x.name == "Canvas").transform;
         }
 
         [TearDown]

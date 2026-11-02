@@ -146,8 +146,7 @@ namespace Godmist.Systems.Combat
                     continue;
                 if (session.CanUseBossSkill?.Invoke(aiUnit, skill) == false || !CanAffordSkill(aiUnit, skill)) continue;
 
-                if (CombatActionCostCalculator.CalculateSkillCost(aiUnit, skill) == 0
-                    && excludedZeroActionSkills != null
+                if (excludedZeroActionSkills != null
                     && excludedZeroActionSkills.Contains(skill))
                 {
                     continue;
@@ -259,7 +258,7 @@ namespace Godmist.Systems.Combat
                 };
                 if (suffix == null || targets.Any(target => target?.Character?.PassiveEffects == null
                     || !target.Character.PassiveEffects.Exists(active => active != null
-                        && active.EffectId == $"{skill.SkillId}.{suffix}.{index}"
+                        && active.EffectId == SkillEffectIdentity.RuntimeId(skill, index, suffix)
                         && PassiveEffectLifecycleSystem.IsActive(active)))) return false;
             }
             return true;
@@ -361,7 +360,7 @@ namespace Godmist.Systems.Combat
 
             if (skill.Effects.Any(effect => effect != null && !string.IsNullOrWhiteSpace(effect.DamagePerOwnedSummonGroup)
                 && SummonSystem.DamageScale(unit, effect) == 0)) return false;
-            var actionCost = CombatActionCostCalculator.CalculateSkillCost(unit, skill);
+            var actionCost = PaladinCombatSystem.PreviewHealCost(unit.WarriorState.Session, unit, skill, null, CombatActionCostCalculator.CalculateSkillCost(unit, skill));
 
             if (unit.CurrentActionPoints < actionCost || !WarriorCombatSystem.CanActivate(unit,skill)) return false;
 
@@ -533,7 +532,11 @@ namespace Godmist.Systems.Combat
         {
             if (skill == null || targets == null || targets.Count == 0) return float.MinValue;
 
-            return CalculateEffectsScore(session, caster, skill, targetModeIndex, targets);
+            var cost = CombatActionCostCalculator.CalculateSkillCostForTarget(caster, skill, targets.FirstOrDefault());
+            if (cost > caster.CurrentActionPoints) return float.MinValue;
+            var discount = CombatActionCostCalculator.CalculateSkillCost(caster, skill) - cost;
+            return CalculateEffectsScore(session, caster, skill, targetModeIndex, targets)
+                + ActionPointUnits.ToPoints(discount) * Ai(GameDefineIds.AiActionCostPenaltyPerPoint, .35f);
         }
 
         private static float CalculateSkillScore(CombatSession session, BattleUnit caster, SkillData skill,
@@ -557,7 +560,7 @@ namespace Godmist.Systems.Combat
                 if (effect == null || !targetsByModeIndex.TryGetValue(effect.TargetModeIndex, out var targets))
                     continue;
 
-                score += CalculateEffectsScore(session, caster, skill, effect.TargetModeIndex, targets, effect);
+                score += CalculateEffectsScore(session, caster, skill, effect.TargetModeIndex, targets, effect, PaladinCombatSystem.IsSingleHealingTarget(skill, targetsByModeIndex));
 
                 if (effect.DelayCasterTurns > 0)
                 {
@@ -565,7 +568,7 @@ namespace Godmist.Systems.Combat
                 }
             }
 
-            var actionCost = CombatActionCostCalculator.CalculateSkillCost(caster, skill);
+            var actionCost = CombatActionCostCalculator.CalculateSkillCostForTarget(caster, skill, targetsByModeIndex.Values.SelectMany(value => value).FirstOrDefault());
 
             var preference = score > 0f ? Mathf.Min(score*.15f,
                 CalculateRoleBonus(caster,skill,targetsByModeIndex)+CalculatePersonalityBonus(caster,skill,targetsByModeIndex)) : 0f;
@@ -601,7 +604,7 @@ namespace Godmist.Systems.Combat
                         when effect.EffectType == EffectType.ApplyStatus =>
                             Ai(GameDefineIds.AiAggressiveStatusPerTarget, 15f) * count,
                     CombatAiPersonality.Cautious
-                        when effect.EffectType == EffectType.Heal
+                        when effect.EffectType is EffectType.Heal or EffectType.PaladinHeal or EffectType.PaladinRegeneration
                         || effect.EffectType == EffectType.Shield =>
                             Ai(GameDefineIds.AiCautiousRecoveryPerTarget, 30f) * count,
                     _ => 0f
@@ -643,7 +646,7 @@ namespace Godmist.Systems.Combat
                     CombatAiRole.Tank when effect.EffectType == EffectType.Push
                         || effect.EffectType == EffectType.Pull =>
                             Ai(GameDefineIds.AiTankPushPullPerTarget, 25f) * count,
-                    CombatAiRole.Healer when effect.EffectType == EffectType.Heal
+                    CombatAiRole.Healer when effect.EffectType is EffectType.Heal or EffectType.PaladinHeal or EffectType.PaladinRegeneration
                         || effect.EffectType == EffectType.RestoreResource =>
                         Ai(GameDefineIds.AiHealerRecoveryPerTarget, 70f) * count,
                     CombatAiRole.Support when effect.EffectType == EffectType.Shield
@@ -731,7 +734,7 @@ namespace Godmist.Systems.Combat
             SkillData skill,
             int targetModeIndex,
             IReadOnlyList<BattleUnit> targets,
-            SkillEffectData singleEffect = null)
+            SkillEffectData singleEffect = null, bool? singleHealingTarget = null)
         {
             var score = 0f;
 
@@ -774,6 +777,11 @@ namespace Godmist.Systems.Combat
                         case EffectType.RemoveStatus:
                             score += CleanseUtility(session, caster, target, effect.StatusId);
                             break;
+                        case EffectType.PaladinHeal:
+                        case EffectType.PaladinRegeneration:
+                            score += PaladinRecoveryUtility(session, caster, target, skill, effect,
+                                singleHealingTarget ?? targets.Distinct().Count() == 1);
+                            break;
                         case EffectType.Heal:
                         case EffectType.HealPercent:
                         case EffectType.HealMissingHealthPercent:
@@ -797,7 +805,7 @@ namespace Godmist.Systems.Combat
                                 ? "modify_stat" : "modify_var";
                             if (target.Character.PassiveEffects == null
                                 || !target.Character.PassiveEffects.Exists(active => active != null
-                                    && active.EffectId == $"{skill.SkillId}.{suffix}.{effectIndex}"
+                                    && active.EffectId == SkillEffectIdentity.RuntimeId(skill, effectIndex, suffix)
                                     && PassiveEffectLifecycleSystem.IsActive(active)))
                                 score += DefensiveModifierUtility(session,caster,target,effect)*Mathf.Clamp01(effect.BaseChance);
                             break;
@@ -839,8 +847,8 @@ namespace Godmist.Systems.Combat
         {
             if (target?.Character == null) return 0f;
 
-            var maxHealth = target.Character.Stats?.MaxHealth.GetValue()
-                ?? target.Character.CurrentHealth;
+            var maxHealth = target.Character.Stats == null
+                ? target.Character.CurrentHealth : target.Character.MaximumHealth;
             return Mathf.Max(0f, maxHealth - target.Character.CurrentHealth);
         }
 

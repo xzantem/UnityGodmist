@@ -558,13 +558,20 @@ namespace Godmist.Tests.EditMode
                 .Invoke(driver, new object[] { unit, new[] { new GridPosition(5, 3), new GridPosition(6, 3) } });
             try
             {
+                Assert.That(iterator.MoveNext(), Is.True);
                 if (!player)
                 {
-                    Assert.That(iterator.MoveNext(), Is.True); framer.TickTransition(10);
+                    framer.TickTransition(10);
                     Assert.That(camera.transform.position.x, Is.EqualTo(5).Within(.01));
-                    Assert.That(iterator.MoveNext(), Is.True); framer.TickTransition(10);
+                }
+                Call(spawner, "AdvancePresentationPath", unit, 1f / 60);
+                Assert.That(iterator.MoveNext(), Is.True);
+                if (!player)
+                {
+                    framer.TickTransition(10);
                     Assert.That(camera.transform.position.x, Is.EqualTo(6).Within(.01));
                 }
+                Call(spawner, "AdvancePresentationPath", unit, 1f / 60);
                 Assert.That(iterator.MoveNext(), Is.False); framer.TickTransition(10);
                 Assert.That(camera.transform.position.x, Is.EqualTo(player ? before.x : 6).Within(.01));
                 Assert.That(camera.orthographicSize, Is.EqualTo(zoom).Within(.01));

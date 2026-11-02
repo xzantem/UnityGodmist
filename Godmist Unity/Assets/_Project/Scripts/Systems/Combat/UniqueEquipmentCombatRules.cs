@@ -16,20 +16,30 @@ namespace Godmist.Systems.Combat
         public const string FirstPhysicalHit = "first-physical-hit";
         public const string PhysicalRanged = "physical-ranged";
 
-        private static IEnumerable<PassiveEffectOperationDefinition> Operations(CharacterInstance character)
+        private static IEnumerable<(EquipmentItemInstance Item,PassiveEffectOperationDefinition Operation)> OperationSources(CharacterInstance character)
         {
             foreach (var item in character?.Equipment?.GetEquippedItems() ?? System.Array.Empty<EquipmentItemInstance>())
             {
                 if (item?.Definition is not UniqueEquipmentDefinition unique) continue;
                 foreach (var effect in unique.GetEffects(item.ItemLevel) ?? new List<PassiveEffectDefinition>())
                 {
-                    if (effect == null || !effect.IsAlwaysActive || effect.IsTriggered) continue;
+                    if (effect == null) continue;
+                    foreach (var authored in effect.Operations ?? new List<PassiveEffectOperationDefinition>())
+                        if (authored != null && PassiveEffectOperationCapabilities.IsSpecialUnique(authored.Type)
+                            && (!effect.IsAlwaysActive || effect.IsTriggered))
+                            throw new System.InvalidOperationException($"Unique effect {effect.Id}/{authored.Id} must be unconditional and untriggered.");
+                    if (!effect.IsAlwaysActive || effect.IsTriggered) continue;
                     foreach (var operation in effect.Operations ?? new List<PassiveEffectOperationDefinition>())
                         if (operation?.Target == PassiveEffectTargetType.Self
                             && operation.Value?.Source == PassiveEffectValueSourceType.Constant)
-                            yield return operation;
+                            yield return (item,operation);
                 }
             }
+        }
+
+        private static IEnumerable<PassiveEffectOperationDefinition> Operations(CharacterInstance character)
+        {
+            foreach(var source in OperationSources(character))yield return source.Operation;
         }
 
         public static float IncomingMultiplier(BattleUnit target, DamageType type, AttackType attackType,
@@ -56,13 +66,17 @@ namespace Godmist.Systems.Combat
                     target.RibbedTunicProtectionUsed = true;
         }
 
-        public static void ApplyDerivedStats(CharacterInstance character)
+        public static void ApplyDerivedStats(CharacterInstance character, System.Action<CharacterStatType,string,StatModifierOperation,float> observe = null)
         {
             if (character?.Stats == null || character.ResourcePool?.ResourceType != ResourceType.Mana) return;
             var bonus = 0f;
-            foreach (var operation in Operations(character))
+            foreach (var (item,operation) in OperationSources(character))
                 if (operation.Type == PassiveEffectOperationType.MaxHealthFromMaxResource)
-                    bonus += character.Stats.MaxResource.GetValue() * Mathf.Max(0, operation.Value.NumberValue);
+                {
+                    var contribution = character.Stats.MaxResource.GetValue() * Mathf.Max(0, operation.Value.NumberValue);
+                    bonus += contribution;
+                    observe?.Invoke(CharacterStatType.MaxHealth,"item:"+item.InstanceId,StatModifierOperation.FlatAbsolute,contribution);
+                }
             character.Stats.MaxHealth.SetEffectiveValue(character.Stats.MaxHealth.GetValue() + bonus);
         }
 
@@ -96,7 +110,7 @@ namespace Godmist.Systems.Combat
                 unit.Character.ShieldPool ??= new ShieldPool();
                 unit.Character.ShieldPool.RemoveLayersBySourceId("equipment.poacher-armor");
                 unit.Character.ShieldPool.AddLayer(Mathf.RoundToInt(unit.Character.Stats.MaxHealth.GetValue()*op.Value.NumberValue),"equipment.poacher-armor");
-                unit.PoacherArmorCooldown=5;unit.PoacherArmorShieldTurns=5;break;
+                unit.PoacherArmorCooldown=op.CooldownTurns;unit.PoacherArmorShieldTurns=op.DurationTurns;break;
             }
         }
     }

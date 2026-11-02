@@ -68,6 +68,8 @@ namespace Godmist.Views.UI
         private Image dragGhostImage;
         private TextMeshProUGUI dragGhostFallback;
 
+        private bool embedded;
+        public void ConfigureEmbedded(UIWorkspaceWindow host) { embedded = true; workspaceWindow = host; }
         public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
 
         private void Awake()
@@ -90,9 +92,9 @@ namespace Godmist.Views.UI
                 return;
             }
 
-            UpdateDragGhost(Input.mousePosition);
+            UpdateDragGhost(Godmist.Views.UI.ControllerInput.PointerPosition);
 
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (!embedded && Input.GetKeyDown(KeyCode.Escape))
             {
                 if (!string.IsNullOrWhiteSpace(draggedSkillId))
                 {
@@ -514,8 +516,8 @@ namespace Godmist.Views.UI
             if (detailsBody == null || tooltipView == null || tooltipView.IsSkillTooltipSuppressed) return;
             var canvas = detailsBody.canvas;
             var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
-            var inside = detailsScroll?.viewport == null || RectTransformUtility.RectangleContainsScreenPoint(detailsScroll.viewport, Input.mousePosition, camera);
-            var hit = inside ? TMP_TextUtilities.FindIntersectingLink(detailsBody, Input.mousePosition, camera) : -1;
+            var inside = detailsScroll?.viewport == null || RectTransformUtility.RectangleContainsScreenPoint(detailsScroll.viewport, Godmist.Views.UI.ControllerInput.PointerPosition, camera);
+            var hit = inside ? TMP_TextUtilities.FindIntersectingLink(detailsBody, Godmist.Views.UI.ControllerInput.PointerPosition, camera) : -1;
             var id = hit < 0 ? null : detailsBody.textInfo.linkInfo[hit].GetLinkID();
             if (id == hoveredDetailsLink) return;
             tooltipView.NotifySourceExit(detailsBody);
@@ -547,7 +549,7 @@ namespace Godmist.Views.UI
             tooltipView?.BeginDragSuppression();
             draggedCard?.SetDragSource(true);
             CreateDragGhost();
-            UpdateDragGhost(Input.mousePosition);
+            UpdateDragGhost(Godmist.Views.UI.ControllerInput.PointerPosition);
         }
 
         internal void UpdateDragGhost(Vector2 screenPosition)
@@ -935,7 +937,7 @@ namespace Godmist.Views.UI
                 : null;
             return RectTransformUtility.RectangleContainsScreenPoint(
                 rect,
-                Input.mousePosition,
+                Godmist.Views.UI.ControllerInput.PointerPosition,
                 camera);
         }
 

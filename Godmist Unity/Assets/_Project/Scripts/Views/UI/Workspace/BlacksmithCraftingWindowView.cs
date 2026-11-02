@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -588,9 +589,9 @@ namespace Godmist.Views.UI.Workspace
         {
             return stat switch
             {
-                CharacterStatType.CritChance => $"{value * 100f:0.##}%",
-                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
-                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
+                CharacterStatType.CritChance => (value * 100f).ToString("0.##", UiTerms.PolishCulture) + " " + UiTerms.PercentagePoints,
+                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00", UiTerms.PolishCulture),
+                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0", UiTerms.PolishCulture),
                 _ => FormatValue(value)
             };
         }
@@ -638,36 +639,18 @@ namespace Godmist.Views.UI.Workspace
         {
             return stat switch
             {
-                CharacterStatType.CritChance => $"{value * 100f:0.##}%",
-                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00"),
-                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0"),
+                CharacterStatType.CritChance => (value * 100f).ToString("0.##", UiTerms.PolishCulture) + " " + UiTerms.PercentagePoints,
+                CharacterStatType.CritDamage => value.ToString("0.00;-0.00;0.00", UiTerms.PolishCulture),
+                CharacterStatType.Dodge => Mathf.RoundToInt(value).ToString("0;-0;0", UiTerms.PolishCulture),
                 _ => FormatValue(value)
             };
         }
 
-        private static string FormatValue(float value) => value.ToString("0.##;-0.##;0");
+        private static string FormatValue(float value) => value.ToString("0.##;-0.##;0", UiTerms.PolishCulture);
 
         private static string GetStatDisplayName(CharacterStatType statType, ResourceType resourceType = ResourceType.None)
         {
-            return statType switch
-            {
-                CharacterStatType.MinAttack => "Atak min.",
-                CharacterStatType.MaxAttack => "Atak maks.",
-                CharacterStatType.MaxHealth => "Zdrowie",
-                CharacterStatType.PhysicalDefense => "Obrona fizyczna",
-                CharacterStatType.MagicalDefense => "Obrona magiczna",
-                CharacterStatType.Dodge => "Unik",
-                CharacterStatType.CritChance => "Szansa krytyczna",
-                CharacterStatType.CritDamage => "Obrażenia krytyczne",
-                CharacterStatType.Speed => "Szybkość",
-                CharacterStatType.ResourceRegeneration => resourceType == ResourceType.Mana ? "Regeneracja many" : "Regeneracja zasobu",
-                CharacterStatType.WeaponAccuracy => "Celność",
-                CharacterStatType.MaxResource => resourceType == ResourceType.Mana ? "Maksymalna mana" : "Maksymalny zasób",
-                CharacterStatType.PhysicalDefensePenetration => "Przebicie obrony fizycznej",
-                CharacterStatType.MagicalDefensePenetration => "Przebicie obrony magicznej",
-                CharacterStatType.HealingPower => "Moc leczenia",
-                _ => statType.ToString()
-            };
+            return UiTerms.Stat(statType, resourceType);
         }
 
         private static string GetItemTypeDisplayName(ItemType itemType)

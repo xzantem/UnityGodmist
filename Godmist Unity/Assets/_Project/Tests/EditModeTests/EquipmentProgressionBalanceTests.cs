@@ -57,6 +57,7 @@ namespace Godmist.Tests.EditMode
             var item=Item(armor,armor?CharacterStatType.PhysicalDefense:CharacterStatType.MinAttack);
             item.BaseStatModifiers.Clear();item.UpgradeProgress=.5f;
             item.StatModifiers=new(){new StatModifier{StatType=armor?CharacterStatType.PhysicalDefense:CharacterStatType.MinAttack,Value=150}};
+            Assert.That(Godmist.Systems.SaveLoad.LegacySaveMigrations.RecoverEquipmentBaseline(item), Is.True);
             item.RecalculateStatModifiers();item.RecalculateStatModifiers();
             Assert.That(item.BaseStatModifiers[0].Value,Is.EqualTo(100).Within(.001f));
             Assert.That(item.StatModifiers[0].Value,Is.EqualTo(expected).Within(.001f));

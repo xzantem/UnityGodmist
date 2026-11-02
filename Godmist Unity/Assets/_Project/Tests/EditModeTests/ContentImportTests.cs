@@ -171,6 +171,20 @@ namespace Godmist.Tests.EditMode
             Object.DestroyImmediate(catalog);
         }
 
+        [Test]
+        public void CharacterImportPreservesFractionalBaseAttack()
+        {
+            var sheet = new ContentImportSheet("Characters", new List<IReadOnlyList<string>>
+            {
+                new[] { "name", "id", "min_attack", "max_attack" },
+                new[] { "Fractional attack", "enemy.test.fractional", "30.6", "47.6" }
+            }, 0);
+            var rows = ContentImportMapper.BuildPreview("characters.csv", sheet, ContentImportTargetType.CharacterDefinition, null);
+            Assert.That(rows, Has.Count.EqualTo(1));
+            Assert.That(rows[0].Values["BaseStats.MinAttack"], Is.EqualTo("30.6"));
+            Assert.That(rows[0].Values["BaseStats.MaxAttack"], Is.EqualTo("47.6"));
+        }
+
         private static ItemDefinition CreateItem(GameContentCatalog catalog, string id, string displayName)
         {
             var item = ScriptableObject.CreateInstance<ItemDefinition>();

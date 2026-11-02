@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
 using TMPro;
@@ -92,8 +93,7 @@ public static partial class GodmistMainMenuSetup
         finally{PrefabUtility.UnloadPrefabContents(row);}
 
         var scene=EditorSceneManager.OpenScene(ScenePath,OpenSceneMode.Single);
-        Transform canvas=null;foreach(var root in scene.GetRootGameObjects())if(root.name=="Canvas")canvas=root.transform;
-        if(canvas==null)throw new InvalidOperationException("Existing menu canvas missing.");
+        var canvas=FindMenuCanvas(scene);
         var menu=canvas.Find("MainMenuRoot");var viewMenu=menu.GetComponent<MainMenuView>();var saves=menu.GetComponent<SaveLoadPanelView>();
         Reference<TMP_Text>(viewMenu,"messageText").text=string.Empty;
         var background=Image(menu,"GothicMenuBackdrop","surface_solid");

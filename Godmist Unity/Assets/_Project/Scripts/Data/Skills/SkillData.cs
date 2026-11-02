@@ -36,6 +36,8 @@ namespace Godmist.Data.Skills
 
         public IReadOnlyList<SkillTargetModeData> TargetModes => targetModes;
         public IReadOnlyList<SkillEffectData> Effects => effects;
+        [SerializeField] private bool stableEffectIdsInitialized;
+        public bool HasStableEffectIds => stableEffectIdsInitialized;
 
         // Point-blank combat includes all eight neighboring grid cells.
         public static bool IsPointBlank(int offsetX, int offsetY) =>

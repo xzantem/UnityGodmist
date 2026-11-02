@@ -29,6 +29,8 @@ namespace Godmist.Editor
         {
             var existing = AssetDatabase.LoadAssetAtPath<T>(path);
             if (existing != null) return existing;
+            if (typeof(T) == typeof(CharacterDefinition))
+                throw new System.InvalidOperationException("Historical content setup requires an authored CharacterDefinition at " + path + "; attack data is maintained in that asset.");
             var created = ScriptableObject.CreateInstance<T>();
             created.name = System.IO.Path.GetFileNameWithoutExtension(path);
             AssetDatabase.CreateAsset(created, path);
@@ -213,8 +215,6 @@ namespace Godmist.Editor
             Add(tags).enumValueIndex = (int)CharacterTag.Undead;
             var stats = so.FindProperty(F("BaseStats"));
             Sub(stats, "MaxHealth", 900);
-            Sub(stats, "MinAttack", 48);
-            Sub(stats, "MaxAttack", 96);
             Sub(stats, "Dodge", 30f);
             Sub(stats, "PhysicalDefense", 10f);
             Sub(stats, "MagicalDefense", 25f);
@@ -226,8 +226,6 @@ namespace Godmist.Editor
             Sub(stats, "ResourceRegeneration", 15);
             var growth = so.FindProperty(F("GrowthData"));
             Sub(growth, "MaxHealth", 59f);
-            Sub(growth, "MinAttack", 3.12f);
-            Sub(growth, "MaxAttack", 6.24f);
             Sub(growth, "Dodge", .225f);
             Sub(growth, "PhysicalDefense", 2f);
             Sub(growth, "MagicalDefense", 5f);
@@ -346,6 +344,7 @@ namespace Godmist.Editor
                         RarityTier.Rare);
                 }
             }
+            BossGemLootSetup.ConfigureBossBag(so, false);
             var unique = so.FindProperty(F("BossUniqueDrop"));
             Sub(unique, "DropChance", .3f);
             var definitions = unique.FindPropertyRelative(F("EquipmentDefinitions"));

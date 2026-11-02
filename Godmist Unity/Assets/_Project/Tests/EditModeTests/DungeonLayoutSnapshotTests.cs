@@ -198,7 +198,6 @@ namespace Godmist.Tests.EditMode
             var saved = Snapshot();
             saved.ActiveDungeon.FloorDeltas[0].ActorFacings.Add(new Godmist.Core.Serialization.DungeonActorFacingSaveData
                 { ActorId = "enemy", X = 0, Y = 0 });
-            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
             AssertRejected(saved);
         }
 
@@ -252,7 +251,6 @@ namespace Godmist.Tests.EditMode
         {
             var saved = Snapshot();
             saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = progress });
-            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
             AssertRejected(saved);
         }
 
@@ -262,14 +260,16 @@ namespace Godmist.Tests.EditMode
             var saved = Snapshot();
             saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = .2f });
             saved.ActiveDungeon.FloorDeltas[0].EnemyAwareness.Add(new DungeonEnemyAwarenessSaveData { EnemyKey = "enemy.1", Progress = .3f });
-            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć zmian obiektów/encounterów w lochu 'dungeon.persist'.");
             AssertRejected(saved);
         }
 
         private void AssertRejected(GameSaveData saved)
         {
-            LogAssert.Expect(LogType.Error, "Nie udało się odtworzyć aktywnego lochu 'dungeon.persist' (seed: 4205).");
-            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out _), Is.False);
+            Assert.That(new GameSessionRestoreFactory().TryCreate(saved, catalog, out var session, out var failure), Is.False);
+            Assert.That(session, Is.Null);
+            Assert.That(failure.Stage, Is.EqualTo("Dungeon"));
+            Assert.That(failure.FieldPath, Does.StartWith("$.ActiveDungeon"));
+            Assert.That(failure.Detail, Is.Not.Empty);
         }
 
         [Test]

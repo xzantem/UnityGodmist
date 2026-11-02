@@ -38,6 +38,7 @@ namespace Godmist.Runtime.Quests
         private readonly HashSet<string> claimedRewardKeys = new();
 
         public QuestDefinition Definition { get; }
+        public int Level => BoardContract?.Level ?? RadiantRewardOffer?.Level ?? Definition.Level;
         public string QuestId { get; }
         public QuestStatus Status { get; private set; }
         public string CurrentStageId { get; private set; }

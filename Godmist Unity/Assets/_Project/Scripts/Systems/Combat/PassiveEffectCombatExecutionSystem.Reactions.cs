@@ -82,6 +82,7 @@ namespace Godmist.Systems.Combat
                     if (Enum.TryParse<CharacterStatType>(value.ReferenceId, true, out var stat)
                         && Enum.IsDefined(typeof(CharacterStatType), stat))
                         raw = owner.Character.Stats.GetStat(stat).GetValue();
+                    else throw new InvalidOperationException($"Unknown passive stat: {value.ReferenceId}.");
                     break;
                 case PassiveEffectValueSourceType.MissingHealthPercent:
                     raw = 1 - owner.Character.CurrentHealth / Mathf.Max(1, owner.Character.Stats.MaxHealth.GetValue());
@@ -90,8 +91,9 @@ namespace Godmist.Systems.Combat
                     var pool = owner.Character.ResourcePool;
                     raw = pool == null ? 0 : 1 - (float)pool.CurrentValue / Mathf.Max(1, pool.MaxValue);
                     break;
+                default: throw new InvalidOperationException($"Unsupported passive reaction value source: {value.Source}.");
             }
-            return raw * value.Scale + value.Offset;
+            return PassiveEffectValueResolver.Transform(value, raw);
         }
     }
 }

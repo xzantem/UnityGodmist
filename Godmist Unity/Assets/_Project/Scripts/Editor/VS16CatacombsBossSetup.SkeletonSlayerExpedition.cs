@@ -58,6 +58,7 @@ namespace Godmist.Editor
             var uniqueDefinitions = data.FindProperty(F("BossUniqueDrop")).FindPropertyRelative(F("EquipmentDefinitions"));
             uniqueDefinitions.ClearArray();
             foreach (var unique in ConfigureSlayerUniques()) Add(uniqueDefinitions).objectReferenceValue = unique;
+            BossGemLootSetup.ConfigureBossBag(data, false);
             Save(data);
             var kingDungeon=Require<DungeonDefinition>(Root+"Dungeons/DD_Catacombs_BossExpedition.asset");
             var sourceLoot=kingDungeon.LootTableCatalog;

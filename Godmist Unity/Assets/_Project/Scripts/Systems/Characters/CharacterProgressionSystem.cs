@@ -141,7 +141,7 @@ namespace Godmist.Systems.Characters
                 character.CurrentHealth = Mathf.Clamp(
                     character.CurrentHealth,
                     0,
-                    Mathf.Max(1, Mathf.RoundToInt(character.Stats.MaxHealth.GetValue())));
+                    character.MaximumHealth);
             }
             return true;
         }
@@ -150,17 +150,6 @@ namespace Godmist.Systems.Characters
             ? GameDefinesRuntime.GetInt(GameDefineIds.SkillPointsAtLevelTwo, 2)
             : GameDefinesRuntime.GetInt(GameDefineIds.SkillPointsAtOtherLevels, 1);
 
-        public static bool TryMigrateLegacySkillPointTotal(CharacterInstance character)
-        {
-            if (character == null || character.Level < 2) return false;
 
-            var investedRanks = character.SkillTreeProgress?.Sum(tree =>
-                tree?.NodeInvestments?.Sum(node => Math.Max(0, node?.Ranks ?? 0)) ?? 0) ?? 0;
-            var legacyTotal = character.Level - 1;
-            if (investedRanks + character.AvailableSkillPoints != legacyTotal) return false;
-
-            character.AvailableSkillPoints++;
-            return true;
-        }
     } 
 }

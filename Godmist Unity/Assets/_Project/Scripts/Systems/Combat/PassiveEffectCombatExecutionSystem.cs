@@ -85,7 +85,7 @@ namespace Godmist.Systems.Combat
                     {
                         multiplier = ApplyStacking(
                             multiplier,
-                            value * Math.Max(1, match.Runtime?.Stacks ?? 1),
+                            value * PassiveEffectValueResolver.Rank(match.Runtime),
                             operation.ModifierStacking);
                     }
                 }
@@ -560,21 +560,8 @@ namespace Godmist.Systems.Combat
                 : current + value;
         }
 
-        private static float ResolveValue(
-            PassiveEffectValueDefinition value,
-            PassiveEffectRuntime runtime)
-        {
-            if (value == null || value.Source != PassiveEffectValueSourceType.Constant)
-                return 0f;
-
-            var rank = Math.Max(1, runtime?.Stacks ?? 1);
-            var hasRankValue = value.RankValues != null
-                && rank <= value.RankValues.Count;
-            var resolved = hasRankValue
-                ? value.RankValues[rank - 1]
-                : value.NumberValue * rank;
-            return resolved * value.Scale + value.Offset;
-        }
+        private static float ResolveValue(PassiveEffectValueDefinition value, PassiveEffectRuntime runtime)
+            => PassiveEffectValueResolver.Constant(value, PassiveEffectValueResolver.Rank(runtime));
 
         private static bool TryGetParameter(
             PassiveEffectOperationDefinition operation,
@@ -734,7 +721,7 @@ namespace Godmist.Systems.Combat
                     BattleUnit lowest = null;
                     foreach (var ally in context?.Session?.Units ?? new List<BattleUnit>())
                         if (ally?.Character?.LifeState == CharacterLifeState.Alive && ally.IsPlayerSide == owner?.IsPlayerSide
-                            && ally.Character.CurrentHealth < ally.Character.Stats.MaxHealth.GetValue()
+                            && ally.Character.CurrentHealth < ally.Character.MaximumHealth
                             && (lowest == null || ally.Character.CurrentHealth < lowest.Character.CurrentHealth)) lowest = ally;
                     if (lowest != null) yield return lowest;
                     yield break;
@@ -757,8 +744,7 @@ namespace Godmist.Systems.Combat
                     }
                     yield break;
                 default:
-                    if (context?.Target != null) yield return context.Target;
-                    yield break;
+                    throw new InvalidOperationException($"Unsupported passive target: {targetType}.");
             }
         }
 

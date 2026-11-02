@@ -19,6 +19,8 @@ namespace Godmist.Data.Skills
         public int MaxRange => Mathf.Max(MinRange, maxRange);
         public int RectangleWidth => Mathf.Max(1, rectangleWidth);
 
+        public SkillRangeData DeepCopy() => (SkillRangeData)MemberwiseClone();
+
         public SkillRangeData()
         {
         }

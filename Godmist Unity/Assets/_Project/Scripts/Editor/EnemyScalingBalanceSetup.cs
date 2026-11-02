@@ -45,52 +45,41 @@ namespace Godmist.Editor
             (id ?? "").Replace(".enraged","").Replace(".revealed","").Replace(".burning",""),out stats);
         readonly struct Profile
         {
-            public readonly float Health, MinimumAttack, MaximumAttack;
-            public readonly float LateHealth, LateMinimumAttack, LateMaximumAttack;
-            public readonly float EarlyHealth, EarlyMinimumAttack, EarlyMaximumAttack;
+            public readonly float Health, LateHealth, EarlyHealth;
             public readonly bool ApplyEarlyThreat;
-            public Profile(float healthGrowth, float minimumGrowth, float maximumGrowth,
-                float healthFactor = CommonHealthGrowthFactor, float attackFactor = CommonAttackGrowthFactor,
-                float earlyHealthFactor = EarlyHealthGrowthFactor, float earlyAttackFactor = EarlyAttackGrowthFactor,
-                bool applyEarlyThreat = true)
+            public Profile(float healthGrowth, float healthFactor = CommonHealthGrowthFactor,
+                float earlyHealthFactor = EarlyHealthGrowthFactor, bool applyEarlyThreat = true)
             {
                 ApplyEarlyThreat = applyEarlyThreat;
-                Health = healthGrowth; MinimumAttack = minimumGrowth; MaximumAttack = maximumGrowth;
+                Health = healthGrowth;
                 LateHealth = Mathf.Round(healthGrowth * healthFactor * 1000f) / 1000f - healthGrowth;
-                LateMinimumAttack = Mathf.Round(minimumGrowth * attackFactor * 1000f) / 1000f - minimumGrowth;
-                LateMaximumAttack = Mathf.Round(maximumGrowth * attackFactor * 1000f) / 1000f - maximumGrowth;
                 EarlyHealth = Mathf.Round(healthGrowth * earlyHealthFactor * 1000f) / 1000f - healthGrowth;
-                EarlyMinimumAttack = Mathf.Round(minimumGrowth * earlyAttackFactor * 1000f) / 1000f - minimumGrowth;
-                EarlyMaximumAttack = Mathf.Round(maximumGrowth * earlyAttackFactor * 1000f) / 1000f - maximumGrowth;
             }
         }
 
-        // Original growth values make reauthoring idempotent. Early and late
-        // HP/ATK adjustments have complementary weights; legacy fields stay intact.
+        // Historical HP calibration only. Attack bases and growth are authored directly
+        // in CharacterDefinitions; this tool cannot overwrite them with an earlier pass.
         static readonly Dictionary<string, Profile> Profiles = new()
         {
-            ["enemy.catacombs.swordsman"] = new(23, 2.73f, 4.16f),
-            ["enemy.catacombs.undead"] = new(33, 1.95f, 3.12f),
-            ["enemy.catacombs.wraith"] = new(18, 1.63f, 4.88f),
-            ["enemy.catacombs.occultist"] = new(17, 3.58f, 5.2f),
-            ["enemy.catacombs.archer"] = new(20, 2.6f, 3.9f),
-            ["enemy.catacombs.ghoul"] = new(26, 2.34f, 4.29f),
-            ["enemy.catacombs.defender"] = new(36, 1.63f, 2.93f),
-            ["enemy.catacombs.spectral_knight"] = new(0, 2.73f, 4.16f, earlyHealthFactor: .6f, earlyAttackFactor: .6f, applyEarlyThreat: false),
-            ["enemy.forest.bandit_thug"] = new(23, 2.28f, 3.58f),
-            ["enemy.forest.bandit_shooter"] = new(18, 2.93f, 4.55f),
-            ["enemy.forest.elf_archer"] = new(16, 3.25f, 4.55f),
-            ["enemy.forest.elf_poacher"] = new(21, 2.6f, 3.9f),
-            ["enemy.forest.rabid_wolf"] = new(13, 2.34f, 4.68f),
-            ["enemy.forest.elf_druid"] = new(13, 1.3f, 1.95f),
-            ["enemy.forest.infected_tree"] = new(30, 1.95f, 2.28f),
-            // Boss counters and phase mechanics require a separate simulation baseline.
-            ["enemy.catacombs.dead_king"] = new(59, 3.12f, 6.24f, 1.25f, 1.5f, 1f, 1f, false),
-            ["enemy.catacombs.skeleton_slayer"] = new(82, 3.9f, 5.53f, 2.25f, 2.5f, 1f, 1f, false),
-            ["enemy.forest.infected_ent"] = new(91, 3.58f, 4.88f, 2.5f, 2.5f, 1f, 1f, false),
-            // Hidden Strike is x5 guaranteed critical; applying the ordinary ATK
-            // multiplier here made the simulated fight overwhelmingly one-sided.
-            ["enemy.forest.bandit_leader"] = new(33, 4.23f, 5.85f, 2.5f, 1.15f, 1f, 1f, false)
+            ["enemy.catacombs.swordsman"] = new(23),
+            ["enemy.catacombs.undead"] = new(33),
+            ["enemy.catacombs.wraith"] = new(18),
+            ["enemy.catacombs.occultist"] = new(17),
+            ["enemy.catacombs.archer"] = new(20),
+            ["enemy.catacombs.ghoul"] = new(26),
+            ["enemy.catacombs.defender"] = new(36),
+            ["enemy.catacombs.spectral_knight"] = new(0, earlyHealthFactor: .6f, applyEarlyThreat: false),
+            ["enemy.forest.bandit_thug"] = new(23),
+            ["enemy.forest.bandit_shooter"] = new(18),
+            ["enemy.forest.elf_archer"] = new(16),
+            ["enemy.forest.elf_poacher"] = new(21),
+            ["enemy.forest.rabid_wolf"] = new(13),
+            ["enemy.forest.elf_druid"] = new(13),
+            ["enemy.forest.infected_tree"] = new(30),
+            ["enemy.catacombs.dead_king"] = new(59, 1.25f, 1f, false),
+            ["enemy.catacombs.skeleton_slayer"] = new(82, 2.25f, 1f, false),
+            ["enemy.forest.infected_ent"] = new(91, 2.5f, 1f, false),
+            ["enemy.forest.bandit_leader"] = new(33, 2.5f, 1f, false),
         };
 
         static bool TryProfile(string id, out Profile profile)
@@ -119,37 +108,20 @@ namespace Godmist.Editor
             var data = new SerializedObject(definition);
             // Keep BOTH verified anchors. Changing the compensation denominator alone
             // would preserve either L48 or L50, but move the other endpoint.
-            var anchorBase = new Vector3(originalBase.x == 3 ? 3 : Mathf.Max(1, Mathf.RoundToInt(originalBase.x * AnchorBaseHealthFactor)),
-                Mathf.Max(1, Mathf.RoundToInt(originalBase.y * AnchorBaseAttackFactor)),
-                Mathf.Max(1, Mathf.RoundToInt(originalBase.z * AnchorBaseAttackFactor)));
-            var reduced = profile.ApplyEarlyThreat
-                ? new Vector3(Mathf.Max(1, Mathf.RoundToInt(originalBase.x * BaseHealthFactor)),
-                    Mathf.Max(1, Mathf.RoundToInt(originalBase.y * BaseAttackFactor)),
-                    Mathf.Max(1, Mathf.RoundToInt(originalBase.z * BaseAttackFactor)))
-                : anchorBase;
-            var compensation = (originalBase - anchorBase) / 199f;
+            var anchorBase = originalBase.x == 3 ? 3 : Mathf.Max(1, Mathf.RoundToInt(originalBase.x * AnchorBaseHealthFactor));
+            var reduced = profile.ApplyEarlyThreat ? Mathf.Max(1, Mathf.RoundToInt(originalBase.x * BaseHealthFactor)) : anchorBase;
+            var compensation = (originalBase.x - anchorBase) / 199f;
             var lateOffset = anchorBase - reduced;
             var baseMultiplier = profile.ApplyEarlyThreat ? OrdinaryBaseStatMultiplier
                 : UsesBossBaseBoost(definition.Id) ? BossBaseStatMultiplier : 1f;
-            var authoredBase = new Vector3(Mathf.RoundToInt(reduced.x * baseMultiplier),
-                Mathf.RoundToInt(reduced.y * baseMultiplier), Mathf.RoundToInt(reduced.z * baseMultiplier));
+            var authoredBase = Mathf.RoundToInt(reduced * baseMultiplier);
             var basis = data.FindProperty("<BaseStats>k__BackingField");
-            basis.FindPropertyRelative("<MaxHealth>k__BackingField").intValue = (int)authoredBase.x;
-            basis.FindPropertyRelative("<MinAttack>k__BackingField").intValue = (int)authoredBase.y;
-            basis.FindPropertyRelative("<MaxAttack>k__BackingField").intValue = (int)authoredBase.z;
+            basis.FindPropertyRelative("<MaxHealth>k__BackingField").intValue = authoredBase;
             var growth = data.FindProperty("<GrowthData>k__BackingField");
             growth.FindPropertyRelative("<MaxHealth>k__BackingField").floatValue = profile.Health;
-            growth.FindPropertyRelative("<MinAttack>k__BackingField").floatValue = profile.MinimumAttack;
-            growth.FindPropertyRelative("<MaxAttack>k__BackingField").floatValue = profile.MaximumAttack;
-            growth.FindPropertyRelative("<LateMaxHealth>k__BackingField").floatValue = profile.LateHealth + compensation.x;
-            growth.FindPropertyRelative("<LateMinAttack>k__BackingField").floatValue = profile.LateMinimumAttack + compensation.y;
-            growth.FindPropertyRelative("<LateMaxAttack>k__BackingField").floatValue = profile.LateMaximumAttack + compensation.z;
+            growth.FindPropertyRelative("<LateMaxHealth>k__BackingField").floatValue = profile.LateHealth + compensation;
             growth.FindPropertyRelative("<EarlyMaxHealth>k__BackingField").floatValue = profile.EarlyHealth;
-            growth.FindPropertyRelative("<EarlyMinAttack>k__BackingField").floatValue = profile.EarlyMinimumAttack;
-            growth.FindPropertyRelative("<EarlyMaxAttack>k__BackingField").floatValue = profile.EarlyMaximumAttack;
-            growth.FindPropertyRelative("<LateMaxHealthOffset>k__BackingField").floatValue = lateOffset.x;
-            growth.FindPropertyRelative("<LateMinAttackOffset>k__BackingField").floatValue = lateOffset.y;
-            growth.FindPropertyRelative("<LateMaxAttackOffset>k__BackingField").floatValue = lateOffset.z;
+            growth.FindPropertyRelative("<LateMaxHealthOffset>k__BackingField").floatValue = lateOffset;
             var coreChanged = data.ApplyModifiedPropertiesWithoutUndo();
             var rolesChanged = EnemyRoleStatsSetup.ApplyToDefinition(definition);
             if (!coreChanged && !rolesChanged) return false;

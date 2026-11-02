@@ -24,7 +24,19 @@ MonoBehaviour:
   <IsStackable>k__BackingField: 0
   <Brackets>k__BackingField:
   - <Bracket>k__BackingField: 0
-    <Pools>k__BackingField: []
+    <Pools>k__BackingField:
+    - <DropChance>k__BackingField: 0.5
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e374b7ad133285542a0511ed0822b522, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
+      <DistinctSelectionGroup>k__BackingField: 
   - <Bracket>k__BackingField: 1
     <Pools>k__BackingField:
     - <DropChance>k__BackingField: 0.5
@@ -33,6 +45,7 @@ MonoBehaviour:
         <Amount>k__BackingField:
           Min: 1
           Max: 2
+        <SelectionWeight>k__BackingField: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
         <MinimumGalduryteRarity>k__BackingField: 0
@@ -44,6 +57,7 @@ MonoBehaviour:
         <Amount>k__BackingField:
           Min: 3
           Max: 5
+        <SelectionWeight>k__BackingField: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
         <MinimumGalduryteRarity>k__BackingField: 0
@@ -55,6 +69,7 @@ MonoBehaviour:
         <Amount>k__BackingField:
           Min: 2
           Max: 3
+        <SelectionWeight>k__BackingField: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
         <MinimumGalduryteRarity>k__BackingField: 0
@@ -66,10 +81,23 @@ MonoBehaviour:
         <Amount>k__BackingField:
           Min: 3
           Max: 3
+        <SelectionWeight>k__BackingField: 1
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
         <MinimumGalduryteRarity>k__BackingField: 5
         <FixedGalduryteLevel>k__BackingField: 20
+      <DistinctSelectionGroup>k__BackingField: 
+    - <DropChance>k__BackingField: 0.5
+      <Entries>k__BackingField:
+      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: e374b7ad133285542a0511ed0822b522, type: 2}
+        <Amount>k__BackingField:
+          Min: 1
+          Max: 2
+        <SelectionWeight>k__BackingField: 1
+        <HasFixedEquipmentQuality>k__BackingField: 0
+        <EquipmentQuality>k__BackingField: 0
+        <MinimumGalduryteRarity>k__BackingField: 3
+        <FixedGalduryteLevel>k__BackingField: 0
       <DistinctSelectionGroup>k__BackingField: 
   <BossUniqueDrop>k__BackingField:
     <DropChance>k__BackingField: 0.3

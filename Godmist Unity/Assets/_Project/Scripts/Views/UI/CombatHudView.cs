@@ -167,7 +167,8 @@ namespace Godmist.Views.UI
             var recoveringKnife = targeting?.SelectedSkill == skill && targeting?.HoveredUnit == null
                 && ScoutCombatSystem.RecoverableKnife(session, unit, skill, targeting?.HoveredPosition) != null;
             var cost=unit!=null && unit.IsPlayerSide
-                ? skill!=null ? (skill.IsToggle && unit.ActiveToggleSkillIds.Contains(skill.SkillId) ? 0 : PaladinCombatSystem.PreviewHealCost(session,unit,skill,targeting?.HoveredUnit,CombatActionCostCalculator.CalculateSkillCost(unit,skill,recoveringKnife))) : movement?.PreviewCost??0
+                ? skill!=null ? (skill.IsToggle && unit.ActiveToggleSkillIds.Contains(skill.SkillId) ? 0 : PaladinCombatSystem.PreviewHealCost(session,unit,skill,targeting?.HoveredUnit,CombatActionCostCalculator.CalculateSkillCost(unit,skill,recoveringKnife))
+                    + (targeting?.SelectedSkill == skill ? targeting.ApproachPreviewCost : 0)) : movement?.PreviewCost??0
                 : 0;
             activeUnitView?.Bind(unit, true, cost, known: Visible(unit) != null);
             if (targetPanel != null) targetPanel.SetActive(false);

@@ -1,0 +1,37 @@
+Godmist 0.1.2 Beta 1 — Early Access
+
+A preview of the upcoming 0.1.2 update, available for testing and feedback.
+This is a beta prerelease, not the final 0.1.2 release.
+
+WHAT'S NEW
+- Initial controller support, including movement and camera control, skill and
+  target selection, party and panel menus, inventory context actions and an
+  on-screen keyboard.
+- A macOS Universal build for Intel and Apple Silicon Macs.
+
+FIXES AND IMPROVEMENTS
+- Enemies move continuously during combat instead of pausing at each tile.
+- Hover outlines are included correctly in standalone builds.
+- Inventory stacks keep a consistent order when items are used, sold or moved:
+  item type, rarity, name, then price.
+- Improved catacomb wall junctions, corner faces, end caps and masking.
+- Moving with a controller works with an unlocked camera, without requiring
+  a recenter first. Moving no longer leaves the leader's tooltip on screen.
+- Improved opening and closing of the combat item picker.
+
+CONTROLLER QUICK GUIDE
+Left stick: movement / selection. Right stick: camera / scrolling.
+A: confirm or interact. Hold A while exploring: nearby interactions.
+B: back or cancel. X: context actions. Y: details / confirm multiple targets.
+Hold Y during your turn, outside targeting and menus: end turn.
+LT: party. RT: panels, including combat items. LB/RB: skills or skill pages;
+while targeting, rotate supported areas.
+D-pad left/right: targets. D-pad up/down: zoom.
+L3: toggle free cursor (left stick). R3: recenter camera.
+Back/View: map. Start/Menu: pause.
+
+TESTING NOTES
+Controller support is experimental. Please report awkward controls or blocked
+interactions. The macOS build still needs testing on actual Mac hardware and
+is not notarized by Apple. See the included launch and log-collection guide.
+Existing saves retain their location and compatibility.

@@ -1,3 +1,5 @@
+using Godmist.Runtime.Combat;
+using Godmist.Core.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +8,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.Effects;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Effects;
+using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -72,8 +75,8 @@ namespace Godmist.Views.UI
             if (skill == null) { Hide(); return; }
             QueueShow(skill, () =>
             {
-                Begin(Input.mousePosition, skill);
-                SetContent(skill.Icon, skill.DisplayName, BuildDescription(skill), $"AP {actionCost}  •  RES {skill.ResourceCost}");
+                Begin(Godmist.Views.UI.ControllerInput.PointerPosition, skill);
+                SetContent(skill.Icon, skill.DisplayName, BuildDescription(skill), $"{UiTerms.ActionPointsShort} {actionCost}  •  {UiTerms.Resource(skill.ResourceType)} {skill.ResourceCost}");
             });
         }
 
@@ -81,7 +84,7 @@ namespace Godmist.Views.UI
         {
             QueueShow(source, () =>
             {
-                Begin(Input.mousePosition, source);
+                Begin(Godmist.Views.UI.ControllerInput.PointerPosition, source);
                 SetContent(null, title, description, string.Empty, compact: true);
             });
         }
@@ -92,13 +95,19 @@ namespace Godmist.Views.UI
             if (effect == null) { Hide(); return; }
             QueueShow(effect, () =>
             {
-                Begin(Input.mousePosition, effect);
+                Begin(Godmist.Views.UI.ControllerInput.PointerPosition, effect);
                 CombatTooltipGlossary.Entry glossaryEntry = null;
                 if (glossary != null) glossary.TryGet(effect.EffectId, out glossaryEntry);
-                var title = glossaryEntry?.Title ?? effect.EffectId;
+                var title = !string.IsNullOrWhiteSpace(presentation.DisplayName) ? presentation.DisplayName : glossaryEntry?.Title ?? effect.EffectId;
+                var character = presentation.Owner?.Character ?? presentation.ExplorationCharacter;
+                var catalog = GameBootstrap.Instance?.ContentCatalog;
                 SetContent(
-                    glossaryEntry?.Icon,
-                    $"<link=\"{effect.EffectId}\"><color=#7EDBFF>{title}</color></link>",
+                    CombatStatusPresentationFactory.ResolveIcon(presentation,
+                        id => glossary != null && glossary.TryGet(id, out var entry) ? entry.Icon : null,
+                        catalog?.SkillDefinitions ?? character?.GetKnownSkills(),
+                        catalog?.CharacterClasses?.Where(definition => definition != null).SelectMany(definition => definition.SkillTrees)
+                            ?? character?.ClassData?.SkillTrees),
+                    glossaryEntry != null ? $"<link=\"{effect.EffectId}\"><color=#7EDBFF>{title}</color></link>" : title,
                     BuildPresentedStatusPayload(presentation),
                     string.Empty,
                     compact: true);
@@ -206,7 +215,7 @@ namespace Godmist.Views.UI
             if (isNested) return;
             if (!locked)
             {
-                PlaceAt(Input.mousePosition);
+                PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
                 if (!sourceHovered && !IsPointerOverAnyTooltip()) Hide();
                 return;
             }
@@ -271,7 +280,7 @@ namespace Godmist.Views.UI
             if (text == null || text.textInfo.linkCount == 0) return null;
             var camera = text.canvas != null && text.canvas.renderMode != RenderMode.ScreenSpaceOverlay
                 ? text.canvas.worldCamera : null;
-            var index = TMP_TextUtilities.FindIntersectingLink(text, Input.mousePosition, camera);
+            var index = TMP_TextUtilities.FindIntersectingLink(text, Godmist.Views.UI.ControllerInput.PointerPosition, camera);
             return index < 0 ? null : text.textInfo.linkInfo[index].GetLinkID();
         }
 
@@ -289,7 +298,7 @@ namespace Godmist.Views.UI
             view.ApplyPointerInteraction();
             view.UpdateLockVisual();
             view.SetContent(entry.Icon, entry.Title, entry.Description, string.Empty);
-            view.PlaceAt(Input.mousePosition);
+            view.PlaceAt(Godmist.Views.UI.ControllerInput.PointerPosition);
             nested.Add(view);
             ActiveInstance = this;
             RefreshOpacity();
@@ -345,7 +354,7 @@ namespace Godmist.Views.UI
             if (tooltipRect == null) return false;
             var canvas = tooltipRect.GetComponentInParent<Canvas>()?.rootCanvas;
             var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
-            return RectTransformUtility.RectangleContainsScreenPoint(tooltipRect, Input.mousePosition, camera);
+            return RectTransformUtility.RectangleContainsScreenPoint(tooltipRect, Godmist.Views.UI.ControllerInput.PointerPosition, camera);
         }
 
         private void SetContent(
@@ -355,6 +364,8 @@ namespace Godmist.Views.UI
             string meta,
             bool compact = false)
         {
+            description = UiTerms.Present(description);
+            meta = UiTerms.Present(meta);
             if (icon != null) { icon.sprite = sprite; icon.enabled = sprite != null; }
             if (titleText != null) titleText.text = title ?? string.Empty;
             if (descriptionText != null)
@@ -491,14 +502,19 @@ namespace Godmist.Views.UI
 
         private static string BuildDescription(SkillData skill)
         {
-            if (!string.IsNullOrWhiteSpace(skill.TooltipDescription)) return skill.TooltipDescription;
+            var resource = skill.TargetModes?.Count == 1 && skill.TargetModes[0]?.TargetType == TargetType.Caster
+                ? Workspace.UIWorkspaceTooltipView.SkillResource(skill) : ResourceType.None;
+            if (!string.IsNullOrWhiteSpace(skill.TooltipDescription)) return UiTerms.Present(skill.TooltipDescription, resource);
             if (skill.Effects == null || skill.Effects.Count == 0) return string.Empty;
             var result = new StringBuilder();
             foreach (var effect in skill.Effects)
             {
                 if (effect == null) continue;
                 if (result.Length > 0) result.Append('\n');
-                result.Append(DescribeEffect(effect));
+                var mode = effect.TargetModeIndex >= 0 && effect.TargetModeIndex < (skill.TargetModes?.Count ?? 0)
+                    ? skill.TargetModes[effect.TargetModeIndex] : null;
+                result.Append(UiTerms.Present(DescribeEffect(effect), mode?.TargetType == TargetType.Caster
+                    ? Workspace.UIWorkspaceTooltipView.SkillResource(skill) : ResourceType.None));
             }
             return result.ToString();
         }
@@ -533,8 +549,8 @@ namespace Godmist.Views.UI
             if (combined)
             {
                 Append(result, $"Łącznie: {presentation.NextTickDamage} obrażeń na początku następnej tury.");
-                Append(result, $"Stosy: {presentation.StackCount}");
-                Append(result, "Czas stosów: " + string.Join(" • ", presentation.Effects
+                Append(result, $"{UiTerms.Stacks}: {presentation.StackCount}");
+                Append(result, UiTerms.Duration + " nałożeń: " + string.Join(" • ", presentation.Effects
                     .GroupBy(effect => new { effect.RemainingDuration, effect.Lifetime })
                     .OrderBy(group => group.Key.RemainingDuration)
                     .Select(group => $"{group.Key.RemainingDuration} t. ({group.Sum(effect => Mathf.Max(1, effect.Stacks))} stos.)")));
@@ -542,32 +558,36 @@ namespace Godmist.Views.UI
             foreach (var effect in presentation.Effects)
             {
                 if (effect == null) continue;
-                var body = BuildStatusPayload(effect, combined);
+                var session = GameBootstrap.Instance?.Session?.Combats?.FirstOrDefault(combat => combat.Units.Contains(presentation.Owner))
+                    ?? presentation.Owner?.WarriorState.Session;
+                var heroBody = HeroCombatStatusText.Describe(effect, presentation.Owner, session);
+                if (!string.IsNullOrWhiteSpace(heroBody)) Append(result, heroBody);
+                var body = BuildStatusPayload(effect, combined, presentation.Owner);
                 if (!string.IsNullOrWhiteSpace(body)) Append(result, body);
             }
-            return result.ToString();
+            return UiTerms.Present(result.ToString());
         }
 
-        private static string BuildStatusPayload(PassiveEffectRuntime effect, bool omitDamageAndDuration = false)
+        private static string BuildStatusPayload(PassiveEffectRuntime effect, bool omitDamageAndDuration = false, BattleUnit owner = null)
         {
             var result = new StringBuilder();
             if (!omitDamageAndDuration && IsDamageOverTime(effect.EffectId) && effect.TotalDamage > 0)
                 Append(result, $"Obrażenia: {effect.TotalDamage}");
             if (effect.StatusHealPercent > 0f)
                 Append(result, $"Leczenie: {effect.StatusHealPercent * 100f:0.#}% maks. zdrowia");
-            if (!omitDamageAndDuration && effect.RemainingDuration > 0) Append(result, $"Czas: {effect.RemainingDuration} t.");
-            if (!omitDamageAndDuration && effect.Stacks > 1) Append(result, $"Stosy: {effect.Stacks}");
+            if (!omitDamageAndDuration && effect.RemainingDuration > 0 && !HeroCombatStatusText.IsFieldSlow(effect.EffectId)) Append(result, $"Czas: {effect.RemainingDuration} t.");
+            if (!omitDamageAndDuration && effect.Stacks > 1) Append(result, $"{UiTerms.Stacks}: {effect.Stacks}");
             foreach (var modifier in effect.StatModifiers)
             {
                 if (modifier != null)
                 {
-                      Append(result, Workspace.UIWorkspaceTooltipView.FormatStatusStatModifier(modifier.StatType, modifier.Operation, modifier.Value));
+                      Append(result, Workspace.UIWorkspaceTooltipView.FormatStatusStatModifier(modifier.StatType, modifier.Operation, modifier.Value, Workspace.UIWorkspaceTooltipView.StatusResource(effect, owner)));
                 }
             }
             foreach (var modifier in effect.VariableModifiers)
             {
                 if (modifier == null) continue;
-                Append(result, Workspace.UIWorkspaceTooltipView.FormatStatusVariableModifier(modifier.VariableType, modifier.Value, modifier.ReferenceId));
+                Append(result, Workspace.UIWorkspaceTooltipView.FormatStatusVariableModifier(modifier.VariableType, modifier.Value, modifier.ReferenceId, Workspace.UIWorkspaceTooltipView.StatusResource(effect, owner)));
             }
             if (effect.CounterattackSkill != null) Append(result, "Reakcja: kontratak");
             return result.ToString();

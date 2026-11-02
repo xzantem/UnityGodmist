@@ -33,7 +33,7 @@ namespace Godmist.Views.UI
             }
 
             var character = unit.Character;
-            var maxHealth = Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maxHealth = character.MaximumHealth;
             var shield = character.ShieldPool?.TotalShield ?? 0;
             var resource = character.ResourcePool;
 

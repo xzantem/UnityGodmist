@@ -401,6 +401,13 @@ Current goal:
 
 ### Targeting and Range
 
+- Skill-bar slots keep their loadout order and shortcuts when unavailable; they are dimmed and cannot activate by click, hotkey or controller. Caster status/turn requirements and payment rules are queried from the same logic used by execution. Active toggle deactivation, melee knife exceptions, recoverable-knife cost alternatives and Paladin healing discounts retain their existing rules. The tooltip states the current block reason and refreshes that metadata while hovered. Being outside casting range or not having chosen a target does not by itself disable selection: target validation and automatic approach still occur after selection. Availability refresh does not enumerate approach paths or alter live combat state.
+- Selecting an out-of-range unit or tile for a skill previews an automatic approach using the ordinary movement path markers. Casting positions are searched by total movement AP cost, including terrain, low walls, previous movement and class discounts; the planner reserves the skill's current target-dependent AP cost in combat. Ordinary manual movement keeps its existing route preferences.
+- Confirming an approach commits standard movement and queues skill selection/execution after the movement presentation finishes. Unit-target actions track the originally selected unit; tile-target actions keep the selected tile. The target and ordinary skill rules are revalidated after arrival. Cancellation or interrupted/invalid movement must not execute the queued skill. Already committed combat movement is not refunded. Multi-target skills retain their ordinary per-target confirmation flow and already chosen targets constrain later approaches.
+- An opening-skill approach uses ordinary exploration traversal and costs no AP; only the eventual opening skill spends AP. Ambient interruptions can cancel the queued action. Preview queries do not move or spend on live actors, and route/target previews respect current visibility. Skills without an external selected unit/tile retain their existing confirmation semantics.
+- While choosing an opening-skill target outside combat, WASD and the left stick retain exploration movement without clearing the selected skill; targeting ranges follow the caster. Primary click/controller confirm still selects the skill target. D-pad target cycling remains available, while precise-cursor mode uses the stick for aiming. Manual movement is blocked during a confirmed automatic approach and opening commit, and combat targeting retains its normal movement restrictions.
+- A confirmed unit-target approach follows the same unit if it changes cells. During exploration the ordinary traversal route is replanned from the caster's current position without requiring another confirmation; arriving within valid casting range stops further movement and continues the skill. Losing visibility, eligibility or a valid route cancels the pending action and exploration approach. Tile-target actions keep their chosen tile. In combat, already-paid movement finishes its presentation before any additional approach is planned with the remaining AP budget.
+
 - Skills may use absolute range relative to the caster.
 - Skills may also use both absolute and relative range, where relative means relative to the target.
 - Range shapes may vary, for example square, radial, or ring.
@@ -413,6 +420,10 @@ Current goal:
 - Do not add an `includeCaster` exception to targeting. A skill that affects both the caster and allies should use separate target modes (for example index `0` for allies and index `1` for caster), with equivalent effects assigned to each target-mode index.
 - Skill targeting UI should distinguish the absolute casting range from eligible targets: the general absolute range is visible after selecting a skill, while the relative area of an area-on-tile skill is previewed only while hovering a concrete selectable tile.
 - Units eligible under a skill's `TargetingType` are highlighted individually; selectable tile centers must not be rendered as if they were targets.
+- Highlight presentation uses the shared `Godmist.Views.HighlightStyle` vocabulary: gold for movement/UI selection, light blue for neutral hover, blue for skill range, red for hostile targets/danger, green for allied targets, and purple for inspecting an allied unit's movement range. Ctrl/alternate movement inspection is not offered or rendered for enemies. Relation colours are relative to the caster. Confirming a target strengthens its corner marker without changing its relation colour.
+- Active-turn markers remain visible independently of hover. World hover/target outlines do not pulse to black or recolour the actor's body. Floor feedback has an explicit drawing priority; visibility/fog rules still apply to every marker.
+- Highlight artwork follows the game's pixel-art UI: aged brass and restrained blue/red/green pigments, single-source-pixel hover outlines, dark keylines on target markers, and a small pixel foot marker instead of a permanent glowing actor silhouette. Range and area-preview boundaries share a feathered, softly rounded pigment rim instead of rectangular or dashed tile outlines; fills stay subtle enough to preserve terrain texture. Affected units retain their separate relation-coloured corner markers. Movement paths use two small pips per tile.
+- Leaving resolvable map geometry, hovering UI, cancelling targeting, or changing the actor clears transient previews and their cached pointer positions, so returning to the same cell rebuilds the preview.
 - For `AreaAroundTile`, relative range is previewed around the currently hovered absolute-range tile, and units currently affected by that preview use a distinct highlight color.
 - A relative `Square` uses side length `maxRange - minRange + 1`. An odd side length is centered on the selected reference point; an even side length is directional and extends away from the caster. For example, caster `(0,0)` and reference `(5,5)` with `0..1` produce `(5,5)` through `(6,6)`; caster `(7,7)` produces `(4,4)` through `(5,5)`.
 - If an axis has no caster-to-reference direction for an even relative square, the current temporary deterministic fallback is the positive axis.
@@ -758,6 +769,8 @@ Current goal:
   - a rotating inventory that changes after completing a dungeon
   - an inventory of items bought from the player
 - Inventory is weight-limited rather than slot-limited.
+- Inventory and worn-equipment interactions share the same contract: single LMB selects, double-click performs the default equip/use/unequip action, and RMB opens the context menu. Descriptions remain in hover tooltips; neither inventory nor equipped items open a duplicate details panel or shrink the inventory viewport. Selection is immediate, without a delayed-click coroutine.
+- Dropping an owned item onto another party member's portrait or open inventory shares the context-menu transfer contract: a stack opens quantity selection; a worn item is unequipped into the recipient's backpack without auto-equipping. Source identity and stack IDs are captured at drag start and ownership, party eligibility, combat restrictions and capacity are revalidated on confirmation. Failed or cancelled transfers retain ownership and show their reason; self-drops cancel the transfer. Party portrait dragging still reorders/groups members independently.
 - Most items are weightless except weapons, armor, and galdurytes.
 - The city hub has an infinite-capacity storage stash/chest.
 - Stackable items occupy one inventory entry.
@@ -1437,6 +1450,7 @@ Current goal:
 
 - The game should support both mouse and keyboard.
 - Combat is mainly mouse-driven.
+- In exploration, `F` toggles camera follow/free mode. Dragging RMB beyond the 6-pixel threshold unlocks follow mode and immediately pans; a press or pointer jitter alone does not unlock it. When free, dragging MMB also pans the camera using screen-space displacement at the current zoom, constrained to the existing camera bounds; the actor and selected opening skill are not moved or confirmed by this gesture. Starting over UI/tooltips does not begin a drag. Release, crossing UI, focus loss, modal windows and camera ownership/mode changes cancel the gesture and require a new press. The existing RMB exploration drag remains available. Combat retains its existing MMB camera control and action/movement camera ownership.
 - Skills can also be triggered through hotkeys such as `1-5` or more if the character supports more active skill slots.
 
 ### Loading / Persistence
@@ -2200,3 +2214,7 @@ The imported galduryte sheet adds more concrete pool/effect references beyond th
   - `CD_Jerzy.asset`
   - `CCD_Scout.asset`
 - When adding new gameplay data assets such as skills, classes, or character definitions, prefer the matching `ScriptableObjects/...` folder rather than storing assets alongside scripts.
+
+### Party View — approved 2026-11-02, v0.1.2 beta
+
+The entire update originally scoped for 0.1.3, including non-UX gameplay and verification changes, is consolidated into the still-beta 0.1.2; there is no separate 0.1.3 release. Party View presents all active party members simultaneously, with independently selected Equipment, Stats/Effects, Skills and Skill Trees modes per column. Presentation selection must not change the exploration leader or combat actor. I and controller LT open Party View; LB/RB select a column while it owns focus. Each header retains access to the individual character card. Item transfers reuse existing ownership, combat, availability and capacity validation; stacks ask for quantity, and worn equipment is transferred into the recipient backpack without auto-equipping. Per-column mode memory belongs to the current session, not the campaign save schema.

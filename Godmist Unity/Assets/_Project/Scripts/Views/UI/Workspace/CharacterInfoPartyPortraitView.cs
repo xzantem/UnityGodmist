@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 
 namespace Godmist.Views.UI.Workspace
 {
-    public sealed class CharacterInfoPartyPortraitView : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler
+    public sealed class CharacterInfoPartyPortraitView : MonoBehaviour, IDropHandler, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler
     {
         [SerializeField] private Button button;
         [SerializeField] private Image portrait;
@@ -29,6 +29,7 @@ namespace Godmist.Views.UI.Workspace
         private Godmist.Runtime.Combat.BattleUnit boundUnit;
         private CharacterInfoPartyRailView rail;
         private bool dragging;
+        private ItemRarityBorderGraphic itemDropBorder;
         private CharacterProgressionBadgeView progressionBadge;
         private CharacterInstance experienceSource;
         private int pendingExperience, pendingLevels;
@@ -53,7 +54,7 @@ namespace Godmist.Views.UI.Workspace
             if (selectedMarker != null)
             {
                 selectedMarker.enabled = selected;
-                selectedMarker.color = unit != null ? new Color(.35f,.85f,1f) : new Color(1f,.81f,.4f);
+                selectedMarker.color = HighlightStyle.Selection;
             }
             if (memberView != null)
             {
@@ -63,8 +64,8 @@ namespace Godmist.Views.UI.Workspace
             var shownCharacter = unit?.Character ?? character;
             if (shownCharacter == null) return;
             RefreshProgressionBadge();
-            if (nameText != null) nameText.color = hasTurn ? new Color(1f,.81f,.4f)
-                : selected ? unit != null ? new Color(.35f,.85f,1f) : new Color(1f,.81f,.4f)
+            if (nameText != null) nameText.color = hasTurn ? HighlightStyle.Selection
+                : selected ? HighlightStyle.Selection
                 : new Color(.91f, .875f, .78f);
             var state = shownCharacter.LifeState;
             if (portrait != null) portrait.color = state == CharacterLifeState.Dead
@@ -77,9 +78,9 @@ namespace Godmist.Views.UI.Workspace
                 lifeStateText.gameObject.SetActive(state != CharacterLifeState.Alive
                     && !CombatDownedIndicatorView.ShouldShow(unit));
             }
-            var maximum = Mathf.Max(1f, shownCharacter.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maximum = shownCharacter.MaximumHealth;
             if (healthFill != null) healthFill.color = state == CharacterLifeState.Dead
-                ? new Color(.4f, .4f, .4f) : shownCharacter.CurrentHealth / maximum <= .25f
+                ? new Color(.4f, .4f, .4f) : (float)shownCharacter.CurrentHealth / maximum <= .25f
                 ? new Color(1f, .4f, .23f) : new Color(.8f, .22f, .2f);
             if (portraitHovered || resourceHovered) ShowPortraitTooltip();
         }
@@ -88,6 +89,33 @@ namespace Godmist.Views.UI.Workspace
             if (insertBefore != null) insertBefore.enabled = before;
             if (insertAfter != null) insertAfter.enabled = after;
         }
+        public bool ShowItemDropPreview(CharacterInfoWindowView source, Godmist.Runtime.Items.ItemInstance item, out string reason)
+        {
+            reason = "Towarzysz jest niedostępny.";
+            var allowed = rail != null && rail.CanPreviewItemDrop(source, CharacterId, item, out reason);
+            HidePortraitTooltip();
+            if (itemDropBorder == null && portrait != null)
+            {
+                var node = new GameObject("ItemRecipientPreview", typeof(RectTransform), typeof(ItemRarityBorderGraphic), typeof(LayoutElement));
+                node.transform.SetParent(portrait.transform, false);
+                node.GetComponent<LayoutElement>().ignoreLayout = true;
+                itemDropBorder = node.GetComponent<ItemRarityBorderGraphic>();
+                itemDropBorder.raycastTarget = false;
+                var rect = itemDropBorder.rectTransform;
+                rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+                rect.offsetMin = new Vector2(-3, -3); rect.offsetMax = new Vector2(3, 3);
+            }
+            if (itemDropBorder != null)
+            {
+                itemDropBorder.enabled = true;
+                itemDropBorder.color = allowed ? HighlightStyle.Friendly : HighlightStyle.Hostile;
+            }
+            return allowed;
+        }
+        public void ClearItemDropPreview() { if (itemDropBorder != null) itemDropBorder.enabled = false; }
+
+        public void OnDrop(PointerEventData e) => rail?.ReceiveItemDrop(CharacterId, e);
+
         public void OnPointerClick(PointerEventData e)
         {
             if (rail == null || dragging || e.dragging) return;
@@ -105,6 +133,7 @@ namespace Godmist.Views.UI.Workspace
         private void OnEnable() => SubscribeToExperience();
         private void OnDisable()
         {
+            ClearItemDropPreview();
             HidePortraitTooltip(); if (dragging) rail?.CancelDrag(); dragging = false;
             if (experienceSource != null) experienceSource.ExperienceGained -= OnExperienceGained;
             experienceSource = null; pendingExperience = pendingLevels = 0;
@@ -199,14 +228,14 @@ namespace Godmist.Views.UI.Workspace
         }
         internal static string BuildPortraitTooltipBody(CharacterInstance value)
         {
-            var maximum = Mathf.Max(1f, value.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maximum = value.MaximumHealth;
             var body = $"Zdrowie: {CombatHealthPresentation.Format(value)}";
             var resource = value.ResourcePool;
             if (resource != null && resource.MaxValue > 0)
                 body += $"\n{CombatResourceColors.ResourceName(resource.ResourceType)}: {resource.CurrentValue}/{resource.MaxValue}";
             if (value.LifeState == CharacterLifeState.Downed) body += "\nPowalony";
             else if (value.LifeState == CharacterLifeState.Dead) body += "\nMartwy";
-            else if (value.CurrentHealth / maximum <= .25f) body += "\nNiskie zdrowie";
+            else if ((float)value.CurrentHealth / maximum <= .25f) body += "\nNiskie zdrowie";
             return body;
         }
         private CharacterInstance character;

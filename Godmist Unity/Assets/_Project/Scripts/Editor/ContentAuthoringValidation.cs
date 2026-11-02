@@ -207,7 +207,12 @@ namespace Godmist.Editor
                 }
             }
 
-            if (craftable.CalculatedBaseValue <= 0)
+            if (!craftable.TryCalculateBaseValue(out var value, out var failure))
+            {
+                errors.Add(failure.Message);
+                return;
+            }
+            if (value <= 0)
             {
                 warnings.Add("Calculated Base Value wynosi zero; sprawdź wartości składników.");
             }

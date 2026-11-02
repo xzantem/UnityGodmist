@@ -8,6 +8,12 @@ namespace Godmist.Data.Quests
     [Serializable]
     public class QuestRewardDefinition
     {
+        [SerializeField] private string rewardId = Guid.NewGuid().ToString("N");
+        public string RewardId => rewardId;
+        [SerializeField] private EquipmentQuality equipmentQuality = EquipmentQuality.Normal;
+        [SerializeField] private RarityTier equipmentRarity = RarityTier.Common;
+        public EquipmentQuality EquipmentQuality => equipmentQuality;
+        public RarityTier EquipmentRarity => equipmentRarity;
         [SerializeField]
         private QuestRewardType rewardType;
 

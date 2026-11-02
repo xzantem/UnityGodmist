@@ -10,7 +10,7 @@ namespace Godmist.Systems.Combat
         public static PassiveEffectSourceRuntime FromSkill(
             BattleUnit source,
             SkillData skill,
-            int effectIndex)
+            int effectIndex, Godmist.Data.Effects.SkillEffectData effect = null)
         {
             var sourceCharacterId = source?.Character?.CharacterId
                 ?? string.Empty;
@@ -20,7 +20,7 @@ namespace Godmist.Systems.Combat
             return new PassiveEffectSourceRuntime
             {
                 SourceType = PassiveEffectSourceType.Skill,
-                SourceId = $"{skillId}.effect.{effectIndex}",
+                SourceId = skill == null ? "unknown_skill" : SkillEffectIdentity.RuntimeId(skill, effect ?? skill.Effects[effectIndex], "effect"),
                 SourceCharacterId = sourceCharacterId
             };
         }

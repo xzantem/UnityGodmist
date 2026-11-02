@@ -29,7 +29,9 @@ namespace Godmist.Tests.EditMode
         static readonly List<UnityEngine.Object> Temporary = new();
         static VS10EquipmentSetup.Input reference;
         static EquipmentPartDefinition[] starters;
-        [OneTimeSetUp] public void ApplyCalibration()=>Godmist.Editor.EnemyScalingBalanceSetup.ApplyAll();
+        [OneTimeSetUp] public void RequireCatalog() => Assert.That(Catalog, Is.Not.Null);
+        [Test, Explicit("Historical health calibration writes production assets; never implicit fixture setup")]
+        public void AuthorHealthCalibration() => Godmist.Editor.EnemyScalingBalanceSetup.ApplyAll();
 
         // Historical base/early/late HP assertions still exercise the legacy
         // fallback; production health overrides have their own all-level tests.
@@ -49,10 +51,10 @@ namespace Godmist.Tests.EditMode
             var start=Enemy(id,1);var legacy=LegacyHealthDefinition(start.Definition);
             var end=new CharacterInstanceFactory().Create(legacy,legacy.ClassData,50);
             Assert.That(start.Definition.BaseStats.MaxHealth,Is.EqualTo(hp));
-            Assert.That(start.Definition.BaseStats.MinAttack,Is.EqualTo(min));
-            Assert.That(start.Definition.BaseStats.MaxAttack,Is.EqualTo(max));
+            Assert.That(start.Definition.BaseStats.MinAttack,Is.EqualTo(min * .85f).Within(.0001f));
+            Assert.That(start.Definition.BaseStats.MaxAttack,Is.EqualTo(max * .85f).Within(.0001f));
             Assert.That(end.Stats.MaxHealth.BaseValue,Is.EqualTo(lateHp).Within(.02f));
-            Assert.That(end.Stats.MinAttack.BaseValue,Is.EqualTo(lateMin).Within(.02f));
+            Assert.That(end.Stats.MinAttack.BaseValue,Is.EqualTo(lateMin * .85f).Within(.02f));
         }
 
         [TestCase("enemy.catacombs.swordsman",154,26,40,216,36,56)]
@@ -82,22 +84,22 @@ namespace Godmist.Tests.EditMode
         {
             var definition=Catalog.CharacterDefinitions.Single(d=>d.Id==id);
             Assert.That(definition.BaseStats.MaxHealth,Is.EqualTo(hp));
-            Assert.That(definition.BaseStats.MinAttack,Is.EqualTo(minimum));
-            Assert.That(definition.BaseStats.MaxAttack,Is.EqualTo(maximum));
+            Assert.That(definition.BaseStats.MinAttack,Is.EqualTo(minimum * .85f).Within(.0001f));
+            Assert.That(definition.BaseStats.MaxAttack,Is.EqualTo(maximum * .85f).Within(.0001f));
             var calibrated=LegacyHealthDefinition(definition);
             var prior=UnityEngine.Object.Instantiate(calibrated);Temporary.Add(prior);
             var data=new SerializedObject(prior);var basis=data.FindProperty("<BaseStats>k__BackingField");
             basis.FindPropertyRelative("<MaxHealth>k__BackingField").intValue=oldHp;
-            basis.FindPropertyRelative("<MinAttack>k__BackingField").intValue=oldMin;
-            basis.FindPropertyRelative("<MaxAttack>k__BackingField").intValue=oldMax;
+            basis.FindPropertyRelative("<MinAttack>k__BackingField").floatValue=oldMin * .85f;
+            basis.FindPropertyRelative("<MaxAttack>k__BackingField").floatValue=oldMax * .85f;
             data.ApplyModifiedPropertiesWithoutUndo();
             var factory=new CharacterInstanceFactory();
             foreach(var level in new[]{1,5,10,20,30,40,48,50})
             {
                 var before=factory.Create(prior,prior.ClassData,level);var after=factory.Create(calibrated,calibrated.ClassData,level);
                 Assert.That(after.Stats.MaxHealth.BaseValue-before.Stats.MaxHealth.BaseValue,Is.EqualTo(hp-oldHp).Within(.02f),id+" HP L"+level);
-                Assert.That(after.Stats.MinAttack.BaseValue-before.Stats.MinAttack.BaseValue,Is.EqualTo(minimum-oldMin).Within(.02f),id+" min ATK L"+level);
-                Assert.That(after.Stats.MaxAttack.BaseValue-before.Stats.MaxAttack.BaseValue,Is.EqualTo(maximum-oldMax).Within(.02f),id+" max ATK L"+level);
+                Assert.That(after.Stats.MinAttack.BaseValue-before.Stats.MinAttack.BaseValue,Is.EqualTo((minimum-oldMin) * .85f).Within(.02f),id+" min ATK L"+level);
+                Assert.That(after.Stats.MaxAttack.BaseValue-before.Stats.MaxAttack.BaseValue,Is.EqualTo((maximum-oldMax) * .85f).Within(.02f),id+" max ATK L"+level);
                 Assert.That(after.Stats.PhysicalDefense.BaseValue,Is.EqualTo(before.Stats.PhysicalDefense.BaseValue));
                 Assert.That(after.Stats.MagicalDefense.BaseValue,Is.EqualTo(before.Stats.MagicalDefense.BaseValue));
             }
@@ -370,10 +372,17 @@ namespace Godmist.Tests.EditMode
         public void ReauthoringIsIdempotentPhasesAgreeAndSpecialHealthRulesStayIntact()
         {
             var definitions = Catalog.CharacterDefinitions.Where(d => d != null && Godmist.Editor.EnemyResourceProfilesSetup.TryGetType(d.Id, out _)).ToArray();
-            Godmist.Editor.EnemyScalingBalanceSetup.ApplyAll();
-            var before = definitions.Select(d => EditorJsonUtility.ToJson(d)).ToArray();
-            Godmist.Editor.EnemyScalingBalanceSetup.ApplyAll();
-            Assert.That(definitions.Select(d => EditorJsonUtility.ToJson(d)).ToArray(), Is.EqualTo(before));
+            // Exercise normal authoring against isolated definitions; no production writes in verification.
+            foreach (var definition in definitions)
+            {
+                var clone = UnityEngine.Object.Instantiate(definition); Temporary.Add(clone);
+                Godmist.Editor.EnemyScalingBalanceSetup.ApplyToDefinition(clone);
+                var before = EditorJsonUtility.ToJson(clone);
+                Godmist.Editor.EnemyScalingBalanceSetup.ApplyToDefinition(clone);
+                Assert.That(EditorJsonUtility.ToJson(clone), Is.EqualTo(before));
+                Assert.That(clone.BaseStats.MinAttack, Is.EqualTo(definition.BaseStats.MinAttack));
+                Assert.That(clone.GrowthData.MinAttack, Is.EqualTo(definition.GrowthData.MinAttack));
+            }
             foreach (var definition in definitions.Where(d => d.SecondPhaseDefinition != null
                 && d.SecondPhaseDefinition.Id.StartsWith(d.Id + ".", StringComparison.Ordinal)))
             {
@@ -393,10 +402,10 @@ namespace Godmist.Tests.EditMode
             }
             Assert.That(Enemy("enemy.catacombs.spectral_knight", 50).Stats.MaxHealth.GetValue(), Is.EqualTo(3));
             var leader = Enemy("enemy.forest.bandit_leader.revealed");
-            Assert.That(leader.Definition.GrowthData.MinAttack, Is.EqualTo(4.23f));
-            Assert.That(leader.Definition.GrowthData.MaxAttack, Is.EqualTo(5.85f));
+            Assert.That(leader.Definition.GrowthData.MinAttack, Is.EqualTo(4.23f * .85f));
+            Assert.That(leader.Definition.GrowthData.MaxAttack, Is.EqualTo(5.85f * .85f));
             Assert.That(leader.Definition.GrowthData.MinAttack + leader.Definition.GrowthData.LateMinAttack,
-                Is.EqualTo(4.865f + (65-39)/199f).Within(.001f));
+                Is.EqualTo((4.865f + (65-39)/199f) * .85f).Within(.001f));
         }
 
         [Test]
@@ -425,7 +434,7 @@ namespace Godmist.Tests.EditMode
                     var blend=regular>0?late/regular:0;
                     var legacyHealth=new CharacterInstanceFactory().Create(legacy,legacy.ClassData,level).Stats.MaxHealth.BaseValue;
                     Assert.That(legacyHealth,Is.EqualTo(start.MaxHealth+growth.MaxHealth*regular+growth.LateMaxHealth*late+growth.EarlyMaxHealth*(regular-late)+growth.LateMaxHealthOffset*blend).Within(.01f));
-                    Assert.That(character.Stats.MinAttack.BaseValue,Is.EqualTo(start.MinAttack+growth.MinAttack*regular+growth.LateMinAttack*late+growth.EarlyMinAttack*(regular-late)+growth.LateMinAttackOffset*blend).Within(.01f));
+                    Assert.That(character.Stats.MinAttack.BaseValue,Is.EqualTo((start.MinAttack+growth.MinAttack*regular+growth.LateMinAttack*late+growth.EarlyMinAttack*(regular-late)+growth.LateMinAttackOffset*blend)).Within(.01f));
                     if(level>=48)Assert.That(regular-late,Is.Zero,"Early calibration cannot change the verified level48/50 anchor.");
                     var savedHealth=Math.Min(17,character.CurrentHealth);character.CurrentHealth=savedHealth;
                     curve.Apply(character,grantCurrentHealthGrowth:false);
@@ -456,7 +465,8 @@ namespace Godmist.Tests.EditMode
                 var offsets=new Vector3(growth.LateMaxHealthOffset,growth.LateMinAttackOffset,growth.LateMaxAttackOffset);
                 var priorBase=new Vector3(Mathf.RoundToInt(original.x*.44f),Mathf.RoundToInt(original.y*.63f),Mathf.RoundToInt(original.z*.63f));
                 var increase=new Vector3(Mathf.RoundToInt(priorBase.x*1.4f),Mathf.RoundToInt(priorBase.y*1.4f),Mathf.RoundToInt(priorBase.z*1.4f))-priorBase;
-                Assert.That(baseNow+offsets,Is.EqualTo(oldBase+increase),definition.Id+" only the rounded base increase is added at the endpoints");
+                var expectedBase = oldBase + increase; expectedBase.y *= .85f; expectedBase.z *= .85f;
+                Assert.That((baseNow+offsets-expectedBase).sqrMagnitude,Is.LessThan(.00001f),definition.Id+" only the rounded base increase is added at the endpoints");
                 var previous=Vector3.zero;
                 var legacy=LegacyHealthDefinition(definition);
                 for(var level=1;level<=50;level++)
@@ -468,25 +478,25 @@ namespace Godmist.Tests.EditMode
                     Assert.That(actual.y,Is.GreaterThanOrEqualTo(previous.y),definition.Id+" min ATK L"+level);
                     Assert.That(actual.z,Is.GreaterThanOrEqualTo(previous.z),definition.Id+" max ATK L"+level);
                     var regular=curve.GetCumulativeGrowthMultiplier(level);var late=curve.GetLateGrowthMultiplier(level);
-                    var originalGrowth=new Vector3(growth.MaxHealth,growth.MinAttack,growth.MaxAttack);
+                    var originalGrowth=new Vector3(growth.MaxHealth,growth.MinAttack/.85f,growth.MaxAttack/.85f);
                     var oldEarly=new Vector3(Mathf.Round(growth.MaxHealth*.6f*1000)/1000-growth.MaxHealth,
-                        Mathf.Round(growth.MinAttack*.6f*1000)/1000-growth.MinAttack,
-                        Mathf.Round(growth.MaxAttack*.6f*1000)/1000-growth.MaxAttack);
+                        Mathf.Round(originalGrowth.y*.6f*1000)/1000-originalGrowth.y,
+                        Mathf.Round(originalGrowth.z*.6f*1000)/1000-originalGrowth.z);
                     var baseline=oldBase+originalGrowth*regular
-                        +new Vector3(growth.LateMaxHealth,growth.LateMinAttack,growth.LateMaxAttack)*late+oldEarly*(regular-late);
+                        +new Vector3(growth.LateMaxHealth,growth.LateMinAttack/.85f,growth.LateMaxAttack/.85f)*late+oldEarly*(regular-late);
                     if(level<48)
                     {
                         Assert.That(legacyHealth,Is.GreaterThan(baseline.x),definition.Id+" legacy HP L"+level);
-                        // GetValue includes the existing global ATK multiplier;
+                        // GetValue includes the level-dependent base ATK correction;
                         // the hypothetical historical baseline is a raw stat.
-                        Assert.That(actual.y,Is.GreaterThan(baseline.y*definition.AttackMultiplier),definition.Id+" min ATK L"+level);
-                        Assert.That(actual.z,Is.GreaterThan(baseline.z*definition.AttackMultiplier),definition.Id+" max ATK L"+level);
+                        Assert.That(actual.y,Is.GreaterThan(baseline.y*.85f),definition.Id+" min ATK L"+level);
+                        Assert.That(actual.z,Is.GreaterThan(baseline.z*.85f),definition.Id+" max ATK L"+level);
                     }
                     else
                     {
                         Assert.That(legacyHealth,Is.EqualTo(baseline.x+increase.x).Within(.02f),definition.Id+" legacy HP anchor L"+level);
-                        Assert.That(actual.y,Is.EqualTo((baseline.y+increase.y)*definition.AttackMultiplier).Within(.02f),definition.Id+" min ATK anchor L"+level);
-                        Assert.That(actual.z,Is.EqualTo((baseline.z+increase.z)*definition.AttackMultiplier).Within(.02f),definition.Id+" max ATK anchor L"+level);
+                        Assert.That(actual.y,Is.EqualTo((baseline.y+increase.y)*.85f).Within(.02f),definition.Id+" min ATK anchor L"+level);
+                        Assert.That(actual.z,Is.EqualTo((baseline.z+increase.z)*.85f).Within(.02f),definition.Id+" max ATK anchor L"+level);
                     }
                     enemy.CurrentHealth=17;
                     curve.Apply(enemy,grantCurrentHealthGrowth:false);

@@ -66,7 +66,7 @@ namespace Godmist.Views.UI
             ResolvePrefabReferences();
             if (window == null) { enabled = false; return; }
             if (itemTemplate != null) itemTemplate.gameObject.SetActive(false);
-            gameObject.SetActive(false);
+            // Create/the authored inactive prefab owns visibility. Awake can run during the first Open.
         }
 
         private void OnEnable() => ResolvePrefabReferences();
@@ -85,7 +85,7 @@ namespace Godmist.Views.UI
                 var canvas = GetComponentInParent<Canvas>();
                 var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
                 if (HandleDismissInput(Input.GetKeyDown(KeyCode.Escape), Input.GetMouseButtonDown(1),
-                    Input.GetMouseButtonDown(0), Input.mousePosition, camera)) return;
+                    Input.GetMouseButtonDown(0), Godmist.Views.UI.ControllerInput.PointerPosition, camera)) return;
             }
             var signature = ConsumableService.CombatInventorySignature(session);
             if (signature != lastBuiltInventorySignature) { Rebuild(); ApplyLayoutAndResize(); }

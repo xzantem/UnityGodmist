@@ -17,39 +17,60 @@ MonoBehaviour:
   <Icon>k__BackingField: {fileID: -4707956904956906972, guid: 70d699e9a89501641b6b4efab91525ad, type: 3}
   <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 100
+  <AttackType>k__BackingField: 0
+  <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 0
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 0
+  <KnifeCost>k__BackingField: 0
   <IsToggle>k__BackingField: 0
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 0
+  <RequiredCasterStatusId>k__BackingField: 
+  <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
+  <GuaranteedCritical>k__BackingField: 0
+  <FreeKnivesInMelee>k__BackingField: 0
+  <PointBlankDamageMultiplier>k__BackingField: 1
   targetModes:
   - targetType: 0
     targetingType: 0
+    includesCaster: 0
     absoluteRange:
       shape: 1
       minRange: 1
       maxRange: 1
+      rectangleWidth: 1
     relativeRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
+    chainTargets: 3
+    requiredStatusId: 
   effects:
-  - effectType: 0
+  - stableEffectId: e36bc4b8a904afebe28e960ab
+    effectType: 0
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 0.5
+    rearAttackDamageBonus: 0
     damageHitCount: 3
+    additionalHitTrials: 0
+    additionalHitChance: 0.5
+    bonusPenetration: 0
     bonusDamageMultiplierChance: 1
     bonusDamageMultiplier: 2
     onHitStatusId: 
     onHitStatusChance: 0
     onHitStatusDurationTurns: 0
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -58,18 +79,22 @@ MonoBehaviour:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     summonedObjectDefinition: {fileID: 0}
     objectPlacementRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     summonDurationTurns: 0
     maxActiveSummons: 0
     summonPercentMaxHealth: 0
@@ -79,10 +104,12 @@ MonoBehaviour:
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    percentageValue: 0
     counterattackRange:
       shape: 0
       minRange: 0
       maxRange: 0
+      rectangleWidth: 1
     counterattackEffects: []
     modifierStatType: 0
     modifierVariableType: 0
@@ -103,3 +130,9 @@ MonoBehaviour:
     auraTargetingType: 1
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

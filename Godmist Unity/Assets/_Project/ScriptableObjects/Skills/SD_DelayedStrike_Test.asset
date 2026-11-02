@@ -17,6 +17,8 @@ MonoBehaviour:
   <Icon>k__BackingField: {fileID: 4830313197683595641, guid: 8ebf22390c7da004cbaedd5a05965000, type: 3}
   <TooltipDescription>k__BackingField: 
   <SkillAccuracy>k__BackingField: 90
+  <AttackType>k__BackingField: 0
+  <PointBlankAttackType>k__BackingField: 0
   <ActionCost>k__BackingField: 20
   <ResourceCost>k__BackingField: 0
   <ResourceType>k__BackingField: 2
@@ -25,9 +27,16 @@ MonoBehaviour:
   <ToggleUpkeepFlatResourceCost>k__BackingField: 0
   <ToggleUpkeepMaxResourcePercent>k__BackingField: 0
   <RequiresLineOfSight>k__BackingField: 1
+  <RequiredCasterStatusId>k__BackingField: 
+  <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
+  <GuaranteedCritical>k__BackingField: 0
+  <FreeKnivesInMelee>k__BackingField: 0
+  <PointBlankDamageMultiplier>k__BackingField: 1
   targetModes:
   - targetType: 3
     targetingType: 0
+    includesCaster: 0
     absoluteRange:
       shape: 1
       minRange: 1
@@ -38,21 +47,30 @@ MonoBehaviour:
       minRange: 0
       maxRange: 0
       rectangleWidth: 1
+    chainTargets: 3
+    requiredStatusId: 
   effects:
-  - effectType: 0
+  - stableEffectId: ec1e15c8dbf3799b2d219c03c
+    effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 3
     damageMultiplier: 0.5
+    rearAttackDamageBonus: 0
     damageHitCount: 0
+    additionalHitTrials: 0
+    additionalHitChance: 0.5
+    bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 1
     onHitStatusDurationTurns: 1
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 0
@@ -70,6 +88,7 @@ MonoBehaviour:
       rectangleWidth: 1
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -85,6 +104,7 @@ MonoBehaviour:
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    percentageValue: 0
     counterattackRange:
       shape: 1
       minRange: 1
@@ -110,20 +130,32 @@ MonoBehaviour:
     auraTargetingType: 1
     shieldAverageAttackMultiplier: 0
     conditions: []
-  - effectType: 0
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
+  - stableEffectId: e44faf13900a14a859a0bb6ec
+    effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 3
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 0
+    additionalHitTrials: 0
+    additionalHitChance: 0.5
+    bonusPenetration: 0
     bonusDamageMultiplierChance: 0
     bonusDamageMultiplier: 1
-    onHitStatusId:
+    onHitStatusId: 
     onHitStatusChance: 1
     onHitStatusDurationTurns: 1
     lifeStealPercent: 0
+    allyLifeStealPercent: 0
     resourceDrainPercent: 0
     damageType: 0
     delayCasterTurns: 1
@@ -141,6 +173,7 @@ MonoBehaviour:
       rectangleWidth: 1
     maxActiveObjects: 0
     summonedCharacterDefinition: {fileID: 0}
+    summonPool: []
     summonedClassData: {fileID: 0}
     summonPlacementRange:
       shape: 0
@@ -156,6 +189,7 @@ MonoBehaviour:
     stacks: 0
     statusDamageMultiplier: 0
     statusHealPercent: 0
+    percentageValue: 0
     counterattackRange:
       shape: 1
       minRange: 1
@@ -181,3 +215,9 @@ MonoBehaviour:
     auraTargetingType: 1
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

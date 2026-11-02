@@ -10,6 +10,10 @@ using UnityEngine.SceneManagement;
 
 public static partial class GodmistMainMenuSetup
 {
+    private static Transform FindMenuCanvas(Scene scene) => scene.GetRootGameObjects()
+        .SelectMany(root => root.GetComponentsInChildren<Canvas>(true))
+        .Single(canvas => canvas.name == "Canvas").transform;
+
     public static void ConfigureReleaseVersionLabel()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Exit Play Mode before authoring the version label.");
@@ -19,7 +23,7 @@ public static partial class GodmistMainMenuSetup
         if (opened) scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Additive);
         try
         {
-            var menu = scene.GetRootGameObjects().Single(r => r.name == "Canvas").transform.Find("MainMenuRoot");
+            var menu = FindMenuCanvas(scene).Find("MainMenuRoot");
             palette = AssetDatabase.LoadAssetAtPath<UIWorkspaceStylePalette>("Assets/_Project/ScriptableObjects/UI/Workspace/UIWorkspaceStylePalette.asset");
             ConfigureReleaseVersionLabel(menu, menu.GetComponent<MainMenuView>());
             EditorSceneManager.MarkSceneDirty(scene);
@@ -32,7 +36,7 @@ public static partial class GodmistMainMenuSetup
     {
         // Reuse the menu's existing palette/font. This footer has no interaction
         // and is anchored outside the button column and its Layout Groups.
-        var label = Text(menu, "ReleaseVersion", UnityEditor.PlayerSettings.bundleVersion + " — Early Access", 18);
+        var label = Text(menu, "ReleaseVersion", Godmist.Core.Constants.GameVersion.MenuLabel, 18);
         var data = new SerializedObject(view);
         data.FindProperty("versionLabel").objectReferenceValue = label;
         data.ApplyModifiedPropertiesWithoutUndo();

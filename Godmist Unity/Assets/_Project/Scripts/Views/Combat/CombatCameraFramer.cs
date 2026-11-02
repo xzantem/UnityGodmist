@@ -17,6 +17,7 @@ namespace Godmist.Views.Combat
         public const float DefaultTransitionSpeed = 8f;
         public static float ScrollZoom(float size, float steps, float speed = DefaultZoomSpeed) =>
             Mathf.Clamp(size * Mathf.Exp(-steps * speed), MinimumZoomSize, MaximumZoomSize);
+        [SerializeField, Range(.25f, 2f)] private float controllerPanSensitivity = 1;
         [SerializeField] private Camera worldCamera;
         [SerializeField, Min(0f)] private float padding = 2f;
         [SerializeField, Min(1f)] private float minimumOrthographicSize = 5f;
@@ -333,19 +334,23 @@ namespace Godmist.Views.Combat
             }
             if (actionRestore.HasValue || movementPosition != null || DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) { dragging = false; return; }
             if (Input.GetKeyDown(KeyCode.F)) FocusActiveUnit();
+            if (Godmist.Views.UI.ControllerInput.Pressed(Godmist.Views.UI.ControllerInput.WorldMap, "Center")) FocusActiveUnit();
+            if (Godmist.Views.UI.ControllerInput.Zoom != 0) Zoom(Godmist.Views.UI.ControllerInput.Zoom * Time.unscaledDeltaTime * 5);
             if (Input.GetKeyDown(KeyCode.Home)) ShowArena();
-            var direction = ExplorationKeyboardInput.ReadMovement();
-            if (direction.sqrMagnitude > 0f) Pan(direction.normalized * (keyboardPanSpeed * Time.unscaledDeltaTime));
+            var analog = Godmist.Views.UI.ControllerInput.Camera;
+            var direction = Vector2.ClampMagnitude(ExplorationKeyboardInput.ReadMovement() + analog, 1f);
+            if (analog.sqrMagnitude > 0) direction *= controllerPanSensitivity * Godmist.Views.UI.ControllerPreferences.CameraSpeed;
+            if (direction.sqrMagnitude > 0f) Pan(direction * (keyboardPanSpeed * Time.unscaledDeltaTime));
             if (UIWorkspaceInputRouter.IsPointerOverUi()) { dragging = false; return; }
             if (Input.mouseScrollDelta.y != 0f) Zoom(Input.mouseScrollDelta.y);
-            if (Input.GetMouseButtonDown(2)) { previousMouse = Input.mousePosition; dragging = true; }
+            if (Input.GetMouseButtonDown(2)) { previousMouse = Godmist.Views.UI.ControllerInput.PointerPosition; dragging = true; }
             if (!Input.GetMouseButton(2)) dragging = false;
             if (dragging)
             {
-                var delta = previousMouse - Input.mousePosition;
+                var delta = previousMouse - Godmist.Views.UI.ControllerInput.PointerPosition;
                 var scale = worldCamera.orthographicSize * 2f / Mathf.Max(1f, worldCamera.pixelHeight);
                 if (delta.sqrMagnitude > 0f) Pan((Vector2)delta * scale);
-                previousMouse = Input.mousePosition;
+                previousMouse = Godmist.Views.UI.ControllerInput.PointerPosition;
             }
         }
         private void LateUpdate() => TickTransition(Time.unscaledDeltaTime);

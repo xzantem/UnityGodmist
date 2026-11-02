@@ -13,12 +13,23 @@ namespace Godmist.Systems.Items
             .Concat((npc?.ShopInventory?.BuybackStock ?? new List<BuybackEntry>()).Select(entry => entry.Item))
             .Where(item => item != null).Distinct();
 
-        public static int Price(NpcInstance npc, ItemInstance item)
+        public static bool TryQuote(NpcInstance npc, IEnumerable<ItemInstance> items, out int total, out string reason)
         {
-            var buyback = npc.ShopInventory.BuybackStock.FirstOrDefault(entry => ReferenceEquals(entry.Item, item));
+            total = 0; reason = string.Empty;
             var trade = new TradeService();
-            return buyback == null ? trade.GetPriceToBuyFromTrader(npc, item) : trade.GetPriceFromBuyback(npc, buyback);
+            long sum = 0;
+            foreach (var item in items)
+            {
+                if (!trade.TryGetBuyPrice(npc, item, out var price, out reason)) return false;
+                sum += price;
+                if (sum > int.MaxValue) { reason = "Zbyt duża wartość transakcji."; return false; }
+            }
+            total = (int)sum;
+            return true;
         }
+
+        public static bool TryQuoteMaterial(NpcInstance npc, string definitionId, int amount, out int total, out string reason)
+            => TryQuote(npc, Items(npc).Where(item => item.Definition?.Id == definitionId).Take(System.Math.Max(0, amount)), out total, out reason);
 
         public static Dictionary<ItemInstance, BuybackEntry> Remove(NpcInstance npc, IEnumerable<ItemInstance> items)
         {

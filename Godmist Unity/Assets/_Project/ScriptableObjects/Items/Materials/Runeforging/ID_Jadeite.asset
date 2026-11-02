@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dbe6bdc53b6c9749b7f8cba3f277e54, type: 3}
+  m_Name: ID_Jadeite
+  m_EditorClassIdentifier: Data::Godmist.Data.Items.ItemDefinition
+  <Id>k__BackingField: item.runic.jadeite
+  <DisplayName>k__BackingField: Jadeit
+  <Description>k__BackingField: "Kamie\u0144 szlachetny pozyskiwany z boss\xF3w Lasu,
+    u\u017Cywany do wyrobu bi\u017Cuterii."
+  <Icon>k__BackingField: {fileID: 21300000, guid: ea9beded33593bf48a4ce390244014d3, type: 3}
+  <ItemType>k__BackingField: 3
+  <MaterialDiscipline>k__BackingField: 3
+  <BaseRarity>k__BackingField: 5
+  <BaseValue>k__BackingField: 2847
+  <Weight>k__BackingField: 0
+  <IsStackable>k__BackingField: 1

@@ -27,6 +27,7 @@ namespace Godmist.Views.UI
         private ExplorationPartyController explorationParty;
         private ExplorationCameraFollow explorationCamera;
         private Canvas canvas;
+        private ControllerInputView controller;
 
         public static ContextualInputHintsView Ensure(Canvas targetCanvas)
         {
@@ -64,6 +65,7 @@ namespace Godmist.Views.UI
         private void Awake()
         {
             canvas ??= GetComponent<Canvas>();
+            controller = GetComponentInParent<ControllerInputView>();
             CreateText();
         }
 
@@ -110,6 +112,56 @@ namespace Godmist.Views.UI
         private void Update()
         {
             if (text == null) return;
+
+            // Match the HUD's reference scale on legacy constant-pixel sandbox canvases too.
+            var hintScale = ControllerInput.Active
+                ? Mathf.Min(Screen.width / 1920f, Screen.height / 1080f) / Mathf.Max(.01f, canvas.scaleFactor) : 1f;
+            text.rectTransform.localScale = Vector3.one * hintScale;
+            text.rectTransform.anchoredPosition = new Vector2(-28f, 24f) * hintScale;
+
+            if (ControllerInput.Active)
+            {
+                builder.Clear();
+                if (ControllerInput.UiActive)
+                {
+                    if (controller != null && controller.HasPanelFocus) { SetText(string.Empty); return; }
+                    Append("A – wybierz   B – wróć   X – akcje   Y – szczegóły");
+                    Append(ControllerInput.PrecisePointer
+                        ? "Lewy drążek – kursor   Prawy – przewijanie   RT – cały stos"
+                        : "Lewy drążek / D-pad – wybór   Prawy – przewijanie");
+                    Append(ControllerInput.PrecisePointer ? "L3 / B – wróć do wyboru" : "L3 – swobodny kursor");
+                    if (controller != null && controller.HasSkillBarFocus) Append("LB / RB – strony umiejętności");
+                    if (GameBootstrap.Instance?.Session?.CurrentMode != GameModeState.Menu) Append("Start – pauza");
+                }
+                else
+                {
+                    Append(combatTargeting?.IsSelectingTarget == true
+                        ? combatTargeting.RequiresControllerConfirmation ? "L3 – tryb kursora" : "A – wskaż cel   L3 – tryb kursora"
+                        : "A – wybierz   X – akcje   L3 – tryb kursora");
+                    var stickRole = ControllerInput.PrecisePointer ? "kursor"
+                        : combatBootstrap?.Session != null && explorationParty?.CanMoveWhileTargeting != true ? "pole" : "ruch";
+                    Append($"Lewy drążek – {stickRole}   Prawy – kamera   R3 – środek");
+                    if (combatTargeting?.IsSelectingTarget == true)
+                    {
+                        if (combatTargeting.RequiresControllerConfirmation) Append("A – użyj umiejętności");
+                        if (combatTargeting.CanRotateCurrentSelection) Append("LB / RB – obrót");
+                        if (combatTargeting.CanConfirmMultipleTargetSelection) Append("Y – zatwierdź cele");
+                        Append("B – anuluj");
+                    }
+                    else if (combatBootstrap?.CanEndTurn() == true) Append(controller != null && controller.EndTurnHoldProgress > 0
+                        ? $"Koniec tury — {Mathf.CeilToInt(controller.EndTurnHoldProgress * 100)}%" : "Y – inspekcja   Przytrzymaj Y – koniec tury");
+                    else if (combatBootstrap?.Session == null) Append("Przytrzymaj A – interakcje w pobliżu");
+                    if (combatTargeting?.IsSelectingTarget != true)
+                    {
+                        Append(combatBootstrap?.Session == null
+                            ? "LB / RB – postać   LT – drużyna   RT – akcje"
+                            : "LT – drużyna   RT – akcje");
+                    }
+                    Append("D-pad ← / → – cel   ↑ / ↓ – zoom   Back – mapa   Start – pauza");
+                }
+                SetText(builder.ToString());
+                return;
+            }
 
             if (DevConsoleView.IsOpen
                 || UIWorkspaceInputRouter.HasFocusedTextInput()
@@ -159,7 +211,9 @@ namespace Godmist.Views.UI
             if (!pointerOverUi && combatMovement?.IsMovementRangeInspectionAvailable == true)
                 Append("Ctrl – zasięg ruchu");
 
-            if (combatCamera?.CanAcceptManualInput == true)
+            if (combatBootstrap?.IsOpeningPreview == true)
+                AppendExplorationCameraHints(pointerOverUi);
+            else if (combatCamera?.CanAcceptManualInput == true)
             {
                 Append("F – skup na aktywnej jednostce");
                 Append("Home – arena");
@@ -188,20 +242,20 @@ namespace Godmist.Views.UI
             if (GameBootstrap.Instance?.QuestService != null)
                 Append("J – dziennik");
             if(explorationParty.DungeonMinimap!=null)Append("M – mapa odkrytego terenu");
-            if (explorationCamera != null)
-            {
-                Append("F – tryb kamery");
-                if (!pointerOverUi)
-                {
-                    Append("Scroll – zoom");
-                    if (!explorationCamera.IsFollowingLeader)
-                        Append("PPM – przesuwanie");
-                }
-            }
+            AppendExplorationCameraHints(pointerOverUi);
             if (explorationParty.HasAvailableInteraction)
                 Append("E – interakcja");
 
             SetText(builder.ToString());
+        }
+
+        private void AppendExplorationCameraHints(bool pointerOverUi)
+        {
+            if (explorationCamera == null) return;
+            Append("F – tryb kamery");
+            if (pointerOverUi) return;
+            Append("Scroll – zoom");
+            Append(explorationCamera.IsFollowingLeader ? "PPM + ruch – odblokuj kamerę" : "MMB / PPM – przesuwanie");
         }
 
         private void Append(string hint)

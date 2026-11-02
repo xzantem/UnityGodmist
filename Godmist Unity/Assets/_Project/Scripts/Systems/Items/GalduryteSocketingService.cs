@@ -107,22 +107,7 @@ namespace Godmist.Systems.Items
             => GetOwnedEquipment(session);
 
         private static IEnumerable<EquipmentItemInstance> GetOwnedEquipment(GameSession session)
-        {
-            var seen = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var character in GetPartyCharacters(session))
-            {
-                foreach (var item in character.Inventory?.Items?.OfType<EquipmentItemInstance>()
-                             ?? Enumerable.Empty<EquipmentItemInstance>())
-                    if (IsWeaponOrArmor(item) && seen.Add(item.InstanceId)) yield return item;
-                foreach (var item in character.Equipment?.GetEquippedItems()
-                             ?? Enumerable.Empty<EquipmentItemInstance>())
-                    if (IsWeaponOrArmor(item) && seen.Add(item.InstanceId)) yield return item;
-            }
-
-            foreach (var item in session?.Stash?.Items?.OfType<EquipmentItemInstance>()
-                         ?? Enumerable.Empty<EquipmentItemInstance>())
-                if (IsWeaponOrArmor(item) && seen.Add(item.InstanceId)) yield return item;
-        }
+            => EquipmentServiceOwnership.GetAccessibleEquipment(session);
 
         public IEnumerable<GalduryteItemInstance> GetIdentifiedGaldurytes(GameSession session)
         {

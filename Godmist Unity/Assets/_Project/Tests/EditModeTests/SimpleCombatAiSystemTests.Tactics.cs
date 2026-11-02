@@ -210,10 +210,10 @@ namespace Godmist.Tests.EditMode
             var attack=PlannerAttack("two-crits",50,1f);var session=PlannerSession(1,attack);var caster=session.ActiveUnit;var target=session.Units[1];
             caster.Character.Stats.MinAttack=new Stat(40);caster.Character.Stats.MaxAttack=new Stat(40);caster.Character.Stats.CritDamage=new Stat(2);
             caster.Character.Stats.CritChance=new Stat(oneShotCrit?0f:.5f);SetField(attack.Effects[0],"damageHitCount",2);
-            if(oneShotCrit)caster.UniqueBuffs.Add(UniqueBuffType.GuaranteedCriticalHit);
+            if(oneShotCrit)ApplyKillChanceBuff(caster,UniqueBuffType.GuaranteedCriticalHit);
             target.Character.CurrentHealth=150;
             Assert.That(CombatSkillPreviewCalculator.EstimateKillChance(session,caster,target,attack,attack.Effects[0]),Is.EqualTo(expected).Within(.001f));
-            if(oneShotCrit)Assert.That(caster.UniqueBuffs,Does.Contain(UniqueBuffType.GuaranteedCriticalHit));
+            if(oneShotCrit)Assert.That(CombatDamageSystem.HasUniqueBuff(caster,UniqueBuffType.GuaranteedCriticalHit),Is.True);
         }
 
         [Test]

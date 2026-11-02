@@ -16,8 +16,8 @@ namespace Godmist.Views.UI
         [SerializeField] private Image activeHighlight;
         [SerializeField] private Graphic hoverHighlight;
         [SerializeField] private Sprite playerHighlightSprite, enemyHighlightSprite;
-        [SerializeField] private Color playerActiveColor = new(0.88f, 0.67f, 0.24f, 1f);
-        [SerializeField] private Color enemyActiveColor = new(0.78f, 0.20f, 0.18f, 1f);
+        private static Color playerActiveColor => HighlightStyle.Selection;
+        private static Color enemyActiveColor => HighlightStyle.Hostile;
 
         [SerializeField] private Image[] activeEdges;
         [SerializeField] private CombatSimpleTooltipTrigger turnTooltip;
@@ -126,12 +126,12 @@ namespace Godmist.Views.UI
                 healthSlider.gameObject.SetActive(known);
                 CombatHealthPresentation.UpdateShieldOverlay(ref shieldOverlay, healthSlider,
                     known ? unit.Character.ShieldPool?.TotalShield ?? 0 : 0,
-                    unit.Character.Stats?.MaxHealth.GetValue() ?? 1f,
+                    unit.Character.MaximumHealth,
                     occurrence > 1 && !highlighted ? .35f : 1f);
                 if (known)
                 {
                     healthSlider.minValue = 0f;
-                    healthSlider.maxValue = Mathf.Max(1f, unit.Character.Stats?.MaxHealth.GetValue() ?? 1f);
+                    healthSlider.maxValue = unit.Character.MaximumHealth;
                     healthSlider.SetValueWithoutNotify(Mathf.Clamp(unit.Character.CurrentHealth, 0f, healthSlider.maxValue));
                     var fill = healthSlider.fillRect != null ? healthSlider.fillRect.GetComponent<Image>() : null;
                     if (fill != null)

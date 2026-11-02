@@ -284,10 +284,11 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if (!restoreFactory.TryCreate(saveData, contentCatalog, out session))
+            if (!restoreFactory.TryCreate(saveData, contentCatalog, out session, out var restoreFailure))
             {
                 session = null;
-                message = "Nie udało się odtworzyć GameSession z zapisu.";
+                UnityEngine.Debug.LogError(restoreFailure.ToString());
+                message = restoreFailure.UserMessage;
                 return false;
             }
 

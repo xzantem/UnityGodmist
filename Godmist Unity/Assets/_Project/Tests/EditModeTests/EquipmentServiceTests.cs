@@ -242,7 +242,7 @@ namespace Godmist.Tests.EditMode
                 EquipmentSlot.Weapon,
                 "item.speed_weapon");
 
-            weapon.StatModifiers.Add(new StatModifier
+            weapon.BaseStatModifiers.Add(new StatModifier
             {
                 StatType = CharacterStatType.Speed,
                 Operation = StatModifierOperation.Percent,
@@ -250,10 +250,19 @@ namespace Godmist.Tests.EditMode
                 Value = 0.10f
             });
 
-            inventoryService.TryAddItem(character.Inventory, weapon);
+            // Generated equipment derives its active payload from this authoritative baseline.
+            weapon.RecalculateStatModifiers();
+            Assert.That(weapon.StatModifiers, Has.Count.EqualTo(1));
+            Assert.That(weapon.StatModifiers[0], Is.Not.SameAs(weapon.BaseStatModifiers[0]));
+            Assert.That(inventoryService.TryAddItem(character.Inventory, weapon), Is.True);
 
             Assert.That(equipmentService.TryEquip(character, weapon.InstanceId), Is.True);
             Assert.That(character.Stats.Speed.GetValue(), Is.EqualTo(110f).Within(0.001f));
+            var pipeline = new Godmist.Systems.Characters.CharacterStatPipelineSystem();
+            pipeline.Refresh(character);
+            pipeline.Refresh(character);
+            Assert.That(character.Stats.Speed.GetValue(), Is.EqualTo(110f).Within(0.001f));
+            Assert.That(weapon.BaseStatModifiers[0].Value, Is.EqualTo(.10f));
 
             Assert.That(
                 equipmentService.TryUnequip(character, EquipmentSlot.Weapon),

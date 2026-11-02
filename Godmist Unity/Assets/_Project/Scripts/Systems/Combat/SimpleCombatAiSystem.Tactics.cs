@@ -60,7 +60,7 @@ namespace Godmist.Systems.Combat
             foreach(var skill in controlled.Character.GetActiveSkills().Where(s=>s!=null).Take(12))
             {
                 if(PassiveEffectCombatExecutionSystem.ResolveResourceCost(controlled,skill)>(controlled.Character.ResourcePool?.CurrentValue ?? 0))continue;
-                foreach(var effect in skill.Effects.Where(e=>e?.EffectType is EffectType.Heal or EffectType.HealPercent or EffectType.HealMissingHealthPercent))
+                foreach(var effect in skill.Effects.Where(e=>e?.EffectType is EffectType.Heal or EffectType.HealPercent or EffectType.HealMissingHealthPercent or EffectType.PaladinHeal or EffectType.PaladinRegeneration))
                 foreach(var ally in session.Units.Where(u=>IsObservedLivingOpponent(session,observer,u)).Take(6))
                 {
                     var mode=skill.TargetModes[effect.TargetModeIndex];
@@ -69,7 +69,11 @@ namespace Godmist.Systems.Combat
                     if(mode.TargetType!=TargetType.All && mode.TargetType!=TargetType.Caster
                         && !CombatTargetingService.IsPositionWithinRange(controlled.Position,ally.Position,mode.AbsoluteRange))continue;
                     if(skill.RequiresLineOfSight && !new CombatLineOfSightService().HasLineOfSight(session,controlled.Position,ally.Position))continue;
-                    recovery=Mathf.Max(recovery,HealingAmount(controlled,ally,effect));
+                    var resolved = PassiveEffectCombatExecutionSystem.ResolveEffect(controlled,skill,effect);
+                    var value = resolved.EffectType is EffectType.PaladinHeal or EffectType.PaladinRegeneration
+                        ? PaladinRecoveryUtility(session,controlled,ally,skill,resolved,PaladinCombatSystem.IsSingleHealingPreview(session,controlled,ally,skill))
+                        : HealingAmount(controlled,ally,resolved);
+                    recovery=Mathf.Max(recovery,value);
                 }
             }
             return damage+recovery*.5f;
@@ -125,7 +129,7 @@ namespace Godmist.Systems.Combat
         private static float HealingAmount(BattleUnit caster,BattleUnit target,SkillEffectData effect)
         {
             if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return 0f;
-            var maximum=Mathf.Max(0,Mathf.RoundToInt(target.Character.Stats.MaxHealth.GetValue()));
+            var maximum=target.Character.MaximumHealth;
             var raw=effect.EffectType switch
             {
                 EffectType.Heal => CombatRecoverySystem.CalculateSkillHealing(caster,effect),

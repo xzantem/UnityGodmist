@@ -58,9 +58,9 @@ namespace Godmist.Systems.Combat
                 report.AddError("Display Name is required.");
             }
 
-            if (skill.SkillAccuracy < 0f || skill.SkillAccuracy > 100f)
+            if (skill.SkillAccuracy < 0f || float.IsNaN(skill.SkillAccuracy) || float.IsInfinity(skill.SkillAccuracy))
             {
-                report.AddError("Skill Accuracy must be between 0 and 100.");
+                report.AddError("Skill Accuracy must be a finite non-negative value.");
             }
 
             if (skill.ActionCost < 0 || skill.ActionCost > 100)
@@ -117,6 +117,8 @@ namespace Godmist.Systems.Combat
                 ValidateTargetModes(skill, report);
             }
 
+            try { SkillEffectIdentity.ExecutionOrder(skill); }
+            catch (System.InvalidOperationException error) { report.AddError(error.Message); }
             ValidateEffects(skill, report);
             return report;
         }
@@ -303,7 +305,7 @@ namespace Godmist.Systems.Combat
                     "A skill can define at most one Teleport effect in v1.");
             }
 
-            for (var index = 0; index < skill.Effects.Count; index++)
+            foreach (var index in SkillEffectIdentity.ExecutionOrder(skill))
             {
                 var effect = skill.Effects[index];
                 var prefix = $"Effect [{index}]";
@@ -580,12 +582,12 @@ namespace Godmist.Systems.Combat
                         continue;
                     }
 
-                    if (condition.ReferencedEffectIndex < 0
-                        || condition.ReferencedEffectIndex >= index)
+                    if (SkillEffectIdentity.ReferenceIndex(skill, condition) < 0
+                        || SkillEffectIdentity.ReferenceIndex(skill, condition) >= skill.Effects.Count)
                     {
                         report.AddError(
                             $"{prefix}, condition [{conditionIndex}]: Referenced Effect Index " +
-                            $"{condition.ReferencedEffectIndex} must reference a previous effect.");
+                            $"{SkillEffectIdentity.ReferenceIndex(skill, condition)} must reference a previous effect.");
                     }
                 }
             }

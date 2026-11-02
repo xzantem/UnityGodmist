@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System.Collections.Generic;
 using Godmist.Runtime.Combat;
 using TMPro;
@@ -9,6 +10,8 @@ namespace Godmist.Views.UI
     {
         public static void FitFrame(Slider slider)
         {
+            if (slider != null && slider.TryGetComponent<UIBarFillMask>(out var presentation))
+            { presentation.Apply(); return; }
             // The authored fill area is inset 6px horizontally and 3px vertically.
             // slider_track has 12/6px slice borders: at multiplier 1 the frame
             // consumes a 12px bar's entire height and overlaps its fill.
@@ -25,12 +28,12 @@ namespace Godmist.Views.UI
 
         public static string Format(float health, float maximum, int shield)
         {
-            var value = $"{health:0}/{maximum:0}";
+            var value = $"{health:0}/{Godmist.Core.Utilities.HealthPoints.Maximum(maximum)}";
             return shield > 0 ? $"{value} (+{shield})" : value;
         }
 
         public static string Format(Godmist.Runtime.Characters.CharacterInstance character)
-            => Format(character.CurrentHealth, Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f),
+            => Format(character.CurrentHealth, character.MaximumHealth,
                 character.ShieldPool?.TotalShield ?? 0);
 
         public static void UpdateShieldOverlay(ref Image overlay, Slider health, int shield, float maximum, float opacity = 1f)
@@ -67,7 +70,7 @@ namespace Godmist.Views.UI
             var rect = overlay.rectTransform;
             rect.anchorMin = new Vector2(0f, 1f);
             rect.anchorMax = new Vector2(Mathf.Clamp01(shield / Mathf.Max(1f, Mathf.Max(maximum, shield))), 1f);
-            rect.pivot = new Vector2(0f, 0f);
+            rect.pivot = new Vector2(0f, 1f);
             rect.sizeDelta = new Vector2(0f, Mathf.Clamp(area.rect.height * .25f, 1f, 2f));
             rect.anchoredPosition = Vector2.zero;
             rect.SetAsLastSibling();
@@ -108,22 +111,24 @@ namespace Godmist.Views.UI
         [SerializeField] private Color previewColor = new(1f,.65f,.15f,1);
         private readonly List<Image> pips = new();
         public static int RemainingAfterPreview(int current, int cost) => Mathf.Max(0, current - Mathf.Max(0,cost));
-        public void Bind(BattleUnit unit, int previewCost = 0)
+        public TMP_Text HealthValueText => healthValueText;
+        public TMP_Text ResourceValueText => resourceValueText;
+        public void Bind(BattleUnit unit, int previewCost = 0, bool statValueLinks = false)
         {
             if (unit?.Character == null) return;
             var c=unit.Character;
-            var maximum=Mathf.Max(1f,c.Stats?.MaxHealth.GetValue()??1f);
+            var maximum=c.MaximumHealth;
             var shield=c.ShieldPool?.TotalShield??0;
             Set(healthSlider,c.CurrentHealth,maximum);
             CombatBarPresentation.FitFrame(healthSlider);
-            if (healthValueText!=null) healthValueText.text=CombatHealthPresentation.Format(c.CurrentHealth,maximum,shield);
+            if (healthValueText!=null) healthValueText.text=statValueLinks?CharacterStatValueLinks.Health(c):CombatHealthPresentation.Format(c.CurrentHealth,maximum,shield);
             if(shieldSlider!=null){shieldSlider.gameObject.SetActive(shield>0);Set(shieldSlider,shield,Mathf.Max(maximum,shield));}
             var resource=c.ResourcePool;
             if(resourceSlider!=null){resourceSlider.gameObject.SetActive(resource!=null&&resource.MaxValue>0);Set(resourceSlider,resource?.CurrentValue??0,resource?.MaxValue??1);}
             if(resource!=null){CombatResourceColors.ApplyToFill(resourceSlider,resource.ResourceType);resourceSlider?.GetComponent<CombatSimpleTooltipTrigger>()?.InitializeResource(null, resource);}
-            if(resourceValueText!=null)resourceValueText.text=resource==null?"":$"{resource.CurrentValue}/{resource.MaxValue}";
+            if(resourceValueText!=null)resourceValueText.text=resource==null?"":statValueLinks?CharacterStatValueLinks.Resource(c):$"{resource.CurrentValue}/{resource.MaxValue}";
             var remaining=RemainingAfterPreview(unit.CurrentActionPoints,previewCost);
-            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP · potrzeba {ActionPointUnits.Format(previewCost)}":previewCost>0?$"{ActionPointUnits.Format(unit.CurrentActionPoints)} → {ActionPointUnits.Format(remaining)} AP":$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} AP";
+            if(actionValueText!=null)actionValueText.text=previewCost>unit.CurrentActionPoints?$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} {UiTerms.ActionPointsShort} · potrzeba {ActionPointUnits.Format(previewCost)}":previewCost>0?$"{ActionPointUnits.Format(unit.CurrentActionPoints)} → {ActionPointUnits.Format(remaining)} {UiTerms.ActionPointsShort}":$"{ActionPointUnits.Format(unit.CurrentActionPoints)}/{ActionPointUnits.Format(unit.MaxActionPoints)} {UiTerms.ActionPointsShort}";
             if(actionPointPipTemplate==null||actionPointPipRoot==null)return;
             actionPointPipTemplate.gameObject.SetActive(false);
             var count = ActionPointUnits.PipCount(Mathf.Max(unit.MaxActionPoints, unit.CurrentActionPoints));

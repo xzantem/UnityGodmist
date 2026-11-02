@@ -10,6 +10,7 @@ namespace Godmist.Views.Combat
     {
         public System.Func<Vector3, GridPosition?> ResolvePointerPosition { get; set; }
         public System.Func<bool> IsWorldInteractionClaimedThisFrame { get; set; }
+        public float GridCellSize => Mathf.Max(.01f, cellSize);
 
         public void SetGridMapping(Vector2 origin, float size)
         {
@@ -25,10 +26,9 @@ namespace Godmist.Views.Combat
         [Header("Grid Mapping")]
         [SerializeField] private Vector2 gridOrigin = Vector2.zero;
         [SerializeField] private float cellSize = 1f;
-        [SerializeField] private Color movementRangeColor = new(1f, .72f, .2f, .85f);
-        [SerializeField] private Color movementPreviewColor = new(1f, .84f, .38f, 1f);
-        [SerializeField] private Color inspectedMovementRangeColor =
-            new(.85f, .3f, 1f, .85f);
+        private static Color movementRangeColor => HighlightStyle.WithAlpha(HighlightStyle.Selection, .85f);
+        private static Color movementPreviewColor => HighlightStyle.Selection;
+        private static Color inspectedMovementRangeColor => HighlightStyle.WithAlpha(HighlightStyle.InspectedRange, .85f);
 
         private Dictionary<
             GridPosition,
@@ -54,7 +54,7 @@ namespace Godmist.Views.Combat
             isActiveAndEnabled
             && HasControllableUnit()
             && sandboxBootstrap?.Session?.IsDungeonWide != true
-            && inspectController?.HoveredUnit != null;
+            && inspectController?.HoveredUnit?.IsPlayerSide == true;
 
         private void Awake()
         {
@@ -125,7 +125,7 @@ namespace Godmist.Views.Combat
             RefreshIfNeeded();
             RefreshMovementPreview();
 
-            if (!Input.GetMouseButtonDown(0))
+            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm))
             {
                 return;
             }
@@ -153,7 +153,7 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            var forceInteraction = Input.GetKey(KeyCode.LeftControl)
+            var forceInteraction = (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate)
                                 || Input.GetKey(KeyCode.RightControl);
 
             if (forceInteraction
@@ -249,8 +249,6 @@ namespace Godmist.Views.Combat
                 reachablePaths.Keys,
                 WithAlpha(movementRangeColor, movementFillAlpha),
                 cell => ShadeForSurcharge(WithAlpha(movementRangeColor, grid.IsDifficultTerrain(cell) ? difficultTerrainFillAlpha : movementFillAlpha), grid.GetTerrainMovementSurcharge(cell)));
-            feedbackRenderer?.ShowOutline(CombatGridFeedbackLayer.ActiveMovementUnit,
-                new[] { sandboxBootstrap.Session.ActiveUnit.Position }, Color.Lerp(movementRangeColor, Color.white, .35f));
         }
 
         private void ClearHighlights()
@@ -266,12 +264,13 @@ namespace Godmist.Views.Combat
 
         private bool TryShowInspectedUnitMovementRange()
         {
-            var isInspectingMovement = Input.GetKey(KeyCode.LeftControl)
+            var isInspectingMovement = (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate)
                 || Input.GetKey(KeyCode.RightControl);
             var inspectedUnit = inspectController?.HoveredUnit;
             if (!isInspectingMovement
                 || sandboxBootstrap?.Session?.IsDungeonWide == true
                 || inspectedUnit == null
+                || !inspectedUnit.IsPlayerSide
                 || sandboxBootstrap?.Session == null)
             {
                 return false;
@@ -324,7 +323,7 @@ namespace Godmist.Views.Combat
             return true;
         }
 
-        [SerializeField] private Color trapPreviewColor = new(1f, .2f, .1f, .85f);
+        private static Color trapPreviewColor => HighlightStyle.Hostile;
         [SerializeField] private Color surchargeGradientEndColor = new(.65f, .27f, .09f, 1f);
         [SerializeField, Min(1)] private int surchargeGradientMaximum = 3;
         private bool previewedTrapDanger;
@@ -338,7 +337,12 @@ namespace Godmist.Views.Combat
                 return;
             }
 
-            if (!TryGetGridPositionUnderMouse(out var hoveredPosition)) return;
+            if (!TryGetGridPositionUnderMouse(out var hoveredPosition))
+            {
+                feedbackRenderer.ClearMovementPreview();
+                previewedDestination = null;
+                return;
+            }
             if (!reachablePaths.TryGetValue(hoveredPosition, out var path))
             {
                 feedbackRenderer.ClearMovementPreview();
@@ -363,7 +367,7 @@ namespace Godmist.Views.Combat
 
         private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
-            var screenPosition = Input.mousePosition;
+            var screenPosition = Godmist.Views.UI.ControllerInput.PointerPosition;
             screenPosition.z =
                 Mathf.Abs(worldCamera.transform.position.z);
 
@@ -387,7 +391,7 @@ namespace Godmist.Views.Combat
         private bool TryInteractWithDoorUnderMouse()
         {
             if (worldCamera == null || sandboxBootstrap?.Session?.ActiveUnit == null) return false;
-            var screen = Input.mousePosition;
+            var screen = Godmist.Views.UI.ControllerInput.PointerPosition;
             screen.z = Mathf.Abs(worldCamera.transform.position.z);
             var world = worldCamera.ScreenToWorldPoint(screen);
             var point = new Vector2((world.x - gridOrigin.x) / cellSize, (world.y - gridOrigin.y) / cellSize);

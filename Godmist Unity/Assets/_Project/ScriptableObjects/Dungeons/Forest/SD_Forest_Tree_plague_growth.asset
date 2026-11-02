@@ -50,7 +50,8 @@ MonoBehaviour:
     chainTargets: 0
     requiredStatusId: poison
   effects:
-  - effectType: 0
+  - stableEffectId: cae9fbe92e46498dbe3d4a7ebf6afcf6
+    effectType: 0
     polarity: 0
     alwaysHits: 0
     targetModeIndex: 0
@@ -129,7 +130,13 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
-  - effectType: 42
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
+  - stableEffectId: 886e9e9f9a39458d875830b79187104d
+    effectType: 42
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
@@ -208,3 +215,9 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

@@ -114,7 +114,7 @@ namespace Godmist.Views.Combat
 
         private bool TryGetGridPositionUnderMouse(out GridPosition position)
         {
-            var screenPosition = Input.mousePosition;
+            var screenPosition = Godmist.Views.UI.ControllerInput.PointerPosition;
             screenPosition.z =
                 Mathf.Abs(worldCamera.transform.position.z);
 

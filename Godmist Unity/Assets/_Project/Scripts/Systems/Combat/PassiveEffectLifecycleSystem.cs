@@ -136,6 +136,7 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            StatusEffectSystem.NormalizeStatus(incomingEffect);
             incomingEffect.Stacks = Math.Max(1, incomingEffect.Stacks);
 
             // Fire generations must retain independent lifetimes, damage and first-tick state.
@@ -260,95 +261,12 @@ namespace Godmist.Systems.Combat
             });
         }
 
-        private static List<PassiveEffectPayloadRuntime> CopyPayloads(
-            List<PassiveEffectPayloadRuntime> payloads)
+        private static List<PassiveEffectPayloadRuntime> CopyPayloads(List<PassiveEffectPayloadRuntime> payloads)
         {
-            var copied = new List<PassiveEffectPayloadRuntime>();
-            if (payloads == null) return copied;
-
-            foreach (var payload in payloads)
-            {
-                switch (payload)
-                {
-                    case DamageOverTimePayload value:
-                        copied.Add(new DamageOverTimePayload
-                        {
-                            RemainingTotalDamage = value.RemainingTotalDamage,
-                            DamagePerTurn = value.DamagePerTurn
-                        });
-                        break;
-                    case SleepHealingPayload value:
-                        copied.Add(new SleepHealingPayload
-                        { MaxHealthPercent = value.MaxHealthPercent });
-                        break;
-                    case UniqueCombatBuffPayload value:
-                        copied.Add(new UniqueCombatBuffPayload
-                        {
-                            BuffType = value.BuffType,
-                            ActionPointModifier = value.ActionPointModifier
-                        });
-                        break;
-                    case ResourceRegenerationBlockPayload:
-                        copied.Add(new ResourceRegenerationBlockPayload());
-                        break;
-                    case DamageRedirectPayload value:
-                        copied.Add(new DamageRedirectPayload
-                        {
-                            RedirectPercent = value.RedirectPercent,
-                            ProtectorCharacterId = value.ProtectorCharacterId,
-                            ProtectorDisplayName = value.ProtectorDisplayName,
-                            ProtectedCharacterId = value.ProtectedCharacterId,
-                            ProtectedCharacterDisplayName = value.ProtectedCharacterDisplayName
-                        });
-                        break;
-                    case OnHitStatusPayload value:
-                        copied.Add(new OnHitStatusPayload
-                        {
-                            StatusId = value.StatusId,
-                            Chance = value.Chance,
-                            DurationTurns = value.DurationTurns,
-                            StatusDamageMultiplier = value.StatusDamageMultiplier,
-                            StatusDamagePerTurn = value.StatusDamagePerTurn
-                        });
-                        break;
-                    case CounterattackPayload value:
-                        copied.Add(new CounterattackPayload
-                        {
-                            Skill = value.Skill,
-                            Range = value.Range,
-                            Effects = value.Effects != null
-                                ? new List<SkillEffectData>(value.Effects)
-                                : new List<SkillEffectData>()
-                        });
-                        break;
-                    case StatModifiersPayload value:
-                        copied.Add(new StatModifiersPayload
-                        { Modifiers = CopyStatModifiers(value.Modifiers) });
-                        break;
-                    case VariableModifiersPayload value:
-                        copied.Add(new VariableModifiersPayload
-                        { Modifiers = CopyVariableModifiers(value.Modifiers) });
-                        break;
-                    case ResistanceModifierPayload value:
-                        copied.Add(new ResistanceModifierPayload
-                        {
-                            ResistanceType = value.ResistanceType,
-                            Value = value.Value
-                        });
-                        break;
-                    case PeriodicRecoveryPayload value:
-                        copied.Add(new PeriodicRecoveryPayload
-                        {
-                            HealthPercent = value.HealthPercent,
-                            ResourcePercent = value.ResourcePercent,
-                            HealthRoundingCarry = value.HealthRoundingCarry,
-                            ResourceRoundingCarry = value.ResourceRoundingCarry
-                        });
-                        break;
-                }
-            }
-
-            return copied;
+            var result = new List<PassiveEffectPayloadRuntime>();
+            foreach (var payload in payloads ?? new List<PassiveEffectPayloadRuntime>())
+                if (payload != null) result.Add(PassiveEffectPayloadCodec.Clone(payload));
+            return result;
         }
 
         public bool ProcessTurnStart(CombatSession session, BattleUnit unit)
@@ -728,64 +646,6 @@ namespace Godmist.Systems.Combat
             }
 
             return copiedSources;
-        }
-
-        private static List<StatModifier> CopyStatModifiers(
-            List<StatModifier> modifiers)
-        {
-            var copiedModifiers = new List<StatModifier>();
-
-            if (modifiers == null)
-            {
-                return copiedModifiers;
-            }
-
-            foreach (var modifier in modifiers)
-            {
-                if (modifier == null)
-                {
-                    continue;
-                }
-
-                copiedModifiers.Add(new StatModifier
-                {
-                    StatType = modifier.StatType,
-                    Operation = modifier.Operation,
-                    Stacking = modifier.Stacking,
-                    Value = modifier.Value
-                });
-            }
-
-            return copiedModifiers;
-        }
-
-        private static List<GameplayVariableModifier> CopyVariableModifiers(
-            List<GameplayVariableModifier> modifiers)
-        {
-            var copiedModifiers = new List<GameplayVariableModifier>();
-
-            if (modifiers == null)
-            {
-                return copiedModifiers;
-            }
-
-            foreach (var modifier in modifiers)
-            {
-                if (modifier == null)
-                {
-                    continue;
-                }
-
-                copiedModifiers.Add(new GameplayVariableModifier
-                {
-                    VariableType = modifier.VariableType,
-                    ReferenceId = modifier.ReferenceId,
-                    Stacking = modifier.Stacking,
-                    Value = modifier.Value
-                });
-            }
-
-            return copiedModifiers;
         }
 
         private static PassiveEffectRuntime FindEffect(

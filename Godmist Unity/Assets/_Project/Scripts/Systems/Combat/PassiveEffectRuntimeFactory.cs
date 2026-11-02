@@ -11,28 +11,28 @@ namespace Godmist.Systems.Combat
         public static bool TryCreate(
             PassiveEffectDefinition definition,
             PassiveEffectSourceRuntime source,
-            out PassiveEffectRuntime runtime)
+            out PassiveEffectRuntime runtime, int rank = 1)
         {
             return TryCreate(
                 definition,
                 source,
                 definition?.Id,
                 out runtime,
-                requireStaticDefinition: false);
+                requireStaticDefinition: false, rank: rank);
         }
 
         public static bool TryCreate(
             PassiveEffectDefinition definition,
             PassiveEffectSourceRuntime source,
             string runtimeEffectId,
-            out PassiveEffectRuntime runtime)
+            out PassiveEffectRuntime runtime, int rank = 1)
         {
             return TryCreate(
                 definition,
                 source,
                 runtimeEffectId,
                 out runtime,
-                requireStaticDefinition: true);
+                requireStaticDefinition: true, rank: rank);
         }
 
         private static bool TryCreate(
@@ -40,7 +40,7 @@ namespace Godmist.Systems.Combat
             PassiveEffectSourceRuntime source,
             string runtimeEffectId,
             out PassiveEffectRuntime runtime,
-            bool requireStaticDefinition)
+            bool requireStaticDefinition, int rank)
         {
             runtime = null;
             if (definition == null
@@ -71,6 +71,7 @@ namespace Godmist.Systems.Combat
                     : Core.Enums.PassiveEffectTickPhase.None
             };
 
+            runtime.SetStateValue(PassiveEffectRuntimeStateValue.Integer(PassiveEffectValueResolver.RankStateKey, System.Math.Max(1, rank)));
             var statModifiers = new List<StatModifier>();
             var variableModifiers = new List<GameplayVariableModifier>();
             ResistanceModifierPayload resistanceModifier = null;
@@ -79,6 +80,8 @@ namespace Godmist.Systems.Combat
             foreach (var operation in definition.Operations ?? new List<PassiveEffectOperationDefinition>())
             {
                 if (operation == null
+                    || !PassiveEffectOperationCapabilities.SupportsTarget(definition, operation)
+                    || !PassiveEffectOperationCapabilities.SupportsValue(definition, operation)
                     || operation.Value == null
                     || operation.Value.Source != PassiveEffectValueSourceType.Constant && materializePersistentPayloads
                     || requireStaticDefinition
@@ -104,7 +107,7 @@ namespace Godmist.Systems.Combat
                                 StatType = operation.StatType,
                                 Operation = operation.ModifierOperation,
                                 Stacking = operation.ModifierStacking,
-                                Value = operation.Value.NumberValue
+                                Value = PassiveEffectValueResolver.Constant(operation.Value, rank)
                             });
                         }
                         break;
@@ -115,7 +118,7 @@ namespace Godmist.Systems.Combat
                         resistanceModifier = new ResistanceModifierPayload
                         {
                             ResistanceType = operation.ResistanceType,
-                            Value = operation.Value.NumberValue
+                            Value = PassiveEffectValueResolver.Constant(operation.Value, rank)
                         };
                         break;
 
@@ -126,7 +129,7 @@ namespace Godmist.Systems.Combat
                             VariableType = operation.VariableType,
                             ReferenceId = operation.ReferenceId ?? string.Empty,
                             Stacking = operation.ModifierStacking,
-                            Value = operation.Value.NumberValue
+                            Value = PassiveEffectValueResolver.Constant(operation.Value, rank)
                         });
                         break;
 

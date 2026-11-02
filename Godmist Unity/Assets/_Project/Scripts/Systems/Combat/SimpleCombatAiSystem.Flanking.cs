@@ -132,9 +132,11 @@ namespace Godmist.Systems.Combat
             foreach (var type in PlanningStatTypes)
             {
                 ref var stat = ref unit.Character.Stats.GetStat(type);
-                stat.SetEffectiveValue(Mathf.Max(0, stat.GetValue() - before[type]
-                    + CharacterStatPipelineSystem.EvaluateModifiers(stat.BaseValue, type, unit.Character.PassiveEffects)));
+                if (type != CharacterStatType.Speed)
+                    stat.SetEffectiveValue(Mathf.Max(0, stat.GetValue() - before[type]
+                        + CharacterStatPipelineSystem.EvaluateModifiers(stat.BaseValue, type, unit.Character.PassiveEffects)));
             }
+            unit.Character.Stats.Speed.SetEffectiveValue(CharacterStatPipelineSystem.CalculateEffectiveSpeed(unit.Character));
             unit.Character.WeaponAccuracy = unit.Character.Stats.WeaponAccuracy.GetValue();
             unit.MaxActionPoints = PlanningFullBudget(next.World, unit);
             unit.CurrentActionPoints = unit.MaxActionPoints;

@@ -69,11 +69,10 @@ namespace Godmist.Tests.EditMode
             var clone=Object.Instantiate(Definition(id));
             try
             {
-                var health=clone.BaseStats.MaxHealth;var attack=clone.BaseStats.MaxAttack;var multiplier=clone.AttackMultiplier;
+                var health=clone.BaseStats.MaxHealth;var attack=clone.BaseStats.MaxAttack;
                 EnemyRoleStatsSetup.ApplyToDefinition(clone);var first=EditorJsonUtility.ToJson(clone);
                 Assert.That(EnemyRoleStatsSetup.ApplyToDefinition(clone),Is.False);Assert.That(EditorJsonUtility.ToJson(clone),Is.EqualTo(first));
                 Assert.That(clone.BaseStats.MaxHealth,Is.EqualTo(health));Assert.That(clone.BaseStats.MaxAttack,Is.EqualTo(attack));
-                Assert.That(clone.AttackMultiplier,Is.EqualTo(multiplier));
                 Assert.That(clone.GrowthData.DefenseCurve.Length,Is.EqualTo(id is "enemy.catacombs.defender" or "enemy.catacombs.wraith" or "enemy.forest.elf_archer"?9:6));
             }
             finally{Object.DestroyImmediate(clone);}

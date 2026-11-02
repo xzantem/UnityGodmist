@@ -112,6 +112,7 @@ namespace Godmist.Views.UI.Workspace
 
             FocusedWindow = window;
             window.transform.SetAsLastSibling();
+            window.GetComponent<Godmist.Views.UI.ControllerNavigationScope>()?.Focus();
         }
 
         public void CascadeAndFocus(UIWorkspaceWindow window, UIWorkspaceWindow previousWindow)

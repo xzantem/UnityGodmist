@@ -372,6 +372,8 @@ namespace Godmist.Editor
                 && stages.All(stage => stage == null || stage.StageId != quest.StartStageId))
                 collector.Error(quest, "StartStageId", "StartStageId wskazuje na nieistniejący stage.");
 
+            if (quest.Level < 1 || quest.Level > 50) collector.Error(quest,"Level","Quest level must be 1-50.");
+            var rewardIds = new HashSet<string>(StringComparer.Ordinal);
             var stageIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var stage in stages)
             {
@@ -386,6 +388,20 @@ namespace Godmist.Editor
                 else if (!stageIds.Add(stage.StageId))
                     collector.Error(quest, "Stages.StageId", $"StageId '{stage.StageId}' występuje więcej niż raz.");
 
+                foreach (var reward in stage.CompletionRewards ?? new List<QuestRewardDefinition>())
+                {
+                    if (reward == null) { collector.Error(quest,"Rewards","Null quest reward."); continue; }
+                    if (string.IsNullOrWhiteSpace(reward.RewardId) || !rewardIds.Add(reward.RewardId))
+                        collector.Error(quest,"Rewards.RewardId","Reward IDs must be unique and nonempty across the quest.");
+                    if (reward.RewardType == QuestRewardType.Item)
+                    {
+                        if (reward.Amount < 1 || reward.ItemDefinition == null)
+                            collector.Error(quest,"Rewards.Item","Item rewards require a definition and positive amount.");
+                        if (!Enum.IsDefined(typeof(EquipmentQuality),reward.EquipmentQuality) || !Enum.IsDefined(typeof(RarityTier),reward.EquipmentRarity)
+                            || reward.ItemDefinition is UniqueEquipmentDefinition && reward.EquipmentQuality != EquipmentQuality.Masterpiece)
+                            collector.Error(quest,"Rewards.EquipmentQuality","Invalid equipment quality/rarity for item reward.");
+                    }
+                }
                 var objectives = stage.Objectives ?? new List<QuestObjectiveDefinition>();
                 var objectiveIds = new HashSet<string>(StringComparer.Ordinal);
                 foreach (var objective in objectives)

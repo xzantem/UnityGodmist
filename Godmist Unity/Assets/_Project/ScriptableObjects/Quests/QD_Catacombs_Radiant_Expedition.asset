@@ -30,3 +30,5 @@ MonoBehaviour:
       <IsOptional>k__BackingField: 0
     <CompletionRewards>k__BackingField: []
     <Transitions>k__BackingField: []
+  stableRewardIdsInitialized: 1
+  level: 1

@@ -263,7 +263,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(node.MaxRanks,Is.EqualTo(1));Assert.That(node.Requirements,Is.Empty);
             Rank(u,"blade_dancer",ScoutCombatSystem.EfficientRecoveryNode,1);
             Assert.That(PassiveEffectCombatExecutionSystem.ResolveResourceCost(u,hook,true),Is.EqualTo(10));
-            Assert.That(Godmist.Views.UI.Workspace.UIWorkspaceTooltipView.BuildLoadoutSkillCost(hook,u.Character),Does.Contain("Odzysk sztyletu: 10% AP"));
+            Assert.That(Godmist.Views.UI.Workspace.UIWorkspaceTooltipView.BuildLoadoutSkillCost(hook,u.Character),Does.Contain("Odzysk sztyletu: 10% PA"));
             var tonic=Skill("ScoutTonic");
             Assert.That(PassiveEffectCombatExecutionSystem.ResolveEffect(u,tonic,tonic.Effects[1]).DurationTurns,Is.EqualTo(3));
             u.Character.SkillTreeProgress.Clear();new CharacterStatPipelineSystem().Refresh(u.Character);

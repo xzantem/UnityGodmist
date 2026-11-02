@@ -446,12 +446,12 @@ namespace Godmist.Views.Exploration
             if (body != null) body.position = transform.position;
         }
 
-        public void RefreshCombatPresentation(bool isActive, bool isHovered, bool isTargeting)
+        public void RefreshCombatPresentation(bool isActive, bool isHovered, bool isTargeting, Color? targetAccent = null)
         {
             Godmist.Views.UI.CombatDownedIndicatorView.UpdateWorld(ref downedIndicator, bodyRenderer, CombatUnit, awarenessStyle);
             if (CombatUnit == null) { combatVisualState?.ClearHighlight(); return; }
             if (nameLabel != null) nameLabel.gameObject.SetActive(false);
-            combatVisualState?.Refresh(CombatUnit, isActive, isHovered, isTargeting, true);
+            combatVisualState?.Refresh(CombatUnit, isActive, isHovered, isTargeting, true, targetAccent);
         }
 
         public bool IsPointerHit(Vector2 point) => isActiveAndEnabled && bodyRenderer != null
@@ -545,12 +545,15 @@ namespace Godmist.Views.Exploration
         }
 
         public void Move(Vector2 offset)
+            => Move(offset, false);
+
+        private void Move(Vector2 offset, bool preciseCombatPresentation)
         {
             using var moveSample = MoveSample.Auto();
             if (transformation.IsPlaying) return;
             if (CombatUnit == null && RuntimeCharacter != null
                 && RuntimeCharacter.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive) return;
-            if (offset.sqrMagnitude < 0.0001f) return;
+            if (offset.sqrMagnitude < (preciseCombatPresentation ? 0.0000000001f : 0.0001f)) return;
             if (HasCombatPose) ClearCombatPose();
             if (UsesLayeredTraversal && CombatUnit == null && !noclipEnabled)
             {
@@ -772,7 +775,7 @@ namespace Godmist.Views.Exploration
                 if (from != to) crossingDepthEdge = terrainView.TryGetLowWallCrossing(current, destination, PresentationLevel, out var edge) ? edge : null;
             }
 
-            Move(nextPosition - current);
+            Move(nextPosition - current, CombatUnit != null);
             if (CombatUnit != null && Position == destination) crossingDepthEdge = null;
         }
 

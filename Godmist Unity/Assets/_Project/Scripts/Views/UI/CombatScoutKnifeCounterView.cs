@@ -1,6 +1,4 @@
 using Godmist.Runtime.Combat;
-using Godmist.Systems.Combat;
-using Godmist.Views.UI.Workspace;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,7 +11,6 @@ namespace Godmist.Views.UI
     {
         private TMP_Text countText;
         private BattleUnit unit;
-        private UIWorkspaceTooltipView tooltip;
         private int available = -1, capacity = -1;
         private bool hovered;
         public BattleUnit HighlightOwner => isActiveAndEnabled && hovered ? unit : null;
@@ -74,31 +71,21 @@ namespace Godmist.Views.UI
             available = next.AvailableKnives; capacity = next.MaxKnives;
             countText.text = $"{available}/{capacity}";
             countText.color = available > 0 ? new Color(.94f, .83f, .51f) : new Color(1f, .35f, .28f);
-            tooltip?.InvalidateSource(this);
-            if (hovered) ShowTooltip();
-        }
-
-        private void ShowTooltip()
-        {
-            tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
-            tooltip?.ShowCompactText("Sztylety", $"Dostępne: {available}/{capacity}.\nNajedź na licznik, aby podświetlić własne sztylety leżące na widocznych polach.\nOdzyskaj je, przechodząc przez ich pole, używając odpowiedniej umiejętności lub wyjmując z przeciwnika.\nUdany odzysk: +{ScoutCombatSystem.KnifeRecoveryMomentum} impetu, raz za odzysk niezależnie od liczby sztyletów.", this);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (unit == null || !isActiveAndEnabled) return;
-            hovered = true; ShowTooltip();
+            hovered = true;
         }
         public void OnPointerExit(PointerEventData eventData)
         {
             hovered = false;
-            tooltip?.NotifySourceExit(this);
         }
         private void OnDisable() => ClearHover();
         private void ClearHover()
         {
             hovered = false;
-            tooltip?.InvalidateSource(this);
         }
     }
 }

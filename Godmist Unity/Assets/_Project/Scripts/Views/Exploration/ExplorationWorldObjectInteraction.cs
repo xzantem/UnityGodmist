@@ -81,7 +81,7 @@ namespace Godmist.Views.Exploration
             var point = Vector2.zero;
             var hovered = !Party.IsWorldPrimaryClickClaimed && Party.TryGetPointerWorldPosition(out point) && IsPointerHit(point);
             SetInspectionHighlight(hovered);
-            if (hovered && Input.GetMouseButtonDown(0)) TryPrimaryInteraction(point);
+            if (hovered && (Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)) TryPrimaryInteraction(point);
         }
 
         public bool TryKeyboardInteraction()
@@ -132,7 +132,6 @@ namespace Godmist.Views.Exploration
                 {
                     if (!visible) continue;
                     visual = renderer.GetComponent<CombatUnitVisualStateView>() ?? renderer.gameObject.AddComponent<CombatUnitVisualStateView>();
-                    visual.SetPulseSpeed(0);
                     visual.SetOutlineWidth(1f / Mathf.Max(1, renderer.sprite.pixelsPerUnit));
                     outlines.Add(renderer, visual);
                     firstHighlight = true;

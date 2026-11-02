@@ -914,7 +914,7 @@ namespace Godmist.Systems.Combat
             }
         }
 
-        private static bool IsEligibleTarget(
+        public static bool IsEligibleTarget(
             BattleUnit caster,
             BattleUnit target,
             TargetingType targetingType,

@@ -26,6 +26,9 @@ namespace Godmist.Views.UI
         [SerializeField] private Color applyDisabledTextColor = new Color(.46f, .47f, .44f, 1);
         [SerializeField] private Color volumeFillColor = new Color(.64f, .72f, .60f, 1);
 
+        [SerializeField] private Slider controllerCursorSlider, controllerCameraSlider;
+        [SerializeField] private TMP_Text controllerCursorValue, controllerCameraValue;
+        private float acceptedCursorSpeed, acceptedCameraSpeed, pendingCursorSpeed, pendingCameraSpeed;
         private IMainMenuSettingsPlatform platform;
         private TMP_Text applyLabel;
         private Color applyEnabledTextColor;
@@ -68,6 +71,8 @@ namespace Godmist.Views.UI
             applyButton.onClick.AddListener(Apply);
             closeButton.onClick.AddListener(Close);
             volumeSlider.onValueChanged.AddListener(PreviewVolume);
+            controllerCursorSlider?.onValueChanged.AddListener(ControllerChanged);
+            controllerCameraSlider?.onValueChanged.AddListener(ControllerChanged);
             resolutionDropdown.onValueChanged.AddListener(DisplayChanged);
             fullscreenToggle.onValueChanged.AddListener(FullscreenChanged);
             keepDisplayButton.onClick.AddListener(KeepDisplay);
@@ -81,6 +86,7 @@ namespace Godmist.Views.UI
             if (!enabled || IsOpen) return;
             acceptedDisplay = Platform.Display;
             acceptedVolume = Mathf.Clamp01(Platform.Volume);
+            acceptedCursorSpeed = ControllerPreferences.CursorSpeed; acceptedCameraSpeed = ControllerPreferences.CameraSpeed;
             resolutions = Platform.Resolutions.Append(acceptedDisplay.Resolution)
                 .Where(r => r.x > 0 && r.y > 0).Distinct().OrderBy(r => r.x).ThenBy(r => r.y).ToList();
             resolutionDropdown.ClearOptions();
@@ -104,7 +110,9 @@ namespace Godmist.Views.UI
             return new MenuDisplaySettings(resolution, mode);
         }
         private bool HasChanges => resolutions != null && resolutions.Count > 0
-            && (!ReadDisplay().Matches(acceptedDisplay) || !Mathf.Approximately(volumeSlider.value, acceptedVolume));
+            && (!ReadDisplay().Matches(acceptedDisplay) || !Mathf.Approximately(volumeSlider.value, acceptedVolume)
+                || controllerCursorSlider != null && !Mathf.Approximately(controllerCursorSlider.value,acceptedCursorSpeed)
+                || controllerCameraSlider != null && !Mathf.Approximately(controllerCameraSlider.value,acceptedCameraSpeed));
         private void PreviewVolume(float value)
         {
             if (!IsOpen || awaitingConfirmation) return;
@@ -114,8 +122,19 @@ namespace Godmist.Views.UI
         }
         private void DisplayChanged(int _) { if (IsOpen) { messageText.text = ""; RefreshControls(); } }
         private void FullscreenChanged(bool _) { if (IsOpen) { messageText.text = ""; RefreshControls(); } }
+        private void ControllerChanged(float value) { if (IsOpen) RefreshControls(); }
         private void RefreshControls()
         {
+            if (controllerCursorSlider != null)
+            {
+                controllerCursorSlider.interactable = !awaitingConfirmation;
+                if (controllerCursorValue != null) controllerCursorValue.text = $"{controllerCursorSlider.value:0.00}×";
+            }
+            if (controllerCameraSlider != null)
+            {
+                controllerCameraSlider.interactable = !awaitingConfirmation;
+                if (controllerCameraValue != null) controllerCameraValue.text = $"{controllerCameraSlider.value:0.00}×";
+            }
             // Shared slider styling runs on enable; settings own this muted fill.
             if (volumeSlider.fillRect != null && volumeSlider.fillRect.TryGetComponent<Image>(out var fill))
                 fill.color = volumeFillColor;
@@ -131,6 +150,8 @@ namespace Godmist.Views.UI
             if (!IsOpen || awaitingConfirmation || !HasChanges) return;
             pendingDisplay = ReadDisplay();
             pendingVolume = Mathf.Clamp01(volumeSlider.value);
+            pendingCursorSpeed = controllerCursorSlider != null ? controllerCursorSlider.value : acceptedCursorSpeed;
+            pendingCameraSpeed = controllerCameraSlider != null ? controllerCameraSlider.value : acceptedCameraSpeed;
             if (pendingDisplay.Matches(acceptedDisplay)) { Commit(); return; }
             // Persist only after confirmation: a crash or timeout retains safe settings.
             Platform.SetDisplay(pendingDisplay);
@@ -143,6 +164,12 @@ namespace Godmist.Views.UI
         }
         private void Commit()
         {
+            if (controllerCursorSlider != null && controllerCameraSlider != null
+                && (!Mathf.Approximately(pendingCursorSpeed,acceptedCursorSpeed) || !Mathf.Approximately(pendingCameraSpeed,acceptedCameraSpeed)))
+            {
+                ControllerPreferences.Save(pendingCursorSpeed,pendingCameraSpeed);
+                acceptedCursorSpeed = pendingCursorSpeed; acceptedCameraSpeed = pendingCameraSpeed;
+            }
             Platform.Volume = pendingVolume;
             Platform.Save(pendingVolume, pendingDisplay);
             acceptedVolume = pendingVolume;
@@ -175,6 +202,8 @@ namespace Godmist.Views.UI
         }
         private void ResetControls()
         {
+            controllerCursorSlider?.SetValueWithoutNotify(acceptedCursorSpeed);
+            controllerCameraSlider?.SetValueWithoutNotify(acceptedCameraSpeed);
             volumeSlider.SetValueWithoutNotify(acceptedVolume);
             resolutionDropdown.SetValueWithoutNotify(Mathf.Max(0, resolutions.IndexOf(acceptedDisplay.Resolution)));
             fullscreenToggle.SetIsOnWithoutNotify(acceptedDisplay.Fullscreen);
@@ -233,6 +262,8 @@ namespace Godmist.Views.UI
             if (applyButton != null) applyButton.onClick.RemoveListener(Apply);
             if (closeButton != null) closeButton.onClick.RemoveListener(Close);
             if (volumeSlider != null) volumeSlider.onValueChanged.RemoveListener(PreviewVolume);
+            controllerCursorSlider?.onValueChanged.RemoveListener(ControllerChanged);
+            controllerCameraSlider?.onValueChanged.RemoveListener(ControllerChanged);
             if (resolutionDropdown != null) resolutionDropdown.onValueChanged.RemoveListener(DisplayChanged);
             if (fullscreenToggle != null) fullscreenToggle.onValueChanged.RemoveListener(FullscreenChanged);
             if (keepDisplayButton != null) keepDisplayButton.onClick.RemoveListener(KeepDisplay);

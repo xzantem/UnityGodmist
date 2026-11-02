@@ -2181,22 +2181,13 @@ MonoBehaviour:
         <MinimumGalduryteRarity>k__BackingField: 3
         <FixedGalduryteLevel>k__BackingField: 0
       <DistinctSelectionGroup>k__BackingField: 
-    - <DropChance>k__BackingField: 0.33233994
+    - <DropChance>k__BackingField: 0.3137289
       <Entries>k__BackingField:
       - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: 2cb9d84ffaee40b44ab318adff4484ef, type: 2}
         <Amount>k__BackingField:
           Min: 1
           Max: 1
         <SelectionWeight>k__BackingField: 0.026254857
-        <HasFixedEquipmentQuality>k__BackingField: 0
-        <EquipmentQuality>k__BackingField: 0
-        <MinimumGalduryteRarity>k__BackingField: 3
-        <FixedGalduryteLevel>k__BackingField: 0
-      - <ItemDefinition>k__BackingField: {fileID: 11400000, guid: ded1996480ebefe48815f91170b77d82, type: 2}
-        <Amount>k__BackingField:
-          Min: 1
-          Max: 1
-        <SelectionWeight>k__BackingField: 0.018611038
         <HasFixedEquipmentQuality>k__BackingField: 0
         <EquipmentQuality>k__BackingField: 0
         <MinimumGalduryteRarity>k__BackingField: 3

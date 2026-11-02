@@ -66,6 +66,8 @@ namespace Godmist.Views.Dungeons
             targeting.PresentSkillHover(cells);
         }
         public bool IsPreparingOpening => combatHost != null && combatHost.IsOpeningPreview;
+        public bool CanMoveDuringOpeningSelection => IsPreparingOpening && queuedEntry == null
+            && targeting?.IsSelectingTarget == true && !targeting.IsApproachingSkillTarget;
 
         // HUD-only wrapper: no grid, battle registration, turns or resource spend.
         public BattleUnit GetExplorationSkillActor()
@@ -170,7 +172,12 @@ namespace Godmist.Views.Dungeons
             preview.ActiveUnit = preview.Units.First(u => u.IsPlayerSide && u.Character.CharacterId == actorView.CharacterId);
             if (!combatHost.BeginOpeningPreview(preview, CommitOpeningSkill,
                 unit => openingViews.TryGetValue(unit, out var view) ? view.IsVisibleForInspection
-                    : openingCombatExtras.TryGetValue(unit,out var actual) && unitViews.IsUnitVisible(actual))) return false;
+                    : openingCombatExtras.TryGetValue(unit,out var actual) && unitViews.IsUnitVisible(actual),
+                path => party.TryBeginSkillApproach(path.Select(p => DungeonBattleGridFactory.ToDungeonTraversalPosition(preview.DungeonContext, p)).ToArray()),
+                () => party.IsSkillApproachInProgress, () => { SyncOpeningPositions(); },
+                destination => party.GetSkillApproachPath(DungeonBattleGridFactory.ToDungeonTraversalPosition(preview.DungeonContext,destination))
+                    ?.Skip(1).Select(p => DungeonBattleGridFactory.ToBattleTraversalPosition(preview.DungeonContext,p)).ToArray(),
+                party.CancelMovement)) return false;
             openingLeader = actorView.CharacterId;
             party.CancelMovement(); party.CloseInventoryForCombat();
             combatHudRoot.SetActive(true); targeting.enabled = true; movementInput.enabled = false;
@@ -263,6 +270,7 @@ namespace Godmist.Views.Dungeons
             if (combatHost == null || !combatHost.IsOpeningPreview) return;
             if (targeting?.ConsumedPrimaryClickThisFrame == true) party.ClaimWorldPrimaryClick();
             queuedEntry = null;
+            if (party.IsSkillApproachInProgress) party.CancelMovement();
             gridFeedback.ResolveExplorationMarker=null; targeting.ResolvePointerUnit=null;
             combatHost.CancelOpeningPreview(); openingViews.Clear(); openingSources.Clear(); openingCombatExtras.Clear();
             targeting?.CancelTargetSelection();

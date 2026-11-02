@@ -28,6 +28,11 @@ namespace Godmist.Data.Quests
         [field: SerializeField]
         public List<QuestStageDefinition> Stages { get; private set; } = new();
 
+        [SerializeField] private bool stableRewardIdsInitialized;
+        public bool HasStableRewardIds => stableRewardIdsInitialized;
+        [SerializeField, Range(1,50)] private int level = 1;
+        public int Level => level;
+
         public QuestStageDefinition FindStage(string stageId)
         {
             if (string.IsNullOrWhiteSpace(stageId) || Stages == null)

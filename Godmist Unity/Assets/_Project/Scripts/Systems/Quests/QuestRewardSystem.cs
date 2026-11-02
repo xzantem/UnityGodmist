@@ -50,6 +50,12 @@ namespace Godmist.Systems.Quests
                 return result;
             }
 
+            var identities = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var authoredStage in quest.Definition.Stages)
+            foreach (var authoredReward in authoredStage?.CompletionRewards ?? new List<QuestRewardDefinition>())
+                if (authoredReward == null || string.IsNullOrWhiteSpace(authoredReward.RewardId) || !identities.Add(authoredReward.RewardId))
+                    throw new InvalidOperationException("Missing/duplicate quest reward identity: " + quest.QuestId);
+
             for (var index = 0; index < stage.CompletionRewards.Count; index++)
             {
                 var reward = stage.CompletionRewards[index];
@@ -59,14 +65,25 @@ namespace Godmist.Systems.Quests
                     continue;
                 }
 
-                var rewardKey = $"{stage.StageId}:{index}";
+                var rewardKey = "reward:" + reward.RewardId;
+                if (string.IsNullOrWhiteSpace(reward.RewardId)) throw new InvalidOperationException("Missing quest reward identity.");
 
+                if (quest.ClaimedRewardKeys.Contains(rewardKey)) continue;
+                // Prepare every instance before recording a claim or changing the session.
+                var items = reward.RewardType == QuestRewardType.Item
+                    ? QuestRewardItemGenerator.Generate(reward, quest.Level, contentCatalog, random, itemInstanceFactory)
+                    : null;
                 if (!quest.TryClaimReward(rewardKey))
                 {
                     continue;
                 }
 
-                GrantReward(gameSession, reward, result);
+                if (items != null)
+                {
+                    gameSession.AddPendingLoot(items);
+                    result.Items.AddRange(items);
+                }
+                else GrantReward(gameSession, reward, result);
             }
 
             return result;
@@ -168,11 +185,6 @@ namespace Godmist.Systems.Quests
                     result.Gold += reward.Amount;
                     break;
 
-                case QuestRewardType.Item:
-                    var item = itemInstanceFactory.Create(reward.ItemDefinition);
-                    gameSession.AddPendingLoot(new[] { item });
-                    result.Items.Add(item);
-                    break;
 
                 case QuestRewardType.Honor:
                     GrantHonor(gameSession, reward.Amount);
@@ -234,7 +246,7 @@ namespace Godmist.Systems.Quests
             {
                 QuestRewardType.Experience => reward.StandardExperienceLevel > 0 || reward.Amount > 0,
                 QuestRewardType.Gold => reward.Amount > 0,
-                QuestRewardType.Item => reward.ItemDefinition != null,
+                QuestRewardType.Item => reward.ItemDefinition != null && reward.Amount > 0,
                 QuestRewardType.Honor => reward.Amount > 0,
                 QuestRewardType.WorldFlag =>
                     !string.IsNullOrWhiteSpace(reward.WorldFlagId),

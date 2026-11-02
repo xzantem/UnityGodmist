@@ -321,7 +321,8 @@ namespace Godmist.Tests.EditMode
             var runtime = character.PassiveEffects.Find(effect =>
                 effect.DefinitionId == definition.Id);
             Assert.That(runtime, Is.Not.Null);
-            Assert.That(runtime.Stacks, Is.EqualTo(2));
+            Assert.That(PassiveEffectValueResolver.Rank(runtime), Is.EqualTo(2));
+            Assert.That(runtime.Stacks, Is.EqualTo(1));
             Assert.That(runtime.EffectId,
                 Is.EqualTo("passive-migration.skill-tree.tree.test.node.node.test.passive.node.rank"));
         }

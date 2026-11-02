@@ -86,7 +86,7 @@ namespace Godmist.Systems.Dungeons
             {
                 var character = session.CharactersById[id];
                 if (character.LifeState != CharacterLifeState.Alive) continue;
-                var maxHealth = Mathf.Max(1, Mathf.RoundToInt(character.Stats?.MaxHealth.GetValue() ?? character.CurrentHealth));
+                var maxHealth = (character.Stats == null ? Mathf.Max(1, character.CurrentHealth) : character.MaximumHealth);
                 character.CurrentHealth = Mathf.Min(maxHealth,
                     character.CurrentHealth + Mathf.RoundToInt(maxHealth * RecoveryFraction));
                 if (character.ResourcePool?.ResourceType == ResourceType.Mana)

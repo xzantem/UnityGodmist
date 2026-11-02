@@ -24,6 +24,38 @@ namespace Godmist.Views.UI
         [SerializeField] private GridLayoutGroup skillGrid;
 
         public SkillData HoveredSkill { get; private set; }
+        public IReadOnlyList<CombatSkillSlotView> ControllerSlots => spawnedSlots;
+        public bool FocusForController(UnityEngine.EventSystems.EventSystem events)
+        {
+            foreach (var slot in spawnedSlots)
+            {
+                if (slot == null || !slot.gameObject.activeInHierarchy) continue;
+                var button = slot.GetComponentInChildren<Button>();
+                if (button == null || !button.interactable) continue;
+                events.SetSelectedGameObject(button.gameObject);
+                return true;
+            }
+            return false;
+        }
+
+        public bool PageForController(UnityEngine.EventSystems.EventSystem events, int direction)
+        {
+            var buttons = spawnedSlots.Where(slot => slot != null && slot.gameObject.activeInHierarchy)
+                .Select(slot => slot.GetComponentInChildren<Button>()).Where(button => button != null && button.interactable).ToArray();
+            if (buttons.Length == 0) return false;
+            var index = System.Array.FindIndex(buttons, button => button.gameObject == events.currentSelectedGameObject);
+            // A page is one authored viewport; the final partial page wraps to the first.
+            var columns = skillGrid != null && skillGrid.constraint == GridLayoutGroup.Constraint.FixedColumnCount
+                ? Mathf.Max(1, skillGrid.constraintCount) : 5;
+            var rows = skillScroll?.viewport != null && skillGrid != null
+                ? Mathf.Max(1, Mathf.FloorToInt((skillScroll.viewport.rect.height + skillGrid.spacing.y)
+                    / Mathf.Max(1, skillGrid.cellSize.y + skillGrid.spacing.y))) : 1;
+            var pageSize = columns * rows;
+            var pageCount = Mathf.CeilToInt(buttons.Length / (float)pageSize);
+            var page = ((Mathf.Max(0, index) / pageSize + direction) % pageCount + pageCount) % pageCount;
+            events.SetSelectedGameObject(buttons[page * pageSize].gameObject);
+            return true;
+        }
         private readonly List<CombatSkillSlotView> spawnedSlots = new();
         private readonly Dictionary<int, CombatSkillSlotView> shortcutSlots = new();
         private readonly Stack<CombatSkillSlotView> spareSlots = new();
@@ -43,10 +75,19 @@ namespace Godmist.Views.UI
         }
         public BattleUnit DisplayActor => sandboxBootstrap?.Session?.ActiveUnit ?? explorationActor?.Invoke();
 
+        public void DismissControllerSkillInspection(object source) { if (tooltipView != null) tooltipView.InvalidateSource(source); }
+        public void InspectControllerSkill(CombatSkillSlotView slot, object source)
+        {
+            if (slot == null) return;
+            tooltipView?.ShowSkill(slot.ControllerSkill, slot.ControllerActionCost, source, DisplayActor, slot.ControllerUnavailableReason);
+        }
+
         private void SelectSkill(SkillData skill)
         {
             if (sandboxBootstrap?.Session == null) selectExplorationSkill?.Invoke(skill);
+            else if (ControllerInput.UiActive) targetSelectionController?.BeginControllerTargetSelection(skill);
             else targetSelectionController?.BeginTargetSelection(skill);
+            if (ControllerInput.UiActive) GetComponentInParent<ControllerInputView>()?.ReturnToWorld();
         }
         private BattleUnit cachedActiveUnit;
         private int cachedSkillCount = -1;
@@ -238,47 +279,38 @@ namespace Godmist.Views.UI
                     continue;
                 }
 
-                var canRecoverKnife = skill.CanRecoverKnives && sandboxBootstrap?.Session?.MapObjects
-                    .OfType<KnifeCombatMapObject>().Any(k => ScoutCombatSystem.RecoverableKnife(
-                        sandboxBootstrap.Session, activeUnit, skill, k.Position) != null) == true;
-                var actionCost = PaladinCombatSystem.PreviewHealCost(sandboxBootstrap?.Session,activeUnit,skill,null,CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill));
-                var activationActionCost = canRecoverKnife
-                    ? CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill, true) : actionCost;
-                var resourceCost = PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit, skill, canRecoverKnife);
-                var resource = activeUnit.Character.ResourcePool;
-                var isActiveToggle = skill.IsToggle
-                    && activeUnit.ActiveToggleSkillIds != null
-                    && activeUnit.ActiveToggleSkillIds.Contains(skill.SkillId);
-                var wasChangedThisTurn = skill.IsToggle
-                    && activeUnit.ToggleSkillIdsUsedThisTurn != null
-                    && activeUnit.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId);
-                var canPayActivationCost = activeUnit.CurrentActionPoints >= activationActionCost
-                    && (resourceCost <= 0
-                        || (resource != null
-                            && resource.ResourceType == skill.ResourceType
-                            && (resource.CurrentValue >= resourceCost
-                                || WarriorCombatSystem.CanOverspend(activeUnit,skill,resourceCost))));
-                var canPayKnives = skill.KnifeCost <= 0
-                    || activeUnit.AvailableKnives >= skill.KnifeCost
-                    || skill.FreeKnivesInMelee;
-                var canUse = activeUnit.IsPlayerSide && (isActiveToggle
-                    || (!wasChangedThisTurn && canPayActivationCost && canPayKnives && WarriorCombatSystem.CanActivate(activeUnit,skill)));
-                var reason = !activeUnit.IsPlayerSide ? "Tura przeciwnika."
-                    : canUse ? null
-                    : wasChangedThisTurn ? "Przełączono już w tej turze."
-                    : activeUnit.CurrentActionPoints < activationActionCost ? "Za mało punktów akcji."
-                    : !canPayKnives ? "Za mało noży."
-                    : "Za mało zasobu lub niewłaściwy typ zasobu.";
+                var availability = SkillExecutionSystem.GetSelectionAvailability(sandboxBootstrap?.Session, activeUnit, skill,
+                    sandboxBootstrap?.IsSkillInputBusy == true);
                 spawnedSlots[slotIndex].RefreshAvailability(
-                    canUse,
-                    isActiveToggle ? 0 : actionCost,
-                    isActiveToggle,
+                    availability.CanSelect,
+                    availability.ActionCost,
+                    availability.IsActiveToggle,
                     string.Empty,
                     targetSelectionController?.SelectedSkill == skill,
-                    reason);
+                    FormatUnavailableReason(availability.Reason, skill));
                 slotIndex++;
             }
         }
+
+        private static string FormatUnavailableReason(SkillUseBlockReason reason, SkillData skill) => reason switch
+        {
+            SkillUseBlockReason.None => null,
+            SkillUseBlockReason.EnemyTurn or SkillUseBlockReason.NotActiveTurn => "Tura przeciwnika.",
+            SkillUseBlockReason.ActionInProgress => "Trwa wykonywanie akcji.",
+            SkillUseBlockReason.InvalidActor => "Postać nie może teraz działać.",
+            SkillUseBlockReason.RequiredStatus => "Brak wymaganego efektu na postaci.",
+            SkillUseBlockReason.Immobilized => "Unieruchomienie blokuje umiejętności ruchowe.",
+            SkillUseBlockReason.CrowdControlled => "Status blokuje używanie umiejętności.",
+            SkillUseBlockReason.ToggleAlreadyUsed => "Przełączono już w tej turze.",
+            SkillUseBlockReason.WarriorRequirement => skill.SkillId == WarriorDischargeRules.SkillId
+                ? "Wymaga co najmniej 20 furii." : "Za mało furii do podtrzymania umiejętności.",
+            SkillUseBlockReason.NotEnoughActionPoints => "Za mało punktów akcji.",
+            SkillUseBlockReason.NotEnoughKnives => "Za mało sztyletów.",
+            SkillUseBlockReason.MissingResource or SkillUseBlockReason.WrongResource => "Niewłaściwy typ zasobu.",
+            SkillUseBlockReason.NotEnoughResource => "Za mało " + Godmist.Core.Utilities.UiTerms.Resource(skill.ResourceType, genitive: true) + ".",
+            SkillUseBlockReason.MissingSummon => "Brak wymaganego przywołania.",
+            _ => "Umiejętność niedostępna."
+        };
 
         private void ClearSlots()
         {

@@ -1,0 +1,27 @@
+KEYBOARD AND MOUSE
+I: Party View. Select each companion's Equipment, Statistics, Skills or
+Development tab independently. Use the header to open the individual card.
+Items: left-click selects; double-click equips or uses; right-click opens actions.
+Drag an item onto another companion's portrait or column to transfer it.
+Skill targeting: choose a target and confirm; an out-of-range target shows the
+approach before your character moves and casts. Outside combat, movement
+remains available while aiming.
+Camera: F changes camera follow. Middle/right drag pans an unlocked exploration
+camera; right drag also unlocks it. Scroll zooms.
+Follow the on-screen contextual hints for combat actions and other shortcuts.
+
+XBOX-STYLE CONTROLLER
+Left stick: exploration movement / combat tile / menu selection.
+Right stick: camera / menu scrolling. R3: recenter camera.
+A: interact or confirm. Hold A in exploration: nearby interactions.
+B: back, cancel or return from free cursor.
+X: context actions; in Party View, additional windows when not focusing an item.
+Y: inspection; while choosing multiple skill targets, confirm that selection.
+Hold Y during your turn outside targeting and menus: end turn.
+LT: Party View. LB/RB in Party View: select a companion column.
+RT: action wheel. While aiming, LB/RB rotate supported areas.
+LB/RB outside combat and targeting: companion selection.
+D-pad left/right: cycle targets. D-pad up/down: zoom.
+L3: toggle precise cursor. Back/View: map. Start/Menu: pause.
+Some controls depend on context; the on-screen hints show the current action.
+Controller availability depends on the device and operating-system drivers.

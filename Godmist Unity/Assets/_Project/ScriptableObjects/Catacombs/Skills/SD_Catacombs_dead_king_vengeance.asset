@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SD_Catacombs_dead_king_vengeance
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.enemy.catacombs.dead_king_vengeance
-  <DisplayName>k__BackingField: "Runy Zemsty"
+  <DisplayName>k__BackingField: Runy Zemsty
   <Icon>k__BackingField: {fileID: 21300000, guid: 46c92c672bcf07145baed23f384ca516, type: 3}
   <TooltipDescription>k__BackingField: "Przy 75%, 50% i 25% HP stawia pi\u0119\u0107
     run, gdy poprzednie znikn\u0119\u0142y. Wej\u015Bcie na run\u0119 j\u0105 rozbraja;
@@ -32,6 +32,7 @@ MonoBehaviour:
   <RequiresLineOfSight>k__BackingField: 0
   <RequiredCasterStatusId>k__BackingField: 
   <CanRecoverKnives>k__BackingField: 0
+  <KnifeRecoveryCostMultiplier>k__BackingField: 1
   <GuaranteedCritical>k__BackingField: 0
   <FreeKnivesInMelee>k__BackingField: 0
   <PointBlankDamageMultiplier>k__BackingField: 1
@@ -50,14 +51,18 @@ MonoBehaviour:
       maxRange: 0
       rectangleWidth: 0
     chainTargets: 0
+    requiredStatusId: 
   effects:
-  - effectType: 12
+  - stableEffectId: ef70e7318617bd047d22765fd
+    effectType: 12
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
     baseValue: 0
+    healAverageAttackMultiplier: 0
     damageValueSource: 0
     damageMultiplier: 1
+    rearAttackDamageBonus: 0
     damageHitCount: 1
     additionalHitTrials: 0
     additionalHitChance: 0
@@ -128,3 +133,9 @@ MonoBehaviour:
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
     conditions: []
+    summonUsesCasterStats: 0
+    summonStationary: 0
+    summonPersistent: 0
+    summonGroupId: 
+    damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

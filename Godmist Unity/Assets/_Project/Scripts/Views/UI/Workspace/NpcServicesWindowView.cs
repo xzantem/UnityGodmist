@@ -127,6 +127,14 @@ namespace Godmist.Views.UI.Workspace
             return true;
         }
 
+        public void CycleControllerTab(int direction)
+        {
+            var available = GetAvailableServices().Where(IsServiceUnlocked).ToArray();
+            if (available.Length == 0) return;
+            var index = selectedService.HasValue ? Array.IndexOf(available, selectedService.Value) : -1;
+            SelectService(available[(index + direction + available.Length) % available.Length]);
+        }
+
         private void BuildTabs()
         {
             ClearTabs();

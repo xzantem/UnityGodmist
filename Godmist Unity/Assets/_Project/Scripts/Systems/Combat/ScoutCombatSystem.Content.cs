@@ -29,20 +29,22 @@ namespace Godmist.Systems.Combat
         }
         public static bool Behind(BattleUnit source, BattleUnit target) => source != null && target != null
             && (target.ScoutState.Facing.x*(source.Position.X-target.Position.X)+target.ScoutState.Facing.y*(source.Position.Y-target.Position.Y)) < 0;
-        public static float DamageMultiplier(PassiveEffectCombatContext context)
+        public static float DamageMultiplier(PassiveEffectCombatContext context,CombatValueExplanation explanation=null)
         {
-            if (context?.Source == null || context.Target == null || (!context.DamageType.HasValue || !IsDirect(context.DamageType.Value))) return 1f;
-            var source=context.Source; var bonus=0f;
-            if (context.AttackType==AttackType.Melee)
+            if(context?.Source==null || !context.DamageType.HasValue || !IsDirect(context.DamageType.Value))return 1;
+            var source=context.Source;var bonus=0f;
+            void Add(string id,float value,bool applies=true)
             {
-                bonus += Points(source,AssassinTree)*.005f;
-                bonus += AssassinRank(source,"karambit_style") switch {1=>.25f,2=>.6f,3=>1f,_=>0f};
+                if(applies)bonus+=value;
+                if(value!=0)explanation?.Add(id,(applies?"+":"Nie uwzględniono: +")+(100*value).ToString("0.###",System.Globalization.CultureInfo.GetCultureInfo("pl-PL"))+"%");
             }
-            if (Behind(source,context.Target)) bonus += .1f*AssassinRank(source,"backstab");
-            if (StatusEffectSystem.IsInvisible(source)) bonus += .3f*AssassinRank(source,"surprise");
-            bonus += .02f*BladeRank(source,"accurate_throw")*Math.Max(0,context.Distance);
-            if (context.SkillId=="skill.scout.ricochet") bonus += ChainIndex(context)*.1f*AssassinRank(source,"throw_power");
-            return 1f+bonus;
+            Add(AssassinTree,Points(source,AssassinTree)*.005f,context.AttackType==AttackType.Melee);
+            Add("node.scout.assassin.karambit_style",AssassinRank(source,"karambit_style") switch{1=>.25f,2=>.6f,3=>1f,_=>0},context.AttackType==AttackType.Melee);
+            Add("node.scout.assassin.backstab",.1f*AssassinRank(source,"backstab"),context.Target!=null&&Behind(source,context.Target));
+            Add("node.scout.assassin.surprise",.3f*AssassinRank(source,"surprise"),StatusEffectSystem.IsInvisible(source));
+            Add("node.scout.blade_dancer.accurate_throw",.02f*BladeRank(source,"accurate_throw")*Math.Max(0,context.Distance),context.Target!=null);
+            if(context.SkillId=="skill.scout.ricochet")Add("node.scout.assassin.throw_power",ChainIndex(context)*.1f*AssassinRank(source,"throw_power"));
+            return 1+bonus;
         }
         static int ChainIndex(PassiveEffectCombatContext context)
         {
@@ -50,12 +52,13 @@ namespace Godmist.Systems.Combat
             for(var i=0;i<list.Count;i++) if(list[i]==context.Target)return i;
             return 0;
         }
+        public static float ChainCriticalChance(int index)=>Math.Max(0,index)*.1f;
         public static float CriticalChance(PassiveEffectCombatContext context)
         {
             if (context?.Source == null) return 0;
             return (context.AttackType==AttackType.Melee ? .05f*AssassinRank(context.Source,"rapid_strikes") : 0)
                 +(context.Target?.ScoutState.WeakPointTurns>0 ? .1f : 0)
-                +(context.SkillId=="skill.scout.ricochet" ? ChainIndex(context)*.1f : 0);
+                +(context.SkillId=="skill.scout.ricochet" ? ChainCriticalChance(ChainIndex(context)) : 0);
         }
         public static float WeakPointCriticalDamage(BattleUnit target) => target?.ScoutState.WeakPointTurns>0 ? target.ScoutState.WeakPointCritDamage : 0f;
         public static float AnalysisPenetration(BattleUnit source) => source?.ScoutState.AnalysisTurns>0 ? source.ScoutState.AnalysisPenetration : 0f;
@@ -75,7 +78,14 @@ namespace Godmist.Systems.Combat
         }
         public static int MovementDiscount(BattleUnit unit) => !StatusEffectSystem.IsInvisible(unit) ? 0
             : AssassinRank(unit,"light_step") switch {1=>1,2=>3,_=>0};
-        public static float PoisonMultiplier(BattleUnit source) => (1f+Points(source,BladeTree)*.01f)*(1f+.1f*BladeRank(source,"poison_master"));
+        public static float PoisonMultiplier(BattleUnit source,CombatValueExplanation explanation=null)
+        {
+            var tree=1f+Points(source,BladeTree)*.01f;
+            var master=1f+.1f*BladeRank(source,"poison_master");
+            if(tree!=1)explanation?.Add(BladeTree,"×"+tree.ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL")));
+            if(master!=1)explanation?.Add("node.scout.blade_dancer.poison_master","×"+master.ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL")));
+            return tree*master;
+        }
         public static SkillEffectData ResolveEffect(BattleUnit source, SkillData skill, SkillEffectData effect)
         {
             var trials=effect.AdditionalHitTrials;var chance=effect.BonusDamageMultiplierChance;
@@ -101,7 +111,7 @@ namespace Godmist.Systems.Combat
             if (skill.SkillId=="skill.knife_toss" && UnityEngine.Random.value < .1f*BladeRank(source,"knee_throw"))
                 TimedStat(source,target,CharacterStatType.Speed,-15,3,"scout.knee_throw");
             if (combo && BladeRank(source,"combo_master")>0)
-                statuses.ApplyStatus(source,target,StatusEffectIds.Bleed,.8f,3,1,.8f+.2f*BladeRank(source,"combo_master"),0,"scout.combo_master");
+                statuses.ApplyStatus(source,target,StatusEffectIds.Bleed,.8f,3,1,HeroTalentEffectValues.ComboBleedMultiplier(BladeRank(source,"combo_master")),0,"scout.combo_master");
             if (Behind(source,target) && source.MovementStepsThisTurn>0)
                 statuses.ApplyStatus(source,target,StatusEffectIds.Stun,.25f*AssassinRank(source,"leg_sweep"),1,1,0,0,"scout.leg_sweep");
         }
@@ -124,7 +134,7 @@ namespace Godmist.Systems.Combat
             source.ScoutState.RunningAttackUsed=true;
             foreach(var target in targets)
                 (statuses?.DamageSystem ?? new CombatDamageSystem()).ResolveAndApplyDamage(session,source,target,
-                    CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.AttackRange,.25f*rank),DamageType.Physical,77f);
+                    CombatDamageValueCalculator.CalculateDamageValue(source,DamageValueSource.AttackRange,HeroTalentEffectValues.RunningAttackMultiplier(rank)),DamageType.Physical,77f);
         }
         public static int ResolveThroatCut(CombatSession session,PassiveEffectCombatContext context,int damage,Func<float> roll = null)
         {

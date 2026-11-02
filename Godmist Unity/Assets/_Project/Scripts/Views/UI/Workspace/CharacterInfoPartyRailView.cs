@@ -1,3 +1,4 @@
+using Godmist.Runtime.Items;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ using UnityEngine.UI;
 
 namespace Godmist.Views.UI.Workspace
 {
+    public enum ControllerCharacterPanel { Inventory, Development, Skills, Stats }
     public sealed class CharacterInfoPartyRailView : MonoBehaviour
     {
         [SerializeField] private Transform portraitRoot;
@@ -28,6 +30,9 @@ namespace Godmist.Views.UI.Workspace
         private readonly List<CharacterInfoPartyPortraitView> portraits = new();
         private readonly List<PartyRailGroupView> groupViews = new();
         private readonly Dictionary<string, CharacterInfoWindowView> windows = new();
+        [SerializeField] private PartyViewWindowView partyViewPrefab;
+        private PartyViewWindowView partyView;
+        public PartyViewWindowView PartyView => partyView;
         private GameSession session;
         private PartyRailMenuView menu;
         private CombatUnitInspectWindowView inspectWindow;
@@ -49,15 +54,15 @@ namespace Godmist.Views.UI.Workspace
             var next = Godmist.Views.Game.GameBootstrap.Instance?.Session;
             if (next != session)
             {
-                Unsubscribe(); CancelDrag(); menu?.Hide(); developmentWindow?.Close(); session = next;
+                Unsubscribe(); CancelDrag(); menu?.Hide(); developmentWindow?.Close(); partyView?.Close(); session = next;
                 if (session != null) { session.PartyRosterChanged += Refresh; session.PlayerParty.GroupsChanged += Refresh; }
                 dirty = true;
             }
             if (dragged != null && Input.GetKeyDown(KeyCode.Escape)) CancelDrag();
             if (session != null && (session.CurrentMode == GameModeState.Exploration || session.CurrentMode == GameModeState.Combat)
                 && !DevConsoleView.IsOpen && !UIWorkspaceInputRouter.HasFocusedTextInput()
-                && Input.GetKeyDown(KeyCode.I))
-                ToggleActiveCharacterInfo();
+                && UnityEngine.InputSystem.Keyboard.current?.iKey.wasPressedThisFrame == true)
+                TogglePartyView();
             if (dirty && dragged == null) Rebuild();
             foreach (var portrait in portraits)
             {
@@ -76,6 +81,7 @@ namespace Godmist.Views.UI.Workspace
         private void OnDestroy()
         {
             Unsubscribe();
+            if(partyView!=null)Destroy(partyView.gameObject);
             if (menu != null) Destroy(menu.gameObject);
             if (inspectWindow != null) Destroy(inspectWindow.gameObject);
             if (developmentWindow != null) Destroy(developmentWindow.gameObject);
@@ -121,7 +127,8 @@ namespace Godmist.Views.UI.Workspace
                 new("Karta postaci", () => OpenCharacterInfo(character), characterInfoWindowPrefab != null),
                 new("Statystyki i efekty", () => Inspect(character), inspectTemplate != null),
                 new("Wycentruj kamerę", () => Center(id), partyController != null),
-                new("Odłącz od grupy", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1, separatorBefore: true)
+                new("Odłącz od grupy", () => party.TryDetach(id), party.GetGroup(groupIndex).Count > 1, separatorBefore: true,
+                    disabledReason: "Postać jest już w osobnej grupie.")
             };
             var groups = new List<PartyRailMenuView.Entry>();
             for (var i = 0; i < party.GroupCount; i++)
@@ -211,6 +218,26 @@ namespace Godmist.Views.UI.Workspace
             foreach (var row in portraits) if (row != null) row.MarkInsertion(false, false);
             foreach (var group in groupViews) if (group != null) group.Highlight(false);
         }
+        public bool CanPreviewItemDrop(CharacterInfoWindowView source, string recipientId,
+            ItemInstance item, out string reason)
+        {
+            reason = "Przedmiot nie jest już dostępny.";
+            return source != null && source.CanPreviewRecipientDrop(session, recipientId, item, out reason);
+        }
+
+        public void ReceiveItemDrop(string recipientId, PointerEventData eventData)
+        {
+            if (eventData?.button != PointerEventData.InputButton.Left || session == null || eventData.pointerDrag == null) return;
+            var inventoryItem = eventData.pointerDrag?.GetComponent<CharacterInfoItemView>();
+            if (inventoryItem != null)
+                inventoryItem.Owner?.TryTransferDraggedItem(session, recipientId, inventoryItem.Item);
+            else
+            {
+                var equipmentItem = eventData.pointerDrag?.GetComponent<CharacterInfoEquipmentSlotView>();
+                equipmentItem?.Owner?.TryTransferDraggedItem(session, recipientId, equipmentItem.Item);
+            }
+        }
+
         public bool CanOpenDevelopment(CharacterInstance character) => character != null && session != null
             && session.CharactersById.TryGetValue(character.CharacterId, out var registered) && ReferenceEquals(registered, character)
             && character.AvailableSkillPoints > 0 && !session.IsCharacterInCombat(character.CharacterId);
@@ -255,6 +282,17 @@ namespace Godmist.Views.UI.Workspace
                     view.BindWorldAnchor(camera, root, Anchor, anchor, new Vector2(0, levels > 0 ? 64 : 40));
             }
         }
+        public void OpenControllerCharacterPanel(ControllerCharacterPanel panel, string characterId)
+        {
+            var id = characterId;
+            if (session == null || string.IsNullOrEmpty(id) || !session.CharactersById.TryGetValue(id, out var character)) return;
+            if (panel == ControllerCharacterPanel.Stats) { Inspect(character); return; }
+            OpenCharacterInfo(character);
+            if (!windows.TryGetValue(id, out var view) || view == null) return;
+            if (panel == ControllerCharacterPanel.Development) view.OpenSkillTree();
+            if (panel == ControllerCharacterPanel.Skills) view.OpenSkillLoadout();
+        }
+
         private void OpenCharacterInfo(CharacterInstance character)
         {
             if (character == null || characterInfoWindowPrefab == null || session == null) return;
@@ -270,22 +308,17 @@ namespace Godmist.Views.UI.Workspace
             view.CampAction = (ownerId, itemId) => partyController != null ? partyController.TryCamp(ownerId, itemId) : "Brak aktywnej drużyny.";
             manager.CascadeAndFocus(view.GetComponent<UIWorkspaceWindow>(), previousWindow);
         }
-        private void ToggleActiveCharacterInfo()
+        public void OpenPartyView()
         {
-            var leaderId = session?.PlayerParty.ActiveLeaderId;
-            if (string.IsNullOrEmpty(leaderId)
-                || !session.CharactersById.TryGetValue(leaderId, out var character)) return;
-
+            if(session==null||partyViewPrefab==null||workspaceManager?.WorkspaceRoot==null)return;
+            if(partyView==null)partyView=Instantiate(partyViewPrefab,workspaceManager.WorkspaceRoot);
             menu?.Hide();
-
-            if (windows.TryGetValue(leaderId, out var existing)
-                && existing != null && existing.gameObject.activeInHierarchy)
-            {
-                existing.GetComponent<UIWorkspaceWindow>()?.Close();
-                return;
-            }
-
-            OpenCharacterInfo(character);
+            partyView.Open(session,id=>{if(session.CharactersById.TryGetValue(id,out var c))OpenCharacterInfo(c);},
+                (id,item)=>partyController!=null?partyController.TryCamp(id,item):"Brak aktywnej drużyny.");
+        }
+        public void TogglePartyView()
+        {
+            if(partyView!=null&&partyView.gameObject.activeInHierarchy)partyView.Close();else OpenPartyView();
         }
     }
 }

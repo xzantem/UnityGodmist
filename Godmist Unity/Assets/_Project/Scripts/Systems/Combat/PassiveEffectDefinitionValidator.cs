@@ -62,6 +62,19 @@ namespace Godmist.Systems.Combat
                         errors.Add($"Operacje pasywki maja zduplikowane ID: {operation.Id}.");
                     }
 
+                    if (!PassiveEffectOperationCapabilities.SupportsTarget(definition, operation))
+                        errors.Add($"Operacja {operation.Id}: cel {operation.Target} nie jest obsługiwany dla {operation.Type} w tym kontekście.");
+                    if (!PassiveEffectOperationCapabilities.SupportsValue(definition, operation))
+                        errors.Add($"Operacja {operation.Id}: źródło wartości {operation.Value?.Source} nie ma resolvera dla {operation.Type} w tym kontekście.");
+                    if (operation.Value?.Source == PassiveEffectValueSourceType.Stat
+                        && (!Enum.TryParse<CharacterStatType>(operation.Value.ReferenceId, true, out var valueStat)
+                            || !Enum.IsDefined(typeof(CharacterStatType), valueStat)))
+                        errors.Add($"Operacja {operation.Id}: nieznana statystyka wartości {operation.Value.ReferenceId}.");
+                    if (PassiveEffectOperationCapabilities.IsSpecialUnique(operation.Type)
+                        && (!definition.IsAlwaysActive || definition.IsTriggered))
+                        errors.Add($"Operacja {operation.Id}: {operation.Type} wymaga bezwarunkowej definicji bez wyzwalacza.");
+                    if (operation.Type == PassiveEffectOperationType.LowHealthShield && (operation.DurationTurns <= 0 || operation.CooldownTurns < 0))
+                        errors.Add($"Operacja {operation.Id}: czas tarczy musi być dodatni, a cooldown nieujemny.");
                     ValidateOperationReference(operation, errors);
                     ValidateCapability(operation, errors);
                     if (operation.Type is PassiveEffectOperationType.ModifyResourceCost or PassiveEffectOperationType.ModifySkillParameter)

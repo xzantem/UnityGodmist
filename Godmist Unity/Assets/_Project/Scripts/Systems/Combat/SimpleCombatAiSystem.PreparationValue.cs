@@ -44,7 +44,7 @@ namespace Godmist.Systems.Combat
                 IsOffensivePreparationEffect(pair.effect) && (pair.effect.EffectType == EffectType.ApplyUniqueBuff
                     ? CombatDamageSystem.HasUniqueBuff(unit, pair.effect.UniqueBuffType)
                     : PassiveEffectLifecycleSystem.HasActiveEffect(unit.Character,
-                        $"{skill.SkillId}.{(pair.effect.EffectType == EffectType.ModifyStat ? "modify_stat" : "modify_var")}.{pair.index}"))));
+                        SkillEffectIdentity.RuntimeId(skill, pair.index, pair.effect.EffectType == EffectType.ModifyStat ? "modify_stat" : "modify_var")))));
 
         private IEnumerable<bool> EvaluatePreparationWork(AiTurnPlanNode node, CombatSession live, BattleUnit liveActor)
         {
@@ -111,11 +111,11 @@ namespace Godmist.Systems.Combat
                 if (effect.EffectType == EffectType.ApplyUniqueBuff)
                 {
                     if (!CombatDamageSystem.HasUniqueBuff(liveActor, effect.UniqueBuffType))
-                        unit.Character.PassiveEffects.RemoveAll(active => active?.EffectId == $"{skill.SkillId}.unique_buff.{index}");
+                        unit.Character.PassiveEffects.RemoveAll(active => active?.EffectId == SkillEffectIdentity.RuntimeId(skill, index, "unique_buff"));
                     continue;
                 }
                 var suffix = effect.EffectType == EffectType.ModifyStat ? "modify_stat" : "modify_var";
-                var id = $"{skill.SkillId}.{suffix}.{index}";
+                var id = SkillEffectIdentity.RuntimeId(skill, index, suffix);
                 if (!PassiveEffectLifecycleSystem.HasActiveEffect(liveActor.Character, id))
                     unit.Character.PassiveEffects.RemoveAll(active => active?.EffectId == id);
             }
@@ -123,10 +123,12 @@ namespace Godmist.Systems.Combat
             {
                 ref var stat = ref unit.Character.Stats.GetStat(type);
                 var value = CharacterStatPipelineSystem.EvaluateModifiers(stat.BaseValue, type, unit.Character.PassiveEffects);
-                stat.SetEffectiveValue(Mathf.Max(0f, stat.GetValue() + value - oldValues[type]));
+                if (type != CharacterStatType.Speed)
+                    stat.SetEffectiveValue(Mathf.Max(0f, stat.GetValue() + value - oldValues[type]));
                 if (type == CharacterStatType.WeaponAccuracy)
                     unit.Character.WeaponAccuracy = Mathf.Max(0f, unit.Character.WeaponAccuracy + value - oldValues[type]);
             }
+            unit.Character.Stats.Speed.SetEffectiveValue(CharacterStatPipelineSystem.CalculateEffectiveSpeed(unit.Character));
         }
 
         private IEnumerable<bool> FindSpeedPreparationApproachWork(CombatSession world, BattleUnit caster,

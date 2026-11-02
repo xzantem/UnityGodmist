@@ -447,6 +447,7 @@ GameObject:
   - component: {fileID: 7992504177853061263}
   - component: {fileID: 9127331585189032998}
   - component: {fileID: 7249054779889973590}
+  - component: {fileID: 5859673856223931942}
   m_Layer: 5
   m_Name: PF_UIW_PartyContextMenu
   m_TagString: Untagged
@@ -531,6 +532,34 @@ MonoBehaviour:
   separatorTemplate: {fileID: 264048081788590939}
   hintText: {fileID: 6941163954505281229}
   anchorGap: 44
+--- !u!114 &5859673856223931942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5406600206938324817}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01be6881d26867948a06adbbdeca5918, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Views::Godmist.Views.UI.ControllerNavigationScope
+  modal: 1
+  cancel:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7249054779889973590}
+        m_TargetAssemblyTypeName: Godmist.Views.UI.Workspace.PartyRailMenuView, Views
+        m_MethodName: Back
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5869494661400128384
 GameObject:
   m_ObjectHideFlags: 0

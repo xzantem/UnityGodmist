@@ -717,6 +717,70 @@ MonoBehaviour:
     Icon: {fileID: 21300000, guid: 3889fd5195f4a2a4186d7c1c35d9c52c, type: 3}
   - Key: jewelry.ring.item.vs10.sztabka_brazu.item.runic.obsidian
     Icon: {fileID: 21300000, guid: cd90964e4c56fd54a8850d087a2f12bb, type: 3}
+  - Key: jewelry.ring.item.smithing.iron_ingot.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 6753c2bc2567bf84bb3d684c19a18e05, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_niklu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 5f50608189dc31c409b42cefc6b1665a, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_miedzi.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 8723fd2f913e8184caa1a444935bd8c1, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_cyny.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 823b25196fa1f6a4198f48e83b46b016, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_stali.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 2f6acbbeb3e2e8343be4509acbbeb554, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_inwaru.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 8f86a48736242f54d8cfee6503f2fc79, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_zelaza_meteorytowego.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 3edf601d0e78bdf46a0fe49c6dc06033, type: 3}
+  - Key: jewelry.ring.item.vs10.sztabka_brazu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 3f8ad78f8c09630429410e656333d45d, type: 3}
+  - Key: jewelry.necklace.item.smithing.iron_ingot.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 23baea1776cf3da42a39d5d948af2e9e, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_niklu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: c769041dc2108714089b59bb2e5aabbe, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_miedzi.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 2f985591ba600b742807db8416239743, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_cyny.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 6d038267f069c2a44ad462f8d990f482, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_stali.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 003019282c786164da24fb6f1e41e005, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_inwaru.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 2c1cf2e2d16e3c9459f98ec7126f1f2d, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_zelaza_meteorytowego.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 71488286b92ffae448feead97e8bd1b8, type: 3}
+  - Key: jewelry.necklace.item.vs10.sztabka_brazu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: e7b170406e583d84aa23219c4996f63b, type: 3}
+  - Key: jewelry.bracelet.item.smithing.iron_ingot.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: e6105e0222d730f4c99700ad5d057eb8, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_niklu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 1675ed4a1d144a04c8f26e7dc9c6a780, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_miedzi.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 70f7b12de4f0d714fa8c1ebc529c7f4c, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_cyny.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 4c6ee5744f9def64bb1a41c679fa5570, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_stali.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 9ddb8dc9eac15904facaae9ae7eacbc7, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_inwaru.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 0dca1eadd40d0044f8ae8e02e1451097, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_zelaza_meteorytowego.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 6fb865c0fab9e38469f6407742bf9555, type: 3}
+  - Key: jewelry.bracelet.item.vs10.sztabka_brazu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: f46b58f06da51ab428e669c7ce53b8b7, type: 3}
+  - Key: jewelry.earrings.item.smithing.iron_ingot.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: e1c6338f9058dee42b3b2875d6d98aef, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_niklu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 60a473de299d9544a9b5169d7a306800, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_miedzi.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 8c054ddba437a5a47b342968333252f0, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_cyny.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: afa2474a519eec8488030a5076dbe900, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_stali.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 80518a0961bc5a542af04ab55ed0e56a, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_inwaru.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: f4b1388ba125bb248bf756faaf52b059, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_zelaza_meteorytowego.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 1149cc51367075e43b3421622c7340ef, type: 3}
+  - Key: jewelry.earrings.item.vs10.sztabka_brazu.item.runic.jadeite
+    Icon: {fileID: 21300000, guid: 0016294ed44c2c24fa8d820f676ba29e, type: 3}
   galduryteBase: {fileID: 2800000, guid: 7e8510d3f85882e4d9e43c6499bfb23b, type: 3}
   galdurytePanels:
   - {fileID: 2800000, guid: 19d9189ad5ad7dc408a6cd8bef784313, type: 3}

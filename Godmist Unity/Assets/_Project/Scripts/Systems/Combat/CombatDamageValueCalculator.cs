@@ -58,6 +58,9 @@ namespace Godmist.Systems.Combat
             return false;
         }
 
+        public static int ScaleAttackDamage(int attack,float multiplier)
+            => Mathf.CeilToInt(attack*Mathf.Max(0f,multiplier)-.00001f);
+
         public static int CalculateDamageValue(
             BattleUnit source,
             DamageValueSource valueSource,
@@ -82,7 +85,7 @@ namespace Godmist.Systems.Combat
             };
 
             // Avoid promoting an exact integer (e.g. 100 * 0.6f) by floating-point noise.
-            return Mathf.CeilToInt(baseDamage * Mathf.Max(0f, multiplier) - .00001f);
+            return ScaleAttackDamage(baseDamage,multiplier);
         }
     }
 }

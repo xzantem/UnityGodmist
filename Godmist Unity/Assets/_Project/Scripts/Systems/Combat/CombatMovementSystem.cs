@@ -124,7 +124,7 @@ namespace Godmist.Systems.Combat
         }
     }
 
-    public class CombatMovementSystem
+    public partial class CombatMovementSystem
     {
         private static readonly Vector2Int[] MovementDirections =
         {

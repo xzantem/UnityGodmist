@@ -21,7 +21,7 @@ namespace Godmist.Views.UI.Workspace
             var characterItem = eventData.pointerDrag?.GetComponentInParent<CharacterInfoItemView>();
             if (acceptsStashItems && characterItem?.Owner != null && characterItem.Item != null)
             {
-                GetComponentInParent<CampaignStorageWindowView>()?.TryDeposit(characterItem.Owner, characterItem.Item, Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl));
+                GetComponentInParent<CampaignStorageWindowView>()?.TryDeposit(characterItem.Owner, characterItem.Item, (Input.GetKey(KeyCode.LeftControl) || Godmist.Views.UI.ControllerInput.Alternate) || Input.GetKey(KeyCode.RightControl));
                 characterItem.Owner.EndDrag();
             }
         }

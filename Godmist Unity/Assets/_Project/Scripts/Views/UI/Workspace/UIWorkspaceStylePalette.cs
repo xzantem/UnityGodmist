@@ -81,8 +81,8 @@ namespace Godmist.Views.UI.Workspace
 
         [Header("Accents and feedback")]
         [SerializeField] private Color neutralBorderColor = new(0.25f, 0.32f, 0.40f, 1f);
-        [SerializeField] private Color hoverColor = new(0.49f, 0.65f, 0.78f, 1f);
-        [SerializeField] private Color selectedColor = new(0.82f, 0.62f, 0.22f, 1f);
+        private static Color hoverColor => HighlightStyle.Hover;
+        private static Color selectedColor => HighlightStyle.Selection;
         [SerializeField] private Color positiveColor = new(0.24f, 0.62f, 0.39f, 1f);
         [SerializeField] private Color negativeColor = new(0.78f, 0.29f, 0.27f, 1f);
         [SerializeField] private Color warningColor = new(0.91f, 0.64f, 0.20f, 1f);

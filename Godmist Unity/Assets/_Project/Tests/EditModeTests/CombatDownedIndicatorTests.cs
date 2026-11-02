@@ -292,8 +292,11 @@ namespace Godmist.Tests.EditMode
             var segments = Segments(mark);
             Assert.That(segments.Count(i => i.color.r > .2f), Is.EqualTo(1));
             foreach (var segment in segments)
+            {
+                Assert.That(segment.rectTransform.parent.GetComponent<RectMask2D>(), Is.Not.Null);
                 Assert.That(Mathf.Abs(segment.rectTransform.anchoredPosition.x) + segment.rectTransform.rect.width * .5f,
-                    Is.LessThan(segment.rectTransform.parent.GetComponent<RectTransform>().rect.width * .5f));
+                    Is.LessThanOrEqualTo(segment.rectTransform.parent.GetComponent<RectTransform>().rect.width * .5f));
+            }
             var marker = (Image)new SerializedObject(member).FindProperty("lifeStateMarker").objectReferenceValue;
             Assert.That(marker.enabled, Is.False, "Old life-state strip must not cover the countdown.");
             unit.Character.LifeState = CharacterLifeState.Dead;

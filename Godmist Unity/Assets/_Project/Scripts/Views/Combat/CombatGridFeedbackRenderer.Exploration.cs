@@ -28,11 +28,12 @@ namespace Godmist.Views.Combat
                 batch.Mesh.GetVertices(movingMarkerVertices);var changed=false;
                 for(var i=0;i<batch.Cells.Length;i++)
                 {
-                    var first=i*4;if(first+3>=movingMarkerVertices.Count)break;
+                    var stride=pair.Key==CombatGridFeedbackLayer.ChosenSkillTargets?8:4;
+                    var first=i*stride;if(first+stride-1>=movingMarkerVertices.Count)break;
                     var old=(movingMarkerVertices[first]+movingMarkerVertices[first+2])*.5f;
                     var delta=MarkerToLocal(pair.Key,batch.Cells[i])-old;
                     if(delta.sqrMagnitude<.00000001f)continue;
-                    for(var j=0;j<4;j++)movingMarkerVertices[first+j]+=delta;
+                    for(var j=0;j<stride;j++)movingMarkerVertices[first+j]+=delta;
                     changed=true;
                 }
                 if(changed){batch.Mesh.SetVertices(movingMarkerVertices);batch.Mesh.RecalculateBounds();}
@@ -40,7 +41,7 @@ namespace Godmist.Views.Combat
         }
         Vector3 MarkerToLocal(CombatGridFeedbackLayer layer,GridPosition cell)
         {
-            if (layer is CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.ChosenSkillTargets
+            if (layer is CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.ChosenSkillTargets or CombatGridFeedbackLayer.AffectedArea
                 && ResolveExplorationMarker?.Invoke(cell) is Vector2 feet)
                 return new Vector3(feet.x,feet.y,feedbackZ);
             return GridToLocal(cell);

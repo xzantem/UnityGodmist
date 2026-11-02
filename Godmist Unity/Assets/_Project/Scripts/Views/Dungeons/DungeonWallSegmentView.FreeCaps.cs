@@ -4,6 +4,8 @@ namespace Godmist.Views.Dungeons
 {
     public partial class DungeonWallSegmentView
     {
+        private SpriteRenderer sideFreeUpperCap;
+        private SpriteRenderer sideTerminalFaceCap;
         // Reuse the native 8px compositor for L/T/cross junctions. A single
         // incoming vertical arm leaves the opposite border closed.
         public void ConfigureSideFreeEndCaps(bool lowerFree, bool upperFree)
@@ -29,7 +31,12 @@ namespace Godmist.Views.Dungeons
                 var renderer = CreateCornerMiterRenderer(upper ? "SideFreeUpperCap" : "SideTerminalFaceCap",
                     sprite, transform, transform.InverseTransformPoint(center), body,
                     VerticalWallSortingOrder + 1, false);
-                if (renderer != null) cornerMiterRenderers.Add(renderer);
+                if (renderer != null)
+                {
+                    cornerMiterRenderers.Add(renderer);
+                    if (upper) sideFreeUpperCap = renderer;
+                    else sideTerminalFaceCap = renderer;
+                }
             }
             if (upperFree) End(true);
             else if (lowerFree) End(false);

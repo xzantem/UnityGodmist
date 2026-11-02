@@ -68,7 +68,6 @@ namespace Godmist.Editor
             new("item.smithing.wasmina_fibre", 15, false, 0.0687355971701, 0.180583173251),
             new("item.smithing.zinc_piece", 15, false, 0.177339770796, 0.523440573143),
             new("item.runic.amber", 15, true, 0.0174823224223, 0.0262548565675),
-            new("item.runic.obsidian", 15, true, 0.01239253235, 0.0186110375669),
             new("item.runic.solid_limestone", 15, true, 0.0331942830804, 0.0498509934826),
             new("item.runic.topaz", 15, true, 0.0174823224223, 0.0262548565675),
             new("item.vs10.ametyst", 15, true, 0.0174823224223, 0.0262548565675),

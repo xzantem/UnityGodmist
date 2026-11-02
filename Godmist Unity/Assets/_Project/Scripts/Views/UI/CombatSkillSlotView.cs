@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Combat;
@@ -20,6 +21,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI actionCostText;
         [SerializeField] private Image selectedFrame;
         private string unavailableReason;
+        private bool hovered;
         [SerializeField] private TextMeshProUGUI shortcutText;
         private Action<bool> hoverChanged;
         public static string GetShortcutLabel(int index) => index >= 0 && index < 10 ? ((index + 1) % 10).ToString() : string.Empty;
@@ -37,6 +39,8 @@ namespace Godmist.Views.UI
         private int actionCost;
         private Color defaultIconColor = Color.white;
         private bool capturedIconColor;
+        private Material originalIconMaterial;
+        private Material unavailableIconMaterial;
         private int displayedActionCost = int.MinValue;
         private static readonly Color ActiveToggleColor = new(0.35f, 1f, 0.65f, 1f);
 
@@ -59,7 +63,13 @@ namespace Godmist.Views.UI
 
             if (icon != null)
             {
-                if (!capturedIconColor) { defaultIconColor = icon.color; capturedIconColor = true; }
+                if (!capturedIconColor)
+                {
+                    defaultIconColor = icon.color;
+                    originalIconMaterial = icon.material;
+                    capturedIconColor = true;
+                }
+                icon.material = originalIconMaterial;
                 icon.color = defaultIconColor;
                 icon.sprite = skill?.Icon;
                 icon.enabled = skill?.Icon != null;
@@ -102,9 +112,10 @@ namespace Godmist.Views.UI
             bool selected = false,
             string reason = null)
         {
+            var tooltipChanged = actionCost != calculatedActionCost || unavailableReason != reason;
             actionCost = calculatedActionCost;
             unavailableReason = reason;
-            if (actionCostText != null && displayedActionCost != actionCost) { displayedActionCost = actionCost; actionCostText.text = $"{Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} AP"; }
+            if (actionCostText != null && displayedActionCost != actionCost) { displayedActionCost = actionCost; actionCostText.text = $"{Godmist.Runtime.Combat.ActionPointUnits.Format(actionCost)} {UiTerms.ActionPointsShort}"; }
             if (selectedFrame != null) selectedFrame.enabled = selected;
             if (button != null)
             {
@@ -118,11 +129,15 @@ namespace Godmist.Views.UI
 
             if (icon != null)
             {
+                var material = isAvailable || skill == null ? originalIconMaterial : GetUnavailableIconMaterial();
+                if (icon.material != material) icon.material = material;
                 icon.color = isActiveToggle
                     ? ActiveToggleColor
                     : defaultIconColor;
             }
 
+            if (hovered && tooltipChanged && skill != null)
+                tooltipView?.RefreshSkillAvailability(skill, actionCost, this, casterProvider?.Invoke(), unavailableReason);
             if (hotkeyText != null)
             {
                 var label = knifeCount ?? string.Empty;
@@ -131,6 +146,31 @@ namespace Godmist.Views.UI
                 return;
             }
 
+        }
+
+        public SkillData ControllerSkill => skill;
+        public int ControllerActionCost => actionCost;
+        public string ControllerUnavailableReason => unavailableReason;
+        public bool ControllerAvailable => button != null && button.interactable;
+        private Material GetUnavailableIconMaterial()
+        {
+            if (unavailableIconMaterial == null)
+            {
+                // Resources retains the shader in player builds, including masked UI variants.
+                var shader = Resources.Load<Shader>("Godmist/UnavailableSkillIcon");
+                if (shader == null) throw new InvalidOperationException("Unavailable skill icon shader is missing.");
+                unavailableIconMaterial = new Material(shader)
+                { name = "Godmist unavailable skill icon", hideFlags = HideFlags.HideAndDontSave };
+            }
+            return unavailableIconMaterial;
+        }
+
+        private void OnDestroy()
+        {
+            if (unavailableIconMaterial == null) return;
+            if (icon != null && icon.material == unavailableIconMaterial) icon.material = originalIconMaterial;
+            if (Application.isPlaying) Destroy(unavailableIconMaterial);
+            else DestroyImmediate(unavailableIconMaterial);
         }
 
         public bool TryActivate()
@@ -146,17 +186,24 @@ namespace Godmist.Views.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            hovered = true;
             hoverChanged?.Invoke(true);
+            ShowTooltip();
+        }
+
+        private void ShowTooltip()
+        {
             if (consumable != null)
                 tooltipView?.ShowItemWithExtra(consumable, casterProvider?.Invoke()?.Character, this,
-                    $"Koszt: {ActionPointUnits.Format(actionCost)} AP" + (string.IsNullOrEmpty(unavailableReason) ? "" : "\n" + unavailableReason));
+                    $"Koszt: {ActionPointUnits.Format(actionCost)} {UiTerms.ActionPointsShort}" + (string.IsNullOrEmpty(unavailableReason) ? "" : "\n" + unavailableReason));
             else tooltipView?.ShowSkill(skill, actionCost, this, casterProvider?.Invoke(), unavailableReason);
         }
 
-        private void OnDisable(){hoverChanged?.Invoke(false);tooltipView?.NotifySourceExit(this);}
+        private void OnDisable(){hovered=false;hoverChanged?.Invoke(false);tooltipView?.NotifySourceExit(this);}
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            hovered = false;
             hoverChanged?.Invoke(false);
             tooltipView?.NotifySourceExit(this);
         }

@@ -87,7 +87,6 @@ namespace Godmist.Views.Dungeons
             {
                 hoverOutline = bodyRenderer.GetComponent<Godmist.Views.Combat.CombatUnitVisualStateView>()
                     ?? bodyRenderer.gameObject.AddComponent<Godmist.Views.Combat.CombatUnitVisualStateView>();
-                hoverOutline.SetPulseSpeed(0f);
                 hoverOutline.SetOutlineWidth(1f / Mathf.Max(1f, bodyRenderer.sprite?.pixelsPerUnit ?? 32f));
             }
             hoverOutline.Refresh(null, false, true, false, true);
@@ -103,7 +102,7 @@ namespace Godmist.Views.Dungeons
             var hovered = !partyController.IsWorldPrimaryClickClaimed
                 && partyController.TryGetPointerWorldPosition(out point) && IsPointerHit(point);
             SetInspectionHighlight(hovered);
-            if (!hovered || !Input.GetMouseButtonDown(0)) return;
+            if (!hovered || !(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)) return;
             TryPrimaryInteraction(point);
         }
 

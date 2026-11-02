@@ -22,7 +22,7 @@ using Object = UnityEngine.Object;
 
 namespace Godmist.Tests.EditMode
 {
-    public sealed class WarriorDischargeTests
+    public sealed partial class WarriorDischargeTests
     {
         const string Root = "Assets/_Project/ScriptableObjects/";
         static T Load<T>(string path) where T : Object => AssetDatabase.LoadAssetAtPath<T>(Root + path);
@@ -119,7 +119,7 @@ namespace Godmist.Tests.EditMode
             caster.Character.Stats.MinAttack = new Stat(1); caster.Character.Stats.MaxAttack = new Stat(1); caster.Character.Stats.CritChance = new Stat(0);
             Assert.That(CombatDamageValueCalculator.CalculateDamageValue(caster, DamageValueSource.MinAttack, 1, cast), Is.EqualTo(100));
             var context = new PassiveEffectCombatContext(source: caster, target: target, skill: Skill, skillId: Skill.SkillId, dischargeCast: cast);
-            var chance = (float)typeof(CombatDamageSystem).GetMethod("CalculateRegularCriticalChance", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { Session(caster, target), caster, context });
+            var chance = (float)typeof(CombatDamageSystem).GetMethod("CalculateRegularCriticalChance", BindingFlags.Static | BindingFlags.NonPublic).Invoke(null, new object[] { Session(caster, target), caster, context, 0 });
             Assert.That(chance, Is.EqualTo(.35f).Within(.0001)); Assert.That(context.WithOutcome().DischargeCast, Is.SameAs(cast));
         }
         [Test]

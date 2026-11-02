@@ -31,8 +31,8 @@ namespace Godmist.Views.UI
         public void Bind(BattleUnit unit, bool selected = false, bool hasTurn = false)
         {
             explorationCharacter = null;
-            if (selectedMarker != null) selectedMarker.color = new Color(.35f,.85f,1f);
-            if (turnMarker != null) turnMarker.color = new Color(1f,.81f,.4f);
+            if (selectedMarker != null) selectedMarker.color = HighlightStyle.Selection;
+            if (turnMarker != null) turnMarker.color = HighlightStyle.Selection;
             BindPresentation(unit?.Character, selected, hasTurn);
             if (downedStyle == null && CombatDownedIndicatorView.ShouldShow(unit))
                 downedStyle = (healthSlider != null ? healthSlider.GetComponent<Godmist.Views.UI.Workspace.UIWorkspaceSliderStyleApplier>()?.Palette : null)
@@ -70,7 +70,7 @@ namespace Godmist.Views.UI
                 characterNameText.text = $"{character.Definition?.DisplayName}\nPoz. {character.Level}";
             if (selectedMarker != null) selectedMarker.enabled = selected;
             if (turnMarker != null) turnMarker.enabled = hasTurn;
-            var maxHealth = Mathf.Max(1f, character.Stats?.MaxHealth.GetValue() ?? 1f);
+            var maxHealth = character.MaximumHealth;
             var resource = character.ResourcePool;
             if(healthValueText!=null)healthValueText.text=CombatHealthPresentation.Format(character);
             if(resourceValueText!=null){resourceValueText.gameObject.SetActive(resource!=null&&resource.MaxValue>0);resourceValueText.text=resource==null?"":$"{resource.CurrentValue}/{resource.MaxValue}";}

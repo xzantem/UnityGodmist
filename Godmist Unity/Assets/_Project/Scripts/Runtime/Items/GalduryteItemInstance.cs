@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using Godmist.Core.Enums;
@@ -133,7 +134,7 @@ namespace Godmist.Runtime.Items
             return effect.EffectType switch
             {
                 GalduryteEffectType.CriticalDamageFlat =>
-                    $"Mnożnik obrażeń krytycznych: +{effect.Value:0.##}×",
+                    $"{UiTerms.Stat(CharacterStatType.CritDamage)}: +{effect.Value.ToString("0.##", UiTerms.PolishCulture)}×",
                 GalduryteEffectType.BleedOnAttack =>
                     $"{percent} szansy na krwawienie (3 tury, 60% średniego ataku na turę).",
                 GalduryteEffectType.PoisonOnAttack =>
@@ -147,17 +148,19 @@ namespace Godmist.Runtime.Items
                 GalduryteEffectType.HealOnAttack =>
                     $"Po trafieniu odnawia zdrowie równe {percent} bezpośrednich obrażeń tego użycia umiejętności.",
                 GalduryteEffectType.ResourceOnAttack =>
-                    $"Po trafieniu odnawia {percent} maksymalnego surowca.",
+                    $"Po trafieniu odnawia {percent} maksymalnego zasobu.",
                 GalduryteEffectType.ActionValueOnAttack =>
                     $"Po trafieniu przyspiesza następny ruch o {effect.Value:0.##} jednostki czasu.",
                 GalduryteEffectType.ItemDropChance =>
-                    $"Szansa na znalezienie przedmiotu: +{percent}. Przy rozpoczęciu wyprawy liczy się średnia premia aktywnej drużyny.",
+                    $"{UiTerms.Galduryte(GalduryteEffectType.ItemDropChance)}: +{percent}. Przy rozpoczęciu wyprawy liczy się średnia premia aktywnej drużyny.",
                 GalduryteEffectType.HealthPerTurn =>
                     $"Na początku swojej tury odnawia {percent} maksymalnego zdrowia.",
                 GalduryteEffectType.ResourcePerTurn =>
-                    $"Na początku swojej tury odnawia {percent} maksymalnego surowca.",
+                    $"Na początku swojej tury odnawia {percent} maksymalnego zasobu.",
                 GalduryteEffectType.CriticalAvoidance =>
                     $"{percent} szansy, że trafienie krytyczne zada zwykłe obrażenia.",
+                _ when effect.EffectType is GalduryteEffectType.CriticalChancePercent or GalduryteEffectType.AccuracyPercent =>
+                    $"{GetEffectName(effect.EffectType)}: +{(effect.Value * 100f).ToString("0.##", UiTerms.PolishCulture)} {UiTerms.PercentagePoints}",
                 _ when IsReduction(effect.EffectType) =>
                     $"{GetEffectName(effect.EffectType)}: −{percent}",
                 _ => $"{GetEffectName(effect.EffectType)}: +{percent}"
@@ -175,8 +178,11 @@ namespace Godmist.Runtime.Items
         private static string FormatEffectValue(GalduryteEffectType type, float minimum, float maximum)
         {
             var absolute = type is GalduryteEffectType.ActionValueOnAttack or GalduryteEffectType.CriticalDamageFlat;
-            var value = absolute ? $"{minimum:0.##}" : FormatPercent(minimum);
-            if (minimum != maximum) value += "–" + (absolute ? $"{maximum:0.##}" : FormatPercent(maximum));
+            var chancePoints = type is GalduryteEffectType.CriticalChancePercent or GalduryteEffectType.AccuracyPercent;
+            string Number(float amount) => absolute ? amount.ToString("0.##", UiTerms.PolishCulture)
+                : chancePoints ? (amount * 100f).ToString("0.##", UiTerms.PolishCulture) + " " + UiTerms.PercentagePoints : FormatPercent(amount);
+            var value = Number(minimum);
+            if (minimum != maximum) value += "–" + Number(maximum);
             if (type == GalduryteEffectType.ActionValueOnAttack) return value + " j. czasu";
             if (type == GalduryteEffectType.CriticalDamageFlat) return "+" + value + "×";
             if (type == GalduryteEffectType.HealOnAttack) return value + " obrażeń";
@@ -191,62 +197,9 @@ namespace Godmist.Runtime.Items
             || type is GalduryteEffectType.ItemDropChance or GalduryteEffectType.HealthPerTurn
                 or GalduryteEffectType.ResourcePerTurn or GalduryteEffectType.CriticalAvoidance;
 
-        public static string GetEffectName(GalduryteEffectType effectType) => effectType switch
-        {
-            GalduryteEffectType.GeneralDamagePercent => "Zadawane obrażenia",
-            GalduryteEffectType.PhysicalDamagePercent => "Obrażenia fizyczne",
-            GalduryteEffectType.MagicDamagePercent => "Obrażenia magiczne",
-            GalduryteEffectType.CriticalChancePercent => "Szansa krytyczna",
-            GalduryteEffectType.CriticalDamageFlat => "Mnożnik obrażeń krytycznych",
-            GalduryteEffectType.AccuracyPercent => "Szansa na trafienie",
-            GalduryteEffectType.SuppressionChance => "Szansa na kontrolę",
-            GalduryteEffectType.DebuffChance => "Szansa na osłabienie",
-            GalduryteEffectType.DotChance => "Szansa na krwawienie, zatrucie lub podpalenie",
-            GalduryteEffectType.BleedOnAttack => "Krwawienie przy trafieniu",
-            GalduryteEffectType.PoisonOnAttack => "Zatrucie przy trafieniu",
-            GalduryteEffectType.BurnOnAttack => "Podpalenie przy trafieniu",
-            GalduryteEffectType.HealOnAttack => "Leczenie przy trafieniu",
-            GalduryteEffectType.ResourceOnAttack => "Surowiec przy trafieniu",
-            GalduryteEffectType.ActionValueOnAttack => "Przyspieszenie przy trafieniu",
-            GalduryteEffectType.ItemDropChance => "Znajdowanie przedmiotów",
-            GalduryteEffectType.ResourceGenerationPercent => "Generacja surowca",
-            GalduryteEffectType.UndeadDamagePercent => "Obrażenia przeciwko nieumarłym",
-            GalduryteEffectType.HumanDamagePercent => "Obrażenia przeciwko ludziom",
-            GalduryteEffectType.BeastDamagePercent => "Obrażenia przeciwko bestiom",
-            GalduryteEffectType.DemonDamagePercent => "Obrażenia przeciwko demonom",
-            GalduryteEffectType.StunOnAttack => "Ogłuszenie przy trafieniu",
-            GalduryteEffectType.FreezeOnAttack => "Zamrożenie przy trafieniu",
-            GalduryteEffectType.SlowOnAttack => "Spowolnienie przy trafieniu",
-            GalduryteEffectType.ExperiencePercent => "Zdobywane doświadczenie",
-            GalduryteEffectType.GoldPercent => "Zdobywane złoto",
-            GalduryteEffectType.PhysicalPenetration => "Penetracja obrony fizycznej",
-            GalduryteEffectType.MagicPenetration => "Penetracja obrony magicznej",
-            GalduryteEffectType.MaxHealthPercent => "Maksymalne zdrowie",
-            GalduryteEffectType.DodgePercent => "Unik",
-            GalduryteEffectType.PhysicalDefensePercent => "Obrona fizyczna",
-            GalduryteEffectType.MagicDefensePercent => "Obrona magiczna",
-            GalduryteEffectType.AllDefensePercent => "Obrona fizyczna i magiczna",
-            GalduryteEffectType.SpeedPercent => "Szybkość",
-            GalduryteEffectType.ActionPointsPercent => "Maksymalne punkty akcji",
-            GalduryteEffectType.DotResistance => "Odporność na krwawienie, zatrucie i podpalenie",
-            GalduryteEffectType.SuppressionResistance => "Odporność na kontrolę",
-            GalduryteEffectType.DebuffResistance => "Odporność na osłabienia",
-            GalduryteEffectType.AllResistance => "Wszystkie odporności",
-            GalduryteEffectType.PhysicalDamageReduction => "Otrzymywane obrażenia fizyczne",
-            GalduryteEffectType.MagicDamageReduction => "Otrzymywane obrażenia magiczne",
-            GalduryteEffectType.AllDamageReduction => "Wszystkie otrzymywane obrażenia",
-            GalduryteEffectType.MaxResourcePercent => "Maksymalny surowiec",
-            GalduryteEffectType.BleedDamageReduction => "Otrzymywane obrażenia od krwawienia",
-            GalduryteEffectType.PoisonDamageReduction => "Otrzymywane obrażenia od zatrucia",
-            GalduryteEffectType.BurnDamageReduction => "Otrzymywane obrażenia od podpalenia",
-            GalduryteEffectType.ResourceCostReduction => "Koszt surowca umiejętności",
-            GalduryteEffectType.CriticalAvoidance => "Uniknięcie krytyka",
-            GalduryteEffectType.HealthPerTurn => "Zdrowie na początku tury",
-            GalduryteEffectType.ResourcePerTurn => "Surowiec na początku tury",
-            _ => effectType.ToString()
-        };
+        public static string GetEffectName(GalduryteEffectType effectType) => UiTerms.Galduryte(effectType);
 
         public static string FormatPercent(float value) =>
-            $"{value * 100f:0.##}%";
+            (value * 100f).ToString("0.##", UiTerms.PolishCulture) + "%";
     }
 }

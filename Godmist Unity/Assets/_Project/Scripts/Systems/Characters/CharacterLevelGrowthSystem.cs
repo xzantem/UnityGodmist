@@ -26,9 +26,7 @@ namespace Godmist.Systems.Characters
             var lateMultiplier = GetLateGrowthMultiplier(character.Level);
             var earlyMultiplier = multiplier - lateMultiplier;
             var lateBlend = multiplier > 0f ? lateMultiplier / multiplier : 0f;
-            var previousMaxHealth = Mathf.Max(
-                1,
-                Mathf.RoundToInt(character.Stats.MaxHealth.GetValue()));
+            var previousMaxHealth = character.MaximumHealth;
 
             // Restore the anchored base before accumulating growth. At full blend this
             // preserves the previous floating-point operation order, not just its algebra.
@@ -69,9 +67,7 @@ namespace Godmist.Systems.Characters
 
             if (!grantCurrentHealthGrowth) return;
 
-            var currentMaxHealth = Mathf.Max(
-                1,
-                Mathf.RoundToInt(character.Stats.MaxHealth.GetValue()));
+            var currentMaxHealth = character.MaximumHealth;
             character.CurrentHealth = Mathf.Clamp(
                 character.CurrentHealth + Mathf.Max(0, currentMaxHealth - previousMaxHealth),
                 0,

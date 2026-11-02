@@ -81,6 +81,12 @@ namespace Godmist.Systems.Items
                 return preview;
             }
 
+            if (!request.Recipe.TryCalculateBaseValue(out _, out var valueFailure))
+            {
+                preview.FailureReason = valueFailure.Message;
+                return preview;
+            }
+
             if (!IsValidVariant(request))
             {
                 preview.FailureReason = "Niepoprawny wariant receptury.";
@@ -195,6 +201,9 @@ namespace Godmist.Systems.Items
                 return false;
             }
 
+            if (!request.Recipe.TryCalculateBaseValue(out _, out var valueFailure))
+            { failureReason = valueFailure.Message; return false; }
+
             var cost = BuildMaterialCosts(session, blacksmith, request.Recipe, request.RecipeVariantIndex)
                 .FirstOrDefault(candidate => candidate.Material.Id == materialId);
             if (cost == null || cost.MissingAmount < 1)
@@ -213,8 +222,7 @@ namespace Godmist.Systems.Items
                     item?.Definition?.Id == materialId)
                 .Take(cost.PurchasableAmount)
                 .ToList();
-            paidGold = stock.Sum(item =>
-                CraftingMerchantStock.Price(blacksmith, item));
+            if (!CraftingMerchantStock.TryQuote(blacksmith, stock, out paidGold, out failureReason)) return false;
 
             if (stock.Count != cost.PurchasableAmount || paidGold <= 0)
             {
@@ -391,7 +399,7 @@ namespace Godmist.Systems.Items
                 var owned = CountPartyItems(session, pair.Key.Id);
                 var missing = Mathf.Max(0, pair.Value - owned);
                 var stock = GetBlacksmithStock(blacksmith, pair.Key.Id);
-                var price = GetStockPurchasePrice(blacksmith, pair.Key.Id, Mathf.Min(missing, stock));
+                var validQuote = CraftingMerchantStock.TryQuoteMaterial(blacksmith, pair.Key.Id, Mathf.Min(missing, stock), out var price, out var quoteReason);
                 var purchasable = Mathf.Min(missing, stock);
 
                 costs.Add(new CraftingMaterialCost
@@ -401,7 +409,8 @@ namespace Godmist.Systems.Items
                     OwnedAmount = owned,
                     AvailableFromBlacksmith = stock,
                     PurchasePrice = price,
-                    CanAffordPurchase = purchasable > 0 && price > 0 && session != null && session.Gold >= price,
+                    PurchaseFailureReason = quoteReason,
+                    CanAffordPurchase = validQuote && purchasable > 0 && price > 0 && session != null && session.Gold >= price,
                     PurchaseState = missing <= 0
                         ? CraftingMaterialPurchaseState.NotNeeded
                         : purchasable <= 0 || price <= 0
@@ -437,12 +446,6 @@ namespace Godmist.Systems.Items
 
         private static int GetBlacksmithStock(NpcInstance blacksmith, string definitionId) =>
             CraftingMerchantStock.Items(blacksmith).Count(item => item?.Definition?.Id == definitionId);
-
-        private int GetStockPurchasePrice(NpcInstance blacksmith, string definitionId, int amount) =>
-            amount <= 0 ? 0 : CraftingMerchantStock.Items(blacksmith)
-                .Where(item => item?.Definition?.Id == definitionId)
-                .Take(amount)
-                .Sum(item => CraftingMerchantStock.Price(blacksmith, item));
 
         private static bool CanReceiveAll(Inventory inventory, ItemDefinition definition, int amount)
         {

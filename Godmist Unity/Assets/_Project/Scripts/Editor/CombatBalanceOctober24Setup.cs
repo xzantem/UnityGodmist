@@ -41,19 +41,8 @@ namespace Godmist.Editor
                     ?"Przywraca 100–140% siły leczenia (średniego ataku).":"Przywraca wszystkim sojusznikom 42–58% siły leczenia.";
                 data.ApplyModifiedPropertiesWithoutUndo();AssetDatabase.SaveAssetIfDirty(skill);
             }
-            foreach(var guid in AssetDatabase.FindAssets("t:CharacterDefinition",new[]{"Assets/_Project/ScriptableObjects"}))
-            {
-                var character=AssetDatabase.LoadAssetAtPath<CharacterDefinition>(AssetDatabase.GUIDToAssetPath(guid));
-                if(character==null||!character.Id.StartsWith("enemy.",StringComparison.Ordinal)||character.Id.Contains(".test"))continue;
-                if(character.name=="CD_Enemy_Test")
-                {
-                    data=new SerializedObject(character);data.FindProperty("<AttackMultiplier>k__BackingField").floatValue=1;
-                    data.ApplyModifiedPropertiesWithoutUndo();AssetDatabase.SaveAssetIfDirty(character);continue;
-                }
-                data=new SerializedObject(character);data.FindProperty("<AttackMultiplier>k__BackingField").floatValue=.85f;
-                data.ApplyModifiedPropertiesWithoutUndo();AssetDatabase.SaveAssetIfDirty(character);
-                report.Add(character.Id+": attack multiplier .85; HP/base/growth unchanged");
-            }
+            // Enemy attack reduction is authored directly in base/growth data.
+            // This historical skill/prefab setup must not overwrite current enemy balance.
             var importer=(TextureImporter)AssetImporter.GetAtPath(UpPath);
             importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Single;
             importer.spritePixelsPerUnit=32;importer.filterMode=FilterMode.Point;importer.mipmapEnabled=false;

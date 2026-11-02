@@ -32,7 +32,7 @@ namespace Godmist.Views.UI
                 $"Stan walki: {session.Outcome}\n" +
                 $"Aktywna postać: {character.Definition.DisplayName}\n" +
                 $"Klasa: {character.ClassData.ClassName}\n" +
-                $"HP: {character.CurrentHealth}/{character.Stats.MaxHealth.GetValue():0}\n" +
+                $"HP: {character.CurrentHealth}/{character.MaximumHealth}\n" +
                 $"AP: {Godmist.Runtime.Combat.ActionPointUnits.Format(unit.CurrentActionPoints)}/{Godmist.Runtime.Combat.ActionPointUnits.Format(unit.MaxActionPoints)}\n" +
                 $"Surowiec: {resource.CurrentValue}/{resource.MaxValue} ({resource.ResourceType})\n" +
                 $"Pozycja: [{unit.Position.X}, {unit.Position.Y}]";

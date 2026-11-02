@@ -134,6 +134,10 @@ namespace Godmist.Views.UI
                     new Vector2((i - 1) * (portrait ? 29 : 17), 0));
                 fills[i].sprite = palette?.GetArtwork("fill_runtime");
             }
+            var mask = new GameObject("FillMask", typeof(RectTransform), typeof(RectMask2D)).GetComponent<RectTransform>();
+            mask.gameObject.layer = frame.gameObject.layer; mask.SetParent(frame.transform, false);
+            foreach (var fill in fills) fill.transform.SetParent(mask, false);
+            UIBarFillMask.Install(frame, fills[0], mask);
             content.gameObject.SetActive(false);
         }
 

@@ -1852,7 +1852,8 @@ namespace Godmist.Views.Dungeons
             CornerMiterRole role,
             float geometryXDirection,
             float geometryYDirection,
-            int endpointArms = 0)
+            int endpointArms = 0,
+            bool explicitEndpointArms = false)
         {
             if (sideSource == null
                 || horizontalSource == null
@@ -1886,6 +1887,7 @@ namespace Godmist.Views.Dungeons
                 endpointArms,
                 geometryXDirection < 0f ? 0 : 1,
                 geometryYDirection < 0f ? 0 : 1);
+            if (explicitEndpointArms) cacheKey += ":explicit-arms";
 
             if (!cornerMiterTextureCache.TryGetValue(cacheKey, out var cornerTexture)
                 || cornerTexture == null)
@@ -1940,7 +1942,7 @@ namespace Godmist.Views.Dungeons
                             : sourceY;
                         var sideIndex = sideSourceY * RuntimeCornerTexturePixels + sideSourceX;
                         var horizontalIndex = sourceY * RuntimeCornerTexturePixels + horizontalSourceX;
-                        if (endpointArms != 0 && role == CornerMiterRole.NorthCap
+                        if ((explicitEndpointArms || endpointArms != 0) && role == CornerMiterRole.NorthCap
                             && endpointArms != 5 && endpointArms != 6 && endpointArms != 9 && endpointArms != 10)
                         {
                             // Ends, T and cross use the very same native border
@@ -2535,7 +2537,9 @@ namespace Godmist.Views.Dungeons
             southOcclusionRenderer.sortingOrder = sourceRenderer.sortingOrder - 1;
             southOcclusionRenderer.color = Color.black;
             southOcclusionRenderer.sharedMaterial = sourceRenderer.sharedMaterial;
+            southOcclusionRenderer.enabled = true;
             southOcclusionRenderer.gameObject.SetActive(true);
+            RememberSouthOcclusionBounds();
         }
 
         private void SetSouthOcclusionMaskActive(bool active)

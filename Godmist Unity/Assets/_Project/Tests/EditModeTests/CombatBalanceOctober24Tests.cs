@@ -67,7 +67,11 @@ namespace Godmist.Tests.EditMode
                 var baseline=Object.Instantiate(definition);
                 try
                 {
-                    var data=new SerializedObject(baseline);data.FindProperty("<AttackMultiplier>k__BackingField").floatValue=1;data.ApplyModifiedPropertiesWithoutUndo();
+                    var data=new SerializedObject(baseline);
+                    foreach(var group in new[]{"BaseStats","GrowthData"})
+                    foreach(var field in group=="BaseStats" ? new[]{"MinAttack","MaxAttack"} : new[]{"MinAttack","MaxAttack","LateMinAttack","LateMaxAttack","EarlyMinAttack","EarlyMaxAttack","LateMinAttackOffset","LateMaxAttackOffset"})
+                        data.FindProperty("<"+group+">k__BackingField").FindPropertyRelative("<"+field+">k__BackingField").floatValue /= .85f;
+                    data.ApplyModifiedPropertiesWithoutUndo();
                     var factory=new CharacterInstanceFactory();var before=factory.Create(baseline,baseline.ClassData,level);
                     var after=factory.Create(definition,definition.ClassData,level);
                     Assert.That(after.Stats.MaxHealth.GetValue(),Is.EqualTo(before.Stats.MaxHealth.GetValue()),definition.Id);

@@ -1,3 +1,4 @@
+using Godmist.Core.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,7 +30,7 @@ namespace Godmist.Views.UI
             {
                 if (entry != null && string.Equals(entry.Id, id, StringComparison.OrdinalIgnoreCase))
                 {
-                    result = entry;
+                    result = PresentEntry(entry);
                     return true;
                 }
             }
@@ -38,6 +39,22 @@ namespace Godmist.Views.UI
 
             result = null;
             return false;
+        }
+
+        public static Entry PresentEntry(Entry entry)
+        {
+            if (entry == null) return null;
+            var title = UiTerms.GlossaryTitle(entry.Id, entry.Title);
+            var description = UiTerms.Present(entry.Description);
+            if (title == entry.Title && description == entry.Description) return entry;
+            var aliases = entry.Aliases == null ? new List<string>() : new List<string>(entry.Aliases);
+            if (!string.IsNullOrWhiteSpace(entry.Title)) aliases.Add(entry.Title);
+            return new Entry
+            {
+                Id = entry.Id, Icon = entry.Icon,
+                Title = title,
+                Description = description, Aliases = aliases
+            };
         }
 
         public string Linkify(string richText) => Linkify(richText, null);
@@ -76,6 +93,7 @@ namespace Godmist.Views.UI
             {
                 if (entry == null || string.IsNullOrWhiteSpace(entry.Id)) continue;
                 authoredEntriesById[entry.Id] = entry;
+                AddCandidate(candidates, entry, UiTerms.GlossaryTitle(entry.Id, entry.Title), 0, ref candidateOrder);
                 AddCandidate(candidates, entry, entry.Title, 0, ref candidateOrder);
                 if (entry.Aliases != null)
                     foreach (var alias in entry.Aliases)
@@ -91,14 +109,20 @@ namespace Godmist.Views.UI
                     // aliases only fill Polish inflections missing from the asset.
                     if (entry.Aliases != null)
                         foreach (var alias in entry.Aliases)
+                        {
                             AddCandidate(candidates, authoredEntry, alias, 1, ref candidateOrder);
+                            AddCandidate(candidates, authoredEntry, UiTerms.Present(alias), 1, ref candidateOrder);
+                        }
                     continue;
                 }
 
                 AddCandidate(candidates, entry, entry.Title, 1, ref candidateOrder);
                 if (entry.Aliases != null)
                     foreach (var alias in entry.Aliases)
+                    {
                         AddCandidate(candidates, entry, alias, 1, ref candidateOrder);
+                        AddCandidate(candidates, entry, UiTerms.Present(alias), 1, ref candidateOrder);
+                    }
             }
 
             candidates.Sort((left, right) =>
@@ -387,9 +411,9 @@ namespace Godmist.Views.UI
             return new CombatTooltipGlossary.Entry
             {
                 Id = id,
-                Title = title,
-                Description = description,
-                Aliases = aliases == null ? new List<string>() : new List<string>(aliases)
+                Title = UiTerms.GlossaryTitle(id, title),
+                Description = UiTerms.Present(description),
+                Aliases = aliases == null ? new List<string> { title } : new List<string>(aliases) { title }
             };
         }
     }

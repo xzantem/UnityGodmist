@@ -9,7 +9,7 @@ namespace Godmist.Tests.EditMode
 {
  public class CombatHudPassTests
  {
-  [Test] public void ExplorationKeepsNativeSkillsVisibleAndClickableWithoutCombatControlsOrSession()
+  [Test] public void ExplorationKeepsSkillsAndActiveVitalsVisibleWithoutCombatControlsOrSession()
   {
    var root=PrefabUtility.LoadPrefabContents("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_CombatHud.prefab");
    var runtime=new GameObject("exploration HUD test runtime");runtime.SetActive(false);
@@ -27,7 +27,7 @@ namespace Godmist.Tests.EditMode
     Refresh();var slots=bar.GetComponentsInChildren<CombatSkillSlotView>();Assert.That(slots.Length,Is.GreaterThan(0));
     Assert.That(slots.Any(slot=>slot.TryActivate()),Is.True);Assert.That(selected,Is.Not.Null);
     Assert.That(actor.Character.GetActiveSkills(),Does.Contain(selected));Assert.That(bootstrap.Session,Is.Null);Assert.That(bootstrap.Drivers,Is.Empty);
-    Assert.That(active.gameObject.activeSelf,Is.False);
+    Assert.That(active.gameObject.activeSelf,Is.True);
     Assert.That(root.transform.Find("TopBar").gameObject.activeSelf,Is.False);
     Assert.That(root.transform.Find("TimelineDrawerHandle").gameObject.activeSelf,Is.False);
     var actionState=new SerializedObject(actions);
@@ -106,7 +106,7 @@ namespace Godmist.Tests.EditMode
     view.ClearAll();
     view.ShowMovementPreview(new[]{new Godmist.Runtime.Combat.GridPosition(1,0),new Godmist.Runtime.Combat.GridPosition(1,1)},cells[0],300,Color.yellow,showCost:false);
     var gems=root.GetComponentsInChildren<SpriteRenderer>().Where(r=>r.name=="Combat pixel path gem").ToArray();
-    Assert.That(gems.Length,Is.EqualTo(8));foreach(var gem in gems)Assert.That(gem.sprite.texture.filterMode,Is.EqualTo(FilterMode.Point));
+    Assert.That(gems.Length,Is.EqualTo(cells.Length*2),"Two small pips per tile keep the route readable without a chain of oversized gems.");foreach(var gem in gems)Assert.That(gem.sprite.texture.filterMode,Is.EqualTo(FilterMode.Point));
     view.IsPositionVisible=_=>false;view.RefreshVisibility();Assert.That(root.GetComponentsInChildren<SpriteRenderer>(),Is.Empty);
    }finally{Object.DestroyImmediate(root);}
   }
@@ -155,7 +155,7 @@ namespace Godmist.Tests.EditMode
     var corner=uv[0]+(uv[2]-uv[0])*.125f;
     var side=uv[0]+Vector2.Scale(uv[2]-uv[0],new Vector2(.125f,.5f));
     Assert.That(Alpha(corner),Is.LessThan(Alpha(side)),"Convex corners must round off instead of preserving a square inset.");
-    Assert.That(texture.filterMode,Is.EqualTo(FilterMode.Bilinear));
+    Assert.That(texture.filterMode,Is.EqualTo(FilterMode.Point),"Floor feedback follows the pixel-art sampling of the game.");
     view.ShowOutline(Godmist.Views.Combat.CombatGridFeedbackLayer.SkillTarget,cells,Color.green);
     var count=root.transform.childCount;for(var i=0;i<5;i++)view.RefreshVisibility();Assert.That(root.transform.childCount,Is.EqualTo(count));
     view.ClearAll();Assert.That(root.GetComponentsInChildren<MeshRenderer>().All(r=>!r.enabled),Is.True);
@@ -228,7 +228,7 @@ namespace Godmist.Tests.EditMode
    }finally{PrefabUtility.UnloadPrefabContents(root);}
   }
 
-  [Test] public void PartySelectionAndCurrentTurnHaveDifferentAccents()
+  [Test] public void PartySelectionAndCurrentTurnUseSharedGoldAndIndependentMarkers()
   {
    var root=PrefabUtility.LoadPrefabContents("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_PartyMember.prefab");
    try
@@ -236,10 +236,17 @@ namespace Godmist.Tests.EditMode
     var view=root.GetComponent<Godmist.Views.UI.Workspace.CharacterInfoPartyPortraitView>();
     var unit=new Godmist.Runtime.Combat.BattleUnit{Character=new Godmist.Runtime.Characters.CharacterInstance(),IsPlayerSide=true};
     var so=new SerializedObject(view);var title=(TMPro.TMP_Text)so.FindProperty("nameText").objectReferenceValue;
-    view.RefreshPresentation(unit,true,false);var selected=title.color;
-    view.RefreshPresentation(unit,false,true);var turn=title.color;
-    Assert.That(selected.b,Is.GreaterThan(selected.r));Assert.That(turn.r,Is.GreaterThan(turn.b));
-    view.RefreshPresentation(unit,true,true);Assert.That(title.color,Is.EqualTo(turn));
+    var selectedMarker=(Image)so.FindProperty("selectedMarker").objectReferenceValue;
+    var member=(CombatPartyMemberView)so.FindProperty("memberView").objectReferenceValue;
+    var turnMarker=(Image)new SerializedObject(member).FindProperty("turnMarker").objectReferenceValue;
+    view.RefreshPresentation(unit,true,false);
+    Assert.That(title.color,Is.EqualTo(Godmist.Views.HighlightStyle.Selection));
+    Assert.That(selectedMarker.enabled,Is.True);Assert.That(turnMarker.enabled,Is.False);
+    view.RefreshPresentation(unit,false,true);
+    Assert.That(title.color,Is.EqualTo(Godmist.Views.HighlightStyle.Selection));
+    Assert.That(selectedMarker.enabled,Is.False);Assert.That(turnMarker.enabled,Is.True);
+    view.RefreshPresentation(unit,true,true);
+    Assert.That(selectedMarker.enabled,Is.True);Assert.That(turnMarker.enabled,Is.True);
    }finally{PrefabUtility.UnloadPrefabContents(root);}
   }
 
@@ -254,8 +261,8 @@ namespace Godmist.Tests.EditMode
     view.ShowFill(Godmist.Views.Combat.CombatGridFeedbackLayer.SkillRange,cells,new Color(0,0,1,.6f),individualTint? _=>new Color(0,0,1,.6f):null);
     for(var i=0;i<3;i++)view.RefreshVisibility();
     var rendered=root.GetComponentsInChildren<SpriteRenderer>();
-    if(rendered.Length>0)foreach(var item in rendered)Assert.That(item.color.a,Is.EqualTo(.108f).Within(.001f));
-    else foreach(var color in root.GetComponentInChildren<MeshFilter>().sharedMesh.colors)Assert.That(color.a,Is.EqualTo(.108f).Within(.005f));
+    if(rendered.Length>0)foreach(var item in rendered)Assert.That(item.color.a,Is.EqualTo(.027f).Within(.001f));
+    else foreach(var color in root.GetComponentInChildren<MeshFilter>().sharedMesh.colors)Assert.That(color.a,Is.EqualTo(.027f).Within(.005f));
     view.ClearFill(Godmist.Views.Combat.CombatGridFeedbackLayer.SkillRange);
     view.ShowFill(Godmist.Views.Combat.CombatGridFeedbackLayer.ChosenSkillTargets,cells,Color.green);
     foreach(var item in root.GetComponentsInChildren<SpriteRenderer>())Assert.That(item.color.a,Is.EqualTo(1));
@@ -490,9 +497,9 @@ namespace Godmist.Tests.EditMode
     view.Bind(unit,800);
     var label=new SerializedObject(view).FindProperty("actionValueText").objectReferenceValue;
     string ReadLabel()=>new SerializedObject(label).FindProperty("m_text").stringValue;
-    Assert.That(ReadLabel(),Is.EqualTo("12 → 4 AP"));
+    Assert.That(ReadLabel(),Is.EqualTo("12 → 4 PA"));
     Assert.That(unit.CurrentActionPoints,Is.EqualTo(1200));Assert.That(character.CurrentHealth,Is.EqualTo(70));Assert.That(character.ResourcePool.CurrentValue,Is.EqualTo(20));
-    view.Bind(unit);Assert.That(ReadLabel(),Is.EqualTo("12/12 AP"));
+    view.Bind(unit);Assert.That(ReadLabel(),Is.EqualTo("12/12 PA"));
     view.Bind(unit,2000);Assert.That(ReadLabel(),Does.Contain("potrzeba 20"));
    }finally{PrefabUtility.UnloadPrefabContents(root);}
   }

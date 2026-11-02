@@ -190,6 +190,7 @@ namespace Godmist.Tests.EditMode
             var blacksmith = CreateBlacksmith();
             var session = new GameSession(GameModeState.Exploration, "upgrade.acceptance");
             session.TryAddGold(100000);
+            session.Stash.Items.Add(item);
 
             var service = new EquipmentUpgradeService();
             Assert.That(service.CreateUpgradePreview(session, blacksmith, item, 1f, .7f, catalog).CanExecute, Is.False);

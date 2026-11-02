@@ -36,7 +36,7 @@ namespace Godmist.Tests.EditMode
         [SetUp] public void OpenScene()
         {
             scene=EditorSceneManager.OpenPreviewScene("Assets/_Project/Scenes/Bootstrap/Bootstrap.unity");
-            view=scene.GetRootGameObjects().Single(root=>root.name=="Canvas").transform.Find("MainMenuRoot").GetComponent<MainMenuSettingsView>();
+            view=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<Canvas>(true)).Single(candidate=>candidate.name=="Canvas").transform.Find("MainMenuRoot").GetComponent<MainMenuSettingsView>();
             platform=new FakePlatform();typeof(MainMenuSettingsView).GetField("platform",BindingFlags.NonPublic|BindingFlags.Instance).SetValue(view,platform);
             Invoke("Awake");view.Open();
         }

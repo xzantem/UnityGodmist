@@ -64,10 +64,12 @@ MonoBehaviour:
     <EarlyMinAttack>k__BackingField: 0
     <EarlyMaxAttack>k__BackingField: 0
     <LateMaxHealthOffset>k__BackingField: 0
+    <HealthCurve>k__BackingField: []
     <LateMinAttackOffset>k__BackingField: 0
     <LateMaxAttackOffset>k__BackingField: 0
     <PhysicalDefense>k__BackingField: 0.25
     <MagicalDefense>k__BackingField: 0.5
+    <DefenseCurve>k__BackingField: []
     <Dodge>k__BackingField: 0.04
     <CritChance>k__BackingField: 0
     <CritDamage>k__BackingField: 0

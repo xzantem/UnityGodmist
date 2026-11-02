@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Godmist.Core.Interfaces;
 using Godmist.Data.Skills;
 using Godmist.Data.Items;
@@ -34,7 +34,6 @@ namespace Godmist.Data.Characters
         [field: SerializeField] public CharacterBaseStatsData BaseStats { get; private set; } = new();
         [field: SerializeField] public CharacterResistanceData BaseResistances { get; private set; } = new();
         [field: SerializeField] public CharacterGrowthData GrowthData { get; private set; } = new();
-        [field: SerializeField, Min(0f)] public float AttackMultiplier { get; private set; } = 1f;
         // Optional boss phase data; art is authored independently for each definition.
         [field: SerializeField] public CharacterDefinition SecondPhaseDefinition { get; private set; }
         [field: SerializeField] public float TransformationFramesPerSecond { get; private set; } = 8f;

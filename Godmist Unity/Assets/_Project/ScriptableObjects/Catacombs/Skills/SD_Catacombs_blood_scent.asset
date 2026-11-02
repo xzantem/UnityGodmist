@@ -51,7 +51,8 @@ MonoBehaviour:
     chainTargets: 0
     requiredStatusId: 
   effects:
-  - effectType: 6
+  - stableEffectId: ed10e383a4b613aa85e721738
+    effectType: 6
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
@@ -135,12 +136,14 @@ MonoBehaviour:
       statusId: bleed
       healthPercentThreshold: 0
       integerThreshold: 0
+      referencedEffectId: 
     summonUsesCasterStats: 0
     summonStationary: 0
     summonPersistent: 0
     summonGroupId: 
     damagePerOwnedSummonGroup: 
-  - effectType: 6
+  - stableEffectId: ebace3705034f8a806b7b3cd9
+    effectType: 6
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
@@ -224,8 +227,10 @@ MonoBehaviour:
       statusId: bleed
       healthPercentThreshold: 0
       integerThreshold: 0
+      referencedEffectId: 
     summonUsesCasterStats: 0
     summonStationary: 0
     summonPersistent: 0
     summonGroupId: 
     damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

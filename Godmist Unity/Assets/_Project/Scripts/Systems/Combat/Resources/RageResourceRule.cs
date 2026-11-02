@@ -7,10 +7,17 @@ namespace Godmist.Systems.Combat
     public class RageResourceRule : IResourceRule
     {
         // Keep the existing define ID for saved/user configuration compatibility.
-        private static int RagePerSkill => GameDefinesRuntime.GetInt(
+        public static int RagePerSkill => GameDefinesRuntime.GetInt(
             GameDefineIds.RagePerHit, 10);
         private static int RageDecayPerMissedTurn => GameDefinesRuntime.GetInt(
             GameDefineIds.RageDecayPerMissedTurn, 10);
+
+        public static int PreviewOffensiveGain(CharacterInstance character)
+        {
+            var carry=character?.EquipmentGenerationCarry??0;
+            return RagePerSkill+PeriodicRecoveryPassiveEffectProcessor.GetRecoveryAmount(
+                RagePerSkill*(EquipmentEffectSystem.ResourceMultiplier(character)-1),ref carry);
+        }
 
         public int ProcessTurnStart(ResourcePool pool)
         {

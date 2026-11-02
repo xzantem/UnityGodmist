@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SD_WarriorShout
   m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillData
   <SkillId>k__BackingField: skill.warrior.shout
-  <DisplayName>k__BackingField: Og\u0142uszaj\u0105cy Okrzyk
+  <DisplayName>k__BackingField: "Og\u0142uszaj\u0105cy Okrzyk"
   <Icon>k__BackingField: {fileID: 21300000, guid: 7f4e7cfc2371d2342b950e53cdb86417, type: 3}
   <TooltipDescription>k__BackingField: "Zu\u017Cywa ca\u0142\u0105 aktualn\u0105
     w\u015Bciek\u0142o\u015B\u0107. 90% szansy na og\u0142uszenie na 1 tur\u0119,
@@ -52,7 +52,8 @@ MonoBehaviour:
     chainTargets: 0
     requiredStatusId: 
   effects:
-  - effectType: 2
+  - stableEffectId: eb32d1f244ac76645f748a09e
+    effectType: 2
     polarity: 0
     alwaysHits: 1
     targetModeIndex: 0
@@ -136,3 +137,4 @@ MonoBehaviour:
     summonPersistent: 0
     summonGroupId: 
     damagePerOwnedSummonGroup: 
+  stableEffectIdsInitialized: 1

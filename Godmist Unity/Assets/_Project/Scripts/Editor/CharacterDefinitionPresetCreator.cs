@@ -112,9 +112,9 @@ namespace Godmist.Editor
         {
             property.FindPropertyRelative("<MaxHealth>k__BackingField").intValue =
                 Mathf.RoundToInt(preset.MaxHealth);
-            property.FindPropertyRelative("<MinAttack>k__BackingField").intValue =
+            property.FindPropertyRelative("<MinAttack>k__BackingField").floatValue =
                 Mathf.RoundToInt(preset.MinAttack);
-            property.FindPropertyRelative("<MaxAttack>k__BackingField").intValue =
+            property.FindPropertyRelative("<MaxAttack>k__BackingField").floatValue =
                 Mathf.RoundToInt(preset.MaxAttack);
             property.FindPropertyRelative("<PhysicalDefense>k__BackingField").floatValue = preset.PhysicalDefense;
             property.FindPropertyRelative("<MagicalDefense>k__BackingField").floatValue = preset.MagicalDefense;

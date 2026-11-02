@@ -36,7 +36,7 @@ namespace Godmist.Tests.EditMode
         };
 
         [Test]
-        public void FractionalHealthMaximumMatchesPartyAndActiveVitalsWithoutChangingSliderMaximum()
+        public void FractionalBaseHealthUsesTheCanonicalIntegerMaximumAcrossVitals()
         {
             var vitalsObject = PrefabUtility.LoadPrefabContents(VitalsPath);
             var partyObject = PrefabUtility.LoadPrefabContents("Assets/_Project/Prefabs/UI/CombatHUD/PF_CombatPartyMember.prefab");
@@ -51,8 +51,8 @@ namespace Godmist.Tests.EditMode
                 Assert.That(bottomText.text, Is.EqualTo(partyText.text));
                 Assert.That(bottomText.text, Is.EqualTo(CombatHealthPresentation.Format(unit.Character)));
                 var slider = (Slider)new SerializedObject(vitals).FindProperty("healthSlider").objectReferenceValue;
-                Assert.That(slider.maxValue, Is.EqualTo(562.5f));
-                Assert.That(slider.normalizedValue, Is.EqualTo(492 / 562.5f).Within(.0001));
+                Assert.That(slider.maxValue, Is.EqualTo(562f));
+                Assert.That(slider.normalizedValue, Is.EqualTo(492 / 562f).Within(.0001));
             }
             finally { PrefabUtility.UnloadPrefabContents(vitalsObject); PrefabUtility.UnloadPrefabContents(partyObject); }
         }
@@ -82,7 +82,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [TestCase(false)] [TestCase(true)]
-        public void ForestPerimeterFeathersMissingTerrainWhileMasonryKeepsItsExistingEdge(bool forest)
+        public void ForestFogDistinguishesUnwalkableVoidFromUnexploredWalkableTerrain(bool forest)
         {
             var root = new GameObject("Fog perimeter regression");
             try
@@ -93,14 +93,25 @@ namespace Godmist.Tests.EditMode
                     var definition = AssetDatabase.LoadAssetAtPath<DungeonDefinition>(Godmist.Editor.ForestPrototypeSetup.DefinitionPath);
                     view.ConfigureVegetationPresentation(definition.VegetationPresentation);
                 }
+                var map = new DungeonFloorMap();
+                for (var y = -1; y <= 1; y++) for (var x = -1; x <= 0; x++) map.TryAddFloorCell(new Vector2Int(x, y), "known");
+                typeof(DungeonFloorMapView).GetField("boundMap", Private).SetValue(view, map);
                 var projection = new Dictionary<Vector2Int, DungeonKnowledge>();
-                // Continuous known area to the left; no terrain to the right.
+                // Non-walkable woodland has its own soil/trees and must not receive a black fog rim.
                 for (var y = -1; y <= 1; y++) for (var x = -1; x <= 0; x++)
                     projection[new Vector2Int(x, y)] = DungeonKnowledge.Visible;
                 var boundary = (bool)typeof(DungeonFloorMapView).GetMethod("ReadFogNeighbours", Private)
                     .Invoke(view, new object[] { projection, Vector2Int.zero, DungeonKnowledge.Visible });
                 var neighbours = (DungeonKnowledge[])typeof(DungeonFloorMapView).GetField("fogNeighbours", Private).GetValue(view);
                 var samples = new float[81];
+                DungeonFogBlend.SampleGridBrightness(DungeonKnowledge.Visible, neighbours, samples, forest);
+                Assert.That(boundary, Is.False);
+                Assert.That(samples[4 * 9 + 8], Is.EqualTo(1).Within(.001));
+                var voidMask = (int)typeof(DungeonFloorMapView).GetField("forestFogVoidMask", Private).GetValue(view);
+                Assert.That(voidMask != 0, Is.EqualTo(forest));
+                // Actual walkable but unknown floor still receives the ordinary woodland frontier.
+                for (var y = -1; y <= 1; y++) map.TryAddFloorCell(new Vector2Int(1, y), "unknown");
+                boundary = (bool)typeof(DungeonFloorMapView).GetMethod("ReadFogNeighbours", Private).Invoke(view, new object[] { projection, Vector2Int.zero, DungeonKnowledge.Visible });
                 DungeonFogBlend.SampleGridBrightness(DungeonKnowledge.Visible, neighbours, samples, forest);
                 Assert.That(boundary, Is.EqualTo(forest));
                 Assert.That(samples[4 * 9 + 8], Is.EqualTo(forest ? 0 : 1).Within(.001));
@@ -124,7 +135,7 @@ namespace Godmist.Tests.EditMode
                 var uv = renderer.GetComponent<MeshFilter>().sharedMesh.uv;
                 float Alpha(float x) => texture.GetPixelBilinear(Mathf.Lerp(uv[0].x, uv[3].x, x),
                     Mathf.Lerp(uv[0].y, uv[1].y, .5f)).a;
-                Assert.That(Alpha(.07f), Is.GreaterThan(.02f), "Contour still needs to be readable.");
+                Assert.That(Alpha(.04f), Is.GreaterThan(.02f), "The feathered pigment rim still needs to be readable.");
                 Assert.That(Alpha(.21f), Is.LessThan(.005f), "No broad glowing strip inside the range.");
                 Assert.That(Alpha(.99f), Is.LessThan(.005f), "No internal edge between adjacent cells.");
             }

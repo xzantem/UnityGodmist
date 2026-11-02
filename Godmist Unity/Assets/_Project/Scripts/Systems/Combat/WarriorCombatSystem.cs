@@ -58,7 +58,13 @@ namespace Godmist.Systems.Combat
             new PassiveEffectLifecycleSystem().TryApplyTimedEffect(target.Character,e,PassiveEffectStackingMode.ReplaceDurationAndValues,out _);
         }
         public static void Refresh(BattleUnit u){if(u?.Character!=null && (Points(u.Character,Commander)>0 || Points(u.Character,Brawler)>0))new CharacterStatPipelineSystem().Refresh(u.Character);}
-        public static void ApplyStats(CharacterInstance c)
+        public static float SpeedBonus(CharacterInstance c)
+        {
+            if (c?.Stats == null || Points(c, Commander) + Points(c, Brawler) == 0) return 0;
+            var rage = Mathf.Min(c.ResourcePool?.CurrentValue ?? 0, Mathf.RoundToInt(c.Stats.MaxResource.GetValue()));
+            return 4 * (rage / 25) * Rank(c, Brawler, "adrenaline");
+        }
+        public static void ApplyStats(CharacterInstance c, System.Action<CharacterStatType,string,StatModifierOperation,float> observe = null)
         {
             if(c?.Stats==null)return;
             var commander=Points(c,Commander);var brawler=Points(c,Brawler);
@@ -71,7 +77,17 @@ namespace Godmist.Systems.Combat
             s.PhysicalDefensePenetration.SetEffectiveValue(s.PhysicalDefensePenetration.GetValue()+.25f*Rank(c,Commander,"armor_shred"));
             var attack=.1f*s.PhysicalDefense.GetValue()*Rank(c,Brawler,"spiked_armor");
             s.MinAttack.SetEffectiveValue(s.MinAttack.GetValue()+attack);s.MaxAttack.SetEffectiveValue(s.MaxAttack.GetValue()+attack);
-            s.Speed.SetEffectiveValue(s.Speed.GetValue()+4*(rage/25)*Rank(c,Brawler,"adrenaline"));
+            s.Speed.SetEffectiveValue(s.Speed.GetValue()+SpeedBonus(c));
+            observe?.Invoke(CharacterStatType.MaxResource,"node.warrior.brawler.release_rage",StatModifierOperation.FlatAbsolute,10*Rank(c,Brawler,"release_rage"));
+            observe?.Invoke(CharacterStatType.MaxResource,Brawler,StatModifierOperation.Percent,.01f*brawler);
+            observe?.Invoke(CharacterStatType.CritChance,"node.warrior.commander.weapon_mastery",StatModifierOperation.Percent,.05f*Rank(c,Commander,"weapon_mastery"));
+            observe?.Invoke(CharacterStatType.CritChance,Commander,StatModifierOperation.FlatAbsolute,.003f*commander);
+            observe?.Invoke(CharacterStatType.CritChance,"node.warrior.brawler.revenge",StatModifierOperation.FlatAbsolute,.0005f*Rank(c,Brawler,"revenge")*rage);
+            observe?.Invoke(CharacterStatType.CritDamage,"node.warrior.commander.piercing",StatModifierOperation.FlatAbsolute,.2f*Rank(c,Commander,"piercing"));
+            observe?.Invoke(CharacterStatType.PhysicalDefensePenetration,"node.warrior.commander.armor_shred",StatModifierOperation.FlatAbsolute,.25f*Rank(c,Commander,"armor_shred"));
+            observe?.Invoke(CharacterStatType.MinAttack,"node.warrior.brawler.spiked_armor",StatModifierOperation.FlatAbsolute,attack);
+            observe?.Invoke(CharacterStatType.MaxAttack,"node.warrior.brawler.spiked_armor",StatModifierOperation.FlatAbsolute,attack);
+            observe?.Invoke(CharacterStatType.Speed,"node.warrior.brawler.adrenaline",StatModifierOperation.FlatAbsolute,SpeedBonus(c));
         }
         public static bool CanActivate(BattleUnit u,SkillData skill)=>skill?.SkillId == WarriorDischargeRules.SkillId
             ? IsRage(u) && WarriorDischargeRules.Cost(u) >= WarriorDischargeRules.MinimumRage
@@ -80,7 +96,8 @@ namespace Godmist.Systems.Combat
         public static int Adjacent(CombatSession s,BattleUnit u)=>s?.Units?.Count(a=>a!=u && a.IsPlayerSide==u.IsPlayerSide && a.Character.LifeState==CharacterLifeState.Alive
             && Math.Abs(a.Position.X-u.Position.X)+Math.Abs(a.Position.Y-u.Position.Y)==1 && s.Grid.CanMoveBetween(a.Position,u.Position))??0;
         public static float Protection(CombatSession s,BattleUnit target)=>target?.WarriorState.ProtectionTurns>0 ? 1-Mathf.Min(.6f,.3f+.1f*Adjacent(s ?? target.WarriorState.Session,target)):1;
-        public static float TargetPriority(CombatSession s,BattleUnit target)=>target?.WarriorState.ProtectionTurns>0 && target.WarriorState.Riposte ? 1+Mathf.Min(1.25f,.5f+.25f*Adjacent(s ?? target.WarriorState.Session,target)):1;
+        public static float ProtectionPriority(int adjacentAllies)=>1+Mathf.Min(1.25f,.5f+.25f*adjacentAllies);
+        public static float TargetPriority(CombatSession s,BattleUnit target)=>target?.WarriorState.ProtectionTurns>0 && target.WarriorState.Riposte ? ProtectionPriority(Adjacent(s ?? target.WarriorState.Session,target)):1;
         public static float DamageMultiplier(PassiveEffectCombatContext ctx,bool preview=false)
         {
             if(ctx?.Source==null || ctx.Target?.Character==null)return 1;

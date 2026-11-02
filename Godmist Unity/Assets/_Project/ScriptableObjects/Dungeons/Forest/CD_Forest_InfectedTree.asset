@@ -38,8 +38,8 @@ MonoBehaviour:
   <ClassData>k__BackingField: {fileID: 11400000, guid: 5a083fbc40bc3fb438346336a20313dc, type: 2}
   <BaseStats>k__BackingField:
     <MaxHealth>k__BackingField: 277
-    <MinAttack>k__BackingField: 27
-    <MaxAttack>k__BackingField: 31
+    <MinAttack>k__BackingField: 22.95
+    <MaxAttack>k__BackingField: 26.35
     <PhysicalDefense>k__BackingField: 23
     <MagicalDefense>k__BackingField: 11
     <PhysicalDefensePenetration>k__BackingField: 0
@@ -61,14 +61,14 @@ MonoBehaviour:
     <MoveResistance>k__BackingField: 0.8
   <GrowthData>k__BackingField:
     <MaxHealth>k__BackingField: 30
-    <MinAttack>k__BackingField: 1.95
-    <MaxAttack>k__BackingField: 2.28
+    <MinAttack>k__BackingField: 1.6575
+    <MaxAttack>k__BackingField: 1.9380001
     <LateMaxHealth>k__BackingField: 31.356785
-    <LateMinAttack>k__BackingField: 2.9853015
-    <LateMaxAttack>k__BackingField: 3.490352
+    <LateMinAttack>k__BackingField: 2.5375063
+    <LateMaxAttack>k__BackingField: 2.9667993
     <EarlyMaxHealth>k__BackingField: 0
-    <EarlyMinAttack>k__BackingField: -0.000000047683717
-    <EarlyMaxAttack>k__BackingField: 0.000000028610229
+    <EarlyMinAttack>k__BackingField: -0.00000004053116
+    <EarlyMaxAttack>k__BackingField: 0.000000024318695
     <LateMaxHealthOffset>k__BackingField: -18
     <HealthCurve>k__BackingField:
     - <Level>k__BackingField: 1
@@ -89,8 +89,8 @@ MonoBehaviour:
       <MaxHealth>k__BackingField: 12622
     - <Level>k__BackingField: 50
       <MaxHealth>k__BackingField: 14259
-    <LateMinAttackOffset>k__BackingField: -1
-    <LateMaxAttackOffset>k__BackingField: -1
+    <LateMinAttackOffset>k__BackingField: -0.85
+    <LateMaxAttackOffset>k__BackingField: -0.85
     <PhysicalDefense>k__BackingField: 0
     <MagicalDefense>k__BackingField: 0
     <DefenseCurve>k__BackingField:
@@ -128,7 +128,6 @@ MonoBehaviour:
     <WeaponAccuracy>k__BackingField: 0
     <MaxResource>k__BackingField: 0
     <ResourceRegeneration>k__BackingField: 0
-  <AttackMultiplier>k__BackingField: 0.85
   <SecondPhaseDefinition>k__BackingField: {fileID: 0}
   <TransformationFramesPerSecond>k__BackingField: 8
   <TransformationFrames>k__BackingField: []

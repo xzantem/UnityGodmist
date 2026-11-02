@@ -30,22 +30,29 @@ namespace Godmist.Systems.Combat
             if (Points(unit?.Character, Fire) > 0) new CharacterStatPipelineSystem().Refresh(unit.Character);
         }
         public static bool Burning(BattleUnit u) => StatusEffectSystem.HasStatus(u, StatusEffectIds.Burn);
-        public static void ApplyStats(CharacterInstance c)
+        public static float SpeedBonus(CharacterInstance c) =>
+            PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn) ? 15 * Rank(c, Fire, "adrenaline") : 0;
+        public static void ApplyStats(CharacterInstance c, System.Action<CharacterStatType,string,StatModifierOperation,float> observe = null)
         {
             if (c?.Stats == null) return;
             var s = c.Stats;
             var defense = Rank(c, Warlock, "defensive_power");
             s.MaxHealth.SetEffectiveValue(s.MaxHealth.GetValue() + (s.MinAttack.GetValue() + s.MaxAttack.GetValue()) * .5f * (defense switch { 1 => .1f, 2 => .3f, 3 => .5f, _ => 0f }));
+            observe?.Invoke(CharacterStatType.MaxHealth,"node.mage.warlock.defensive_power",StatModifierOperation.FlatAbsolute,(s.MinAttack.GetValue()+s.MaxAttack.GetValue())*.5f*(defense switch{1=>.1f,2=>.3f,3=>.5f,_=>0f}));
             var pool = c.ResourcePool;
             var maximumMana = Mathf.Max(0, Mathf.RoundToInt(s.MaxResource.GetValue()));
             var missing = pool == null || maximumMana <= 0 ? 0f : Mathf.Clamp01(1f - pool.CurrentValue / (float)maximumMana);
             s.ResourceRegeneration.SetEffectiveValue(s.ResourceRegeneration.GetValue() * (1 + missing * MissingManaRegenerationPerRank * Rank(c, Warlock, "energy_saving")));
+            observe?.Invoke(CharacterStatType.ResourceRegeneration,"node.mage.warlock.energy_saving",StatModifierOperation.Percent,missing*MissingManaRegenerationPerRank*Rank(c,Warlock,"energy_saving"));
             c.ActiveSkillLoadout.TrySetCapacityModifier("mage.memory", Rank(c, Warlock, "memory"));
             if (!PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn)) return;
-            s.Speed.SetEffectiveValue(s.Speed.GetValue() + 15 * Rank(c, Fire, "adrenaline"));
+            s.Speed.SetEffectiveValue(s.Speed.GetValue() + SpeedBonus(c));
             var protection = Rank(c, Fire, "protection") switch { 1 => .2f, 2 => .5f, _ => 0f };
             s.PhysicalDefense.SetEffectiveValue(s.PhysicalDefense.GetValue() * (1 + protection));
             s.MagicalDefense.SetEffectiveValue(s.MagicalDefense.GetValue() * (1 + protection));
+            observe?.Invoke(CharacterStatType.Speed,"node.mage.fire.adrenaline",StatModifierOperation.FlatAbsolute,SpeedBonus(c));
+            observe?.Invoke(CharacterStatType.PhysicalDefense,"node.mage.fire.protection",StatModifierOperation.Percent,protection);
+            observe?.Invoke(CharacterStatType.MagicalDefense,"node.mage.fire.protection",StatModifierOperation.Percent,protection);
         }
         public static int Cost(BattleUnit u, SkillData skill, int cost)
         {
@@ -56,6 +63,8 @@ namespace Godmist.Systems.Combat
         }
         public static SkillEffectData ResolveEffect(BattleUnit u, SkillData skill, SkillEffectData e)
         {
+            if (skill?.SkillId == "skill.mage.energy_split" && e.EffectType == EffectType.DealDamage)
+                e = e.WithDamageMultiplier(e.DamageMultiplier + .15f * W(u, "power_saving"));
             if (skill?.SkillId == "skill.mage.fire_arrow") e = e.WithBonusPenetration(.3f + .2f * F(u,"piercing"));
             var turns = e.DurationTurns; var chance = e.BaseChance; var dot = e.StatusDamageMultiplier;
             if (skill?.SkillId == "skill.mage.magic_focus") turns += 2 * W(u, "master_concentration");
@@ -63,17 +72,23 @@ namespace Godmist.Systems.Combat
             if (skill?.SkillId == "skill.mage.fire_aura") dot *= 1 + .15f * F(u, "burning_aura");
             return e.WithScoutParameters(e.AdditionalHitTrials, e.BonusDamageMultiplierChance, dot, e.ModifierValue, turns).WithRuntimeParameters(e.DamageHitCount, turns, chance);
         }
-        public static float DamageMultiplier(PassiveEffectCombatContext ctx)
+        public static float DamageMultiplier(PassiveEffectCombatContext ctx,CombatValueExplanation explanation=null)
         {
-            var u = ctx?.Source;
-            if (u?.Character == null) return 1;
-            var multiplier = CombatDamageSystem.HasUniqueBuff(u, UniqueBuffType.MageOffering) ? 1 + OfferingBonus(u) : 1f;
-            var targets = ctx.TargetsByModeIndex?.Values.SelectMany(v => v).Where(v => v != null && v.IsPlayerSide != u.IsPlayerSide).Distinct().Count() ?? 1;
-            if (targets == 1) multiplier *= 1 + .01f * Points(u.Character, Warlock);
-            if (ctx.SkillId == "skill.mage.energy_orb") multiplier *= 1 + (W(u, "dispersion") switch { 1 => .1f, 2 => .175f, 3 => .25f, _ => 0 });
-            if (ctx.SkillId == "skill.mage.energy_split") multiplier *= (.7f + .15f * W(u, "power_saving")) / .7f;
-            if (ctx.SkillId is "skill.mage.fireball" or "skill.mage.fire_arrow") multiplier *= 1 + .02f * Points(u.Character, Fire);
-            if (Burning(ctx.Target)) multiplier *= 1 + .1f * F(u, "cauterize");
+            var u=ctx?.Source;
+            if(u?.Character==null)return 1;
+            var multiplier=1f;
+            void Apply(string id,float value,bool applies=true)
+            {
+                multiplier*=applies?value:1;
+                if(!Mathf.Approximately(value,1))explanation?.Add(id,(applies?"×":"Nie uwzględniono: ×")+value.ToString("0.####",System.Globalization.CultureInfo.GetCultureInfo("pl-PL")));
+            }
+            if(CombatDamageSystem.HasUniqueBuff(u,UniqueBuffType.MageOffering) || W(u,"superhuman_offering")>0)
+                Apply("node.mage.warlock.superhuman_offering",1+OfferingBonus(u),CombatDamageSystem.HasUniqueBuff(u,UniqueBuffType.MageOffering));
+            var targets=ctx.TargetsByModeIndex?.Values.SelectMany(v=>v).Where(v=>v!=null&&v.IsPlayerSide!=u.IsPlayerSide).Distinct().Count()??1;
+            Apply(Warlock,1+.01f*Points(u.Character,Warlock),targets==1);
+            if(ctx.SkillId=="skill.mage.energy_orb")Apply("node.mage.warlock.dispersion",1+(W(u,"dispersion") switch{1=>.1f,2=>.175f,3=>.25f,_=>0}));
+            if(ctx.SkillId is "skill.mage.fireball" or "skill.mage.fire_arrow")Apply(Fire,1+.02f*Points(u.Character,Fire));
+            Apply("node.mage.fire.cauterize",1+.1f*F(u,"cauterize"),Burning(ctx.Target));
             return multiplier;
         }
         public static void BeginSkill(BattleUnit u, SkillData skill, string actionId, CombatSession session = null)
@@ -95,10 +110,17 @@ namespace Godmist.Systems.Combat
         }
         public static float MagicCritChance(PassiveEffectCombatContext ctx) => ctx?.Source != null && ctx.ActionId != null && ctx.Source.MageState.OverflowActionId == ctx.ActionId
             ? ctx.Source.MageState.OverflowCritChance : 0;
-        public static float CritReceived(CombatSession session, BattleUnit target, BattleUnit attacker)
+        // This chance belongs to the attacking mage, never to their whole team.
+        public static float BurningCriticalChance(BattleUnit attacker, BattleUnit target)
+            => Burning(target) ? F(attacker, "weakness") switch { 1 => .15f, 2 => .4f, _ => 0f } : 0f;
+
+        public static float CalculateMagicCriticalChance(PassiveEffectCombatContext context)
         {
-            if (!Burning(target)) return 1;
-            return 1 + (session?.Units?.Where(u => u.IsPlayerSide == attacker.IsPlayerSide).Select(u => F(u, "weakness") switch { 1 => .15f, 2 => .4f, _ => 0 }).DefaultIfEmpty(0).Max() ?? 0);
+            var chance = BurningCriticalChance(context?.Source, context?.Target);
+            if(chance<=0 && MagicCritChance(context)<=0)return 0;
+            chance += context?.Source?.Character?.Stats?.CritChance.GetValue() ?? 0;
+            chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(context?.Session, context, chance);
+            return Mathf.Clamp01(chance + MagicCritChance(context));
         }
         public static int AdaptIncoming(BattleUnit source, BattleUnit target, int damage)
         {
