@@ -60,6 +60,7 @@ namespace Godmist.Views.Characters
             AttackType attackType, bool knifeRecovery, out CombatPose pose)
         {
             pose = null;
+            skillId=skillId switch {"skill.mage.frost.t1_4"=>"skill.mage.energy_orb","skill.mage.frost.t3_4"=>"skill.mage.shield","skill.mage.frost.t5_4"=>"skill.mage.magic_focus",_=>skillId};
             if (!TryGetPack(characterId, out var pack)) return false;
             foreach (var skill in pack.skills ?? Array.Empty<Skill>())
             {

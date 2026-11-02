@@ -1,0 +1,96 @@
+{
+  "card": "CP2-11",
+  "status": "ACCEPTED",
+  "scope": {
+    "nodes": 25,
+    "ranks": 44,
+    "active_skills": 3,
+    "tiers": "T1-T5"
+  },
+  "source": {
+    "path": "design/content_pass_2.xlsx",
+    "sheet": "Drzewka",
+    "range": "A97:G122",
+    "sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
+    "modified": false
+  },
+  "decisions": "All seven packages approved",
+  "art": {
+    "icons": 25,
+    "separate_generations": true,
+    "native32_nearest_full_canvas": "PASS",
+    "editable_aseprite_roundtrip": "PASS",
+    "transparent_floor": "PASS",
+    "provenance": "Tools/Art/FrostIcons20261102/generation-provenance.json"
+  },
+  "authoring": {
+    "unity_api": "PASS",
+    "preserve_previous_assets": "PASS",
+    "idempotence": "PASS",
+    "promotion": "PASS",
+    "promoted_files": 45
+  },
+  "tests": {
+    "combined_unique": 1198,
+    "passed": 1196,
+    "new_or_regressed_failures": 0,
+    "pre_existing_data_assertion_failures": 2,
+    "regression_2": {
+      "total": 1134,
+      "passed": 1132,
+      "failed": 2
+    },
+    "ui_and_talent_copy_passed": 64,
+    "known_failures": [
+      {
+        "name": "Godmist.Tests.EditMode.ForestEntBossTests.LootHasFourClassUniquesAndLevelTwentyGaldurytes",
+        "message": "  Expected: <empty>\n  But was:  < <Godmist.Data.Items.LootBagPoolData> >\n"
+      },
+      {
+        "name": "Godmist.Tests.EditMode.SkeletonSlayerBossTests.ImportedDefinitionsHaveDedicatedArtAndWorkbookStats",
+        "message": "  Expected: 50\n  But was:  42.5f\n"
+      }
+    ],
+    "unchanged_baseline_evidence": [
+      {
+        "path": "Godmist Unity\\Assets\\_Project\\Tests\\EditModeTests\\ForestEntBossTests.cs",
+        "baseline_root_snapshot_identical": true,
+        "sha256": "c6f551e1abdcf99313671e4e8377b58b716b99d30ff70699a1d717c40ccdc8db"
+      },
+      {
+        "path": "Godmist Unity\\Assets\\_Project\\Tests\\EditModeTests\\SkeletonSlayerBossTests.cs",
+        "baseline_root_snapshot_identical": true,
+        "sha256": "62e5a6b499f85f28d57e627f6dfa8e9b092d3e5936e3412c29234f625bf14581"
+      },
+      {
+        "path": "Godmist Unity\\Assets\\_Project\\ScriptableObjects\\Catacombs\\Enemies\\CD_Catacombs_skeleton_slayer.asset",
+        "baseline_root_snapshot_identical": true,
+        "sha256": "45a67b3e88588000d6f908f3d32c42a1b3c5ea98313e2a0766a525c8a9b02f8c"
+      },
+      {
+        "path": "Godmist Unity\\Assets\\_Project\\ScriptableObjects\\Dungeons\\Forest\\Loot\\ID_Forest_EntBag.asset",
+        "baseline_root_snapshot_identical": true,
+        "sha256": "24d5a068794e055c0c4ecdb55fe0711f7cbd677a7bc6c9aaf79ad1ba5c55c5be"
+      }
+    ],
+    "evidence": "../LocalHandoffs/cp2-11-frost-20261102/regression-{1,2}.xml"
+  },
+  "self_review": "PASS; proc budgets, CC resistance, field cleanup, AI isolation, healing, save compatibility, native art, old asset preservation",
+  "manual_smoke": "PASS — user approval",
+  "commit_push": "AUTHORIZED",
+  "layout_fix": {
+    "card": "CP2-11",
+    "status": "READY_FOR_SMOKE",
+    "change": "Wytrzymała Tarcza column 2; Ochronny Lód column 1",
+    "serialized_diff": "Only two Column fields; all other values identical",
+    "unity_api_authoring": "PASS",
+    "idempotence": "PASS",
+    "baseline_guard": "PASS",
+    "tests": {
+      "passed": 2,
+      "failed": 0,
+      "evidence": "layout-tests.xml"
+    },
+    "tree_sha256": "f26026f495f2c1f8fa107494fdfab1800596cfa3ec68b862f9ab79837d08135e"
+  }
+}

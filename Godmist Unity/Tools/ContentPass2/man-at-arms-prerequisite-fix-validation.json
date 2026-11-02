@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-02",
+  "status": "READY_FOR_SMOKE",
+  "change": {
+    "node.warrior.man_at_arms.t3_3": [
+      "node.warrior.man_at_arms.t2_3"
+    ],
+    "node.warrior.man_at_arms.t3_4": []
+  },
+  "minimum_ranks": 1,
+  "authoring": "PASS: only two prerequisite lists corrected; other23 nodes preserved.",
+  "tests": {
+    "passed": 103,
+    "failed": 0,
+    "report": "LocalHandoffs/man-at-arms-prerequisite-fix-20261102/tests.xml"
+  },
+  "asset_sha256": "5ba76fe7761ddaf5cdc95f353a2d7babd54f024443b8c10266bef06ed0f3c1cf",
+  "manual_smoke": "NOT RUN",
+  "source": "Tools/Art/ManAtArmsIcons20261102/prompts.json"
+}

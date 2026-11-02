@@ -16,6 +16,8 @@ using Godmist.Systems.Combat;
 using Godmist.Systems.Dungeons;
 using Godmist.Systems.SaveLoad;
 using Godmist.Views.UI.Workspace;
+using Godmist.Views.UI;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -164,9 +166,14 @@ namespace Godmist.Tests.EditMode
             var node = new GameObject("Shield tooltip test");
             try
             {
-                var body = Regex.Replace(node.AddComponent<UIWorkspaceTooltipView>().BuildLoadoutSkillDetails(Shield, null), "<[^>]*>", "");
-                Assert.That(body, Does.Contain("250%").And.Contain("3 tury odbiorcy").And.Contain("zastępuje poprzednią Magiczną Tarczę"));
-                Assert.That(body, Does.Not.Contain("400%"));
+                var tooltip=node.AddComponent<UIWorkspaceTooltipView>();
+                var body = Regex.Replace(tooltip.BuildLoadoutSkillDetails(Shield, Unit().Character), "<[^>]*>", "");
+                Assert.That(body, Does.Contain("250").And.Contain("3 tury"));
+                var entries=(Dictionary<string,CombatTooltipGlossary.Entry>)typeof(UIWorkspaceTooltipView)
+                    .GetField("calculationEntries",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(tooltip);
+                var details=string.Join("\n",entries.Values.Select(e=>e.Description));
+                Assert.That(details,Does.Contain("250%").And.Contain("Tury odbiorcy").And.Contain("zastępuje poprzednią Magiczną Tarczę"));
+                Assert.That(details, Does.Not.Contain("400%"));
             }
             finally { Object.DestroyImmediate(node); }
         }
@@ -223,7 +230,7 @@ namespace Godmist.Tests.EditMode
         {
             var save = Snapshot(Unit());
             save.Characters.Single().ShieldLayers.Add(new() { SourceId = "test", CurrentValue = 20, RemainingTurns = -1 });
-            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "Odtwarzanie GameSession odrzucone przy odtwarzaniu postaci.");
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Error, new Regex(@"Nie udało się odtworzyć zapisu\. Etap: Characters; pole: \$\.Characters\[0\]\.ShieldLayers\[0\]\.RemainingTurns; kod: InvalidValue\."));
             Assert.That(new GameSessionRestoreFactory().TryCreate(save, Load<GameContentCatalog>("World/GC_MainContentCatalog.asset"), out _), Is.False);
         }
     }

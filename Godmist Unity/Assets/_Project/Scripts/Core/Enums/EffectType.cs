@@ -49,7 +49,9 @@ namespace Godmist.Core.Enums
         PaladinRegeneration = 40,
         PaladinBlessing = 41,
         ExtendStatusDuration = 42,
-        GuardianCounter = 43
+        GuardianCounter = 43,
+        MageFrostAura = 44,
+        MageFrostField = 45
     }
 
     public enum UniqueBuffType

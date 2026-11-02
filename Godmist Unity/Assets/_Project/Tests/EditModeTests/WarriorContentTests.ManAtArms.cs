@@ -16,6 +16,24 @@ namespace Godmist.Tests.EditMode
 {
     public partial class WarriorContentTests
     {
+        [Test] public void ElementRemovalRequiresPommelStrikeWhileAcquiredResistanceIsIndependent()
+        {
+            var character=Unit().Character;character.AvailableSkillPoints=50;
+            var tree=character.ClassData.SkillTrees.Single(t=>t.Id==WarriorCombatSystem.ManAtArms);
+            var progression=new SkillTreeProgressionSystem();
+            var pommel="node.warrior.man_at_arms.t2_3";
+            var element="node.warrior.man_at_arms.t3_3";
+            var resistance="node.warrior.man_at_arms.t3_4";
+            for(var i=0;i<10;i++)
+            {
+                var next=tree.Nodes.First(n=>n.Tier<=2&&n.Id!=pommel&&string.IsNullOrEmpty(progression.GetInvestmentBlockReason(character,tree.Id,n.Id)));
+                Assert.That(progression.TryInvest(character,tree.Id,next.Id),Is.True);
+            }
+            Assert.That(progression.TryInvest(character,tree.Id,element),Is.False);
+            Assert.That(progression.TryInvest(character,tree.Id,resistance),Is.True);
+            Assert.That(progression.TryInvest(character,tree.Id,pommel),Is.True);
+            Assert.That(progression.TryInvest(character,tree.Id,element),Is.True);
+        }
         [TestCase("t1_2")][TestCase("t2_3")][TestCase("t4_1")][TestCase("t5_3")]
         public void ManAtArmsCastPosesResolve(string slot)
         {

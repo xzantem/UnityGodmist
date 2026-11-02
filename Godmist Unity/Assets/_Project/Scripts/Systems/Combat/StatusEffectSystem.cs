@@ -449,7 +449,7 @@ namespace Godmist.Systems.Combat
             CombatFeedbackType feedbackType = CombatFeedbackType.StatusApplied,
             string feedbackLabel = null,
             bool publishFeedback = true,
-            int statusDamagePerTurnOverride = 0, float? sharedRoll = null)
+            int statusDamagePerTurnOverride = 0, float? sharedRoll = null, int flatSlow = 0)
         {
             if (target?.Character == null
                 || target.Character.LifeState != CharacterLifeState.Alive
@@ -499,8 +499,8 @@ namespace Godmist.Systems.Combat
             MageCombatSystem.PrepareBurn(source, target, runtimeEffect);
             if (statusId == StatusEffectIds.Slow)
                 runtimeEffect.StatModifiers = new List<StatModifier> { new() {
-                    StatType = CharacterStatType.Speed, Operation = StatModifierOperation.Percent,
-                    Stacking = StatModifierStacking.Additive, Value = -.2f } };
+                    StatType = CharacterStatType.Speed, Operation = flatSlow>0?StatModifierOperation.FlatAbsolute:StatModifierOperation.Percent,
+                    Stacking = StatModifierStacking.Additive, Value = flatSlow>0?-flatSlow:-.2f } };
             if (!string.IsNullOrWhiteSpace(feedbackLabel)
                 && feedbackType == CombatFeedbackType.AuraApplied)
             {
@@ -918,6 +918,7 @@ namespace Godmist.Systems.Combat
         public void ProcessTurnStart(CombatSession session, BattleUnit unit)
         {
             if(unit!=null)unit.WarriorState.Session=session;
+            MageCombatSystem.FrostTurnStart(session,unit,this);
             ScoutCombatSystem.TurnStart(unit);
             GuardianCombatSystem.TurnStart(unit);
             ScoutCombatSystem.Tier5TurnStart(session,unit,this);
@@ -930,6 +931,8 @@ namespace Godmist.Systems.Combat
         public void ProcessDownedTurn(BattleUnit unit)
         {
             if (unit?.Character?.LifeState != CharacterLifeState.Downed) return;
+            MageCombatSystem.AdvanceFrostShieldClock(unit);
+            MageCombatSystem.FrostTurnEnd(unit.MageState.Frost.Session,unit,damageSystem??new CombatDamageSystem());
             passiveEffectLifecycleSystem.ProcessDownedTurn(unit);
             // Timed shields use their own clock. Expiry is not a damage event.
             unit.Character.ShieldPool?.AdvanceTurn();
@@ -937,6 +940,7 @@ namespace Godmist.Systems.Combat
 
         public void ProcessTurnEnd(BattleUnit unit)
         {
+            MageCombatSystem.FrostTurnEnd(unit?.MageState.Frost.Session,unit,damageSystem??new CombatDamageSystem());
             if(unit?.Character?.LifeState==CharacterLifeState.Alive)PaladinCombatSystem.BeforeTurnEnd(unit.WarriorState.Session,unit,new CombatRecoverySystem(battleLog,feedbackBus));
             var activeStatusesBefore = GetActiveStatusIds(unit);
             passiveEffectLifecycleSystem.ProcessTurnEnd(unit);

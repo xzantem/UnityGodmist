@@ -8,6 +8,7 @@ namespace Godmist.Runtime.Combat
     [Serializable]
     public class CombatSession
     {
+        [NonSerialized] public bool FrostCallbacksBound, FrostPlanning;
         [NonSerialized] public Action<BattleUnit, BattleUnit, int, DamageType, string> DamageApplied;
         [NonSerialized] public Action<BattleUnit, Godmist.Data.Skills.SkillData, string> SkillResolved;
         [NonSerialized] public Func<BattleUnit, Godmist.Data.Skills.SkillData, bool> CanUseBossSkill;

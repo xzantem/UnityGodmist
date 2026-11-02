@@ -2200,6 +2200,10 @@ namespace Godmist.Views.UI.Workspace
             if (GuardianCombatSystem.Active(skill.SkillId) && GuardianTalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var guardian))
                 body += "\n<size=85%>" + LinkRule("Zasady działania", skill.DisplayName,
                     LinkTalentReferences(guardian.Rules, character, "node"+skill.SkillId.Substring(5))) + "</size>";
+            if(skill.SkillId?.StartsWith("skill.mage.frost.",StringComparison.Ordinal)==true&&MageFrostTalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var frostCopy))
+                body+="\n<size=85%>"+LinkRule("Zasady działania",skill.DisplayName,LinkTalentReferences(frostCopy.Rules,character,"node"+skill.SkillId.Substring(5)))+"</size>";
+            if(skill.SkillId is MageCombatSystem.Teleportation or MageCombatSystem.FirePillar && MageTier5TalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var mageCopy))
+                body+="\n<size=85%>"+LinkRule("Zasady działania",skill.DisplayName,LinkTalentReferences(mageCopy.Rules,character,"node"+skill.SkillId.Substring(5)))+"</size>";
             return LinkifyGlossary(UiTerms.Present(body));
         }
 
@@ -2292,6 +2296,10 @@ namespace Godmist.Views.UI.Workspace
             var result=UiTerms.Present(targeting.Length > 0
                 ? FormatSkillTargetingSummary(new StringBuilder(GeometryValues(targeting.ToString(),skill,caster))) + "\n\n" + generated
                 : generated.ToString());
+            if(skill.SkillId?.StartsWith("skill.mage.frost.",StringComparison.Ordinal)==true&&MageFrostTalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var frostCopy))
+                result+="\n<size=85%>"+LinkRule("Zasady działania",skill.DisplayName,LinkTalentReferences(frostCopy.Rules,caster?.Character,"node"+skill.SkillId.Substring(5)))+"</size>";
+            if(skill.SkillId is MageCombatSystem.Teleportation or MageCombatSystem.FirePillar && MageTier5TalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var mageCopy))
+                result+="\n<size=85%>"+LinkRule("Zasady działania",skill.DisplayName,LinkTalentReferences(mageCopy.Rules,caster?.Character,"node"+skill.SkillId.Substring(5)))+"</size>";
             if(GuardianCombatSystem.Active(skill.SkillId)&&GuardianTalentCopy.Entries.TryGetValue("node"+skill.SkillId.Substring(5),out var guardian))
                 result+="\n<size=85%>"+LinkRule("Zasady działania",skill.DisplayName,LinkGuardianTalentReferences(guardian.Rules,caster?.Character,"node"+skill.SkillId.Substring(5)))+"</size>";
             return result;

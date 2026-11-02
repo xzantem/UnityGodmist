@@ -76,6 +76,7 @@ namespace Godmist.Systems.Combat
         public static SkillTargetModeData ResolveMode(BattleUnit owner, SkillData skill, SkillTargetModeData mode)
         {
             if (mode == null) return null;
+            mode=MageCombatSystem.FrostMode(owner,skill,mode);
             var index = -1;
             for (var i = 0; skill != null && i < skill.TargetModes.Count; i++) if (ReferenceEquals(skill.TargetModes[i], mode)) { index = i; break; }
             var orderRange = WarriorCombatSystem.OrderRangeBonus(owner, skill)+(int)ScoutCombatSystem.RangeBonus(owner,skill);
@@ -94,7 +95,7 @@ namespace Godmist.Systems.Combat
                 skill: skill, skillId: skill.SkillId, attackType: skill.AttackType,
                 resourceType: skill.ResourceType, resourceAmount: skill.ResourceCost);
             float flat = parameter == "accuracy" ? WarriorCombatSystem.AccuracyBonus(owner, skill) : 0, percent = 0, multiplier = 1;
-            if(parameter=="accuracy")flat-=GuardianCombatSystem.AccuracyPenalty(owner);
+            if(parameter=="accuracy")flat-=GuardianCombatSystem.AccuracyPenalty(owner)+MageCombatSystem.FrostAccuracyPenalty(owner);
             if (flat != 0) explanation?.Add("Trening Skupienia", flat);
             foreach (var runtime in owner.Character.PassiveEffects ?? new List<PassiveEffectRuntime>())
             {

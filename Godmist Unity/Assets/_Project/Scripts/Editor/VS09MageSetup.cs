@@ -153,6 +153,8 @@ public static partial class VS09MageSetup
         ApplyManaEconomyBalance();
         var cls=new SerializedObject(Load<CharacterClassData>("Classes/CCD_Mage.asset"));Field(cls,"BasicAttackSkill",skills["energy_orb"]);var trees=cls.FindProperty(F("SkillTrees"));trees.arraySize=2;trees.GetArrayElementAtIndex(0).objectReferenceValue=Load<SkillTreeDefinition>("Skills/SkillTrees/ST_Mage_Warlock.asset");trees.GetArrayElementAtIndex(1).objectReferenceValue=Load<SkillTreeDefinition>("Skills/SkillTrees/ST_Mage_Fire.asset");cls.ApplyModifiedPropertiesWithoutUndo();
         var catalog=new SerializedObject(Load<GameContentCatalog>("World/GC_MainContentCatalog.asset"));var list=catalog.FindProperty(F("SkillDefinitions"));foreach(var skill in skills.Values){var found=false;for(var i=0;i<list.arraySize;i++)found|=list.GetArrayElementAtIndex(i).objectReferenceValue==skill;if(!found){list.InsertArrayElementAtIndex(list.arraySize);list.GetArrayElementAtIndex(list.arraySize-1).objectReferenceValue=skill;}}catalog.ApplyModifiedPropertiesWithoutUndo();AssetDatabase.SaveAssets();
+        if(System.IO.File.Exists("Tools/ContentPass2/mage-t5-content.json"))Godmist.Editor.ContentPass2MageT5Setup.Apply();
+        if(System.IO.File.Exists("Tools/ContentPass2/frost-content.json"))Godmist.Editor.ContentPass2FrostSetup.Apply();
     }
     static readonly string[][] Nodes = {
         new[]{"warlock","dispersion","Kondensacja Energii","Zwiększa obrażenia Kuli Energii o 10%/17.5%/25%","","","1","1","3"},

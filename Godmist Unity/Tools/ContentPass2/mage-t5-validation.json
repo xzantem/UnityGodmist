@@ -1,0 +1,63 @@
+{
+  "card": "CP2-10",
+  "date": "2026-11-02",
+  "status": "READY_FOR_SMOKE",
+  "scope": {
+    "nodes": 10,
+    "ranks": 18,
+    "active_skills": 2,
+    "icons": 10,
+    "preserved_old_mage_nodes": 40
+  },
+  "tests": [
+    {
+      "report": "LocalHandoffs/cp2-10-mage-t5-20261102/mage-tests-4.xml",
+      "passed": 41,
+      "failed": 0
+    },
+    {
+      "report": "LocalHandoffs/cp2-10-mage-t5-20261102/regression.xml",
+      "passed": 1002,
+      "failed": 3
+    },
+    {
+      "report": "LocalHandoffs/cp2-10-mage-t5-20261102/final-tooltip.xml",
+      "passed": 94,
+      "failed": 0
+    }
+  ],
+  "regression_resolution": "Three stale fixtures corrected and retested: expected structured restore diagnostic; shield values/rules in intentional detail links; distinct stable effect IDs for cloned delayed attacks. Final targeted run PASS, no unresolved failures.",
+  "authoring": "PASS:10 T5 nodes/18 ranks/2 skills/10 matching native32 sprites;40 old nodes preserved;other8 trees,Alison,class and catalog prefix preserved;idempotent.",
+  "art": "10/10 full-canvas nearest32, opacity, native Aseprite roundtrip PASS; original Mage prompt bases and B-v2 RAW reference; f1 is a magical fire projectile",
+  "promotion": {
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Mage_Warlock.asset": "603e6ad1c3ed3ebe1ea6a35e09cd913255f0c29821e3657babf4a2fe844c3413",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Mage_Fire.asset": "dd0e705fd7e07f31a3ba36b2335d665e7203d3c62d3439aa0913a1d79ff17a48",
+    "Assets/_Project/ScriptableObjects/Skills/SD_MageFireArrow.asset": "a6a3a24292359ec92c2c567df2207eb6bd4d0a589c6a9c01f0019f21760da1ee",
+    "Assets/_Project/ScriptableObjects/Skills/SD_MageT5_w4.asset": "97ce0b0d6919e769c4817a9773c7d23b2e2b924285528177bf1d26cdd118f2b6",
+    "Assets/_Project/ScriptableObjects/Skills/SD_MageT5_f5.asset": "409683f81abeca126e2f5441b87c56b81f38a77fcfbd3c09040aff912c8d2753",
+    "Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset": "d262505bce650b0fcdf063ce3858ae4494d27901f54bd1d9f1cd63cb046a2b8c",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f1-32.png.meta": "474b740817b7f73b9c527020a0cb599cf7465a6ce37f1f04ef6fa7d090c295fb",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f2-32.png.meta": "06900cf5c66a1510c10caa3c0a6cd1977e67cb68438fe46350fb8147275781da",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f3-32.png.meta": "d0aad47825f26836cb2a0ddc2caa8e7e1310e3bfa8ee77ca71bcabce2c5b8be9",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f4-32.png.meta": "09866e9b54fd1a9582ef3ff4547a965a759b5e74d8aa56cefe07e2b1b5137e3a",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f5-32.png.meta": "22e12d23318a30bd3f957afe3f0c23be5c7f17aecde33a6e6a58cdbfc7d9d3e2",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w1-32.png.meta": "b3b3361a78eaac1b0f7a5002dae1b9a141488b4dbdedcfdd99b18e1a437c1511",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w2-32.png.meta": "2cff1adeb0c489afea6eb31fbea16958a3858a6b4deda608f9917544c0e558e2",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w3-32.png.meta": "f0ea3610eee088018a22c501f90f69f66cf2c822b757c24a7555242250ba0575",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w4-32.png.meta": "6f938a0b4d09fc1a7634addc779b38a8db2014c0fd3d03312085aa415c8b1516",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w5-32.png.meta": "7bb461a8988fde4b1b20a9618d5aabc8848888989046a687ac26bcbec789745e",
+    "Assets/_Project/Art/Icons/Passives/VS22/MageT5.meta": "cc7f70cc9def34bac372d341c1bdb1b391c906efd7519d0f8fcfed2bd611ccd1",
+    "Assets/_Project/ScriptableObjects/Skills/SD_MageT5_w4.asset.meta": "4af0259cb9508d2271e7b10dfe232e3eb320a9ac1606e1aebc43e6b15107db3e",
+    "Assets/_Project/ScriptableObjects/Skills/SD_MageT5_f5.asset.meta": "a3ab89b02faf36fd0bdb62570092bab759808dd3be92c0f356698facf2a8ba64",
+    "Assets/_Project/Scripts/Editor/ContentPass2MageT5Setup.cs.meta": "f4b718ff010ac879483afcfa2f04449efc4d6f68452ee74add6539dbc2501244",
+    "Assets/_Project/Scripts/Systems/Combat/MageCombatSystem.Tier5.cs.meta": "90c11b354042db8bb80eb8e78c0db13accef89de87ed9221805b197fc9ad929a",
+    "Assets/_Project/Scripts/Views/UI/Workspace/MageTier5TalentCopy.cs.meta": "41fd71955cfff80429566b593df3b96103ba7323dd79b5fcaad748f708e70cd2",
+    "Assets/_Project/Tests/EditModeTests/MageContentTests.Tier5.cs.meta": "cefb5d7294c5c9227f5a3b9bcf387681c296c882bd24aa1f8a8883dc81a1137e",
+    "Assets/_Project/Tests/EditModeTests/SkillTreePresentationTests.MageTier5.cs.meta": "90c952df13d8538d313acf67d1c27bc925fca8ba98016acf83a9a567136533d9"
+  },
+  "manual_smoke": "NOT RUN; user acceptance required before commit/push",
+  "self_review": "PASS: transient combat state, shared preview/damage, original node and catalog preservation, contextual references, original icon conventions",
+  "limitations": [
+    "Existing AI planner does not plan teleport destinations; this card retains that existing limitation."
+  ]
+}

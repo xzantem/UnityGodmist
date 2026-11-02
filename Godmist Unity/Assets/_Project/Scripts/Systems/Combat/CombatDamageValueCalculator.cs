@@ -76,6 +76,7 @@ namespace Godmist.Systems.Combat
             }
             var minAttack = Mathf.Max(0, Mathf.RoundToInt(dischargeCast?.MinAttack ?? source.Character.Stats.MinAttack.GetValue()));
             var maxAttack = Mathf.Max(minAttack, Mathf.RoundToInt(dischargeCast?.MaxAttack ?? source.Character.Stats.MaxAttack.GetValue()));
+            if(valueSource==DamageValueSource.AttackRange&&MageCombatSystem.HasMinimumRoll(source))valueSource=DamageValueSource.MinAttack;
             var baseDamage = valueSource switch
             {
                 DamageValueSource.MinAttack => minAttack,

@@ -110,6 +110,7 @@ namespace Godmist.Systems.Combat
                         succeeded: false,
                         wasDodged: wasDodged,
                         wasMissed: !wasDodged));
+                if(wasDodged)MageCombatSystem.AbsorbDodgedDamage(session,source,target,attackValue,damageType,eventContext,bonusDefensePenetration,ignoreDefense);
                 if(wasDodged)GuardianCombatSystem.Dodged(session,target,source,eventContext,this,battleLog,feedbackBus);
                 reflect?.Invoke();
                 return new CombatDamageResult(false, false, 0);
@@ -170,6 +171,7 @@ namespace Godmist.Systems.Combat
             {
                 Publish(session, PassiveEffectTriggerType.OnDodge,
                     eventContext.WithOutcome(succeeded: false, wasDodged: true));
+                MageCombatSystem.AbsorbDodgedDamage(session,source,target,attackValue,damageType,eventContext,bonusDefensePenetration,ignoreDefense);
                 GuardianCombatSystem.Dodged(session,target,source,eventContext,this,battleLog,feedbackBus);
                 reflect?.Invoke();
                 return new CombatDamageResult(false, false, 0);
@@ -181,6 +183,7 @@ namespace Godmist.Systems.Combat
                 &&UnityEngine.Random.value>ContactChance(source,target,damageType,100,eventContext.Skill,session))
             {
                 Publish(session,PassiveEffectTriggerType.OnDodge,eventContext.WithOutcome(succeeded:false,wasDodged:true));
+                MageCombatSystem.AbsorbDodgedDamage(session,source,target,attackValue,damageType,eventContext,bonusDefensePenetration,ignoreDefense);
                 GuardianCombatSystem.Dodged(session,target,source,eventContext,this,battleLog,feedbackBus);
                 reflect?.Invoke();return new CombatDamageResult(false,false,0);
             }
@@ -199,11 +202,13 @@ namespace Godmist.Systems.Combat
         {
             ScoutCombatSystem.Face(source, target.Position);
             attackValue += SkeletonSlayerBossSystem.AttackBonus(source);
+            attackValue=(int)Math.Min(int.MaxValue,(long)attackValue+MageCombatSystem.ConsumeAbsorption(source));
             attackValue = (int)Math.Min(int.MaxValue,(long)attackValue+WarriorCombatSystem.ConsumeArmoredAttack(source));
             attackValue = Mathf.RoundToInt(attackValue * ScoutCombatSystem.DamageMultiplier(eventContext) * WarriorCombatSystem.DamageMultiplier(eventContext) * MageCombatSystem.DamageMultiplier(eventContext) * PaladinCombatSystem.DamageMultiplier(eventContext) * HawkeyeDamageMultiplier(source, target, damageType));
             attackValue = Mathf.RoundToInt(attackValue * PaladinCombatSystem.ConsumeExposure(target,true));
-            var freezeMultiplier = ConsumeFreezeDamageMultiplier(target);
-            var isCritical = RollCritical(session, source, damageType, eventContext)
+            var frostContact=MageCombatSystem.FrostContact(source,target,eventContext);
+            var freezeMultiplier = MageCombatSystem.ConsumeFrostFreeze(session,source,target,frostContact.FrozenTurns);
+            var isCritical = RollCritical(session, source, damageType, eventContext,frostContact.FrozenTurns>0)
                 && !EquipmentEffectSystem.AvoidCritical(target.Character);
             Publish(session, PassiveEffectTriggerType.OnHit,
                 eventContext.WithOutcome(succeeded: true));
@@ -230,6 +235,7 @@ namespace Godmist.Systems.Combat
 
             if(source.GuardianState.ReactionDepth==0)finalDamage = ScoutCombatSystem.ResolveThroatCut(session, eventContext, finalDamage);
             finalDamage = WarriorCombatSystem.ResolveExecution(session, eventContext, isCritical, finalDamage);
+            finalDamage=MageCombatSystem.FrostExecution(source,target,frostContact,finalDamage);
             var healthDamage = ApplyDamage(
                 session,
                 source,
@@ -251,6 +257,8 @@ namespace Godmist.Systems.Combat
                         eventValue: healthDamage));
             }
 
+            MageCombatSystem.FrostAfterContact(session,source,target,eventContext,frostContact,new StatusEffectSystem(battleLog,damageSystem:this,feedbackBus:feedbackBus));
+            MageCombatSystem.ExtendBurnOnContact(source,target,eventContext);
             ScoutCombatSystem.RecordHit(source, target, damageType);
             if(source.GuardianState.ReactionDepth==0)ScoutCombatSystem.AfterCritical(eventContext, isCritical);
             if(source.GuardianState.ReactionDepth==0&&isCritical&&ScoutCombatSystem.AssassinRank(source,"t5_4")>0)
@@ -339,6 +347,7 @@ namespace Godmist.Systems.Combat
             var damageBeforeShield = remainingDamage;
 
             remainingDamage = AbsorbShield(target, remainingDamage);
+            MageCombatSystem.FrostShieldResolved(target,0);
 
             var shieldDamage = damageBeforeShield - remainingDamage;
             if (shieldDamage > 0) 
@@ -374,6 +383,8 @@ namespace Godmist.Systems.Combat
             session.DamageApplied?.Invoke(source, target, healthDamage + shieldDamage, damageType, passiveContext?.ActionId);
             WarriorCombatSystem.DamageTaken(target,healthDamage);
             MageCombatSystem.DamageTaken(source,target,healthDamage);
+            MageCombatSystem.BindFrostSession(session);
+            MageCombatSystem.FrostShieldResolved(target,healthDamage);
             PaladinCombatSystem.RecordDamage(target,healthDamage);
             PaladinCombatSystem.RecordDamageDealt(source,healthDamage);
 
@@ -514,14 +525,29 @@ namespace Godmist.Systems.Combat
             }
             return 1;
         }
-        static int SnapshotAttackValue(BattleUnit source,BattleUnit target,int value,DamageType type,PassiveEffectCombatContext context)
+        static int SnapshotAttackValue(BattleUnit source,BattleUnit target,int value,DamageType type,PassiveEffectCombatContext context,bool force=false)
         {
-            if(target.GuardianState.CounterTurns<=0)return value;
+            if(!force&&target.GuardianState.CounterTurns<=0)return value;
             var bank=(int)Math.Min(int.MaxValue,Math.Floor(Math.Max(0,source.WarriorState.AttackBank)));
-            value=(int)Math.Min(int.MaxValue,(long)value+SkeletonSlayerBossSystem.AttackBonus(source)+bank);
+            value=(int)Math.Min(int.MaxValue,(long)value+SkeletonSlayerBossSystem.AttackBonus(source)+bank+source.MageState.AttackBonus);
             value=Mathf.RoundToInt(value*ScoutCombatSystem.DamageMultiplier(context)*WarriorCombatSystem.DamageMultiplier(context)
                 *MageCombatSystem.DamageMultiplier(context)*PaladinCombatSystem.DamageMultiplier(context)*HawkeyeDamageMultiplier(source,target,type));
             return StatusEffectSystem.HasStatus(source,Godmist.Core.Constants.StatusEffectIds.Weakening)?Mathf.CeilToInt(value*.8f):value;
+        }
+
+        public static int CalculateDodgedDamage(CombatSession session,BattleUnit source,BattleUnit target,int raw,DamageType type,
+            PassiveEffectCombatContext context,float penetration=0,bool ignoreDefense=false)
+        {
+            raw=SnapshotAttackValue(source,target,raw,type,context,true);
+            var exposure=target.Character.PassiveEffects.Find(e=>e.EffectId=="paladin.exposure");
+            raw=Mathf.RoundToInt(raw*(1+(float)(exposure?.GetStateValue("strength")?.NumberValue??0)));
+            var defended=ignoreDefense?raw:ApplyDefense(source,target,raw,type,penetration,
+                WarriorDischargeRules.DefenseIgnore(source,context?.Skill,context?.DischargeCast?.RageSpent,type));
+            defended=ApplyPostDefenseBonuses(source,target,defended,false,PreviewFreezeDamageMultiplier(target));
+            var amount=CalculateIncomingBeforeRedirect(session,source,target,defended,type,context);
+            if(source?.Character!=null&&target.MageState.Adaptation.TryGetValue(source.Character.CharacterId,out var adaptation)&&adaptation.RemainingHits>0)
+                amount=Math.Max(0,amount-adaptation.Reduction);
+            return Math.Max(0,Mathf.RoundToInt(amount*UniqueEquipmentCombatRules.IncomingMultiplier(target,type,context?.AttackType??AttackType.Unknown)));
         }
 
         public static bool IsGuaranteedHitDamageType(DamageType damageType)
@@ -539,7 +565,7 @@ namespace Godmist.Systems.Combat
             CombatSession session,
             BattleUnit source,
             DamageType damageType,
-            PassiveEffectCombatContext context)
+            PassiveEffectCombatContext context,bool? wasFrozen=null)
         {
             if (damageType is not (DamageType.Physical or DamageType.Magical or DamageType.Inevitable)) return false;
 
@@ -553,8 +579,8 @@ namespace Godmist.Systems.Combat
             }
 
             var chance = damageType == DamageType.Magical
-                ? Mathf.Clamp01(MageCombatSystem.CalculateMagicCriticalChance(context) + WarriorCombatSystem.DuelCriticalChance(session, source, context?.Target))
-                : CalculateRegularCriticalChance(session, source, context);
+                ? Mathf.Clamp01(MageCombatSystem.CalculateMagicCriticalChance(context,wasFrozen) + WarriorCombatSystem.DuelCriticalChance(session, source, context?.Target))
+                : CalculateRegularCriticalChance(session, source, context,wasFrozen:wasFrozen);
             return damageType==DamageType.Magical ? UnityEngine.Random.value < chance : UnityEngine.Random.value <= chance;
         }
 
@@ -583,10 +609,10 @@ namespace Godmist.Systems.Combat
             return CalculateRegularCriticalChance(source.WarriorState.Session,source,context,chainIndex);
         }
 
-        private static float CalculateRegularCriticalChance(CombatSession session, BattleUnit source, PassiveEffectCombatContext context,int untargetedChainIndex=0)
+        private static float CalculateRegularCriticalChance(CombatSession session, BattleUnit source, PassiveEffectCombatContext context,int untargetedChainIndex=0,bool? wasFrozen=null)
         {
             var chance = context?.DischargeCast?.CritChance ?? (source.Character.Stats == null ? 0f : source.Character.Stats.CritChance.GetValue());
-            chance += MageCombatSystem.BurningCriticalChance(source,context?.Target);
+            chance += MageCombatSystem.BurningCriticalChance(source,context?.Target)+MageCombatSystem.FrozenCriticalChance(source,context?.Target,wasFrozen);
             chance += WarriorCombatSystem.DuelCriticalChance(session,source,context?.Target);
             chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(
                 session,
@@ -883,6 +909,7 @@ namespace Godmist.Systems.Combat
             ScoutCombatSystem.ReleaseKnivesOnDeath(session, target);
             target.Character.CurrentHealth = 0;
             target.Character.LifeState = CharacterLifeState.Dead;
+            MageCombatSystem.FrostEnemyDied(session,target);
             StatusEffectSystem.RemoveTauntsAppliedBy(
                 session,
                 target.Character.CharacterId);

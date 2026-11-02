@@ -1,3 +1,48 @@
+## CP2-11 — Mag Mrozu — 2026-11-02 — ZAAKCEPTOWANA
+
+Wdrożone wszystkie siedem zatwierdzonych pakietów: 25 węzłów, 44 rangi,
+3 zaklęcia T1–T5, 25 ikon oraz przezroczysty efekt podłoża.
+Authoring, zachowanie wcześniejszych assetów, idempotencja i promocja PASS.
+1196 unikalnych testów PASS, w tym 64 UI/opisów/odwołań. Dwa dodatkowe
+stare testy danych bossów niezgodne z niezmienionym baseline (Ent — pula łupu;
+Pogromca Szkieletów — atak 42,5 zamiast oczekiwanych 50); brak nowych failure.
+Raport: Tools/ContentPass2/frost-validation.json; projekt: CONTENT_PASS_2_FROST_DESIGN.md.
+Manualny smoke PASS; użytkownik zlecił commit/push i przejście do CP2-12.
+
+## Audyt wymagań wszystkich drzewek — 2026-11-02 — COMPLETE
+
+10 drzewek, 240 węzłów i 131 połączeń. Brak kolejnych błędnych wymagań.
+Porównanie z właściwymi arkuszami i zatwierdzonym redesignem Strażnika PASS;
+legalny zakup 240/240 oraz blokada brakujących rodziców 131/131 PASS.
+Testy UI połączeń i progresji PASS. Zachowano poprawkę Zbrojnego;
+stary błędny wpis nadal w Drzewka!E27:E28, bez edycji arkusza.
+Raport: CONTENT_PASS_2_PREREQUISITE_AUDIT.md.
+Dowody: Tools/ContentPass2/talent-requirements-audit-validation.json.
+Zmiany wyłącznie w dokumentacji audytu; bez nowego wiring i bez commit/push.
+
+## Zbrojny — wymaganie Odebrania Żywiołu — 2026-11-02 — READY_FOR_SMOKE
+
+Odebranie Żywiołu wymaga jednej rangi Ciosu Rękojeścią.
+Usunięto omyłkowe wymaganie Ciosu Rękojeścią z Odporności Nabytej.
+Poprawiono asset przez Unity API oraz dane authoringu; pozostałe 23 węzły bez zmian.
+103/103 testy PASS, w tym zakup obu węzłów przed i po odblokowaniu Ciosu.
+Dowody: Tools/ContentPass2/man-at-arms-prerequisite-fix-validation.json.
+Smoke: po odświeżeniu projektu sprawdź linię Cios Rękojeścią → Odebranie Żywiołu
+oraz niezależną Odporność Nabytą. Brak ręcznego wiring; manualny smoke NOT RUN.
+Bez commit/push przed akceptacją.
+
+## CP2-10 — T5 Czarnoksiężnika i Maga Ognia — 2026-11-02 — READY_FOR_SMOKE
+
+10 nowych węzłów, 18 rang, 2 aktywne zaklęcia i 10 ikon 32×32.
+Zachowane 40 wcześniejszych węzłów, startowe umiejętności Alison i progi SP.
+Authoring Unity API, zachowanie pozostałych drzew i idempotencja PASS.
+Testy mechanik, UI, tooltipów, AI i zapisów: wyniki w
+Tools/ContentPass2/mage-t5-validation.json. Manualny smoke NOT RUN.
+Prompty ikon zgodne z oryginalnymi bazami Maga i referencją B-v2;
+Strzała Bólu jest magicznym pociskiem ognia, bez fizycznej strzały.
+Raport: CONTENT_PASS_2_MAGE_T5.md. Smoke: lokalny UNITY_HANDOFF.md.
+Bez commit/push przed akceptacją użytkownika.
+
 ## Audyt odwołań wszystkich drzewek — 2026-11-02 — ZAAKCEPTOWANY
 
 Rozszerzono poprawkę Strażnika na 10 drzewek/230 węzłów czterech klas.

@@ -198,7 +198,9 @@
       "slot": "t3_3",
       "name": "Odebranie Żywiołu",
       "ranks": 3,
-      "requirements": [],
+      "requirements": [
+        "t2_3"
+      ],
       "descriptions": [
         "Cios Rękojeścią zmniejsza pozostałe odporności o 8% na 3 tury.",
         "Cios Rękojeścią zmniejsza pozostałe odporności o 16% na 3 tury.",
@@ -212,9 +214,7 @@
       "slot": "t3_4",
       "name": "Odporność Nabyta",
       "ranks": 1,
-      "requirements": [
-        "t2_3"
-      ],
+      "requirements": [],
       "descriptions": [
         "Każdy pokonany przeciwnik zmniejsza otrzymywane obrażenia o 2% do wyjścia z lochu, maksymalnie o 50%."
       ],

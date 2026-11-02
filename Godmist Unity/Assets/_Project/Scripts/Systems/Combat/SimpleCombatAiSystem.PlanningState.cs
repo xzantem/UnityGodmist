@@ -49,6 +49,7 @@ namespace Godmist.Systems.Combat
         {
             var copy = new CombatSession
             {
+                FrostPlanning=true,
                 Grid = source.Grid, DungeonContext = source.DungeonContext, DungeonTheme = source.DungeonTheme,
                 DungeonDefinition = source.DungeonDefinition, ActionPointsPerSpeed = source.ActionPointsPerSpeed,
                 IsSeamless = source.IsSeamless, IsDungeonWide = source.IsDungeonWide,
@@ -61,7 +62,7 @@ namespace Godmist.Systems.Combat
             // Only the actor and affected targets get detached mutable state.
             foreach (var index in ownedUnits) copy.Units[index] = CopyPlanningUnit(source.Units[index]);
             copy.ActiveUnit = copy.Units[source.Units.IndexOf(source.ActiveUnit)];
-            foreach (var index in ownedUnits) if (copy.Units[index] != null) copy.Units[index].WarriorState.Session = copy;
+            foreach (var index in ownedUnits) if (copy.Units[index] != null) {copy.Units[index].WarriorState.Session = copy;copy.Units[index].MageState.Frost.Session=copy;}
             copy.Summons=source.Summons.Select(entry=>new SummonedBattleUnit(
                 source.Units.Contains(entry.Unit)?copy.Units[source.Units.IndexOf(entry.Unit)]:entry.Unit,
                 entry.CreatorCharacterId,entry.SourceSkillId,entry.SourceEffectIndex,entry.RemainingDurationTurns,entry.CreationOrder){GroupId=entry.GroupId}).ToList();
@@ -110,6 +111,11 @@ namespace Godmist.Systems.Combat
                 ActiveToggleSkillIds = new HashSet<string>(source.ActiveToggleSkillIds),
                 LastSkillResourceSpent = source.LastSkillResourceSpent
             };
+            copy.MageState.AbsorbedDamage=source.MageState.AbsorbedDamage;
+            copy.MageState.Frost.HealthLost=source.MageState.Frost.HealthLost;copy.MageState.Frost.ShieldCooldown=source.MageState.Frost.ShieldCooldown;
+            copy.MageState.Frost.HadEmergencyShield=source.MageState.Frost.HadEmergencyShield;copy.MageState.Frost.AuraSourceId=source.MageState.Frost.AuraSourceId;
+            copy.MageState.Frost.Areas.AddRange(source.MageState.Frost.Areas.Select(a=>a.Copy()));
+            copy.MageState.Frost.ObservedDeaths.UnionWith(source.MageState.Frost.ObservedDeaths);
             copy.GuardianState.CopyFrom(source.GuardianState);
             copy.ScoutState.Facing = source.ScoutState.Facing;
             copy.ScoutState.RecoveredStacks=source.ScoutState.RecoveredStacks;
@@ -173,7 +179,8 @@ namespace Godmist.Systems.Combat
                     Add(unit.WarriorState.HealingRemainder.GetHashCode());
                     Add(unit.WarriorState.DeathWishPreventedDamage.GetHashCode());
                     Add(unit.WarriorState.ArmoredStateHash());Add(unit.Character.ManAtArmsDungeonKills);
-                    Add(unit.ScoutState.RecoveredStacks);Add(unit.ScoutState.VenomPulses);Add(unit.GuardianState.StateHash());
+                    Add(unit.MageState.AbsorbedDamage);Add(unit.MageState.Frost.HealthLost);Add(unit.MageState.Frost.ShieldCooldown);
+                    foreach(var area in unit.MageState.Frost.Areas){Add(area.Center.GetHashCode());Add(area.Turns);Add(area.Snowstorm?1:0);Add(area.DamageRank);Add(area.Attack.GetHashCode());Add(area.MovementPenalty?1:0);}Add(unit.ScoutState.RecoveredStacks);Add(unit.ScoutState.VenomPulses);Add(unit.GuardianState.StateHash());
                     Add(unit.AvailableKnives); Add(unit.MovementStepsThisTurn); Add(unit.ScoutState.Facing.GetHashCode());
                     foreach (var buff in unit.UniqueBuffs) Add((int)buff);
                     var resistances = unit.Character.Resistances;

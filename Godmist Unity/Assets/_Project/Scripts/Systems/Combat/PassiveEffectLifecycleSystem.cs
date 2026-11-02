@@ -582,6 +582,9 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                unit.MageState.Frost.Areas.Clear();unit.MageState.Frost.Contacts.Clear();unit.MageState.Frost.ObservedDeaths.Clear();
+                unit.MageState.Frost.HealthLost=0;unit.MageState.Frost.ShieldCooldown=0;unit.MageState.Frost.HadEmergencyShield=false;
+                unit.MageState.Frost.AuraSourceId=null;unit.MageState.Frost.Session=null;
                 removedCount += RemoveCombatScopedEffects(unit.Character);
             }
 
@@ -597,7 +600,7 @@ namespace Godmist.Systems.Combat
 
             var removedCount = 0;
 
-            var removedStatModifiers = false;
+            var removedStatModifiers = (character.ShieldPool?.RemoveLayersBySourceId(MageCombatSystem.EmergencyShield)??0)>0;
 
             for (var index = character.PassiveEffects.Count - 1; index >= 0; index--)
             {

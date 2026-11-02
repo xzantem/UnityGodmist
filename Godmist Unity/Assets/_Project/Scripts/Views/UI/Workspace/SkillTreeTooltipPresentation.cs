@@ -49,7 +49,7 @@ namespace Godmist.Views.UI.Workspace
                     var quick=Effect("skill.scout.quick_strikes",EffectType.DealDamage);
                     if(quick!=null)text=$"Zwiększa szansę na podwójne obrażenia Szybkich Ciosów do {N(quick.BonusDamageMultiplierChance*100)}%.";break;
                 case "node.warrior.commander.riposte":
-                    if(tooltip!=null)
+            if(tooltip!=null)
                     {
                         var table="Przylegli sojusznicy<pos=68%>Priorytet\n";
                         for(var i=0;i<=4;i++)table+=i+"<pos=68%>×"+N(WarriorCombatSystem.ProtectionPriority(i))+"\n";
@@ -84,6 +84,8 @@ namespace Godmist.Views.UI.Workspace
                 case "node.scout.blade_dancer.efficient_recovery":
                     var hook=Skill("skill.scout.hook");
                     if(hook!=null)text=$"Odzyskanie własnego sztyletu Linką z Hakiem kosztuje {ScoutCombatSystem.KnifeRecoveryCost(u,hook,hook.ActionCost,true)}% PA i {PassiveEffectCombatExecutionSystem.ResolveResourceCost(u,hook,true)} impetu.";break;
+                case "node.mage.frost.t1_1":text=text.Replace("o 10 na", "o "+(MageCombatSystem.I(u,"t2_1")>0?15:10)+" na");break;
+                case "node.mage.frost.t1_3":text=text.Replace("{X}",N(Dot(StatusEffectIds.Bleed,rank==1?.4f:rank==2?.6f:.9f,2)));break;
                 case "node.mage.warlock.power_saving":
                     var split = Effect("skill.mage.energy_split", EffectType.DealDamage);
                     if (split != null) text = $"Zwiększa obrażenia Roztrojenia Energii do {N(split.DamageMultiplier * 100)}% ataku.";
@@ -108,6 +110,7 @@ namespace Godmist.Views.UI.Workspace
                 case "node.paladin.crusader.severe_judge":text=text.Replace("{X}",N(20*Required("harsh_verdict",PaladinCombatSystem.C(u,"harsh_verdict"))+40));break;
                 case "node.paladin.crusader.torment":text=text.Replace("4 nałożenia",(4+2*PaladinCombatSystem.C(u,"torment_max"))+" nałożeń");break;
             }
+            if(node.Id=="node.mage.warlock.adaptation")text=text.Replace("20%",(MageCombatSystem.W(u,"t5_1") switch{1=>15,>=2=>10,_=>20})+"%");
             // Missing character context stays explicit instead of displaying a value
             // from the old review screenshots as if it were the player's build.
             text=text.Replace("{X–Y}","zależne od ataku").Replace("{X}","zależne od postaci").Replace("{furia}","dodatkową");
@@ -143,7 +146,7 @@ namespace Godmist.Views.UI.Workspace
                 "node.warrior.brawler.rage"=>"Podgląd przed limitem maksymalnej furii. Bazowy przyrost pochodzi z użycia ofensywnej umiejętności; dodatkowa furia z talentu wymaga zadania obrażeń. Premie generowania zasobu modyfikują przyrost bazowy.",
                 "node.paladin.priest.healer_focus" or "node.paladin.priest.encouragement"=>"Bezpośrednie leczenie z umiejętności obejmujące jednego odbiorcę. Ticki leczenia okresowego, wtórny zwrot HP i Aura Leczenia nie wyzwalają tej premii. Brak faktycznie odzyskanego HP nie uruchamia Pokrzepienia.",
                 "node.mage.fire.weakness"=>"Bazowa szansa krytyczna tej postaci przeciw podpalonemu przeciwnikowi. Pozostałe premie do szansy krytycznej nadal działają; gwarantowany cios krytyczny pozostaje gwarantowany. Nie przyznaje premii sojusznikom.",
-                "node.mage.warlock.adaptation"=>"Jedno trafienie musi odebrać co najmniej 20% maksymalnego HP. Redukcja dotyczy trzech kolejnych trafień od tego samego przeciwnika; nowe uruchomienie zastępuje poprzednią redukcję.",
+                "node.mage.warlock.adaptation"=>$"Jedno trafienie musi odebrać co najmniej {MageCombatSystem.W(u,"t5_1") switch{1=>15,>=2=>10,_=>20}}% maksymalnego HP. Redukcja dotyczy trzech kolejnych trafień od tego samego przeciwnika; nowe uruchomienie zastępuje poprzednią redukcję.",
                 "node.mage.fire.aggressive_fire"=>"Niezależne losowanie dla każdego przeciwnika przy pierwszym ticku podpalenia. Kopia zachowuje połowę pozostałych obrażeń; do trzech kolejnych przeniesień.",
                 "node.paladin.crusader.advantage"=>"Przewaga jest liczona względem maksymalnego zdrowia celu, w sposób ciągły. Przykład: 150 maksymalnego HP przeciw 100 to premia 25%.",
                 "node.paladin.crusader.torment_damage"=>"Wymaga co najmniej czterech nałożeń przed trafieniem. Podstawa: różnica obrażeń po obronie z Udręczeniem i bez niego, z uwzględnieniem penetracji. Przykład: wzrost ze 100 do 120 daje przy 30% dodatkowe 6 obrażeń nieuchronnych.",
@@ -152,6 +155,8 @@ namespace Godmist.Views.UI.Workspace
                 _=>string.Empty
             };
             if(node.Id.StartsWith("node.scout.guardian.")&&GuardianTalentCopy.Entries.TryGetValue(node.Id,out var guardianCopy))details=guardianCopy.Rules;
+            if(MageTier5TalentCopy.Entries.TryGetValue(node.Id,out var mageCopy))details=mageCopy.Rules;
+            if(MageFrostTalentCopy.Entries.TryGetValue(node.Id,out var frostCopy))details=frostCopy.Rules;
             if(tooltip!=null)
             {
                 text = tooltip.LinkTalentReferences(text, character, node.Id);

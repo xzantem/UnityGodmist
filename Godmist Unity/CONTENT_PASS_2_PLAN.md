@@ -204,6 +204,8 @@ Tools/ContentPass2/guardian-preview-validation.json. CP2-09 zastępuje podgląd 
 
 ### CP2-10 Dodać T5 Czarnoksiężnika i Maga Ognia
 
+**Status:** READY_FOR_SMOKE — implementacja i ikony zakończone; dowody w `Tools/ContentPass2/mage-t5-validation.json`, opis w `CONTENT_PASS_2_MAGE_T5.md`. Manualny smoke NOT RUN.
+
 **Zależności:** 03–04.
 
 **Zakres:** dziesięć node'ów T5 istniejących drzew Maga; pełne działanie z maną, obrażeniami bezpośrednimi, efektami okresowymi i przywołaniami w zakresie faktycznie opisanym przez node'y.
@@ -215,6 +217,8 @@ Tools/ContentPass2/guardian-preview-validation.json. CP2-09 zastępuje podgląd 
 **Odbiór:** testy kosztów i przywracania many, czasu trwania i składania efektów oraz brak samonapędzających się pętli triggerów. Smoke obu drzew na celu podatnym i odpornym; poprawny reset i stary zapis Alison.
 
 ### CP2-11 Dodać drzewko Maga Mrozu
+
+**Status:** ZAAKCEPTOWANA — wdrożone 25 węzłów/44 rangi/3 zaklęcia; smoke PASS; commit/push zlecony.
 
 **Zależności:** 03–04.
 

@@ -68,6 +68,18 @@ namespace Godmist.Systems.Combat
                     var chance = EffectPrerequisiteChance(next, skill, effect, caster, target) * requiredChance;
                     if (chance <= 0f) continue;
                     var amount = 0f;
+                    if(effect.EffectType==EffectType.MageFrostAura)
+                    {
+                        if(!StatusEffectSystem.HasStatus(target,MageCombatSystem.FrostAuraMarker))
+                        {
+                            ScoutCombatSystem.TimedStat(caster,target,CharacterStatType.Dodge,20,effect.DurationTurns,MageCombatSystem.FrostAuraMarker,"Aura Mrozu");
+                            target.MageState.Frost.AuraSourceId=caster.Character.CharacterId;
+                            utility+=20+25*next.World.Units.Count(e=>e.IsPlayerSide!=target.IsPlayerSide&&MageCombatSystem.Distance(e.Position,target.Position)<=1);
+                        }
+                        continue;
+                    }
+                    if(effect.EffectType==EffectType.MageFrostField)
+                    {utility+=40;next.Terminal=true;continue;}
                     if(skill.SkillId==GuardianCombatSystem.Counter)
                     {
                         if(caster.GuardianState.CounterTurns==0)
@@ -113,6 +125,7 @@ namespace Godmist.Systems.Combat
                             var shieldBefore = target.Character.ShieldPool?.TotalShield ?? 0;
                             amount = DamageUtility(next.World, previewCaster, target, skill, skill.Effects[index],live,actor);
                             var healthLoss = target.Character.ShieldPool?.AbsorbDamage(Mathf.RoundToInt(expected)) ?? Mathf.RoundToInt(expected);
+                            caster.MageState.AbsorbedDamage=0;
                             caster.WarriorState.MitigatedBank=0;
                             caster.ScoutState.RecoveredStacks=0;
                             new PassiveEffectLifecycleSystem().RemoveEffect(caster.Character,ScoutCombatSystem.RecoveredStrength);
@@ -223,7 +236,7 @@ namespace Godmist.Systems.Combat
                         case EffectType.Heal:
                         case EffectType.HealPercent:
                         {
-                            var healing = HealingAmount(caster,target,effect);
+                            var healing = HealingAmount(caster,target,effect)*MageCombatSystem.FrostHealingMultiplier(target);
                             amount = HealingUtility(live, actor, live.Units[next.World.Units.IndexOf(target)],healing);
                             target.Character.CurrentHealth += Mathf.RoundToInt(healing);
                             if(healing>0 && target.Character.LifeState==CharacterLifeState.Downed){target.Character.LifeState=CharacterLifeState.Alive;target.DownedTurnsRemaining=0;}
@@ -305,6 +318,7 @@ namespace Godmist.Systems.Combat
                 if (!IsEmergencyPreparationHeal(live, actor, skill)) next.PendingPreparation = true;
             }
             if (IsApproachCharge(skill)) { next.PendingPreparation = next.PendingCharge = true; next.Used.Add(skill); }
+            if(skill.Effects.Any(effect=>effect.EffectType==EffectType.DealDamage))caster.MageState.AbsorbedDamage=0;
             if (skill.Effects.Any(effect => effect.EffectType == EffectType.DealDamage)) next.PendingPreparation = next.PendingCharge = false;
             if (PassiveEffectCombatExecutionSystem.IsOffensiveSkill(skill))
                 caster.Character.PassiveEffects.RemoveAll(active => string.Equals(active?.EffectId, "invisibility", StringComparison.OrdinalIgnoreCase));

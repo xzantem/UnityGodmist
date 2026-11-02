@@ -47,6 +47,7 @@ namespace Godmist.Systems.Combat
             if (destination == target.Position
                 || !session.Grid.IsWalkable(destination)
                 || session.Grid.IsBlocked(destination)
+                || session.DoesObjectBlockMovement(session.GetMapObjectAt(destination))
                 || IsOccupiedByLivingUnit(session, destination, target))
             {
                 return false;

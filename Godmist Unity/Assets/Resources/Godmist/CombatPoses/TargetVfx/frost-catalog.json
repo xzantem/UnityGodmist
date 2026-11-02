@@ -1,0 +1,18 @@
+{
+  "clips": [
+    {
+      "id": "frost-floor",
+      "frames": [
+        "cp2-frost-floor-32"
+      ],
+      "frameSeconds": 0.2,
+      "pivotX": 0.5,
+      "pivotY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "aboveHead": false,
+      "fitBody": false,
+      "contentHeight": 1
+    }
+  ]
+}

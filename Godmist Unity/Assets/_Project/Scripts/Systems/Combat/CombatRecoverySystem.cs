@@ -17,8 +17,9 @@ namespace Godmist.Systems.Combat
         public HealingResult HealWithResult(BattleUnit target,int amount,string reportingSourceId=null)
         {
             if(target?.Character?.Stats==null||target.Character.LifeState==CharacterLifeState.Dead||amount<=0)return default;
+            amount=IncomingHealing(target,amount);
             var capacity=Math.Max(0,target.Character.MaximumHealth-target.Character.CurrentHealth);
-            var restored=Heal(target,amount,reportingSourceId:reportingSourceId);
+            var restored=Heal(target,amount,reportingSourceId:reportingSourceId,applyIncomingHealing:false);
             return new HealingResult(amount,restored,Math.Max(0,amount-capacity));
         }
         private readonly Action<string> battleLog;
@@ -42,8 +43,10 @@ namespace Godmist.Systems.Combat
                 Mathf.Max(0f, averageAttack) * effect.HealAverageAttackMultiplier);
         }
 
+        public static int IncomingHealing(BattleUnit target,int amount,int turnsAhead=0)=>Mathf.Max(0,Mathf.FloorToInt(amount*MageCombatSystem.FrostHealingMultiplier(target,turnsAhead)));
+
         public int Heal(BattleUnit target, int requestedAmount, PassiveEffectCombatContext context = null,
-            CombatTargetVfxKind? targetVfx = null, string reportingSourceId = null, bool isCritical = false)
+            CombatTargetVfxKind? targetVfx = null, string reportingSourceId = null, bool isCritical = false, bool applyIncomingHealing=true)
         {
             if (target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead || requestedAmount <= 0) return 0;
 
@@ -55,6 +58,8 @@ namespace Godmist.Systems.Combat
 
             if (maxHealth <= 0) return 0;
 
+            MageCombatSystem.BindFrostSession(context?.Session);
+            if(applyIncomingHealing)requestedAmount=IncomingHealing(target,requestedAmount);
             var previousHealth = target.Character.CurrentHealth;
 
             target.Character.CurrentHealth = Mathf.Min(maxHealth, previousHealth + requestedAmount);

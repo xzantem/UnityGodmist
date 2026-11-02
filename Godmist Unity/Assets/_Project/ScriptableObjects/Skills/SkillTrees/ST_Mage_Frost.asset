@@ -1,0 +1,330 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d75350877c862b949b1d2252aa9273c0, type: 3}
+  m_Name: ST_Mage_Frost
+  m_EditorClassIdentifier: Data::Godmist.Data.Skills.SkillTreeDefinition
+  <Id>k__BackingField: tree.mage.frost
+  <DisplayName>k__BackingField: Mag Mrozu
+  <GlobalPassive>k__BackingField:
+    <DisplayName>k__BackingField: Pasyw drzewka
+    <Description>k__BackingField: "Za punkt: +1,5 pp szansy krytycznej przeciw zamro\u017Conemu
+      celowi i +0,5 pp odporno\u015Bci na kontrol\u0119."
+    <PassivesPerPoint>k__BackingField: []
+  <Nodes>k__BackingField:
+  - <Id>k__BackingField: node.mage.frost.t1_1
+    <DisplayName>k__BackingField: "Si\u0142a Mrozu"
+    <Description>k__BackingField: Trafienie ma 10% szansy spowolnienia celu o 10
+      na 2 tury.
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8a90afda173c320458fde1c5f6040f5c, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t1_2
+    <DisplayName>k__BackingField: Hipotermia
+    <Description>k__BackingField: "Zmro\u017Ceni i zamro\u017Ceni wrogowie otrzymuj\u0105
+      o 35% mniej leczenia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 9ee5a1000ef9c6845807fd8e51841ca2, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t1_4
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t1_3
+    <DisplayName>k__BackingField: Ostry Sopel
+    <Description>k__BackingField: "Sopel Lodu ma 50% szansy wywo\u0142ania krwawienia
+      zadaj\u0105cego {X} obra\u017Ce\u0144 na tur\u0119 przez 2 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: efc46a91b1a14fc4ca3c2004cd27553b, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t1_4
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t1_4
+    <DisplayName>k__BackingField: Sopel Lodu
+    <Description>k__BackingField: "Zadaje 125% ataku jako obra\u017Cenia magiczne.
+      Ma 50% bazowej szansy zamro\u017Cenia na 2 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 767a8849b733e3d4d877e49b8767bfbd, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 962a701f2b4642541aabfb4ed40f7672, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t1_5
+    <DisplayName>k__BackingField: "Odmro\u017Cenie"
+    <Description>k__BackingField: "Trafienie og\u0142uszonego celu ma 50% szansy
+      zamiany jego og\u0142uszenia na zamro\u017Cenie."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 8be20e82625419343a0cda7946c5e6e7, type: 3}
+    <Tier>k__BackingField: 1
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t2_1
+    <DisplayName>k__BackingField: "Mro\u017Cenie"
+    <Description>k__BackingField: "Si\u0142a Mrozu spowalnia o 15 zamiast 10."
+    <Icon>k__BackingField: {fileID: 21300000, guid: dd5628ed4f34f5341884c0dafa468b96, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t1_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t2_2
+    <DisplayName>k__BackingField: "\u015Anie\u017Cny Duch"
+    <Description>k__BackingField: "Po\u0142owa udanych pr\xF3b Si\u0142y Mrozu nak\u0142ada
+      zmro\u017Cenie zamiast spowolnienia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: ef0a93efe4562254593d71d4f678556f, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t2_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t2_3
+    <DisplayName>k__BackingField: "Parz\u0105cy Mr\xF3z"
+    <Description>k__BackingField: "Zwi\u0119ksza obra\u017Cenia Sopla Lodu do 135%
+      ataku."
+    <Icon>k__BackingField: {fileID: 21300000, guid: efd88de166949384696d02970886b18c, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t1_3
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t2_4
+    <DisplayName>k__BackingField: "Ci\u0119\u017Cka Kontuzja"
+    <Description>k__BackingField: "Sopel Lodu zamra\u017Ca na 3 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 1a259ab327999134c8e2940eb281a5c1, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t1_4
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t2_5
+    <DisplayName>k__BackingField: Podtrzymywanie Lodu
+    <Description>k__BackingField: "Trafienie zamro\u017Conego celu ma 10% szansy
+      skr\xF3cenia zamro\u017Cenia o tur\u0119 zamiast jego usuni\u0119cia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 88ea4e54c02a6814b91fe8be8b3d6ebe, type: 3}
+    <Tier>k__BackingField: 2
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t1_5
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t3_1
+    <DisplayName>k__BackingField: Soplowa Tarcza Awaryjna
+    <Description>k__BackingField: "Po utracie 25% maksymalnego zdrowia mi\u0119dzy
+      w\u0142asnymi turami daje tarcz\u0119 r\xF3wn\u0105 30% maksymalnego zdrowia
+      oraz +30% obu obron. Odnowienie: 10 tur."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 00ef368a6a0c1ff4d90e2592adfe8e68, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t3_2
+    <DisplayName>k__BackingField: "Wra\u017Cliwo\u015B\u0107 na Bod\u017Ace"
+    <Description>k__BackingField: "Soplowa Tarcza Awaryjna uruchamia si\u0119 po
+      utracie 15% maksymalnego zdrowia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: e401ecb9da74e4e44a8b64b3b0291c09, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t3_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t3_3
+    <DisplayName>k__BackingField: "Trwa\u0142a Aura"
+    <Description>k__BackingField: Aura Mrozu trwa 5 tur odbiorcy.
+    <Icon>k__BackingField: {fileID: 21300000, guid: b1179fb20a7cb094ab18335741d81191, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t3_4
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t3_4
+    <DisplayName>k__BackingField: Aura Mrozu
+    <Description>k__BackingField: "Zapewnia sobie lub sojusznikowi +20 uniku na 3
+      tury. Aura ma 40% bazowej szansy zmro\u017Cenia przyleg\u0142ych wrog\xF3w
+      na tur\u0119."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 59aeb063d49fad54ebef5bee9895e341, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: f6e820c3225f7ed4ead00e41707bebdf, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t3_5
+    <DisplayName>k__BackingField: Lodowiec
+    <Description>k__BackingField: "Podtrzymywanie Lodu ma 30% szansy powodzenia i
+      obejmuje tak\u017Ce ataki sojusznik\xF3w w zasi\u0119gu 3."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 0444ab0d1a8c03c45a66e4c7d827a9a8, type: 3}
+    <Tier>k__BackingField: 3
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t2_5
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t4_1
+    <DisplayName>k__BackingField: "Wytrzyma\u0142a Tarcza"
+    <Description>k__BackingField: "Soplowa Tarcza Awaryjna zwi\u0119ksza obie obrony
+      o 40%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: fdfb2be1b4f714e48ab4c17da1efc9aa, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t3_2
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t4_2
+    <DisplayName>k__BackingField: "Ochronny L\xF3d"
+    <Description>k__BackingField: Skraca odnowienie Soplowej Tarczy Awaryjnej do
+      9 tur.
+    <Icon>k__BackingField: {fileID: 21300000, guid: 826ffdef3e6461d47afea0955fab1d33, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t3_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t4_3
+    <DisplayName>k__BackingField: Roztrzaskanie
+    <Description>k__BackingField: "Trafienie zamro\u017Conego celu ma 3% szansy natychmiastowego
+      zabicia. Na bossie dzia\u0142a poni\u017Cej 20% jego zdrowia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 882e60bcb3230a74f9f4883f3756ccb1, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t4_4
+    <DisplayName>k__BackingField: Aura Lodu
+    <Description>k__BackingField: "Aura Mrozu ma 20% bazowej szansy zamro\u017Cenia
+      ju\u017C zmro\u017Conego wroga na tur\u0119."
+    <Icon>k__BackingField: {fileID: 21300000, guid: f35f564c80afe194d86adf4f5f3c9ac9, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t3_4
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t4_5
+    <DisplayName>k__BackingField: "Prawdziwy L\xF3d"
+    <Description>k__BackingField: "Zamro\u017Cenie Aury Lodu trwa 2 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 99132dc13b7e3f548ac75ef616645443, type: 3}
+    <Tier>k__BackingField: 4
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t4_4
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t5_1
+    <DisplayName>k__BackingField: "Niebia\u0144ski Bunt"
+    <Description>k__BackingField: "\u015Amier\u0107 wroga tworzy na 4 tury \u015Bnie\u017Cyc\u0119
+      3\xD73. Wr\xF3g ko\u0144cz\u0105cy w niej tur\u0119 otrzymuje 20% \u015Bredniego
+      ataku + 3% swojego brakuj\u0105cego zdrowia jako obra\u017Cenia magiczne."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 6641a40468d787a4696ced8e4a4fcca2, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t5_2
+    <DisplayName>k__BackingField: "Wieczna \u015Anie\u017Cyca"
+    <Description>k__BackingField: "Ruch w \u015Bnie\u017Cycy Niebia\u0144skiego Buntu
+      kosztuje o 1 PA wi\u0119cej, a wrogowie wewn\u0105trz maj\u0105 \u221210 szybko\u015Bci."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 4d9ccdebf3374aa4c8c51c67d2fa3ef9, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t5_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t5_3
+    <DisplayName>k__BackingField: Brutalne Roztrzaskanie
+    <Description>k__BackingField: "Zwi\u0119ksza szans\u0119 Roztrzaskania o 2 pp
+      za ka\u017Cd\u0105 pozosta\u0142\u0105 tur\u0119 zamro\u017Cenia."
+    <Icon>k__BackingField: {fileID: 21300000, guid: ccef0447209af6141864b128951d1061, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t4_3
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t5_4
+    <DisplayName>k__BackingField: Lodowisko
+    <Description>k__BackingField: "Tworzy na 6 tur pole lodu 3\xD73. Wrogowie w nim
+      maj\u0105 \u221230 celno\u015Bci umiej\u0119tno\u015Bci i \u221215 szybko\u015Bci."
+    <Icon>k__BackingField: {fileID: 21300000, guid: d2bb2c8cf56055d4bb775938218cc909, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 44de9792c21816347bf0cdb56a8467df, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.frost.t5_5
+    <DisplayName>k__BackingField: "Mro\u017Ana Adaptacja"
+    <Description>k__BackingField: "Zwi\u0119ksza zasi\u0119g rzucania Lodowiska do
+      9 p\xF3l."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 87d974587437e104eaa1bb850679cf24, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.frost.t5_4
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []

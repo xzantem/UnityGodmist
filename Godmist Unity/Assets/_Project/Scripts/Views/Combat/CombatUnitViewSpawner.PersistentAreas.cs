@@ -51,7 +51,12 @@ namespace Godmist.Views.Combat
                 }
                 foreach (var unit in session.Units)
                 {
+                    if(unit?.Character?.LifeState!=CharacterLifeState.Dead&&unit!=null)
+                        foreach(var frost in unit.MageState.Frost.Areas)
+                            if(frost.Turns>0)UpdateArea(frost,session,null,frost.Center,1,"frost-floor",elapsed);
                     if (unit?.Character?.LifeState != CharacterLifeState.Alive) continue;
+                    if(StatusEffectSystem.HasStatus(unit,MageCombatSystem.FrostAuraMarker))
+                        UpdateArea(unit.MageState.Frost,session,unit,unit.Position,1,"frost-floor",elapsed);
                     foreach (var aura in unit.ActiveAuras)
                         if (aura?.AuraId?.StartsWith("skill.mage.fire_aura.aura.", System.StringComparison.Ordinal) == true
                             && aura.RemainingTurns > 0)
@@ -90,6 +95,8 @@ namespace Godmist.Views.Combat
             state.Session = session; state.Anchor = anchor; state.Radius = radius; state.NextGeometry = elapsed + .2f;
             var positions = new HashSet<GridPosition>(key is SummonedCombatMapObject field
                 ? CombatPersistentVfxGeometry.FieldCells(session, field)
+                : key is MageFrostArea frost ? MageCombatSystem.FrostAreaCells(session,frost)
+                : key is MageFrostState ? MageCombatSystem.FrostAreaCells(session,new MageFrostArea{Center=owner.Position,Turns=1})
                 : CombatPersistentVfxGeometry.AuraCells(session, owner, (CombatAuraRuntime)key));
             foreach (var tile in state.Tiles.Where(p => !positions.Contains(p.Key)).ToArray())
             { DestroyAreaTile(tile.Value); state.Tiles.Remove(tile.Key); }

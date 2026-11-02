@@ -16,6 +16,18 @@ namespace Godmist.Views.UI.Workspace
 
         private static readonly Dictionary<string, string[]> TalentNameForms = new()
         {
+            ["node.mage.frost.t1_1"] = new[]{"Siły Mrozu","Siłą Mrozu"},
+            ["node.mage.frost.t1_4"] = new[]{"Sopla Lodu","Soplem Lodu"},
+            ["node.mage.frost.t1_5"] = new[]{"Odmrożenia"},
+            ["node.mage.frost.t2_5"] = new[]{"Podtrzymywania Lodu"},
+            ["node.mage.frost.t3_1"] = new[]{"Soplowej Tarczy Awaryjnej","Soplową Tarczę Awaryjną"},
+            ["node.mage.frost.t3_4"] = new[]{"Aury Mrozu","Aurę Mrozu","Aurą Mrozu"},
+            ["node.mage.frost.t3_5"] = new[]{"Lodowca"},
+            ["node.mage.frost.t4_3"] = new[]{"Roztrzaskania"},
+            ["node.mage.frost.t4_4"] = new[]{"Aury Lodu"},
+            ["node.mage.frost.t5_1"] = new[]{"Niebiańskiego Buntu","Niebiańskim Buncie"},
+            ["node.mage.frost.t5_4"] = new[]{"Lodowiska","Lodowisku"},
+
             ["Szybki Odwet"] = new[] { "Szybkiego Odwetu", "Szybkim Odwetem" },
             ["Osłona w Ruchu"] = new[] { "Osłony w Ruchu", "Osłonę w Ruchu", "Osłonie w Ruchu" },
             ["Prowokacja"] = new[] { "Prowokacji", "Prowokację", "Prowokacją" },
@@ -55,6 +67,10 @@ namespace Godmist.Views.UI.Workspace
             ["Uderzenie Głowicą"] = new[] { "Uderzenia Głowicą" },
             ["Zatruty Sztylet"] = new[] { "Zatrutego Sztyletu", "Zatrutym Sztyletem" },
             ["Rzut Sztyletem"] = new[] { "Rzutu Sztyletem", "Rzutem Sztyletem" },
+            ["Adaptacja Energetyczna"] = new[] { "Adaptacji Energetycznej" },
+            ["Absorpcja Mocy"] = new[] { "Absorpcji Mocy" },
+            ["Teleportacja"] = new[] { "Teleportacji", "Teleportację", "Teleportacją" },
+            ["Słup Ognia"] = new[] { "Słupa Ognia", "Słupem Ognia" },
             ["Ofiara"] = new[] { "Ofiary", "Ofiarą" },
             ["Ognista Aura"] = new[] { "Ognistej Aury", "Ognistą Aurę" },
             ["Ognista Ofiara"] = new[] { "Ognistej Ofiary" },

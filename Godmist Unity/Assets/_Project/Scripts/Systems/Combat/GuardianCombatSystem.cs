@@ -172,7 +172,7 @@ namespace Godmist.Systems.Combat
                 {
                     ordinal++;
                     var cost=Math.Max(0,ordinal-discount)*ActionPointUnits.PerPoint;
-                    total+=PassiveEffectCombatExecutionSystem.ApplyMovementCost(session,u,cost)+session.Grid.GetMovementSurcharge(origin,cell)*ActionPointUnits.PerPoint;
+                    total+=PassiveEffectCombatExecutionSystem.ApplyMovementCost(session,u,cost)+(session.Grid.GetMovementSurcharge(origin,cell)+MageCombatSystem.FrostMovementSurcharge(session,u,origin,cell))*ActionPointUnits.PerPoint;
                 }
                 if(G(u,"t3_2")>0&&inventory<u.MaxKnives)
                     foreach(var knife in session.MapObjects.OfType<KnifeCombatMapObject>())

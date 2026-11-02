@@ -264,3 +264,65 @@ MonoBehaviour:
     <GrantedSkill>k__BackingField: {fileID: 0}
     <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.t5_1
+    <DisplayName>k__BackingField: "Strza\u0142a B\xF3lu"
+    <Description>k__BackingField: "Ognista Strza\u0142a zmniejsza zadawane obra\u017Cenia
+      celu o 25% na 4 tury."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 63e39075e6f175e41b5c22949db4f816, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 1
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.fire_arrow
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.t5_2
+    <DisplayName>k__BackingField: Unieszkodliwienie
+    <Description>k__BackingField: "Trafiona Ognist\u0105 Strza\u0142\u0105 posta\u0107
+      przez 4 tury korzysta z minimalnej warto\u015Bci ataku."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 2a1f3b5a53348dd4183c4cd6f837ef08, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 2
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.t5_1
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.t5_3
+    <DisplayName>k__BackingField: Podtrzymywanie Ognia
+    <Description>k__BackingField: "Trafienie podpalonego przeciwnika ma 30% szansy
+      przed\u0142u\u017Cenia podpalenia o 1 tur\u0119."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 6a4e6f6a027759c4b960a01b878ab77e, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 3
+    <MaxRanks>k__BackingField: 2
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.t5_4
+    <DisplayName>k__BackingField: "S\u0142up Lawy"
+    <Description>k__BackingField: "Zwi\u0119ksza bezpo\u015Brednie obra\u017Cenia
+      S\u0142upa Ognia i jego podpalenie o 15%."
+    <Icon>k__BackingField: {fileID: 21300000, guid: 11255a35b7ad5774493fbfa107a41eb5, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 4
+    <MaxRanks>k__BackingField: 3
+    <GrantedSkill>k__BackingField: {fileID: 0}
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.mage.fire.t5_5
+      <MinimumRanks>k__BackingField: 1
+    <PassiveEffects>k__BackingField: []
+  - <Id>k__BackingField: node.mage.fire.t5_5
+    <DisplayName>k__BackingField: "S\u0142up Ognia"
+    <Description>k__BackingField: "Zadaje losowe obra\u017Cenia magiczne w kwadracie
+      3\xD73. Ma 85% bazowej szansy podpalenia na 4 tury, po 90% \u015Bredniego ataku
+      na tur\u0119."
+    <Icon>k__BackingField: {fileID: 21300000, guid: bd8abc83de0d151458cc60762a63250f, type: 3}
+    <Tier>k__BackingField: 5
+    <Column>k__BackingField: 5
+    <MaxRanks>k__BackingField: 1
+    <GrantedSkill>k__BackingField: {fileID: 11400000, guid: 96e92643db532be479fb3f29fbe8e4c6, type: 2}
+    <Requirements>k__BackingField: []
+    <PassiveEffects>k__BackingField: []

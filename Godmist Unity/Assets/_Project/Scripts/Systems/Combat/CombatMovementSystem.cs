@@ -403,7 +403,7 @@ namespace Godmist.Systems.Combat
                 CombatActionCostCalculator.CalculateMovementCost(unit));
 
             var nextCell = requestedPosition ?? session.Grid.GetOffsetPosition(unit.Position, deltaX, deltaY);
-            movementCost += session.Grid.GetMovementSurcharge(unit.Position, nextCell) * ActionPointUnits.PerPoint;
+            movementCost += (session.Grid.GetMovementSurcharge(unit.Position, nextCell)+MageCombatSystem.FrostMovementSurcharge(session,unit,unit.Position,nextCell)) * ActionPointUnits.PerPoint;
             var guardianFree=GuardianCombatSystem.HasFreeStep(unit)&&!WarriorCombatSystem.FreeStep(unit);
             if(WarriorCombatSystem.FreeStep(unit)||guardianFree)movementCost=0;
             if (unit.CurrentActionPoints < movementCost)
@@ -499,7 +499,7 @@ namespace Godmist.Systems.Combat
             var stepIndex=0;
             foreach (var cell in path)
             {
-                if(++stepIndex>freeSteps+guardianFreeSteps)cost += session.Grid.GetMovementSurcharge(origin, cell) * ActionPointUnits.PerPoint;
+                if(++stepIndex>freeSteps+guardianFreeSteps)cost += (session.Grid.GetMovementSurcharge(origin, cell)+MageCombatSystem.FrostMovementSurcharge(session,actor,origin,cell)) * ActionPointUnits.PerPoint;
                 origin = cell;
             }
             return cost;

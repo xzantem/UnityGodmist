@@ -1,0 +1,523 @@
+{
+  "card": "CP2-11",
+  "status": "ACCEPTED",
+  "scope": "T1-T5;25 nodes;44 ranks;3 skills;all7 design packages accepted",
+  "entries": [
+    {
+      "slot": "t1_1",
+      "id": "node.mage.frost.t1_1",
+      "name": "Siła Mrozu",
+      "ranks": 3,
+      "tier": 1,
+      "column": 1,
+      "requirements": [],
+      "descriptions": [
+        "Trafienie ma 10% szansy spowolnienia celu o 10 na 2 tury.",
+        "Trafienie ma 15% szansy spowolnienia celu o 10 na 2 tury.",
+        "Trafienie ma 20% szansy spowolnienia celu o 10 na 2 tury."
+      ],
+      "rules": "Jedna próba na trafiony cel i użycie bezpośredniego ataku. Bez obrażeń okresowych, reakcji i duplikatów. Spowolnienie podlega odporności na ruch.",
+      "active": null,
+      "source": "Drzewka!A98:G98",
+      "source_description": "Ataki mają 10%/15%/20% spowolnienie przeciwnika o 10 na 2 tury",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Siła Mrozu. Actual effect: Ataki mają 10%/15%/20% spowolnienie przeciwnika o 10 na 2 tury Subject/composition: One large silver-blue armored gauntlet releasing one broad cyan cold ribbon around an enemy boot; clear slowed movement, no flames.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t1_2",
+      "id": "node.mage.frost.t1_2",
+      "name": "Hipotermia",
+      "ranks": 2,
+      "tier": 1,
+      "column": 2,
+      "requirements": [
+        "t1_4"
+      ],
+      "descriptions": [
+        "Zmrożeni i zamrożeni wrogowie otrzymują o 35% mniej leczenia.",
+        "Zmrożeni i zamrożeni wrogowie otrzymują o 75% mniej leczenia."
+      ],
+      "rules": "Działa na każde leczenie i regenerację żywych wrogów ze zmrożeniem lub zamrożeniem, także nałożonym przez sojusznika. Wymaga żywego maga. Kilku magów nie sumuje redukcji; działa najwyższa wartość.",
+      "active": null,
+      "source": "Drzewka!A99:G99",
+      "source_description": "Przeciwnicy zmrożeni i zamrożeni otrzymują leczenie zredukowane o 35%/75%",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Hipotermia. Actual effect: Przeciwnicy zmrożeni i zamrożeni otrzymują leczenie zredukowane o 35%/75% Subject/composition: One deep red heart enclosed by large blue-white ice jaws, a small subdued green healing arc stops at the ice. Healing reduction.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t1_3",
+      "id": "node.mage.frost.t1_3",
+      "name": "Ostry Sopel",
+      "ranks": 3,
+      "tier": 1,
+      "column": 4,
+      "requirements": [
+        "t1_4"
+      ],
+      "descriptions": [
+        "Sopel Lodu ma 50% szansy wywołania krwawienia zadającego {X} obrażeń na turę przez 2 tury.",
+        "Sopel Lodu ma 50% szansy wywołania krwawienia zadającego {X} obrażeń na turę przez 2 tury.",
+        "Sopel Lodu ma 50% szansy wywołania krwawienia zadającego {X} obrażeń na turę przez 2 tury."
+      ],
+      "rules": "Wymaga trafienia Sopla Lodu. Osobna bazowa szansa krwawienia wynosi 50% i podlega odporności na krwawienie. Siła wynika ze średniego ataku, a nie z obrażeń trafienia lub jego krytyka.",
+      "active": null,
+      "source": "Drzewka!A100:G100",
+      "source_description": "Sopel Lodu ma 50% szansy na wywołanie krwawienia 40%/60%/90% na 2 tury",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Ostry Sopel. Actual effect: Sopel Lodu ma 50% szansy na wywołanie krwawienia 40%/60%/90% na 2 tury Subject/composition: One broad jagged blue-white icicle point with one small red wound droplet below. A magical ice projectile, no metal blade or arrow shaft.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t1_4",
+      "id": "node.mage.frost.t1_4",
+      "name": "Sopel Lodu",
+      "ranks": 1,
+      "tier": 1,
+      "column": 3,
+      "requirements": [],
+      "descriptions": [
+        "Zadaje 125% ataku jako obrażenia magiczne. Ma 50% bazowej szansy zamrożenia na 2 tury."
+      ],
+      "rules": "Magiczny pocisk lodu, bez fizycznej strzały. Zamrożenie wymaga trafienia i podlega wspólnej odporności oraz tolerancji na kontrolę.",
+      "active": {
+        "mana": 30,
+        "ap_percent": 65,
+        "range": 8
+      },
+      "source": "Drzewka!A101:G101",
+      "source_description": "Zadaje 125% obrażeń; [50%] zamrożenie na 2 tury;",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist fantasy RPG skill icon source, square full-canvas composition. Scene/backdrop: opaque deep midnight navy canvas with two broad muted cold blue planes behind the symbol. Subject: One broad diagonal luminous ICICLE entirely made of blue-white magical ice, with two large cold facets and a short cyan spell trail. No bow, wooden shaft, feathers or metal arrowhead. Style/medium: classic pixel RPG skill icon, native 32px intent, hard pixel edges, large flat clusters, thick dark outline, calm interior shading, minimal texture. Composition/framing: centered large simple cold spell symbol, filling most of square but fully contained. Color palette: silver-white ice facets, cyan-blue cold effects, near-black outlines, dark midnight navy background. Materials/textures: solid grouped pixel shapes, very little texture. Constraints: opaque background; one spell icon only, no bow, wooden arrow shaft, steel arrowhead, sport ice skates, fire, characters except a single supporting hand or boot when specified, text, border, UI, extra weapons, sparks, embers, runes or micro-details. Avoid: photorealism, gradients, chaotic effects, clutter.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t1_5",
+      "id": "node.mage.frost.t1_5",
+      "name": "Odmrożenie",
+      "ranks": 2,
+      "tier": 1,
+      "column": 5,
+      "requirements": [],
+      "descriptions": [
+        "Trafienie ogłuszonego celu ma 50% szansy zamiany jego ogłuszenia na zamrożenie.",
+        "Trafienie ogłuszonego celu ma 100% szansy zamiany jego ogłuszenia na zamrożenie."
+      ],
+      "rules": "Jedna próba na trafiony cel i użycie ataku. Ogłuszenie musi istnieć przed trafieniem. Nowe zamrożenie zachowuje pozostały czas ogłuszenia i podlega zasadom kontroli. Ogłuszenie znika dopiero po sukcesie konwersji.",
+      "active": null,
+      "source": "Drzewka!A102:G102",
+      "source_description": "Ataki na ogłuszonych przeciwnikach mają 50%/100% szansy na przekształcenie ogłuszenia w zamrożenie",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Odmrożenie. Actual effect: Ataki na ogłuszonych przeciwnikach mają 50%/100% szansy na przekształcenie ogłuszenia w zamrożenie Subject/composition: One silver stunned helmet with one muted gold curved stun arc turning into a broad cyan ice shell; transformation TO ice, not melting ice.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t2_1",
+      "id": "node.mage.frost.t2_1",
+      "name": "Mrożenie",
+      "ranks": 1,
+      "tier": 2,
+      "column": 1,
+      "requirements": [
+        "t1_1"
+      ],
+      "descriptions": [
+        "Siła Mrozu spowalnia o 15 zamiast 10."
+      ],
+      "rules": "Zmienia wyłącznie siłę spowolnienia Siły Mrozu; czas pozostaje równy 2 turom.",
+      "active": null,
+      "source": "Drzewka!A103:G103",
+      "source_description": "Zwiększa siłę spowolnienia Siły Mrozu do 15",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Mrożenie. Actual effect: Zwiększa siłę spowolnienia Siły Mrozu do 15 Subject/composition: One heavy boot locked in a broad low blue ice ridge, one cyan slowing arc. Two large simple shapes.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t2_2",
+      "id": "node.mage.frost.t2_2",
+      "name": "Śnieżny Duch",
+      "ranks": 1,
+      "tier": 2,
+      "column": 2,
+      "requirements": [
+        "t2_1"
+      ],
+      "descriptions": [
+        "Połowa udanych prób Siły Mrozu nakłada zmrożenie zamiast spowolnienia."
+      ],
+      "rules": "Po udanej próbie Siły Mrozu osobno losuje 50% na zmrożenie zamiast spowolnienia, na te same 2 tury. Nieudane zmrożenie nie daje spowolnienia zastępczego. Zmrożenie ogranicza szybkość do 20 i nie przyspiesza wolniejszych postaci.",
+      "active": null,
+      "source": "Drzewka!A104:G104",
+      "source_description": "Siła Mrozu ma 50% szansy na zmrożenie przeciwnika zamiast spowolnienia",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Śnieżny Duch. Actual effect: Siła Mrozu ma 50% szansy na zmrożenie przeciwnika zamiast spowolnienia Subject/composition: One broad dark hooded magical silhouette surrounded by a single solid cyan cold ribbon, two bright silver-blue facets. No ghost army.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t2_3",
+      "id": "node.mage.frost.t2_3",
+      "name": "Parzący Mróz",
+      "ranks": 3,
+      "tier": 2,
+      "column": 4,
+      "requirements": [
+        "t1_3"
+      ],
+      "descriptions": [
+        "Zwiększa obrażenia Sopla Lodu do 135% ataku.",
+        "Zwiększa obrażenia Sopla Lodu do 145% ataku.",
+        "Zwiększa obrażenia Sopla Lodu do 160% ataku."
+      ],
+      "rules": "Zmienia bazowy mnożnik bezpośrednich obrażeń Sopla Lodu. Nie wzmacnia krwawienia Ostrego Sopla ani innych zaklęć.",
+      "active": null,
+      "source": "Drzewka!A105:G105",
+      "source_description": "Zwiększa obrażenia Sopla Lodu do 135%/145%/160%",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Parzący Mróz. Actual effect: Zwiększa obrażenia Sopla Lodu do 135%/145%/160% Subject/composition: One brilliant blue-white magical icicle with a thick compact cyan power halo. Stronger ice spell; NO orange fire, burning or steel weapon.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t2_4",
+      "id": "node.mage.frost.t2_4",
+      "name": "Ciężka Kontuzja",
+      "ranks": 1,
+      "tier": 2,
+      "column": 3,
+      "requirements": [
+        "t1_4"
+      ],
+      "descriptions": [
+        "Sopel Lodu zamraża na 3 tury."
+      ],
+      "rules": "Dotyczy tylko zamrożenia nałożonego przez Sopel Lodu. Odporność i tolerancja na kontrolę nadal obowiązują.",
+      "active": null,
+      "source": "Drzewka!A106:G106",
+      "source_description": "Zwiększa czas trwania zamrożenia Sopla Lodu do 3",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Ciężka Kontuzja. Actual effect: Zwiększa czas trwania zamrożenia Sopla Lodu do 3 Subject/composition: One dark silver helmet enclosed in a thick crystalline ice shell with three large clear facets. Long-lasting frozen control, no gore.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t2_5",
+      "id": "node.mage.frost.t2_5",
+      "name": "Podtrzymywanie Lodu",
+      "ranks": 2,
+      "tier": 2,
+      "column": 5,
+      "requirements": [
+        "t1_5"
+      ],
+      "descriptions": [
+        "Trafienie zamrożonego celu ma 10% szansy skrócenia zamrożenia o turę zamiast jego usunięcia.",
+        "Trafienie zamrożonego celu ma 20% szansy skrócenia zamrożenia o turę zamiast jego usunięcia."
+      ],
+      "rules": "Dotyczy bezpośredniego trafienia w już zamrożony cel. Udany efekt skraca zamrożenie o turę zamiast całkowitego usunięcia. Trafienie zachowuje normalny bonus obrażeń za pozostałe tury zamrożenia, liczone przed skróceniem. Przy jednej pozostałej turze status i tak znika.",
+      "active": null,
+      "source": "Drzewka!A107:G107",
+      "source_description": "Atakowanie zamrożonych przeciwników ma 10%/20% szansy na skrócenie zamrożenia o 1 turę zamiast całkowitego usunięcia",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Podtrzymywanie Lodu. Actual effect: Atakowanie zamrożonych przeciwników ma 10%/20% szansy na skrócenie zamrożenia o 1 turę zamiast całkowitego usunięcia Subject/composition: One large blue ice crystal partly cracked, a broad pale cyan curved arc retains and closes part of its shell. Preserving freezing after a hit.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t3_1",
+      "id": "node.mage.frost.t3_1",
+      "name": "Soplowa Tarcza Awaryjna",
+      "ranks": 1,
+      "tier": 3,
+      "column": 1,
+      "requirements": [],
+      "descriptions": [
+        "Po utracie 25% maksymalnego zdrowia między własnymi turami daje tarczę równą 30% maksymalnego zdrowia oraz +30% obu obron. Odnowienie: 10 tur."
+      ],
+      "rules": "Zlicza faktycznie utracone zdrowie, także od obrażeń okresowych, między początkami własnych tur. Nie liczy utraty tarczy i nie ratuje przed śmiertelnym trafieniem. Premia obu obron trwa, dopóki istnieje ta konkretna warstwa. Rozbicie nakłada −30% obu obron na 3 tury; koniec walki usuwa warstwę bez kary. Odnowienie liczy własne tury od uruchomienia.",
+      "active": null,
+      "source": "Drzewka!A108:G108",
+      "source_description": "Raz na 10 tur: Po otrzymaniu obrażeń równych 25% maksymalnego zdrowia w jednej turze, tworzy tarczę o sile równej 30% maksymalnego zdrowia. Podczas trwania tarczy, zwiększa obronę o 30%, po zniszczeniu tarczy, zmniejsza obronę o 30% na 3 tury",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Soplowa Tarcza Awaryjna. Actual effect: Raz na 10 tur: Po otrzymaniu obrażeń równych 25% maksymalnego zdrowia w jednej turze, tworzy tarczę o sile równej 30% maksymalnego zdrowia. Podczas trwania tarczy, zwiększa obronę o 30%, po zniszczeniu tarczy, zmniejsza obronę o 30% na 3 tury Subject/composition: One large broad crystal ice shield between a silver-blue gauntlet and one incoming red impact wedge. Emergency magical shield.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t3_2",
+      "id": "node.mage.frost.t3_2",
+      "name": "Wrażliwość na Bodźce",
+      "ranks": 1,
+      "tier": 3,
+      "column": 2,
+      "requirements": [
+        "t3_1"
+      ],
+      "descriptions": [
+        "Soplowa Tarcza Awaryjna uruchamia się po utracie 15% maksymalnego zdrowia."
+      ],
+      "rules": "Zmienia wyłącznie próg faktycznej utraty zdrowia Soplowej Tarczy Awaryjnej na 15% maksymalnego zdrowia.",
+      "active": null,
+      "source": "Drzewka!A109:G109",
+      "source_description": "Zmniejsza próg aktywacji Tarczy z Lodu do 15%",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Wrażliwość na Bodźce. Actual effect: Zmniejsza próg aktywacji Tarczy z Lodu do 15% Subject/composition: One open blue-silver watchful eye over a simple triangular ice shield, a single cyan alert arc. Earlier emergency trigger.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t3_3",
+      "id": "node.mage.frost.t3_3",
+      "name": "Trwała Aura",
+      "ranks": 1,
+      "tier": 3,
+      "column": 3,
+      "requirements": [
+        "t3_4"
+      ],
+      "descriptions": [
+        "Aura Mrozu trwa 5 tur odbiorcy."
+      ],
+      "rules": "Wydłuża czas premii uniku i pulsowania Aury Mrozu do 5 tur odbiorcy, także przy rzuceniu na siebie.",
+      "active": null,
+      "source": "Drzewka!A110:G110",
+      "source_description": "Zwiększa czas trwania Mroźnej Osłony do 5 tur",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Trwała Aura. Actual effect: Zwiększa czas trwania Mroźnej Osłony do 5 tur Subject/composition: One broad cyan frost ring encircling a small silver hourglass, two large clear ice facets. Longer protective aura.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t3_4",
+      "id": "node.mage.frost.t3_4",
+      "name": "Aura Mrozu",
+      "ranks": 1,
+      "tier": 3,
+      "column": 4,
+      "requirements": [],
+      "descriptions": [
+        "Zapewnia sobie lub sojusznikowi +20 uniku na 3 tury. Aura ma 40% bazowej szansy zmrożenia przyległych wrogów na turę."
+      ],
+      "rules": "Aura podąża za odbiorcą. Pulsuje przy nałożeniu i na początku kolejnych jego tur, obejmując przyległych wrogów. Zmrożenie podlega odporności na kontrolę. Ponowne nałożenie zastępuje tę aurę i odświeża czas, bez sumowania uniku.",
+      "active": {
+        "mana": 40,
+        "ap_percent": 40,
+        "range": 6
+      },
+      "source": "Drzewka!A111:G111",
+      "source_description": "Zwiększa unik o 20 na 3 tury; 40% szansy na zmrożenie przyległych przeciwników na 1 turę",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist fantasy RPG skill icon source, square full-canvas composition. Scene/backdrop: opaque deep midnight navy canvas with two broad muted cold blue planes behind the symbol. Subject: One outstretched silver gauntlet inside a broad circular blue-white frost aura, two angular ice facets at the edge. Protective ice spell, not a physical shield. Style/medium: classic pixel RPG skill icon, native 32px intent, hard pixel edges, large flat clusters, thick dark outline, calm interior shading, minimal texture. Composition/framing: centered large simple cold spell symbol, filling most of square but fully contained. Color palette: silver-white ice facets, cyan-blue cold effects, near-black outlines, dark midnight navy background. Materials/textures: solid grouped pixel shapes, very little texture. Constraints: opaque background; one spell icon only, no bow, wooden arrow shaft, steel arrowhead, sport ice skates, fire, characters except a single supporting hand or boot when specified, text, border, UI, extra weapons, sparks, embers, runes or micro-details. Avoid: photorealism, gradients, chaotic effects, clutter.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t3_5",
+      "id": "node.mage.frost.t3_5",
+      "name": "Lodowiec",
+      "ranks": 1,
+      "tier": 3,
+      "column": 5,
+      "requirements": [
+        "t2_5"
+      ],
+      "descriptions": [
+        "Podtrzymywanie Lodu ma 30% szansy powodzenia i obejmuje także ataki sojuszników w zasięgu 3."
+      ],
+      "rules": "Podnosi szansę zachowania zamrożenia do 30% i udostępnia ją atakom sojuszników w zasięgu 3 od żywego maga. Kilka takich aur nie sumuje szansy. Pozostałe zasady Podtrzymywania Lodu pozostają bez zmian.",
+      "active": null,
+      "source": "Drzewka!A112:G112",
+      "source_description": "Zwiększa szansę na efekt Podtrzymywania Lodu do 30%. Efekt działa również dla sojuszników w zasięgu 3 od maga",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Lodowiec. Actual effect: Zwiększa szansę na efekt Podtrzymywania Lodu do 30%. Efekt działa również dla sojuszników w zasięgu 3 od maga Subject/composition: Two large allied silver gauntlets protected together by one continuous broad ice shell, one cyan retaining arc. Sharing preservation of frozen enemies; no literal landscape.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t4_1",
+      "id": "node.mage.frost.t4_1",
+      "name": "Wytrzymała Tarcza",
+      "ranks": 2,
+      "tier": 4,
+      "column": 2,
+      "requirements": [
+        "t3_2"
+      ],
+      "descriptions": [
+        "Soplowa Tarcza Awaryjna zwiększa obie obrony o 40%.",
+        "Soplowa Tarcza Awaryjna zwiększa obie obrony o 50%."
+      ],
+      "rules": "Zwiększa premię obu obron wyłącznie podczas istnienia warstwy Soplowej Tarczy Awaryjnej. Kara po jej rozbiciu pozostaje równa −30%.",
+      "active": null,
+      "source": "Drzewka!A113:G113",
+      "source_description": "Zwiększa obronę otrzymaną z Tarczy z Lodu do 40%/50%",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Wytrzymała Tarcza. Actual effect: Zwiększa obronę otrzymaną z Tarczy z Lodu do 40%/50% Subject/composition: One heavy thick-faceted blue-white crystal shield, a broad dark silver core and two strong pale highlights. Increased defenses.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t4_2",
+      "id": "node.mage.frost.t4_2",
+      "name": "Ochronny Lód",
+      "ranks": 3,
+      "tier": 4,
+      "column": 1,
+      "requirements": [
+        "t3_1"
+      ],
+      "descriptions": [
+        "Skraca odnowienie Soplowej Tarczy Awaryjnej do 9 tur.",
+        "Skraca odnowienie Soplowej Tarczy Awaryjnej do 8 tur.",
+        "Skraca odnowienie Soplowej Tarczy Awaryjnej do 7 tur."
+      ],
+      "rules": "Odnowienie liczy własne tury i rozpoczyna się po udanym utworzeniu tarczy. Nie zmienia jej progu ani wartości.",
+      "active": null,
+      "source": "Drzewka!A114:G114",
+      "source_description": "Zmniejsza czas odnowienia Soplowej Tarczy Awaryjnej do 9/8/7 tur",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Ochronny Lód. Actual effect: Zmniejsza czas odnowienia Soplowej Tarczy Awaryjnej do 9/8/7 tur Subject/composition: One large silver hourglass inside a thick cyan ice ring with one short curved return arrow. Faster emergency shield recovery.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t4_3",
+      "id": "node.mage.frost.t4_3",
+      "name": "Roztrzaskanie",
+      "ranks": 2,
+      "tier": 4,
+      "column": 3,
+      "requirements": [],
+      "descriptions": [
+        "Trafienie zamrożonego celu ma 3% szansy natychmiastowego zabicia. Na bossie działa poniżej 20% jego zdrowia.",
+        "Trafienie zamrożonego celu ma 6% szansy natychmiastowego zabicia. Na bossie działa poniżej 20% jego zdrowia."
+      ],
+      "rules": "Jedna próba na cel i użycie ataku, bez obrażeń okresowych i reakcji. Zamrożenie i próg zdrowia bossa sprawdza przed trafieniem. Boss przy dokładnie 20% zdrowia nie kwalifikuje się. Istniejące fazy i ochrona przed śmiercią pozostają aktywne.",
+      "active": null,
+      "source": "Drzewka!A115:G115",
+      "source_description": "Ataki na zamrożonych celach mają 3%/6% na natychmiastowe zabicie. Działa dla bossów tylko poniżej 20% HP",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Roztrzaskanie. Actual effect: Ataki na zamrożonych celach mają 3%/6% na natychmiastowe zabicie. Działa dla bossów tylko poniżej 20% HP Subject/composition: One dark steel enemy helmet enclosed in an ice shell splitting into three large jagged blue shards. Execute frozen foe, no human gore.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t4_4",
+      "id": "node.mage.frost.t4_4",
+      "name": "Aura Lodu",
+      "ranks": 3,
+      "tier": 4,
+      "column": 4,
+      "requirements": [
+        "t3_4"
+      ],
+      "descriptions": [
+        "Aura Mrozu ma 20% bazowej szansy zamrożenia już zmrożonego wroga na turę.",
+        "Aura Mrozu ma 40% bazowej szansy zamrożenia już zmrożonego wroga na turę.",
+        "Aura Mrozu ma 60% bazowej szansy zamrożenia już zmrożonego wroga na turę."
+      ],
+      "rules": "Każdy puls Aury Mrozu sprawdza zmrożenie obecne przed pulsem. Taki wróg otrzymuje próbę zamrożenia zamiast zwykłej próby zmrożenia. Jeden puls nie nakłada obu statusów na ten sam cel. Obowiązuje odporność na kontrolę.",
+      "active": null,
+      "source": "Drzewka!A116:G116",
+      "source_description": "Aura Mrozu ma 20%/40%/60% szansy na zamrożenie przyległych przeciwników, którzy już są zmrożeni na 1 turę",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Aura Lodu. Actual effect: Aura Mrozu ma 20%/40%/60% szansy na zamrożenie przyległych przeciwników, którzy już są zmrożeni na 1 turę Subject/composition: One enemy boot first surrounded by a low cold ring then locked in a thick crystalline shell; one strong enclosing cyan arc. Chill becoming hard freeze.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t4_5",
+      "id": "node.mage.frost.t4_5",
+      "name": "Prawdziwy Lód",
+      "ranks": 2,
+      "tier": 4,
+      "column": 5,
+      "requirements": [
+        "t4_4"
+      ],
+      "descriptions": [
+        "Zamrożenie Aury Lodu trwa 2 tury.",
+        "Zamrożenie Aury Lodu trwa 3 tury."
+      ],
+      "rules": "Zmienia wyłącznie czas zamrożenia pochodzącego z Aury Lodu, bez wpływu na Sopel Lodu i Odmrożenie.",
+      "active": null,
+      "source": "Drzewka!A117:G117",
+      "source_description": "Zwiększa czas trwania zamrożenia Aury Lodu do 2/3 tur",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Prawdziwy Lód. Actual effect: Zwiększa czas trwania zamrożenia Aury Lodu do 2/3 tur Subject/composition: One very thick blue-white ice crystal with a compact darker blue center and two broad bright facets, a short retaining arc. Longer frozen status.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t5_1",
+      "id": "node.mage.frost.t5_1",
+      "name": "Niebiański Bunt",
+      "ranks": 2,
+      "tier": 5,
+      "column": 1,
+      "requirements": [],
+      "descriptions": [
+        "Śmierć wroga tworzy na 4 tury śnieżycę 3×3. Wróg kończący w niej turę otrzymuje 20% średniego ataku + 3% swojego brakującego zdrowia jako obrażenia magiczne.",
+        "Śmierć wroga tworzy na 4 tury śnieżycę 3×3. Wróg kończący w niej turę otrzymuje 30% średniego ataku + 6% swojego brakującego zdrowia jako obrażenia magiczne."
+      ],
+      "rules": "Tworzy śnieżycę po każdej śmierci wroga, niezależnie od zabójcy. Średni atak maga jest zapamiętywany przy utworzeniu pola; brakujące zdrowie wroga jest liczone przy jego ticku. Pole trwa 4 tury maga. Kilka śnieżyc tego samego maga nie mnoży obrażeń w jednym zakończeniu tury. Tick nie uruchamia efektów bezpośredniego ataku.",
+      "active": null,
+      "source": "Drzewka!A118:G118",
+      "source_description": "Po śmierci przeciwnika, na jego miejscu pojawia na 4 tury się śnieżyca (kwadrat 3), która zadaje obrażenia o wartości 20%/30% ataku + 3%/6% brakującego zdrowia za każdą turę zakończoną w tym polu.",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Niebiański Bunt. Actual effect: Po śmierci przeciwnika, na jego miejscu pojawia na 4 tury się śnieżyca (kwadrat 3), która zadaje obrażenia o wartości 20%/30% ataku + 3%/6% brakującego zdrowia za każdą turę zakończoną w tym polu. Subject/composition: One broad silver-blue snowstorm spiral rising from a small fallen dark enemy helmet. Cold battlefield storm after enemy death, NO angels, gold holy light or lightning.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t5_2",
+      "id": "node.mage.frost.t5_2",
+      "name": "Wieczna Śnieżyca",
+      "ranks": 1,
+      "tier": 5,
+      "column": 2,
+      "requirements": [
+        "t5_1"
+      ],
+      "descriptions": [
+        "Ruch w śnieżycy Niebiańskiego Buntu kosztuje o 1 PA więcej, a wrogowie wewnątrz mają −10 szybkości."
+      ],
+      "rules": "Dodatkowy koszt ruchu i spowolnienie dotyczą tylko wrogów wewnątrz śnieżycy Niebiańskiego Buntu. Ruch przez jej granicę także uwzględnia dodatkowy koszt; darmowy krok zachowuje swoje zwykłe zasady.",
+      "active": null,
+      "source": "Drzewka!A119:G119",
+      "source_description": "Poruszanie się przez śnieżyce Niebiańskiego buntu jest o 1 droższe, przeciwnicy wewnątrz są spowolnieni o 10",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Wieczna Śnieżyca. Actual effect: Poruszanie się przez śnieżyce Niebiańskiego buntu jest o 1 droższe, przeciwnicy wewnątrz są spowolnieni o 10 Subject/composition: One broad cyan snow spiral with a dark enemy boot caught inside the lower curl. Persistent storm makes movement slower.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t5_3",
+      "id": "node.mage.frost.t5_3",
+      "name": "Brutalne Roztrzaskanie",
+      "ranks": 2,
+      "tier": 5,
+      "column": 3,
+      "requirements": [
+        "t4_3"
+      ],
+      "descriptions": [
+        "Zwiększa szansę Roztrzaskania o 2 pp za każdą pozostałą turę zamrożenia.",
+        "Zwiększa szansę Roztrzaskania o 4 pp za każdą pozostałą turę zamrożenia."
+      ],
+      "rules": "Premia jest dodawana do bazowej szansy Roztrzaskania za każdą pozostałą turę zamrożenia sprzed trafienia, również za pierwszą. Nie omija warunku zdrowia bossa.",
+      "active": null,
+      "source": "Drzewka!A120:G120",
+      "source_description": "Zwiększa szansę na Roztrzaskanie o 2%/4% za każdą turę czasu trwania zamrożenia (licząc 1)",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Brutalne Roztrzaskanie. Actual effect: Zwiększa szansę na Roztrzaskanie o 2%/4% za każdą turę czasu trwania zamrożenia (licząc 1) Subject/composition: One silver gauntlet striking a thick blue crystal shell into three large angular shards; one bright cyan impact wedge. Stronger shattering execution.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t5_4",
+      "id": "node.mage.frost.t5_4",
+      "name": "Lodowisko",
+      "ranks": 1,
+      "tier": 5,
+      "column": 4,
+      "requirements": [],
+      "descriptions": [
+        "Tworzy na 6 tur pole lodu 3×3. Wrogowie w nim mają −30 celności umiejętności i −15 szybkości."
+      ],
+      "rules": "Wybierz środek pola w zasięgu 8, także na pustym polu. Obszar 3×3 trwa 6 tur maga; kary działają na wrogów tylko podczas przebywania wewnątrz. Kilka Lodowisk nie sumuje tych samych kar. Mroźna Adaptacja zmienia zasięg rzucenia, nie rozmiar obszaru.",
+      "active": {
+        "mana": 70,
+        "ap_percent": 70,
+        "range": 8
+      },
+      "source": "Drzewka!A121:G121",
+      "source_description": "Zmniejsza celność przeciwników w obszarze działania o 30 i szybkość o 15",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist fantasy RPG skill icon source, square full-canvas composition. Scene/backdrop: opaque deep midnight navy canvas with two broad muted cold blue planes behind the symbol. Subject: One flat broad square patch of luminous blue cracked ice seen obliquely, a dark enemy boot slipping at its edge. Battlefield ice spell, no ice skate sport, text or snowman. Style/medium: classic pixel RPG skill icon, native 32px intent, hard pixel edges, large flat clusters, thick dark outline, calm interior shading, minimal texture. Composition/framing: centered large simple cold spell symbol, filling most of square but fully contained. Color palette: silver-white ice facets, cyan-blue cold effects, near-black outlines, dark midnight navy background. Materials/textures: solid grouped pixel shapes, very little texture. Constraints: opaque background; one spell icon only, no bow, wooden arrow shaft, steel arrowhead, sport ice skates, fire, characters except a single supporting hand or boot when specified, text, border, UI, extra weapons, sparks, embers, runes or micro-details. Avoid: photorealism, gradients, chaotic effects, clutter.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    },
+    {
+      "slot": "t5_5",
+      "id": "node.mage.frost.t5_5",
+      "name": "Mroźna Adaptacja",
+      "ranks": 2,
+      "tier": 5,
+      "column": 5,
+      "requirements": [
+        "t5_4"
+      ],
+      "descriptions": [
+        "Zwiększa zasięg rzucania Lodowiska do 9 pól.",
+        "Zwiększa zasięg rzucania Lodowiska do 11 pól."
+      ],
+      "rules": "Zwiększa wyłącznie odległość wyboru środka Lodowiska do 9/11 pól. Obszar pozostaje 3×3, a czas 6 tur maga.",
+      "active": null,
+      "source": "Drzewka!A122:G122",
+      "source_description": "Zwiększa zasięg działania Lodowiska o 1/3",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Mroźna Adaptacja. Actual effect: Zwiększa zasięg działania Lodowiska o 1/3 Subject/composition: One broad blue-white ice field glyph with a single outward cyan reach arc and a silver caster gauntlet at its near edge. Increased CASTING REACH; do not enlarge the field itself.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\FrostIcons20261102\\references\\cut-b-v2-source-raw.png"
+    }
+  ],
+  "layout_note": "Sopel Lodu i Ciężka Kontuzja w kolumnie 3; Ostry Sopel i Parzący Mróz w kolumnie 4. Stabilne ID i wymagania bez zmian; czytelne połączenia bez przechodzenia przez obcy węzeł. Wytrzymała Tarcza w kolumnie 2, Ochronny Lód w kolumnie 1: pionowe wymagania z Wrażliwości na Bodźce i Soplowej Tarczy, bez skrzyżowania."
+}

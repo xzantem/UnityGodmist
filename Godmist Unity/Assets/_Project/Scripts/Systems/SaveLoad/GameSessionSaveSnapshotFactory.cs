@@ -702,7 +702,7 @@ namespace Godmist.Systems.SaveLoad
 
             foreach (var layer in shieldPool.Layers)
             {
-                if (layer == null)
+                if (layer == null || layer.SourceId == Godmist.Systems.Combat.MageCombatSystem.EmergencyShield)
                 {
                     continue;
                 }

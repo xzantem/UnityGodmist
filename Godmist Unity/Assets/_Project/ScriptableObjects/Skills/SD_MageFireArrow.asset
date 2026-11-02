@@ -131,6 +131,7 @@ MonoBehaviour:
     auraIncludesCaster: 0
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
+    shieldMaxHealthPercent: 0
     conditions: []
     summonUsesCasterStats: 0
     summonStationary: 0
@@ -216,6 +217,7 @@ MonoBehaviour:
     auraIncludesCaster: 0
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
+    shieldMaxHealthPercent: 0
     conditions:
     - conditionType: 1
       referencedEffectIndex: 0
@@ -307,6 +309,7 @@ MonoBehaviour:
     auraIncludesCaster: 0
     auraTargetingType: 0
     shieldAverageAttackMultiplier: 0
+    shieldMaxHealthPercent: 0
     conditions:
     - conditionType: 1
       referencedEffectIndex: 0

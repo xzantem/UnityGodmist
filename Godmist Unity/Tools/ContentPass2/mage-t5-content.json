@@ -1,0 +1,253 @@
+{
+  "card": "CP2-10",
+  "workbook_sha256": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7",
+  "scope": "T5 only; preserve all40 older nodes",
+  "status": "READY_FOR_SMOKE",
+  "decisions": {
+    "critical_power": "one rank, global +0.5 critical damage multiplier",
+    "absorption": "50% on direct dodge;10/35/60% deterministic hypothetical damage after defenses and reductions before shield, no extra crit roll;bank adds once to next own attack cast, lost on full miss;noDoT/reactions;combat-only",
+    "minimum_roll": "4 turns after FireArrow hit;minimum wins over maximum;crit and bonuses preserved",
+    "burn_extension": "30/60% once per hit target per direct attack use;extend any burn by one full current-strength tick;noDoT/passive reactions",
+    "lava": "15/30/50% direct and burn for FirePillar",
+    "fire_arrow_visual": "Spell projectile made of magical fire, not a bow arrow; user clarified 2026-11-02."
+  },
+  "entries": [
+    {
+      "slot": "w1",
+      "id": "node.mage.warlock.t5_1",
+      "tree": "warlock",
+      "column": 1,
+      "name": "Nadludzkie Bodźce",
+      "ranks": 2,
+      "requirements": [
+        "adaptation"
+      ],
+      "source": "Drzewka!A85:G85",
+      "workbook_name": "Nadludzkie Bodźce [2]",
+      "workbook_description": "Adaptacja Energetyczna aktywuje się od obrażeń wynoszących 15%/10% maksymalnego zdrowia",
+      "active": null,
+      "subject": "a silver eye surrounded by three violet alert sparks",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Warlock tree uniform background base: opaque dark MUTED INDIGO #1b2038, slightly lighter #2c3352 planes, dark and muted, never tint all foreground objects indigo. Foreground effect colors represent mechanics: cyan-blue mana, violet offensive magic, red risk/life sacrifice, green health restoration, silver/gold accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Nadludzkie Bodźce. Actual effect: Energetic Adaptation triggers after a smaller health loss:15/10percent maxHP. Subject/composition: a silver eye surrounded by three violet alert sparks. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/warlock-passives.md",
+      "descriptions": [
+        "Obniża próg aktywacji Adaptacji Energetycznej do 15% maksymalnego zdrowia.",
+        "Obniża próg aktywacji Adaptacji Energetycznej do 10% maksymalnego zdrowia."
+      ],
+      "rules": "Próg odnosi się do rzeczywistej utraty zdrowia od jednego rozliczenia obrażeń. Tarcza nie liczy się do utraty HP. Pozostałe zasady Adaptacji Energetycznej pozostają takie same."
+    },
+    {
+      "slot": "w2",
+      "id": "node.mage.warlock.t5_2",
+      "tree": "warlock",
+      "column": 2,
+      "name": "Siła Wyładowania",
+      "ranks": 1,
+      "requirements": [
+        "energy_discharge"
+      ],
+      "source": "Drzewka!A86:G86",
+      "workbook_name": "Siła Wyładowania [1]",
+      "workbook_description": "Zwiększa obrażenia krytyczne o 0.25x/0.5x",
+      "active": null,
+      "subject": "a cracked violet crystal releasing one bright white star",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Warlock tree uniform background base: opaque dark MUTED INDIGO #1b2038, slightly lighter #2c3352 planes, dark and muted, never tint all foreground objects indigo. Foreground effect colors represent mechanics: cyan-blue mana, violet offensive magic, red risk/life sacrifice, green health restoration, silver/gold accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Siła Wyładowania. Actual effect: Global critical damage multiplier plus0.5. Subject/composition: a cracked violet crystal releasing one bright white star. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/warlock-passives.md",
+      "descriptions": [
+        "Zwiększa mnożnik obrażeń krytycznych o 0,5."
+      ],
+      "rules": "Jedna ranga daje +0,5 do mnożnika obrażeń krytycznych wszystkich ataków postaci. Nie dodaje szansy krytycznej i nie wymaga nadmiaru many."
+    },
+    {
+      "slot": "w3",
+      "id": "node.mage.warlock.t5_3",
+      "tree": "warlock",
+      "column": 3,
+      "name": "Absorpcja Mocy",
+      "ranks": 3,
+      "requirements": [],
+      "source": "Drzewka!A87:G87",
+      "workbook_name": "Absorbcja mocy [3]",
+      "workbook_description": "Przy udanym uniku ataku przeciwnika, daje 50% szansy na pochłonięcie 10%/35%/60% obrażeń, które zadałby cios i wzmocnienie następnego ataku o tą ilość",
+      "active": null,
+      "subject": "a violet open palm catching one incoming blue bolt into a crystal",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Warlock tree uniform background base: opaque dark MUTED INDIGO #1b2038, slightly lighter #2c3352 planes, dark and muted, never tint all foreground objects indigo. Foreground effect colors represent mechanics: cyan-blue mana, violet offensive magic, red risk/life sacrifice, green health restoration, silver/gold accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Absorpcja Mocy. Actual effect: After a successful dodge absorb part of the hypothetical hit and store power for next attack. Subject/composition: a violet open palm catching one incoming blue bolt into a crystal. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/warlock-passives.md",
+      "descriptions": [
+        "Po uniku ma 50% szansy zgromadzenia 10% hipotetycznych obrażeń na następny atak.",
+        "Po uniku ma 50% szansy zgromadzenia 35% hipotetycznych obrażeń na następny atak.",
+        "Po uniku ma 50% szansy zgromadzenia 60% hipotetycznych obrażeń na następny atak."
+      ],
+      "rules": "50% szansy po rzeczywistym uniku bezpośredniego ataku wroga. Bank otrzymuje 10/35/60% hipotetycznych obrażeń po obronie i aktywnych redukcjach, przed tarczą, bez dodatkowego losowania krytyka. Sumuje się bez osobnego limitu. Następne własne użycie ataku zużywa bank i dodaje go raz do pierwszego trafienia, tego samego typu co atak. Całkowite pudło także zużywa bank. Bez DoT, duplikatów i reakcji; bank znika po walce."
+    },
+    {
+      "slot": "w4",
+      "id": "node.mage.warlock.t5_4",
+      "tree": "warlock",
+      "column": 4,
+      "name": "Teleportacja",
+      "ranks": 1,
+      "requirements": [],
+      "source": "Drzewka!A88:G88",
+      "workbook_name": "Teleportacja [75 PM, 65% PA]",
+      "workbook_description": "Teleportuje sojusznika w wybrane miejsce;",
+      "active": {
+        "mana": 75,
+        "ap_percent": 65
+      },
+      "subject": "a pair of small violet stone portals joined by a cyan arch",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist fantasy RPG skill icon source, square full-canvas composition. Scene/backdrop: opaque deep midnight navy canvas with a few broad, calm blue-violet magic rays behind the symbol. Subject: two large simple upright stone portal arches, clearly separated, a short broad cyan-blue magical path between them; thick very dark charcoal pixel-art contour, violet rim; sparse curved energy arcs remain behind the portals. Style/medium: classic pixel RPG skill icon, native 32px intent, hard pixel edges, large flat clusters, thick dark outline, calm interior shading, minimal texture. Composition/framing: the paired portals occupy most of the square, centered, no cropping, full canvas. Color palette: magic blue and violet, cyan highlight, near-black contour, deep navy background. Materials/textures: solid grouped pixel shapes, very little texture. Constraints: opaque background; two portal arches only; no characters, hands, weapons, text, border, UI, runes, numbers, stars, noise, or micro-sparks; all rays and arcs stay behind the arches and never obscure their silhouettes. Avoid: photorealism, gradients, tiny details, clutter.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/mage-skills.md",
+      "descriptions": [
+        "Teleportuje sojusznika lub rzucającego na wybrane wolne pole."
+      ],
+      "rules": "Jeden żywy sojusznik lub rzucający w zasięgu 7. Wybierz dla niego wolne pole do 6 pól od jego pozycji. Obowiązują zwykła geometria, zajętość, linia wzroku i blokada teleportacji. Teleportacja nie jest płatnym krokiem i nie generuje zasobu za ruch."
+    },
+    {
+      "slot": "w5",
+      "id": "node.mage.warlock.t5_5",
+      "tree": "warlock",
+      "column": 5,
+      "name": "Magiczna Gotowość",
+      "ranks": 2,
+      "requirements": [
+        "t5_4"
+      ],
+      "source": "Drzewka!A89:G89",
+      "workbook_name": "Magiczna Gotowość [2]",
+      "workbook_description": "Teleportacja rzucającego albo sojusznika przyspiesza jego następną turę o 25%/50%",
+      "active": null,
+      "subject": "a silver hourglass with a violet accelerating arc",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Warlock tree uniform background base: opaque dark MUTED INDIGO #1b2038, slightly lighter #2c3352 planes, dark and muted, never tint all foreground objects indigo. Foreground effect colors represent mechanics: cyan-blue mana, violet offensive magic, red risk/life sacrifice, green health restoration, silver/gold accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Magiczna Gotowość. Actual effect: Teleportation advances the next turn of the moved ally or caster. Subject/composition: a silver hourglass with a violet accelerating arc. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/warlock-passives.md",
+      "descriptions": [
+        "Teleportacja przyspiesza następną turę przemieszczonej postaci o 25%.",
+        "Teleportacja przyspiesza następną turę przemieszczonej postaci o 50%."
+      ],
+      "rules": "Premia działa wyłącznie po udanej Teleportacji tego rzucającego, na następną turę przemieszczonej postaci. Nie daje dodatkowych PA w obecnej turze. Nieudany lub odrzucony teleport nie przyspiesza kolejki."
+    },
+    {
+      "slot": "f1",
+      "id": "node.mage.fire.t5_1",
+      "tree": "fire",
+      "column": 1,
+      "name": "Strzała Bólu",
+      "ranks": 2,
+      "requirements": [
+        "fire_arrow"
+      ],
+      "source": "Drzewka!A91:G91",
+      "workbook_name": "Strzała Bólu [2]",
+      "workbook_description": "Zwiększa efekt zmniejszenia obrażeń Ognistej Strzały do 25%/40%",
+      "active": null,
+      "subject": "ONE broad diagonal lance-shaped projectile made ENTIRELY OF MAGICAL ORANGE FIRE, with a pointed pale-hot luminous core and a broad flame body tapering behind it; clearly a cast spell, not a physical arrow; no steel arrowhead, wooden shaft, feathers or bow",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image STYLE-ONLY: broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy reference fist, burgundy palette or repeated scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Fire Mage tree uniform background base opaque dark MUTED RUST BROWN #30211d, slightly lighter #493029 planes. Keep backdrop dark and quiet, never tint all foreground objects orange. Foreground effects warm orange-gold fire with pale hot cores; solid objects leather brown, silver steel, ivory; cyan speed, green healing, violet magical defense, red vulnerability accents according to mechanics. Clear dark space between overlapping shapes. Effects reinforce subject but never obscure it. No repeated background scratch/ray motif, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles,microtexture. Bold recognizable geometry, broad physical facets matching reference style. Passive: Strzała Bólu. Actual effect: Fire Arrow weakens enemy damage more strongly. Subject/composition: ONE broad diagonal lance-shaped projectile made ENTIRELY OF MAGICAL ORANGE FIRE, with a pointed pale-hot luminous core and a broad flame body tapering behind it; clearly a cast spell, not a physical arrow; no steel arrowhead, wooden shaft, feathers or bow. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/fire-passives.md",
+      "descriptions": [
+        "Ognista Strzała zmniejsza zadawane obrażenia celu o 25% na 4 tury.",
+        "Ognista Strzała zmniejsza zadawane obrażenia celu o 40% na 4 tury."
+      ],
+      "rules": "Zastępuje bazowe −15% obrażeń Ognistej Strzały wartością −25/40%, na te same 4 tury. Wymaga trafienia. To nadal zaklęcie z obrażeniami magicznymi."
+    },
+    {
+      "slot": "f2",
+      "id": "node.mage.fire.t5_2",
+      "tree": "fire",
+      "column": 2,
+      "name": "Unieszkodliwienie",
+      "ranks": 1,
+      "requirements": [
+        "t5_1"
+      ],
+      "source": "Drzewka!A92:G92",
+      "workbook_name": "Unieszkodliwienie [1]",
+      "workbook_description": "Wróg objęty Ognistą Strzałą zawsze zadaje najmniejsze możliwe obrażenia przez 4 tury",
+      "active": null,
+      "subject": "a scorched steel gauntlet clenched around a fading flame",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image STYLE-ONLY: broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy reference fist, burgundy palette or repeated scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Fire Mage tree uniform background base opaque dark MUTED RUST BROWN #30211d, slightly lighter #493029 planes. Keep backdrop dark and quiet, never tint all foreground objects orange. Foreground effects warm orange-gold fire with pale hot cores; solid objects leather brown, silver steel, ivory; cyan speed, green healing, violet magical defense, red vulnerability accents according to mechanics. Clear dark space between overlapping shapes. Effects reinforce subject but never obscure it. No repeated background scratch/ray motif, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles,microtexture. Bold recognizable geometry, broad physical facets matching reference style. Passive: Unieszkodliwienie. Actual effect: Fire Arrow forces the minimum base damage roll for four turns. Subject/composition: a scorched steel gauntlet clenched around a fading flame. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/fire-passives.md",
+      "descriptions": [
+        "Trafiona Ognistą Strzałą postać przez 4 tury korzysta z minimalnej wartości ataku."
+      ],
+      "rules": "Wymaga trafienia Ognistą Strzałą. Przez 4 tury wymusza minimalną bazową wartość bezpośrednich ataków; ma pierwszeństwo przed wymuszaniem maksimum. Krytyki, mnożniki i obrony nadal działają. Nie zmienia obrażeń okresowych ani mocy alchemicznej."
+    },
+    {
+      "slot": "f3",
+      "id": "node.mage.fire.t5_3",
+      "tree": "fire",
+      "column": 3,
+      "name": "Podtrzymywanie Ognia",
+      "ranks": 2,
+      "requirements": [],
+      "source": "Drzewka!A93:G93",
+      "workbook_name": "Podtrzymywanie Ognia [2]",
+      "workbook_description": "Atakowanie podpalonych przeciwników ma 30%/60% na przedłużenie podpalenia o 1 turę",
+      "active": null,
+      "subject": "one burning coal held beneath a broad orange flame",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image STYLE-ONLY: broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy reference fist, burgundy palette or repeated scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Fire Mage tree uniform background base opaque dark MUTED RUST BROWN #30211d, slightly lighter #493029 planes. Keep backdrop dark and quiet, never tint all foreground objects orange. Foreground effects warm orange-gold fire with pale hot cores; solid objects leather brown, silver steel, ivory; cyan speed, green healing, violet magical defense, red vulnerability accents according to mechanics. Clear dark space between overlapping shapes. Effects reinforce subject but never obscure it. No repeated background scratch/ray motif, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles,microtexture. Bold recognizable geometry, broad physical facets matching reference style. Passive: Podtrzymywanie Ognia. Actual effect: Attacks can extend existing burn by one full tick. Subject/composition: one burning coal held beneath a broad orange flame. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/fire-passives.md",
+      "descriptions": [
+        "Trafienie podpalonego przeciwnika ma 30% szansy przedłużenia podpalenia o 1 turę.",
+        "Trafienie podpalonego przeciwnika ma 60% szansy przedłużenia podpalenia o 1 turę."
+      ],
+      "rules": "Jeden rzut 30/60% na każdego trafionego przeciwnika z użycia bezpośredniego ataku. Dotyczy podpalenia obecnego w chwili kontaktu, także nałożonego przez inną postać. Udany efekt dodaje jedną turę i pełny tick o aktualnej sile, bez ponownego skalowania. DoT, reakcje i duplikaty nie wyzwalają efektu."
+    },
+    {
+      "slot": "f4",
+      "id": "node.mage.fire.t5_4",
+      "tree": "fire",
+      "column": 4,
+      "name": "Słup Lawy",
+      "ranks": 3,
+      "requirements": [
+        "t5_5"
+      ],
+      "source": "Drzewka!A94:G94",
+      "workbook_name": "Słup Lawy [3]",
+      "workbook_description": "Zwiększa obrażenia Słupa Ognia o 15%/30%/50%",
+      "active": null,
+      "subject": "a dark cracked basalt spire with bright orange lava core",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image STYLE-ONLY: broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy reference fist, burgundy palette or repeated scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Fire Mage tree uniform background base opaque dark MUTED RUST BROWN #30211d, slightly lighter #493029 planes. Keep backdrop dark and quiet, never tint all foreground objects orange. Foreground effects warm orange-gold fire with pale hot cores; solid objects leather brown, silver steel, ivory; cyan speed, green healing, violet magical defense, red vulnerability accents according to mechanics. Clear dark space between overlapping shapes. Effects reinforce subject but never obscure it. No repeated background scratch/ray motif, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles,microtexture. Bold recognizable geometry, broad physical facets matching reference style. Passive: Słup Lawy. Actual effect: Fire Pillar direct damage and burn increased. Subject/composition: a dark cracked basalt spire with bright orange lava core. One or two large clearly separated shapes, with the tree backdrop unchanged.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/fire-passives.md",
+      "descriptions": [
+        "Zwiększa bezpośrednie obrażenia Słupa Ognia i jego podpalenie o 15%.",
+        "Zwiększa bezpośrednie obrażenia Słupa Ognia i jego podpalenie o 30%.",
+        "Zwiększa bezpośrednie obrażenia Słupa Ognia i jego podpalenie o 50%."
+      ],
+      "rules": "Premia +15/30/50% obejmuje zarówno bezpośrednie obrażenia Słupa Ognia, jak i jego własne podpalenie. Nie zwiększa innych podpaleń ani obrażeń innych skilli."
+    },
+    {
+      "slot": "f5",
+      "id": "node.mage.fire.t5_5",
+      "tree": "fire",
+      "column": 5,
+      "name": "Słup Ognia",
+      "ranks": 1,
+      "requirements": [],
+      "source": "Drzewka!A95:G95",
+      "workbook_name": "Słup Ognia [80 PM, 80% PA]",
+      "workbook_description": "Zadaje losowe obrażenia magiczne; [85%] podpalenie 90% na 4 tury;",
+      "active": {
+        "mana": 80,
+        "ap_percent": 80
+      },
+      "subject": "a single broad pillar of orange fire erupting from cracked basalt",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist fantasy RPG skill icon source, square full-canvas composition. Scene/backdrop: opaque deep burgundy canvas with a few broad orange-red flame streaks behind the foreground. Subject: one large simple vertical pillar of orange-gold fire erupting upward from a broad cracked basalt base; a pale hot center, thick dark charcoal pixel contour, clear physical silhouette. Style/medium: classic pixel RPG skill icon, native 32px intent, hard pixel edges, large flat clusters, thick dark contour, calm interior fills, sparse effects. Composition/framing: a single centered vertical fire pillar fills most of the square, fully contained, clear silhouette at tiny size. Color palette: orange, scarlet red, golden yellow core, near-black contour, dark burgundy background. Materials/textures: clean grouped pixel shapes, minimal texture. Constraints: opaque background; one fire pillar only; flame tail and streaks stay behind the round ball and never cross its silhouette; no arrow, no aura ring, no characters, hands, weapons, text, border, UI, runes, stars, sparks, smoke, or micro-details. Avoid: arrowhead, circular halo, photorealism, smooth gradients, chaotic flames, clutter.",
+      "reference": "C:\\Users\\Patryczku\\Documents\\Godmist\\Godmist Unity\\Tools\\Art\\MageT5Icons20261102\\references\\cut-b-v2-source-raw.png",
+      "prompt_base_source": "convention-sources/mage-skills.md",
+      "descriptions": [
+        "Zadaje losowe obrażenia magiczne w kwadracie 3×3. Ma 85% bazowej szansy podpalenia na 4 tury, po 90% średniego ataku na turę."
+      ],
+      "rules": "Wybierz środek w zasięgu 8; atak obejmuje wrogów w kwadracie 3×3 na tym samym poziomie. Trafienie zadaje 100% losowego ataku jako obrażenia magiczne. Każdy trafiony cel ma osobną próbę podpalenia: 85% bazowej szansy, 90% średniego ataku na tick przez 4 tury. Standardowe premie ognia, odporności i krytyki nadal działają."
+    }
+  ],
+  "art_method": "Original archived Mage prompts and B-v2 raw style reference; exact common passive prefix retained; Aseprite fullcanvas nearest32; first attempt rejected in LocalHandoffs."
+}

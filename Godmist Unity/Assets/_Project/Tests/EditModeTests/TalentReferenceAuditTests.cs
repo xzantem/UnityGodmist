@@ -35,7 +35,7 @@ namespace Godmist.Tests.EditMode
 
         [TestCase("Warrior","Wladimir_Test",3,75)]
         [TestCase("Scout","Jerzy",3,75)]
-        [TestCase("Mage","Mage",2,40)]
+        [TestCase("Mage","Mage",3,75)]
         [TestCase("Paladin","Paladin",2,40)]
         public void EveryClassTreeNameResolvesItsRealNodeAndIconAtUnlearnedAndMaximumRank(string cls,string definition,int trees,int count)
         {

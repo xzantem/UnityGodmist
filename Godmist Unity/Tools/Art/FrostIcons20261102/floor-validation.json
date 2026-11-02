@@ -1,0 +1,10 @@
+{
+  "native32": "PASS",
+  "nearest_full_canvas_rgba": "PASS",
+  "transparent_alpha_range": [
+    0,
+    254
+  ],
+  "aseprite_roundtrip": "PASS",
+  "png_sha256": "cd35127285469778fb43dca9442e0a55bd79c3b17a923d2985f1daca9a154286"
+}

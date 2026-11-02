@@ -194,6 +194,6 @@ namespace Godmist.Views.UI.Workspace
             return values.Length>0 ? values[Mathf.Clamp(rank-1,0,values.Length-1)] : null;
         }
         internal static string[] RankCopies(string id)
-            => Descriptions.TryGetValue(id,out var values) ? values : GuardianTalentCopy.RankCopies(id);
+            => Descriptions.TryGetValue(id,out var values) ? values : GuardianTalentCopy.Entries.ContainsKey(id)?GuardianTalentCopy.RankCopies(id):MageFrostTalentCopy.Entries.TryGetValue(id,out var frost)?frost.Ranks:MageTier5TalentCopy.RankCopies(id);
     }
 }

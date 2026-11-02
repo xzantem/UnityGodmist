@@ -227,6 +227,7 @@ namespace Godmist.Systems.Combat
             using var armoredCast = new WarriorCombatSystem.ArmoredAttackScope(caster,skill,isPassiveDuplicate);
             using var scoutCast = new ScoutCombatSystem.AttackScope(caster,skill,isPassiveDuplicate);
             using var guardianCast = new GuardianCombatSystem.CastScope(caster,skill);
+            using var mageTier5Cast = new MageCombatSystem.Tier5CastScope(session,caster,skill,actionId,isPassiveDuplicate);
             var knifeTargets = ResolveKnifeTargets(skill, targetsByModeIndex);
             WarriorCombatSystem.BeginSkill(caster,skill,knifeTargets,isPassiveDuplicate,
                 targetsByModeIndex?.Values.SelectMany(targets => targets ?? Array.Empty<BattleUnit>()).Distinct().ToArray());
@@ -384,6 +385,11 @@ namespace Godmist.Systems.Combat
                     continue;
                 }
 
+                if(effect.EffectType==EffectType.MageFrostField)
+                {
+                    var center=selectedPositionsByModeIndex!=null&&selectedPositionsByModeIndex.TryGetValue(effect.TargetModeIndex,out var p)?p:null;
+                    resultsByEffectIndex[effectIndex]=new(){{caster,new EffectExecutionResult{Succeeded=MageCombatSystem.CreateIceField(session,caster,center)}}};continue;
+                }
                 var targets = targetsByModeIndex[effect.TargetModeIndex];
 
                 if (effect.DelayCasterTurns > 0)
@@ -662,6 +668,7 @@ namespace Godmist.Systems.Combat
             var actionId = string.IsNullOrEmpty(scheduled.ActionId) ? Guid.NewGuid().ToString("N") : scheduled.ActionId;
             using var equipmentAction = new EquipmentActionScope(session, caster, actionId, true);
             using var tiringCast = new MageTiringSpellSystem.CastScope(session, caster, actionId);
+            using var frostAction=new MageCombatSystem.FrostActionScope(session,caster,actionId);
             var targets = ResolveScheduledTargets(session, caster, scheduled);
             if (scheduled.Effect.EffectType == EffectType.DealDamage)
                 foreach (var obj in CombatObjectDamageSystem.Targets(session, caster, scheduled.Skill, scheduled.Effect.TargetModeIndex, scheduled.TargetPosition))
@@ -806,6 +813,8 @@ namespace Godmist.Systems.Combat
                 case EffectType.PaladinRegeneration:
                 case EffectType.PaladinBlessing:
                     return new EffectExecutionResult { Succeeded = PaladinCombatSystem.Execute(session,caster,target,skill,effect,recoverySystem,PaladinCombatSystem.IsSingleHealingTarget(skill,targetsByModeIndex)) };
+                case EffectType.MageFrostAura:
+                    return new EffectExecutionResult{Succeeded=MageCombatSystem.ApplyFrostAura(session,caster,target,effect.DurationTurns,statusEffectSystem??new StatusEffectSystem())};
                 case EffectType.MageSacrifice:
                 case EffectType.MageRitual:
                 case EffectType.MageFireAura:
@@ -840,6 +849,7 @@ namespace Godmist.Systems.Combat
                         var valueSource = (forceMaximumDamage || CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.MageMaximumDamage)) && effect.DamageValueSource != DamageValueSource.AlchemicalPower
                             ? DamageValueSource.MaxAttack
                             : effect.DamageValueSource;
+                        if(MageCombatSystem.HasMinimumRoll(caster)&&valueSource!=DamageValueSource.AlchemicalPower)valueSource=DamageValueSource.MinAttack;
 
                         var attackValue = CombatDamageValueCalculator.CalculateDamageValue(
                             caster, valueSource, multiplier, dischargeCast);
@@ -1023,6 +1033,7 @@ namespace Godmist.Systems.Combat
                             teleportDestination.Value,
                             skill.RequiresLineOfSight);
 
+                    if(teleported)MageCombatSystem.AfterTeleport(session,caster,target,skill);
                     return new EffectExecutionResult { Succeeded = teleported };
                 }
                 case EffectType.ApplyStatus:
@@ -1121,8 +1132,11 @@ namespace Godmist.Systems.Combat
                     var wasApplied = modifyVarSystem != null
                         && modifyVarSystem.Apply(caster, target, skill, effect, effectIndex);
 
-                    if (wasApplied) PublishModifierFeedback(target, skill, effect);
-
+                    if (wasApplied)
+                    {
+                        PublishModifierFeedback(target, skill, effect);
+                        if(skill.SkillId=="skill.mage.fire_arrow")MageCombatSystem.ApplyMinimumRoll(caster,target);
+                    }
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 case EffectType.ModifyActionValue:
@@ -1648,6 +1662,16 @@ namespace Godmist.Systems.Combat
             if (skill?.SkillId == DeadKingBossSystem.BladeId && (targetsByModeIndex == null
                 || !targetsByModeIndex.TryGetValue(0, out var bladeTargets) || bladeTargets.Count != 1
                 || !DeadKingBossSystem.CanBladeTarget(session,caster,bladeTargets[0]))) return false;
+            if(skill?.SkillId==MageCombatSystem.FrostAura)
+            {
+                if(targetsByModeIndex==null||!targetsByModeIndex.TryGetValue(0,out var frostTargets)||frostTargets.Count!=1
+                    ||!new CombatTargetingService().GetTargets(session,caster,PassiveEffectCombatExecutionSystem.ResolveMode(caster,skill,skill.TargetModes[0]),frostTargets[0].Position).Contains(frostTargets[0]))return false;
+            }
+            if(skill?.SkillId==MageCombatSystem.Teleportation)
+            {
+                if(targetsByModeIndex==null||!targetsByModeIndex.TryGetValue(0,out var moved)||moved.Count!=1||moved[0]==null
+                    ||!new CombatTargetingService().GetTargets(session,caster,skill.TargetModes[0],moved[0].Position).Contains(moved[0]))return false;
+            }
             if (GuardianCombatSystem.Active(skill?.SkillId))
             {
                 if (targetsByModeIndex == null || !targetsByModeIndex.TryGetValue(0, out var guardianTargets)
@@ -1719,6 +1743,13 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
+            if(skill.SkillId==MageCombatSystem.IceField)
+            {
+                if(selectedPositionsByModeIndex==null||!selectedPositionsByModeIndex.TryGetValue(0,out var iceCenter)||!iceCenter.HasValue
+                    ||!session.Grid.IsWalkable(iceCenter.Value)
+                    ||!CombatTargetingService.IsPositionWithinRange(caster.Position,iceCenter.Value,PassiveEffectCombatExecutionSystem.ResolveMode(caster,skill,skill.TargetModes[0]).AbsoluteRange)
+                    ||skill.RequiresLineOfSight&&!lineOfSightService.HasLineOfSight(session,caster.Position,iceCenter.Value))return false;
+            }
             if (!isToggleDeactivation
                 && skill.IsToggle
                 && !ToggleSkillRules.IsValid(skill))
@@ -2084,6 +2115,7 @@ namespace Godmist.Systems.Combat
 
                     if (targets.Count != 1
                         || !teleportDestination.HasValue
+                        || (skill.SkillId==MageCombatSystem.Teleportation&&!CombatTargetingService.IsPositionWithinRange(targets[0].Position,teleportDestination.Value,effect.TeleportDestinationRange))
                         || !teleportSystem.CanTeleport(
                             session,
                             caster,

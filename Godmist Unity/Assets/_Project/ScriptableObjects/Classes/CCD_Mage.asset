@@ -15,7 +15,9 @@ MonoBehaviour:
   <Id>k__BackingField: class.mage
   <ClassName>k__BackingField: Mage
   <ResourceType>k__BackingField: 3
+  <StartingResourcePercent>k__BackingField: -1
   <BasicAttackSkill>k__BackingField: {fileID: 11400000, guid: 8d18b18932dd98840a2e4c0ebafeae84, type: 2}
   <SkillTrees>k__BackingField:
   - {fileID: 11400000, guid: 3ce02571dbc3db94fa663200459c2a8d, type: 2}
   - {fileID: 11400000, guid: d23b1c3dbe89c914c89457f437f3e61f, type: 2}
+  - {fileID: 11400000, guid: 4d2475cff2c9d93469ad5385dc53f602, type: 2}

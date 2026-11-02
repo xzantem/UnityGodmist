@@ -77,6 +77,7 @@ namespace Godmist.Tests.EditMode
             for (var i = 0; i < effects.arraySize; i++)
             {
                 var effect = effects.GetArrayElementAtIndex(i); effect.FindPropertyRelative("alwaysHits").boolValue = true;
+                effect.FindPropertyRelative("stableEffectId").stringValue = "test.hit."+i;
                 effect.FindPropertyRelative("damageHitCount").intValue = hits;
                 effect.FindPropertyRelative("damageValueSource").enumValueIndex = (int)DamageValueSource.MaxAttack;
                 if (delayed) effect.FindPropertyRelative("delayCasterTurns").intValue = i + 1;

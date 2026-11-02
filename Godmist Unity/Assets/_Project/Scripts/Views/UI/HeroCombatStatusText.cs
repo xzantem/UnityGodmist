@@ -42,6 +42,12 @@ namespace Godmist.Views.UI
 
         public static string IconSource(string id) => Key(id) switch
         {
+            MageCombatSystem.FrostAuraMarker=>"node.mage.frost.t3_4",
+            MageCombatSystem.EmergencyShield or MageCombatSystem.BrokenIce or "mage.frost.shield_cooldown"=>"node.mage.frost.t3_1",
+            "mage.frost.snow.slow"=>"node.mage.frost.t5_2",
+            "mage.frost.ice.slow"=>"node.mage.frost.t5_4",
+            MageCombatSystem.Absorption=>"node.mage.warlock.t5_3",
+            MageCombatSystem.MinimumRoll=>"node.mage.fire.t5_2",
             GuardianCombatSystem.FreeStepMarker=>"node.scout.guardian.t2_2",
             GuardianCombatSystem.SureStep=>"node.scout.guardian.t2_1",
             "scout.guardian.front"=>"node.scout.guardian.t3_3",
@@ -83,6 +89,10 @@ namespace Godmist.Views.UI
                 : session?.Units.FirstOrDefault(unit => unit.Character?.CharacterId == sourceId);
             switch (id)
             {
+                case "mage.frost.shield_cooldown" when owner!=null:
+                    Line("Odnowienie: "+owner.MageState.Frost.ShieldCooldown+" tur.");break;
+                case MageCombatSystem.EmergencyShield when owner!=null:
+                    Line("Obrona fizyczna i magiczna: +"+(30+10*MageCombatSystem.I(owner,"t4_1"))+"%.");break;
                 case WarriorCombatSystem.Prediction when owner!=null:
                     Line("Unik: +5 za pole odległości od atakującego.");
                     var foresight=WarriorCombatSystem.M(owner,"t4_2");
@@ -114,6 +124,10 @@ namespace Godmist.Views.UI
                         Line("Obrażenia otrzymywane od " + (group.Key ? "drużyny" : "przeciwników") + ": +" + Percent(bonus) + ".");
                     }
                     break;
+                case MageCombatSystem.Absorption when owner!=null:
+                    Line("Bank następnego ataku: "+owner.MageState.AbsorbedDamage+" obrażeń.");break;
+                case MageCombatSystem.MinimumRoll:
+                    Line("Bezpośrednie ataki korzystają z minimalnej bazowej wartości ataku.");break;
                 case GuardianCombatSystem.FreeStepMarker:
                     Line("Darmowe kroki: 1.");break;
                 case GuardianCombatSystem.CounterMarker when owner!=null:

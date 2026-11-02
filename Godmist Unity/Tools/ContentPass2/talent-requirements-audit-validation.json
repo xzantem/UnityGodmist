@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-02",
+  "status": "COMPLETE",
+  "scope": {
+    "trees": 10,
+    "nodes": 240,
+    "edges": 131
+  },
+  "new_requirement_errors": 0,
+  "structural_checks": "PASS: existing same-tree parents; unique IDs and positions; valid minimum ranks; no self-links, forward-tier links, cycles or unreachable nodes",
+  "source_comparison": "PASS for all240 nodes, using160 CP1 base nodes,55 CP2 nodes and25 accepted Guardian redesign nodes, with3 documented overrides",
+  "approved_overrides": [
+    {
+      "id": "node.scout.blade_dancer.efficient_recovery",
+      "original": [
+        {
+          "id": "node.scout.blade_dancer.brew_strength",
+          "rank": 1
+        }
+      ],
+      "decision": "VS07_SCOUT_CONTENT.md:19; approved replacement for strong_liver, independent of brew_strength"
+    },
+    {
+      "id": "node.warrior.man_at_arms.t3_3",
+      "original": [],
+      "decision": "Tools/ContentPass2/man-at-arms-prerequisite-fix-validation.json"
+    },
+    {
+      "id": "node.warrior.man_at_arms.t3_4",
+      "original": [
+        {
+          "id": "node.warrior.man_at_arms.t2_3",
+          "rank": 1
+        }
+      ],
+      "decision": "Tools/ContentPass2/man-at-arms-prerequisite-fix-validation.json"
+    }
+  ],
+  "runtime": "Targets:240; missing-parent checks:131; max legal path SP:44; failures:0",
+  "ui_and_progression_tests": {
+    "passed": 15,
+    "failed": 0,
+    "report": "LocalHandoffs/talent-requirements-audit-20261102/ui-progression.xml"
+  },
+  "semantic_review": "All240 descriptions and named-skill dependencies reviewed, including transitive prerequisites and default known skills. No additional clear misplaced edge found.",
+  "workbooks": {
+    "content_pass_1.xlsx": "25ccf284f02c6357da106a3c663dfef3857afceb5edc284b0e218e4afb251b90",
+    "content_pass_2.xlsx": "83cb291dd139a4e34497d2d752c8289a9545442d3c714537502c6909566618b7"
+  },
+  "assets": {
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Mage_Fire.asset": "dd0e705fd7e07f31a3ba36b2335d665e7203d3c62d3439aa0913a1d79ff17a48",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Mage_Warlock.asset": "603e6ad1c3ed3ebe1ea6a35e09cd913255f0c29821e3657babf4a2fe844c3413",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Paladin_Crusader.asset": "830576ab71326a3ef4fed9fb9e2da9620c1ae0847af3423e0e47adfac7495f10",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Paladin_Priest.asset": "516627b54eec66bb328bc3d36738c9b62049941e0613f25a4d5efa95c989b4f0",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_Assassin.asset": "eccc1bf2ac073c7c2572f8ef02b6ea6af75fbf4055f75667c76f42e2866efad9",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_BladeDancer.asset": "4c9da266a37e743bc40c8ee845ed7e5157355745f06b1de3622f25daa1d1381e",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Scout_Guardian.asset": "8ddc515d817b4d7f621c102112e23c410b2b84704437514672490cfdcc212971",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_Brawler.asset": "9977a437b3a5b0f22863fa4e5e03f01209038ec88a6dbc92c3701e6fb92fefa2",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_Commander.asset": "25dfd85fc1a4151e4f7d729a39786c1f91a61c39e85094e5dbccab3d3b9093ac",
+    "Assets/_Project/ScriptableObjects/Skills/SkillTrees/ST_Warrior_ManAtArms.asset": "5ba76fe7761ddaf5cdc95f353a2d7babd54f024443b8c10266bef06ed0f3c1cf"
+  },
+  "per_tree": [
+    {
+      "tree": "ST_Warrior_Commander",
+      "name": "Dowódca",
+      "nodes": 25,
+      "edges": 14
+    },
+    {
+      "tree": "ST_Warrior_Brawler",
+      "name": "Awanturnik",
+      "nodes": 25,
+      "edges": 14
+    },
+    {
+      "tree": "ST_Warrior_ManAtArms",
+      "name": "Zbrojny",
+      "nodes": 25,
+      "edges": 10
+    },
+    {
+      "tree": "ST_Scout_Assassin",
+      "name": "Skrytobójca",
+      "nodes": 25,
+      "edges": 16
+    },
+    {
+      "tree": "ST_Scout_BladeDancer",
+      "name": "Tancerz Ostrzy",
+      "nodes": 25,
+      "edges": 14
+    },
+    {
+      "tree": "ST_Scout_Guardian",
+      "name": "Strażnik",
+      "nodes": 25,
+      "edges": 14
+    },
+    {
+      "tree": "ST_Mage_Warlock",
+      "name": "Czarnoksiężnik",
+      "nodes": 25,
+      "edges": 11
+    },
+    {
+      "tree": "ST_Mage_Fire",
+      "name": "Mag Ognia",
+      "nodes": 25,
+      "edges": 13
+    },
+    {
+      "tree": "ST_Paladin_Priest",
+      "name": "Kapłan",
+      "nodes": 20,
+      "edges": 13
+    },
+    {
+      "tree": "ST_Paladin_Crusader",
+      "name": "Krzyżowiec",
+      "nodes": 20,
+      "edges": 12
+    }
+  ],
+  "changes": "Audit documentation only; no new runtime, asset or workbook changes. Previous Man-at-Arms fix preserved.",
+  "known_source_discrepancy": "content_pass_2.xlsx Drzewka!E27:E28 still contain the old shifted Man-at-Arms prerequisite; corrected runtime and authoring follow the accepted fix."
+}

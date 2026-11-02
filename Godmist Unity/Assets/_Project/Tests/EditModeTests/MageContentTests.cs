@@ -15,7 +15,7 @@ using UnityEditor;
 using UnityEngine;
 namespace Godmist.Tests.EditMode
 {
-    public class MageContentTests
+    public partial class MageContentTests
     {
         UnityEngine.Random.State random;
         [SetUp] public void SetUp() { random=UnityEngine.Random.state; UnityEngine.Random.InitState(7); }
@@ -41,13 +41,13 @@ namespace Godmist.Tests.EditMode
         }
         static CombatSession Session(params BattleUnit[] units)
         { var s=new CombatSession{Grid=new BattleGrid(14,12),Units=units.ToList(),ActiveUnit=units[0]};foreach(var u in units)u.WarriorState.Session=s;return s; }
-        [Test] public void ProductionContentHasFiveStartersFortyNodesAndValidSkills()
+        [Test] public void ProductionContentHasFiveStartersSeventyFiveNodesAndValidSkills()
         {
             var u=Unit();Assert.That(u.Character.Skills.Count,Is.EqualTo(5));Assert.That(u.Character.GetBasicAttackSkill(),Is.EqualTo(Skill("EnergyOrb")));
             foreach(var tree in u.Character.ClassData.SkillTrees)
             {
-                Assert.That(tree.Nodes.Count,Is.EqualTo(20));
-                foreach(var n in tree.Nodes){Assert.That(n.Tier,Is.InRange(1,4));foreach(var r in n.Requirements)Assert.That(tree.Nodes.Any(v=>v.Id==r.NodeId),Is.True,n.Id);}
+                Assert.That(tree.Nodes.Count,Is.EqualTo(25));
+                foreach(var n in tree.Nodes){Assert.That(n.Tier,Is.InRange(1,5));foreach(var r in n.Requirements)Assert.That(tree.Nodes.Any(v=>v.Id==r.NodeId),Is.True,n.Id);}
             }
             foreach(var skill in u.Character.Skills.Concat(u.Character.ClassData.SkillTrees.SelectMany(t=>t.Nodes).Select(n=>n.GrantedSkill)).Where(s=>s!=null))
                 Assert.That(CombatDataValidator.ValidateSkill(skill).Errors,Is.Empty,skill.SkillId);
@@ -124,13 +124,13 @@ namespace Godmist.Tests.EditMode
             var pipeline=new CharacterStatPipelineSystem();pipeline.Refresh(u.Character);pipeline.Refresh(u.Character);
             Assert.That(u.Character.Stats.MaxHealth.GetValue(),Is.EqualTo(1050));Assert.That(u.Character.ResourcePool.Regeneration,Is.EqualTo(25));Assert.That(u.Character.ActiveSkillLoadout.Capacity,Is.EqualTo(7));
         }
-        [Test] public void ExplorationRegenerationRecalculatesMissingManaEveryTick()
+        [Test] public void ExplorationWaitingDoesNotRestoreManaEvenWithEnergySaving()
         {
             var unit=Unit();Rank(unit,false,"energy_saving",2);unit.Character.ResourcePool.CurrentValue=0;
             var rules=new ResourceRuleSystem();rules.ProcessExplorationTick(unit);
-            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(30));
+            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.Zero);
             rules.ProcessExplorationTick(unit);
-            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(57));
+            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.Zero);
         }
         [Test] public void ShieldUsesAverageAttack_AndFocusPaysActualHealth()
         {

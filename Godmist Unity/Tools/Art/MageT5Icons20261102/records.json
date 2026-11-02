@@ -1,0 +1,92 @@
+[
+  {
+    "id": "node.mage.warlock.t5_1",
+    "slot": "w1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w1-32.png",
+    "source_sha256": "31676f1995b3803b7ab2eabfe2b4449a24f89339ec71aa28fc5378d4c251a372",
+    "png_sha256": "42499de6834f934ee4fe2d97cfa8d811b98f9752e4dda6143c86170fc8d67680",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.warlock.t5_2",
+    "slot": "w2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w2-32.png",
+    "source_sha256": "902b2dd2ce3bbadb1b25c53c42ffeb630ac9965612923bc1dcba99e34ee48ab0",
+    "png_sha256": "357d2015b24091b4020727f2b311c3fc186efe821bfe8f373da9a821f24282b4",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.warlock.t5_3",
+    "slot": "w3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w3-32.png",
+    "source_sha256": "9d021de0aa2d2076a240d145b645c7a4dd135db4d094f2ce212f30977e643023",
+    "png_sha256": "7a68de8704278b148b4c71ce69471c605f9e09a7f85ca06cc782020adbb7755f",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.warlock.t5_4",
+    "slot": "w4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w4-32.png",
+    "source_sha256": "d4882c6ac808f1dda52cf9aeefdb01f1f74e3220e830e37e1b27efa9fa773a4a",
+    "png_sha256": "338ba3a4b14b69fb9b06cd962332ca45174819afd026dfc5e8ce96c93b7a2919",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.warlock.t5_5",
+    "slot": "w5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/w5-32.png",
+    "source_sha256": "96a752812c82e5d8aa329c4fbb63c5ac47a385d230de389a4bf97e9aadebd0ba",
+    "png_sha256": "0dbdfbee6d2d58462cddd158c78ef91d6b6ef2d411298b1a0aa34fbc33842009",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.fire.t5_1",
+    "slot": "f1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f1-32.png",
+    "source_sha256": "b07d231ba059aa9b2bf47e1b28d5a1b3e18b08f1a24768b020243630af858c61",
+    "png_sha256": "63f15ec700dd25cfb2f616949cba376d7b5f5d47a74ba33d92ce26b6c0802553",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.fire.t5_2",
+    "slot": "f2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f2-32.png",
+    "source_sha256": "5b4beb8ba82bce85f0053ea1fba7c709c4b0a72b6b641aee7c883dab06e3c22f",
+    "png_sha256": "49dcef009742fa8476ae76ec75e7ad4cedd05ad3974a2cab535889be0b2a4d2e",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.fire.t5_3",
+    "slot": "f3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f3-32.png",
+    "source_sha256": "b82e17f6fb2998e1c81cab4f6a5230530ac521dec18307c58d2dfc33e2749524",
+    "png_sha256": "76625fd57789be4f76c017a3f727cce1125d9c006351ca9405cda133ceb21c58",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.fire.t5_4",
+    "slot": "f4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f4-32.png",
+    "source_sha256": "334bbcb88c6ed1cf6891b4c39092bdddfbc58520b91aa906776f227a5757d784",
+    "png_sha256": "3155d247a4133e45bbb136198d77aac50b0e04d72b02069e98d3f18cf60d9a20",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.fire.t5_5",
+    "slot": "f5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageT5/f5-32.png",
+    "source_sha256": "09064f13c2181371dfad306e74c48b3c287de677568bf2c415b132ff1a9cc148",
+    "png_sha256": "c836643a47c4c96cf3c6e626a045ec295343cff7bad02ea8f305edab5426b941",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  }
+]

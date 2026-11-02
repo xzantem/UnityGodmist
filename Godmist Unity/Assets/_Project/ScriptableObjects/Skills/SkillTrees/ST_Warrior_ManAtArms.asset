@@ -170,7 +170,9 @@ MonoBehaviour:
     <Column>k__BackingField: 3
     <MaxRanks>k__BackingField: 3
     <GrantedSkill>k__BackingField: {fileID: 0}
-    <Requirements>k__BackingField: []
+    <Requirements>k__BackingField:
+    - <NodeId>k__BackingField: node.warrior.man_at_arms.t2_3
+      <MinimumRanks>k__BackingField: 1
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.warrior.man_at_arms.t3_4
     <DisplayName>k__BackingField: "Odporno\u015B\u0107 Nabyta"
@@ -181,9 +183,7 @@ MonoBehaviour:
     <Column>k__BackingField: 4
     <MaxRanks>k__BackingField: 1
     <GrantedSkill>k__BackingField: {fileID: 0}
-    <Requirements>k__BackingField:
-    - <NodeId>k__BackingField: node.warrior.man_at_arms.t2_3
-      <MinimumRanks>k__BackingField: 1
+    <Requirements>k__BackingField: []
     <PassiveEffects>k__BackingField: []
   - <Id>k__BackingField: node.warrior.man_at_arms.t3_5
     <DisplayName>k__BackingField: Adaptywny

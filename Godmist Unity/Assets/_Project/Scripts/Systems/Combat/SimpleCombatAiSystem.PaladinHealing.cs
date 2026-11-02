@@ -15,7 +15,7 @@ namespace Godmist.Systems.Combat
         private static float PendingRegeneration(BattleUnit target) => Mathf.Min(GetMissingHealth(target),
             target.Character.PassiveEffects.Where(effect => effect?.EffectId == PaladinCombatSystem.HolyRegenerationId)
                 .Sum(effect => PaladinCombatSystem.ForecastRegenerationTicks(effect, RecoveryForecastTurns, Mathf.CeilToInt(GetMissingHealth(target)),
-                    effect.Sources.Any(source => source.SourceCharacterId == target.Character.CharacterId) ? target : null)));
+                    effect.Sources.Any(source => source.SourceCharacterId == target.Character.CharacterId) ? target : null,target)));
 
         private static float FutureHealingUtility(CombatSession session, BattleUnit caster, BattleUnit target, float amount) =>
             // Future ticks cannot rescue now and do not receive the immediate-threat/revival bonus.

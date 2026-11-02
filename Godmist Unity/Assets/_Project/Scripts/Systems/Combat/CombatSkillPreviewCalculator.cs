@@ -102,7 +102,7 @@ namespace Godmist.Systems.Combat
             if (caster?.Character == null || target?.Character == null || target.Character.LifeState == CharacterLifeState.Dead) return null;
             var maximum = target.Character.MaximumHealth;
             if(skill?.SkillId==WarriorCombatSystem.EnergyRenewal)
-                return Mathf.Min(Mathf.Max(0,maximum-target.Character.CurrentHealth),2*Mathf.CeilToInt(maximum*.2f));
+                return Mathf.Min(Mathf.Max(0,maximum-target.Character.CurrentHealth),2*CombatRecoverySystem.IncomingHealing(target,Mathf.CeilToInt(maximum*.2f)));
             var missing = Mathf.Max(0, maximum - target.Character.CurrentHealth);
             var total = 0;
             var hasHealing = false;
@@ -124,6 +124,7 @@ namespace Godmist.Systems.Combat
                     default: continue;
                 }
                 hasHealing = true;
+                amount=CombatRecoverySystem.IncomingHealing(target,amount);
                 var restored = Mathf.Clamp(amount, 0, missing);
                 total += restored; missing -= restored;
             }
@@ -433,6 +434,7 @@ namespace Godmist.Systems.Combat
                 var distance = Mathf.Abs(caster.Position.X-target.Position.X)+Mathf.Abs(caster.Position.Y-target.Position.Y);
                 var attackType=skill.ResolveAttackType(target.Position.X - caster.Position.X, target.Position.Y - caster.Position.Y);
                 var context=new PassiveEffectCombatContext(source:caster,target:target,skill:skill,skillId:skill.SkillId,attackType:attackType,damageType:effect.DamageType,distance:distance);
+                var mageUnscaledRange=range;
                 var scoutMultiplier=CombatDamageSystem.HawkeyeDamageMultiplier(caster,target,effect.DamageType)*PaladinCombatSystem.DamageMultiplier(context)*MageCombatSystem.DamageMultiplier(context)*WarriorCombatSystem.DamageMultiplier(context,true)*ScoutCombatSystem.DamageMultiplier(context)*(attackType==AttackType.Melee?skill.PointBlankDamageMultiplier:1f);
                 var isCritical = criticalPreview ?? (skill.GuaranteedCritical || CombatDamageSystem.HasUniqueBuff(caster,UniqueBuffType.GuaranteedCriticalHit));
                 range=new CombatSkillDamageRange(Mathf.RoundToInt(range.Minimum*scoutMultiplier),Mathf.RoundToInt(range.Maximum*scoutMultiplier),true);
@@ -450,8 +452,11 @@ namespace Godmist.Systems.Combat
                         opening*=1f+(float)(exposure?.GetStateValue("strength")?.NumberValue ?? 0);
                     }
                     var armoredBonus=armoredBonusAvailable&&hitIndex==0?WarriorCombatSystem.PreviewArmoredAttack(caster):0;
-                    var minimumRaw=Mathf.CeilToInt((range.Minimum+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0)+armoredBonus)*opening);
-                    var maximumRaw=Mathf.CeilToInt((range.Maximum+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0)+armoredBonus)*opening);
+                    var mageBonus=armoredBonusAvailable&&hitIndex==0?MageCombatSystem.PreviewAbsorption(caster):0;
+                    var minimumWithBank=mageBonus>0?Mathf.RoundToInt((mageUnscaledRange.Minimum*strike+mageBonus)*scoutMultiplier):range.Minimum;
+                    var maximumWithBank=mageBonus>0?Mathf.RoundToInt((mageUnscaledRange.Maximum*strike+mageBonus)*scoutMultiplier):range.Maximum;
+                    var minimumRaw=Mathf.CeilToInt((minimumWithBank+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0)+armoredBonus)*opening);
+                    var maximumRaw=Mathf.CeilToInt((maximumWithBank+(caster?.SkeletonSlayerState?.NextAttackBonus ?? 0)+armoredBonus)*opening);
                     if(StatusEffectSystem.HasStatus(caster,StatusEffectIds.Weakening))
                     {minimumRaw=Mathf.CeilToInt(minimumRaw*.8f);maximumRaw=Mathf.CeilToInt(maximumRaw*.8f);}
                     var minimumAfterDefense = CombatDamageSystem.ApplyDefense(
@@ -664,7 +669,8 @@ namespace Godmist.Systems.Combat
             var maximumAttack = Mathf.Max(minimumAttack,
                 Mathf.RoundToInt(caster.Character.Stats.MaxAttack.GetValue()));
 
-            if (CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.MageMaximumDamage)) minimumAttack = maximumAttack;
+            if(MageCombatSystem.HasMinimumRoll(caster))maximumAttack=minimumAttack;
+            else if (CombatDamageSystem.HasUniqueBuff(caster, UniqueBuffType.MageMaximumDamage)) minimumAttack = maximumAttack;
             var baseMinimum = effect.DamageValueSource switch
             {
                 DamageValueSource.MinAttack => minimumAttack,

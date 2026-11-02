@@ -46,7 +46,7 @@ namespace Godmist.Systems.Combat
 
         private static int HealingShareAmount(BattleUnit source, int actual) => Mathf.FloorToInt(actual * .01f * Points(source.Character, Priest));
 
-        public static int ForecastRegenerationTicks(PassiveEffectRuntime effect, int turns, int maximumRecovery = int.MaxValue, BattleUnit selfHealer = null)
+        public static int ForecastRegenerationTicks(PassiveEffectRuntime effect, int turns, int maximumRecovery = int.MaxValue, BattleUnit selfHealer = null,BattleUnit recipient=null)
         {
             if (effect?.EffectId != HolyRegenerationId || effect.RemainingDuration <= 0) return 0;
             // SetStateValue replaces records; the forecast never mutates a live record.
@@ -56,13 +56,32 @@ namespace Godmist.Systems.Combat
             for (var turn = 0; turn < turns && copy.RemainingDuration > 0; turn++)
             {
                 var amount = RegenerationTickAmount(copy);
-                var actual = Math.Min(amount, Math.Max(0, maximumRecovery - result));
+                var actual = Math.Min(CombatRecoverySystem.IncomingHealing(recipient??selfHealer,amount,turn), Math.Max(0, maximumRecovery - result));
                 result += actual;
-                if (selfHealer != null) result += Math.Min(Math.Max(0, maximumRecovery - result), HealingShareAmount(selfHealer, actual));
+                if (selfHealer != null) result += Math.Min(Math.Max(0, maximumRecovery - result), CombatRecoverySystem.IncomingHealing(selfHealer, HealingShareAmount(selfHealer, actual),turn));
                 CompleteRegenerationTick(copy, amount);
                 copy.RemainingDuration--;
             }
             return result;
+        }
+
+        private static float ExpectedIncomingHealingRoll(BattleUnit source,BattleUnit target,float minimum,float maximum,int cap,bool self)
+        {
+            if(MageCombatSystem.FrostHealingMultiplier(target)>=1)return self?ExpectedSelfHealingRoll(source,minimum,maximum,cap):ExpectedHealingRoll(minimum,maximum,cap);
+            if(cap<=0)return 0;
+            int Received(int raw)
+            {
+                var actual=Math.Min(cap,CombatRecoverySystem.IncomingHealing(target,raw));
+                return self?Math.Min(cap,actual+CombatRecoverySystem.IncomingHealing(source,HealingShareAmount(source,actual))):actual;
+            }
+            if(maximum<=minimum)return Received(Mathf.RoundToInt(minimum));
+            double Cdf(double value)=>Math.Clamp((value-minimum)/(maximum-minimum),0d,1d);
+            var first=Math.Max(0,(int)Math.Floor(minimum+.5));
+            var last=Math.Max(first,Math.Min((int)Math.Ceiling(maximum+.5),(int)Math.Ceiling(cap/(double)Math.Max(.001f,MageCombatSystem.FrostHealingMultiplier(target)))+1));
+            double total=0;
+            for(int value=first;value<=last;value++)total+=(Cdf(value+.5)-Cdf(value-.5))*Received(value);
+            total+=(1-Cdf(last+.5))*cap;
+            return (float)total;
         }
 
         // Expected clamped, rounded uniform roll. E[min(round(X), cap)] = sum P(X >= k - 0.5).
@@ -117,16 +136,16 @@ namespace Godmist.Systems.Combat
                     var amount = CalculateHealing(source, skill, effect, singleTarget)
                         * (critical ? Mathf.Max(1f, source.Character.Stats.CritDamage.GetValue()) : 1f);
                     immediate += weight * (source == target
-                        ? ExpectedSelfHealingRoll(source, amount * (1 - HealingVariation), amount * (1 + HealingVariation), missing)
-                        : ExpectedHealingRoll(amount * (1 - HealingVariation), amount * (1 + HealingVariation), missing));
+                        ? ExpectedIncomingHealingRoll(source,target,amount*(1-HealingVariation),amount*(1+HealingVariation),missing,true)
+                        : ExpectedIncomingHealingRoll(source,target,amount*(1-HealingVariation),amount*(1+HealingVariation),missing,false));
                 }
                 else if (effect.EffectType == EffectType.PaladinRegeneration)
                 {
-                    var upfront = Math.Min(missing, CalculateRegenerationUpfront(source, target, critical));
-                    if (source == target) upfront = Math.Min(missing, upfront + HealingShareAmount(source, upfront));
+                    var upfront = Math.Min(missing, CombatRecoverySystem.IncomingHealing(target,CalculateRegenerationUpfront(source, target, critical)));
+                    if (source == target) upfront = Math.Min(missing, upfront + CombatRecoverySystem.IncomingHealing(source,HealingShareAmount(source, upfront)));
                     immediate += weight * upfront;
                     future += weight * ForecastRegenerationTicks(CreateHolyRegeneration(source, target, critical), futureTurns,
-                        missing - upfront, source == target ? source : null);
+                        missing - upfront, source == target ? source : null,target);
                 }
             }
             return (immediate, future);

@@ -1,0 +1,227 @@
+[
+  {
+    "id": "node.mage.frost.t1_1",
+    "slot": "t1_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t1_1-32.png",
+    "source_sha256": "86f498628826ba55d85ce80e55941e258caf21a71f74ad4b147572b97d32741f",
+    "png_sha256": "05a4f73ea2583b3bf1eb2ea4b17309ba04730f3b6ab9db450d7974c8c682c368",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t1_2",
+    "slot": "t1_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t1_2-32.png",
+    "source_sha256": "2605baa92a06390adf54feb428ac52e795daf18cf768976acf4b2069be00237d",
+    "png_sha256": "7823e2ee7ad5e254550734ee47a70c7587d265069ff7852b35c2a036f0340d7b",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t1_3",
+    "slot": "t1_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t1_3-32.png",
+    "source_sha256": "a521adea75359e948d3f31808df47a0cb53b930dbedef4f4e31d5c68d43593f2",
+    "png_sha256": "cc9e815b4b7b9884643e5cabb08d7be1b8767ce020f7610b220f9ee0017bb029",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t1_4",
+    "slot": "t1_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t1_4-32.png",
+    "source_sha256": "1db50002676e12596b1d5e048a9766f1cb864f4d0e0956fe4e1d9fae75cea5a0",
+    "png_sha256": "8c375090d98928a6b44020091af5ca14c0489e2322d98b23a1cbdc76d29df75a",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t1_5",
+    "slot": "t1_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t1_5-32.png",
+    "source_sha256": "9443b2c6b4ad342ddd9956e07a0d00ef43a8bbf705bb89df03574be62ee5cf09",
+    "png_sha256": "3f5c3139862f2ad39d55fbe8071e9ae63ef5c6b58ce9091781adc9431f8e96de",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t2_1",
+    "slot": "t2_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t2_1-32.png",
+    "source_sha256": "f9ae1b152f46ef0adf2ab46b65901abdabd7e12f0cec542f6fade48332d0695f",
+    "png_sha256": "a083f612b2e860ef3acd4fceb55aa20c5c8f82fca32fe89f0a74b2339d27a92f",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t2_2",
+    "slot": "t2_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t2_2-32.png",
+    "source_sha256": "c39a2f72fb3e0f0b0166ffd2628beff33e78a44e73f4f45c8b4b07ac27bf319b",
+    "png_sha256": "ff1e620b6afb20f0ee50b1476d22d8fdde3d9e3b606bfe8072fafaa2b850da8c",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t2_3",
+    "slot": "t2_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t2_3-32.png",
+    "source_sha256": "752fcc27d1f01bf25ffc480f37fc6c2c508bad1b6ec77f24d46a17ea5c55cea7",
+    "png_sha256": "60dc1899412cf506d8abf10c5295ce9f0b88536c2f29899976261222524615d7",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t2_4",
+    "slot": "t2_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t2_4-32.png",
+    "source_sha256": "2ba3ecaaf1f4aa5d4d7f4cf336a2d1c3ff30b246bff7198ec8b49f6cf960ca72",
+    "png_sha256": "9252c1ea980a0c3f197d74eba62b58554617bffb95e66201aab84735a2d9dda2",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t2_5",
+    "slot": "t2_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t2_5-32.png",
+    "source_sha256": "b0165b7924392de4d11a40a7f23944f75028d0374fa10a2a923ca8599e0e007d",
+    "png_sha256": "657692478f344515f6006a8adc2507c14575c8ce640ac37e525199f334e84812",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t3_1",
+    "slot": "t3_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t3_1-32.png",
+    "source_sha256": "a056675c56a91cc22e8df99b8edaddc2656315ec330d23e037e9f6c1047d60ff",
+    "png_sha256": "4ac46d92fd7fe9fe757c050f261d3cd05b40eb677daa7ec2c7e19a295cd700e6",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t3_2",
+    "slot": "t3_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t3_2-32.png",
+    "source_sha256": "b9240afa1561e33a48f97ea0d25c4b6204bc26ef72ff6365005746e176eea340",
+    "png_sha256": "b105430a174ccb2353f41f471a4f3665cbff170ba604a47de5438eedfdd7ab59",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t3_3",
+    "slot": "t3_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t3_3-32.png",
+    "source_sha256": "cfcbf207cb1a38e9b9a8543f4df46b4ce317ddc6013ca2791f27a68b1f38a6da",
+    "png_sha256": "5991341c3b19f474453676d04482ca7e66dbebc4c0983ecbdfb4677ac86830b8",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t3_4",
+    "slot": "t3_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t3_4-32.png",
+    "source_sha256": "87505cffccb4ad4746737ce1fc5299b8682442daad65c8528432f65b72662d95",
+    "png_sha256": "fbb687afa2d5d57de239695b414ebce090c415ac170f208859f0464b36cff948",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t3_5",
+    "slot": "t3_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t3_5-32.png",
+    "source_sha256": "0eca42e9f5e5a7c43ca547d523de6e9e2c73fbaaa864551c458a1a3054d8cce0",
+    "png_sha256": "159bee01e8f4df679d0575f06cf18d940e0e9bf289203c27b6d08242b7f31c4e",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t4_1",
+    "slot": "t4_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t4_1-32.png",
+    "source_sha256": "3fe9755ad9a7d2530efa429c200e62f2cdff40a684ecff74df8d632367234bb7",
+    "png_sha256": "562799b27183dd324184ce21cdcc5f91ff78a0a1af9540a91bcbfa0601e93ef9",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t4_2",
+    "slot": "t4_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t4_2-32.png",
+    "source_sha256": "dd9b7744464aa8cf12569dbe06c5bd14e7fd30f1b63633069dcb088d08eb411f",
+    "png_sha256": "ed7e3470b70e1d477cc4724ee57455ecdb92bcbe244acc0516861f10361e4d95",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t4_3",
+    "slot": "t4_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t4_3-32.png",
+    "source_sha256": "18528fa20957da41ac9a4464f5091ee651cc127d650443d68397355473a4f44c",
+    "png_sha256": "79340e558d6e86d5db0e7f72feed6a04a11a3dd99f9dfdd7924ca22181e45b98",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t4_4",
+    "slot": "t4_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t4_4-32.png",
+    "source_sha256": "f4fce847bfd352c7aec482332267b5eeecd0b7f23169ec4b66b0d13781bc6546",
+    "png_sha256": "f832d4f55e2c9cab3279eb65713dc6a66a0d7593862d0c38f6c102b87e8aedfd",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t4_5",
+    "slot": "t4_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t4_5-32.png",
+    "source_sha256": "9b9fcc31f12a773bf22f84210d2c6841fd682343447ce8284938e9d29c888f04",
+    "png_sha256": "33b894f62b14afe898f72cf149f5b458e8c179cc961ab2519855388db90bbb42",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t5_1",
+    "slot": "t5_1",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t5_1-32.png",
+    "source_sha256": "a56f4b5a07e595de5b00c78ce13d07d2e55c356b415ee32bdbb92cac57f92daf",
+    "png_sha256": "819aeea09659fd36d5f7bd4b399c4b585d8005742f3c353b13de4a42fec2ab4c",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t5_2",
+    "slot": "t5_2",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t5_2-32.png",
+    "source_sha256": "4b857010b49db7698f3c1fac3e010a13ab84f1db03fa0a3710693395739ba450",
+    "png_sha256": "722fa66080055b5d83ce337c201639361948d70f847b5ca252b3ce0ab5d20ac1",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t5_3",
+    "slot": "t5_3",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t5_3-32.png",
+    "source_sha256": "2f0329600ba9b5f941678e065a0186ffb456a8e3f0d629e03ba5e6c38cd1f49f",
+    "png_sha256": "03b76d99d299cc1b15e59ee46554a7845e789063b407244041cdfae5274c8cf2",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t5_4",
+    "slot": "t5_4",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t5_4-32.png",
+    "source_sha256": "b19721964c31df7e36df9f3f9f3055e211ab6c9688a9362a16e8529786cf6966",
+    "png_sha256": "790c844273ffc4c8886f15feee99d87dd1433c3bf32dbb6edb5bc004d82e3aa0",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  },
+  {
+    "id": "node.mage.frost.t5_5",
+    "slot": "t5_5",
+    "destination": "Assets/_Project/Art/Icons/Passives/VS22/MageFrost/t5_5-32.png",
+    "source_sha256": "2f2f0749c91ffee0a4e5eaf6759e6697c402df0da42f1fbe6442b01064cf2611",
+    "png_sha256": "5998f4d504ad80bdcb12bc2113fbe133627f3cfddffb9f048b7cfa88491df748",
+    "nearest_sampling": "PASS",
+    "aseprite_roundtrip": "PASS"
+  }
+]

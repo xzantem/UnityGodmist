@@ -323,6 +323,8 @@ namespace Godmist.Systems.Combat
                 explanation?.Add(MageCombatSystem.Fire,fireBonus);
             }
 
+            if(type==ResistanceType.Suppression)
+            {var frost=.005f*MageCombatSystem.Points(character,MageCombatSystem.Frost);result+=frost;explanation?.Add(MageCombatSystem.Frost,frost);}
             var raw = result + EquipmentEffectSystem.Resistance(character, type, explanation) + combatModifier;
             if(combatModifier!=0)explanation?.Add("combat",combatModifier);
             explanation?.Add("raw",raw);

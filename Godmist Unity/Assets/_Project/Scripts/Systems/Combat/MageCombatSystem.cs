@@ -21,7 +21,7 @@ namespace Godmist.Systems.Combat
         public const int BaseManaRegeneration = 15;
         public static int Rank(CharacterInstance c, string tree, string node) => Mathf.Clamp(c?.SkillTreeProgress?
             .FirstOrDefault(p => p.TreeId == tree)?.NodeInvestments?
-            .FirstOrDefault(n => n.NodeId == "node.mage." + (tree == Warlock ? "warlock." : "fire.") + node)?.Ranks ?? 0, 0, 3);
+            .FirstOrDefault(n => n.NodeId == "node.mage." + (tree == Warlock ? "warlock." : tree == Frost ? "frost." : "fire.") + node)?.Ranks ?? 0, 0, 3);
         public static int W(BattleUnit u, string n) => Rank(u?.Character, Warlock, n);
         public static int F(BattleUnit u, string n) => Rank(u?.Character, Fire, n);
         public static int Points(CharacterInstance c, string tree) => c?.SkillTreeProgress?.FirstOrDefault(p => p.TreeId == tree)?.NodeInvestments?.Sum(n => Math.Max(0, n.Ranks)) ?? 0;
@@ -36,6 +36,9 @@ namespace Godmist.Systems.Combat
         {
             if (c?.Stats == null) return;
             var s = c.Stats;
+            var criticalPower=.5f*Rank(c,Warlock,"t5_2");
+            s.CritDamage.SetEffectiveValue(s.CritDamage.GetValue()+criticalPower);
+            observe?.Invoke(CharacterStatType.CritDamage,"node.mage.warlock.t5_2",StatModifierOperation.FlatAbsolute,criticalPower);
             var defense = Rank(c, Warlock, "defensive_power");
             s.MaxHealth.SetEffectiveValue(s.MaxHealth.GetValue() + (s.MinAttack.GetValue() + s.MaxAttack.GetValue()) * .5f * (defense switch { 1 => .1f, 2 => .3f, 3 => .5f, _ => 0f }));
             observe?.Invoke(CharacterStatType.MaxHealth,"node.mage.warlock.defensive_power",StatModifierOperation.FlatAbsolute,(s.MinAttack.GetValue()+s.MaxAttack.GetValue())*.5f*(defense switch{1=>.1f,2=>.3f,3=>.5f,_=>0f}));
@@ -45,6 +48,7 @@ namespace Godmist.Systems.Combat
             s.ResourceRegeneration.SetEffectiveValue(s.ResourceRegeneration.GetValue() * (1 + missing * MissingManaRegenerationPerRank * Rank(c, Warlock, "energy_saving")));
             observe?.Invoke(CharacterStatType.ResourceRegeneration,"node.mage.warlock.energy_saving",StatModifierOperation.Percent,missing*MissingManaRegenerationPerRank*Rank(c,Warlock,"energy_saving"));
             c.ActiveSkillLoadout.TrySetCapacityModifier("mage.memory", Rank(c, Warlock, "memory"));
+            FrostStats(c,observe);
             if (!PassiveEffectLifecycleSystem.HasActiveEffect(c, StatusEffectIds.Burn)) return;
             s.Speed.SetEffectiveValue(s.Speed.GetValue() + SpeedBonus(c));
             var protection = Rank(c, Fire, "protection") switch { 1 => .2f, 2 => .5f, _ => 0f };
@@ -70,7 +74,7 @@ namespace Godmist.Systems.Combat
             if (skill?.SkillId == "skill.mage.magic_focus") turns += 2 * W(u, "master_concentration");
             if (skill?.SkillId is "skill.mage.fireball" or "skill.mage.fire_aura") chance += F(u, "pyromania") switch { 1 => .1f, 2 => .25f, _ => 0 };
             if (skill?.SkillId == "skill.mage.fire_aura") dot *= 1 + .15f * F(u, "burning_aura");
-            return e.WithScoutParameters(e.AdditionalHitTrials, e.BonusDamageMultiplierChance, dot, e.ModifierValue, turns).WithRuntimeParameters(e.DamageHitCount, turns, chance);
+            return FrostEffect(u,skill,Tier5Effect(u,skill,e.WithScoutParameters(e.AdditionalHitTrials, e.BonusDamageMultiplierChance, dot, e.ModifierValue, turns).WithRuntimeParameters(e.DamageHitCount, turns, chance)));
         }
         public static float DamageMultiplier(PassiveEffectCombatContext ctx,CombatValueExplanation explanation=null)
         {
@@ -87,12 +91,13 @@ namespace Godmist.Systems.Combat
             var targets=ctx.TargetsByModeIndex?.Values.SelectMany(v=>v).Where(v=>v!=null&&v.IsPlayerSide!=u.IsPlayerSide).Distinct().Count()??1;
             Apply(Warlock,1+.01f*Points(u.Character,Warlock),targets==1);
             if(ctx.SkillId=="skill.mage.energy_orb")Apply("node.mage.warlock.dispersion",1+(W(u,"dispersion") switch{1=>.1f,2=>.175f,3=>.25f,_=>0}));
-            if(ctx.SkillId is "skill.mage.fireball" or "skill.mage.fire_arrow")Apply(Fire,1+.02f*Points(u.Character,Fire));
+            if(ctx.SkillId is "skill.mage.fireball" or "skill.mage.fire_arrow" or FirePillar)Apply(Fire,1+.02f*Points(u.Character,Fire));
             Apply("node.mage.fire.cauterize",1+.1f*F(u,"cauterize"),Burning(ctx.Target));
             return multiplier;
         }
         public static void BeginSkill(BattleUnit u, SkillData skill, string actionId, CombatSession session = null)
         {
+            BindFrostSession(session);
             if (skill.SkillId == "skill.mage.sacrifice" && session != null)
                 foreach (var unit in session.Units)
                     foreach (var effect in unit.Character.PassiveEffects.ToArray())
@@ -114,9 +119,9 @@ namespace Godmist.Systems.Combat
         public static float BurningCriticalChance(BattleUnit attacker, BattleUnit target)
             => Burning(target) ? F(attacker, "weakness") switch { 1 => .15f, 2 => .4f, _ => 0f } : 0f;
 
-        public static float CalculateMagicCriticalChance(PassiveEffectCombatContext context)
+        public static float CalculateMagicCriticalChance(PassiveEffectCombatContext context,bool? wasFrozen=null)
         {
-            var chance = BurningCriticalChance(context?.Source, context?.Target);
+            var chance = BurningCriticalChance(context?.Source, context?.Target)+FrozenCriticalChance(context?.Source,context?.Target,wasFrozen);
             if(chance<=0 && MagicCritChance(context)<=0)return 0;
             chance += context?.Source?.Character?.Stats?.CritChance.GetValue() ?? 0;
             chance = PassiveEffectCombatExecutionSystem.ApplyCriticalChance(context?.Session, context, chance);
@@ -132,7 +137,8 @@ namespace Godmist.Systems.Combat
         public static void DamageTaken(BattleUnit source, BattleUnit target, int damage)
         {
             var rank = W(target, "adaptation");
-            if (rank == 0 || source?.Character == null || damage < target.Character.Stats.MaxHealth.GetValue() * .2f) return;
+            var thresholdPercent=W(target,"t5_1") switch{1=>15,>=2=>10,_=>20};
+            if (rank == 0 || source?.Character == null || damage*100d < target.Character.Stats.MaxHealth.GetValue()*thresholdPercent) return;
             target.MageState.Adaptation[source.Character.CharacterId] = new MageAdaptation { RemainingHits = 3, Reduction = Mathf.RoundToInt(damage * .1f * rank) };
         }
         public static void TurnStart(CombatSession session, BattleUnit unit, CombatRecoverySystem recovery)

@@ -2026,6 +2026,7 @@ namespace Godmist.Views.Combat
                 if (position == selectedTargetPosition
                     || !Session.Grid.IsWalkable(position)
                     || Session.Grid.IsBlocked(position)
+                    || Session.DoesObjectBlockMovement(Session.GetMapObjectAt(position))
                     || IsOccupiedByLivingUnit(position))
                 {
                     continue;

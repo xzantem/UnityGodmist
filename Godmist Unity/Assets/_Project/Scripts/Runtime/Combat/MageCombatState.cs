@@ -3,7 +3,10 @@ namespace Godmist.Runtime.Combat
 {
     public sealed class MageCombatState
     {
+        public readonly MageFrostState Frost=new();
         public int OffensiveTargetCount;
+        public int AbsorbedDamage, AttackBonus;
+        public Dictionary<string, HashSet<string>> BurnExtensionAttempts;
         public float OverflowCritChance;
         public string OverflowActionId;
         // Lazily allocated per combat participant; never stored on a character/save.

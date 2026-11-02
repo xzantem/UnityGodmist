@@ -54,6 +54,8 @@ namespace Godmist.Views.UI.Workspace
                 return "Trafienie ma "+F("90%","Szansa obniżenia odporności na supresję")+" szansy na zmniejszenie odporności na supresję o "+F("50 pp","Obniżenie odporności na supresję")+" na "+Turns(3)+", a następnie "+F("70%","Bazowa szansa ogłuszenia Ciosem Rękojeścią")+" szansy na ogłuszenie na "+Turns(3)+"."
                     +(extra>0?"\nZmniejsza pozostałe odporności o "+F(Percent(.08f*extra),"Odebranie Żywiołu — redukcja odporności")+" na "+Turns(3)+".":"");
             }
+            if(skill.SkillId==MageCombatSystem.Teleportation)return "Teleportuje wybranego sojusznika lub rzucającego na wolne pole do "+F("6","Zasięg przemieszczenia")+" pól od niego."
+                +(MageCombatSystem.W(caster,"t5_5")>0?" Przyspiesza jego następną turę o "+F((25*MageCombatSystem.W(caster,"t5_5")).ToString()+"%","Magiczna Gotowość")+".":"");
             string Param(string key,string value)=>LinkEffectParameter(skill,caster,effect,key,value);
             var duration=effect.DurationTurns>0 && effect.EffectType is not (EffectType.Push or EffectType.Pull) ? " na "+LinkEffectParameter(skill,caster,effect,"duration",FormatTurnCount(effect.DurationTurns)) : "";
             var sourceChance=effect.EffectType is EffectType.ApplyStatus or EffectType.MageFireAura ? StatusEffectSystem.CalculateSourceStatusChance(caster,effect.StatusId,effect.BaseChance) : effect.BaseChance;
@@ -74,6 +76,11 @@ namespace Godmist.Views.UI.Workspace
                     if(effect.LifeStealPercent>0)text+=$" i przywraca zdrowie równe {LifeStealValue(caster,effect.LifeStealPercent,true)} zadanych obrażeń";
                     if(effect.AllyLifeStealPercent>0)text+=$" i przywraca zdrowie równe {F(Percent(effect.AllyLifeStealPercent),"Udział leczenia sojuszników")} zadanych obrażeń";
                     if(effect.ResourceDrainPercent>0)text+=$" i odbiera celowi {F(Percent(effect.ResourceDrainPercent),"Odbieranie zasobu")} zadanych obrażeń jako zasób";
+                    if(skill.SkillId==MageCombatSystem.Icicle&&MageCombatSystem.I(caster,"t1_3")>0)
+                    {
+                        var bleed=MageCombatSystem.I(caster,"t1_3") switch{1=>.4f,2=>.6f,_=>.9f};
+                        text+=$". Ma 50% szansy krwawienia: {FormatValue(CombatDamageValueCalculator.CalculateDamageValue(caster,DamageValueSource.AverageAttack,bleed))} obrażeń na turę przez {Turns(2)}";
+                    }
                     if(effect.AdditionalHitTrials>0)text+=$". Może wykonać {Param("hit_trials",effect.AdditionalHitTrials.ToString())} {(effect.AdditionalHitTrials==1?"dodatkowy cios":"dodatkowe ciosy")}, każdy z niezależną szansą {F(Percent(effect.AdditionalHitChance),"Szansa dodatkowego ciosu")}";
                     break;
                 case EffectType.ApplyStatus:
@@ -130,6 +137,13 @@ namespace Godmist.Views.UI.Workspace
                     var dot=PeriodicValue(caster,effect);
                     text=$"Otacza cel aurą ognia na {FixedTurns(3,"Czas trwania Ognistej Aury")}. Aura ma {Param("chance",Percent(sourceChance))} szansy na podpalenie przyległych wrogów, zadające {dot} obrażeń na turę przez {Turns(effect.DurationTurns)}";break;
                 case EffectType.SacrificeHealthForResource:text=$"Poświęca {F(Percent(effect.HealthSacrificePercent),"Przemiana Witalności — poświęcane zdrowie")} maksymalnego zdrowia i przywraca {F(FormatValue(effect.ResourceRestorePerSacrificedHealth),"Mana za punkt poświęconego zdrowia")} many za każdy poświęcony punkt zdrowia";break;
+                case EffectType.MageFrostAura:
+                    text=$"Zapewnia +20 uniku{duration}. Aura ma 40% bazowej szansy zmrożenia przyległych wrogów na turę";
+                    var iceAura=MageCombatSystem.I(caster,"t4_4");
+                    if(iceAura>0)text+=$". Już zmrożonych wrogów zamraża z bazową szansą {iceAura*20}% na {Turns(1+MageCombatSystem.I(caster,"t4_5"))}";
+                    break;
+                case EffectType.MageFrostField:
+                    text="Tworzy pole lodu 3×3 na 6 tur. Wrogowie wewnątrz mają −30 celności umiejętności i −15 szybkości";break;
                 case EffectType.Shield:
                     text=$"Zapewnia {ShieldValue(caster,effect)} {LinkRule("tarczy","Magiczna Tarcza — zasady","Tury odbiorcy, odliczane na końcu jego tury. Ponowne rzucenie zastępuje poprzednią Magiczną Tarczę i odnawia czas.")}{duration}";break;
                 case EffectType.BlockResourceRegeneration:text="Blokuje regenerację many";break;
@@ -172,6 +186,8 @@ namespace Godmist.Views.UI.Workspace
                     text=Regex.Replace(text,@"<link=[""'][^>]*>.*?</link>|<[^>]*>|"+Regex.Escape(modifier),
                         m=>m.Value.StartsWith("<")?m.Value:LinkEffectParameter(skill,caster,effect,"modifier",modifier));
             }
+            if(skill.SkillId=="skill.mage.fire_arrow"&&effect.EffectType==EffectType.ModifyVar&&MageCombatSystem.F(caster,"t5_2")>0)
+                text=text.TrimEnd('.')+". Wymusza minimalną wartość ataku celu na "+Turns(4)+".";
             // Dedicated links explain the hovered parameter; the generic catalog
             // fallback below is retained only for effect types not yet specialized.
             if(effect.EffectType is EffectType.ModifyStat or EffectType.ModifyVar or EffectType.ModifyResistance or EffectType.Push or EffectType.Pull)

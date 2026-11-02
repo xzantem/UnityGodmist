@@ -53,7 +53,7 @@ namespace Godmist.Views.Characters
         {
             if (loaded) return;
             loaded = true;
-            LoadCatalog("catalog"); LoadCatalog("pass2-catalog"); LoadCatalog("pass3-catalog"); LoadCatalog("pass4-catalog"); LoadCatalog("pass5-catalog"); LoadCatalog("pass6-catalog"); LoadCatalog("pass7-catalog"); LoadCatalog("pass8-catalog"); LoadCatalog("pass9-catalog"); LoadCatalog("pass10-catalog"); LoadCatalog("pass11-catalog"); LoadCatalog("pass12-catalog");
+            LoadCatalog("catalog"); LoadCatalog("pass2-catalog"); LoadCatalog("pass3-catalog"); LoadCatalog("pass4-catalog"); LoadCatalog("pass5-catalog"); LoadCatalog("pass6-catalog"); LoadCatalog("pass7-catalog"); LoadCatalog("pass8-catalog"); LoadCatalog("pass9-catalog"); LoadCatalog("pass10-catalog"); LoadCatalog("pass11-catalog"); LoadCatalog("pass12-catalog"); LoadCatalog("frost-catalog");
         }
 
         private static void LoadCatalog(string name)

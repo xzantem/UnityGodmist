@@ -1,0 +1,117 @@
+{
+  "generator": "built-in image_gen",
+  "style_reference": "references/cut-b-v2-source-raw.png",
+  "sources": [
+    {
+      "slot": "t1_1",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-835b48ae-6e4a-4804-9a17-78aea3e57c0c.png"
+    },
+    {
+      "slot": "t1_4",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-d31d1e3e-d796-4d4f-94e3-bf64cf0cc96e.png"
+    },
+    {
+      "slot": "t5_1",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-20603e9d-bdad-4aed-a93c-b7172ae02522.png"
+    },
+    {
+      "slot": "t2_2",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-1e36baaa-d2b3-42f7-8c3e-28a6399fee13.png"
+    },
+    {
+      "slot": "t1_3",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-ae8e8335-a3e9-4cdc-804e-e1b2a45bb043.png"
+    },
+    {
+      "slot": "t1_2",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-5533a3a0-729e-45ef-afe3-b329d8413e53.png"
+    },
+    {
+      "slot": "t2_1",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-b8669547-5b0f-4a79-8939-5e2fd3a0f443.png"
+    },
+    {
+      "slot": "t2_3",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-66e65c9c-7a20-4ff2-a49b-c856fe74fc80.png"
+    },
+    {
+      "slot": "t1_5",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-dbc78dac-8d1b-44dd-9a7d-c1dd906304de.png"
+    },
+    {
+      "slot": "t3_2",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-f0c81c86-6fb0-4413-9012-217ce4b6f331.png"
+    },
+    {
+      "slot": "t3_3",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-e5934dbf-8835-4a96-aa8e-7eda80bc1f83.png"
+    },
+    {
+      "slot": "t2_4",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-d0898b9c-6474-460f-87fc-a80456b6010a.png"
+    },
+    {
+      "slot": "t3_4",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-af8b161d-47c7-422e-b73d-b2588dd2f01d.png"
+    },
+    {
+      "slot": "t2_5",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-34839fed-88a8-4b19-98f8-592e0ceeadec.png"
+    },
+    {
+      "slot": "t3_1",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-6a2c6653-569b-4bcd-b7d1-9b81aa66ebf3.png"
+    },
+    {
+      "slot": "t4_4",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-6a00b67a-99fc-4d43-b959-39933c9afbb2.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Aura Lodu. Actual effect: Aura Mrozu ma 20%/40%/60% szansy na zamrożenie przyległych przeciwników, którzy już są zmrożeni na 1 turę Subject/composition: One enemy boot first surrounded by a low cold ring then locked in a thick crystalline shell; one strong enclosing cyan arc. Chill becoming hard freeze."
+    },
+    {
+      "slot": "t4_5",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-959895dc-50e9-4dfa-a708-70a89e8b684c.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Prawdziwy Lód. Actual effect: Zwiększa czas trwania zamrożenia Aury Lodu do 2/3 tur Subject/composition: One very thick blue-white ice crystal with a compact darker blue center and two broad bright facets, a short retaining arc. Longer frozen status."
+    },
+    {
+      "slot": "t4_3",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-65eaef29-477c-42bd-bb66-c0cf157f05ee.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Roztrzaskanie. Actual effect: Ataki na zamrożonych celach mają 3%/6% na natychmiastowe zabicie. Działa dla bossów tylko poniżej 20% HP Subject/composition: One dark steel enemy helmet enclosed in an ice shell splitting into three large jagged blue shards. Execute frozen foe, no human gore."
+    },
+    {
+      "slot": "t4_1",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-0456ab0d-cee7-4e5a-a013-0331a18f38ed.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Wytrzymała Tarcza. Actual effect: Zwiększa obronę otrzymaną z Tarczy z Lodu do 40%/50% Subject/composition: One heavy thick-faceted blue-white crystal shield, a broad dark silver core and two strong pale highlights. Increased defenses."
+    },
+    {
+      "slot": "t4_2",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-83d0afca-b64f-4888-a905-8b6a73351e4c.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Ochronny Lód. Actual effect: Zmniejsza czas odnowienia Soplowej Tarczy Awaryjnej do 9/8/7 tur Subject/composition: One large silver hourglass inside a thick cyan ice ring with one short curved return arrow. Faster emergency shield recovery."
+    },
+    {
+      "slot": "frost-floor",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-5ddae5ee-98bb-44c1-9ca9-b534e582d497.png",
+      "prompt": "Use case: texture. Godmist classic chunky pixel RPG floor VFX, a SINGLE flat TOP-DOWN square-tile-sized patch of magical FROST / CRACKED ICE, later full-canvas nearest-neighbor reduced to32x32. Reference STYLE ONLY: broad flat shaded facets, thick stepped pixel clusters, restrained details, not its sword, burgundy background or directional scratch motif. Subject: one flat blue translucent-looking ice patch with 3-5 broad irregular cyan-white crystalline cracks and sparse pale snow frost along its edges. The ground should show through large transparent gaps between the broad ice shapes. No black, navy or opaque solid background. No standing ice crystal, sphere, character, equipment, hands, boots, border, text, frame, particles or UI. Flat orthographic top-down floor overlay, no perspective, no horizon, no extruded slabs. Muted blue-gray facets, restrained cyan and pale white highlights; avoid overwhelming solid white area. Output isolated on GENUINELY TRANSPARENT background with alpha, square canvas, no cropping. Crisp pixel clusters, no gradients, noise or microtexture."
+    },
+    {
+      "slot": "t3_5",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-e1910b37-195e-4085-90ce-4b615335b072.png",
+      "prompt": "Use case: stylized-concept. Asset type: Godmist classic pixel RPG passive skill icon source, later full-canvas nearest-neighbor reduced to32x32. Input image: STYLE-ONLY reference for broad shaded facets, chunky stepped pixel clusters, thick near-black outlines and strong foreground/background hierarchy; never copy its fist, burgundy palette or repeated radiating scratch pattern. One or two large simple readable foreground shapes occupy most of square, broad quiet color planes and crisp facet highlights, no miniature details. Frost Mage tree uniform background base opaque dark MUTED BLUE SLATE #1c2b33, slightly lighter #31434f planes. Foreground effect colors represent mechanics: silver-white ice and cyan-blue cold, muted violet magical protection, red wound/low-health indicators, green healing indicators, natural silver accents on solid objects. Effects stay behind main shape, shapes remain separate and readable. No fixed repeated scratch motif, no ornamental ray pattern repeated across set, no frame,text,UI,watermark,photorealism,smooth gradients,noise,tiny sparkles or microtexture. Magic effects use ONE bold recognizable geometry rather than random particles. Passive: Lodowiec. Actual effect: Zwiększa szansę na efekt Podtrzymywania Lodu do 30%. Efekt działa również dla sojuszników w zasięgu 3 od maga Subject/composition: Two large allied silver gauntlets protected together by one continuous broad ice shell, one cyan retaining arc. Sharing preservation of frozen enemies; no literal landscape."
+    },
+    {
+      "slot": "t5_3",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-3c804b01-b447-4d6e-9945-7ad374b0f0bc.png"
+    },
+    {
+      "slot": "t5_5",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-e46d2c9d-f908-4c51-bcd3-f1530e065351.png"
+    },
+    {
+      "slot": "t5_4",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-9482c357-dae7-4090-932e-8f5daef2e183.png"
+    },
+    {
+      "slot": "t5_2",
+      "source": "C:\\Users\\Patryczku\\.codex\\generated_images\\01a17a9b-6434-7ce1-a228-72b8eb62196c\\exec-029d6361-5bc1-421f-acf3-207ded377b86.png"
+    }
+  ]
+}
