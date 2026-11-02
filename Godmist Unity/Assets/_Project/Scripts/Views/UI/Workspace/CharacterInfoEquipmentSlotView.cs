@@ -31,6 +31,7 @@ namespace Godmist.Views.UI.Workspace
         private CharacterInfoWindowView owner;
 
         public EquipmentSlot Slot => slot;
+        public CharacterInfoWindowView Owner => owner;
         public EquipmentItemInstance Item { get; private set; }
 
         public void Initialize(CharacterInfoWindowView nextOwner)

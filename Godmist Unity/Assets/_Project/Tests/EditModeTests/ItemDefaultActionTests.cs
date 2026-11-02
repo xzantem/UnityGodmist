@@ -78,13 +78,13 @@ namespace Godmist.Tests.EditMode
             ExecuteEvents.Execute(row.gameObject, new BaseEventData(EventSystem.current), ExecuteEvents.submitHandler);
             Assert.That(character.Equipment.GetItem(equipment.EquipmentSlot), Is.SameAs(equipment));
         }
-        [Test] public void EquippedSlotSingleClickInspectsAndDoubleClickUnequips()
+        [Test] public void EquippedSlotSingleClickSelectsAndDoubleClickUnequips()
         {
             var equipment = Equipment(); character.Equipment.SetItem(equipment.EquipmentSlot, equipment); window.Refresh();
             var slot = Slot(equipment);
             Click(slot, ClickData(1));
             Assert.That(character.Equipment.GetItem(equipment.EquipmentSlot), Is.SameAs(equipment));
-            Assert.That(Get<GameObject>(window, "itemDetailsPanel").activeSelf, Is.True);
+            Assert.That(Get<Image>(slot, "selectionBorder").enabled, Is.True);
             Click(slot, ClickData(2));
             Assert.That(character.Equipment.GetItem(equipment.EquipmentSlot), Is.Null);
             Assert.That(character.Inventory.Items, Does.Contain(equipment));

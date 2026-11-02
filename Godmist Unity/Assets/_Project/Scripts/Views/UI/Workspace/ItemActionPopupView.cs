@@ -84,18 +84,36 @@ namespace Godmist.Views.UI.Workspace
                 RefreshOwners(session);
                 refresh?.Invoke();
             }
-            void Transfer(CharacterInstance recipient, bool stash)
+            void Transfer(CharacterInstance recipient, bool stash) =>
+                RequestTransfer(session, owner, item, recipient, stash, InCity, refresh, ids);
+        }
+
+        // Menu and drag/drop use the same quantity dialog, ownership validation
+        // and atomic transfer. Revalidate against the live session on confirmation.
+        public void RequestTransfer(GameSession session, CharacterInstance owner, ItemInstance item,
+            CharacterInstance recipient, bool toStash, Func<bool> inCity, Action refresh = null,
+            IReadOnlyList<string> capturedIds = null)
+        {
+            var ids = (capturedIds ?? ItemOwnershipActions.CaptureStack(owner, item)).ToArray();
+            if (ids.Length == 0 || !ItemOwnershipActions.Owns(owner, item))
+            { ShowNotice("Przedmiot nie jest już dostępny."); return; }
+            if (session?.IsCharacterInCombat(owner.CharacterId) == true)
+            { ShowNotice("Przedmiotów nie można przekazywać podczas walki."); return; }
+            if (!toStash && (recipient == owner || !ItemOwnershipActions.CanReceive(session, recipient, inCity())))
+            { ShowNotice("Ten towarzysz nie może teraz przyjąć przedmiotu."); return; }
+            string Execute(int count)
             {
-                string Execute(int count)
-                {
-                    if (!actions.TryTransfer(session, owner, item, ids, count, recipient, stash, InCity(), out var reason)) return reason;
-                    Refresh(); return null;
-                }
-                var destination = stash ? "schowka" : recipient.Definition?.DisplayName ?? recipient.CharacterId;
-                if (ids.Count > 1) RequestQuantity("Przekaż przedmioty", ids.Count,
-                    count => $"{item.DisplayName}\n{count} szt. → {destination}", Execute);
-                else { var error = Execute(1); if (error != null) ShowNotice(error); }
+                if (!actions.TryTransfer(session, owner, item, ids, count, recipient, toStash, inCity(), out var reason))
+                    return reason;
+                UIWorkspaceTooltipView.ActiveInstance?.Hide();
+                RefreshOwners(session);
+                refresh?.Invoke();
+                return null;
             }
+            var destination = toStash ? "schowka" : recipient.Definition?.DisplayName ?? recipient.CharacterId;
+            if (ids.Length > 1) RequestQuantity("Przekaż przedmioty", ids.Length,
+                count => $"{item.DisplayName}\n{count} szt. → {destination}", Execute);
+            else { var error = Execute(1); if (error != null) ShowNotice(error); }
         }
 
         public void RefreshOwners(GameSession session)

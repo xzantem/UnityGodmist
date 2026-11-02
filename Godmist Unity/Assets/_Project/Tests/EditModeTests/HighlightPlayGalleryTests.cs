@@ -87,7 +87,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(card.GetComponent<UIWorkspaceWindow>().IsOpen, Is.True);
             card.SelectEquipmentSlot(card.GetComponentsInChildren<CharacterInfoEquipmentSlotView>().First(s => s.Item != null));
             yield return Capture("02-inventory-selection");
-            card.CloseItemDetails();
+            card.ClearItemSelection();
             card.OpenSkillTree();
             yield return Frames();
             var node = UnityEngine.Object.FindObjectsByType<SkillTreeNodeView>(FindObjectsSortMode.None).First();

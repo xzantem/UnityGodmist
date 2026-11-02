@@ -129,25 +129,6 @@ public static class GodmistCharacterCardSetup
         var view=body.GetComponent<ItemDetailsDividerView>()??body.gameObject.AddComponent<ItemDetailsDividerView>();
         Wire(view,"detailsText",body);Wire(view,"divider",divider);
     }
-    static void DetailsPanel(CharacterInfoWindowView view,RectTransform right,RectTransform inventoryScroll)
-    {
-        var panel=ImageAt(right,"PinnedItemDetails","tooltip_frame");Place(panel.rectTransform,new Vector2(.5f,0),new Vector2(0,78),new Vector2(396,312),new Vector2(.5f,0));
-        var label=Label(panel.transform,"PinnedLabel","Szczegóły wyposażenia",16);AtTop(label.rectTransform,10,22,14);
-        var icon=PlainImage(panel.transform,"ItemIcon",Color.white);Place(icon.rectTransform,new Vector2(0,1),new Vector2(14,-40),new Vector2(52,52),new Vector2(0,1));icon.preserveAspect=true;
-        var title=Label(panel.transform,"ItemTitle","Przedmiot",21);AtTop(title.rectTransform,40,54,14);title.rectTransform.offsetMin=new Vector2(78,title.rectTransform.offsetMin.y);title.rectTransform.offsetMax=new Vector2(-46,title.rectTransform.offsetMax.y);title.textWrappingMode=TextWrappingModes.Normal;
-        var close=ImageAt(panel.transform,"CloseDetails","button_normal");Place(close.rectTransform,Vector2.one,new Vector2(-10,-8),new Vector2(26,26),Vector2.one);var button=close.GetComponent<Button>()??close.gameObject.AddComponent<Button>();close.raycastTarget=true;Label(close.transform,"Label","×");ButtonStyle(button,"×");
-        var scrollNode=PlainImage(panel.transform,"DetailsScroll",Color.clear);Stretch(scrollNode.rectTransform,14,54,14,102);scrollNode.raycastTarget=true;
-        var scroll=scrollNode.GetComponent<ScrollRect>()??scrollNode.gameObject.AddComponent<ScrollRect>();scroll.horizontal=false;scroll.movementType=ScrollRect.MovementType.Clamped;
-        var viewport=PlainImage(scroll.transform,"Viewport",Color.white);Stretch(viewport.rectTransform,0,0,12,0);var mask=viewport.GetComponent<Mask>()??viewport.gameObject.AddComponent<Mask>();mask.showMaskGraphic=false;scroll.viewport=viewport.rectTransform;
-        var body=Label(viewport.transform,"DetailsBody","",17);body.textWrappingMode=TextWrappingModes.Normal;body.overflowMode=TextOverflowModes.Overflow;AtTop(body.rectTransform,0,0,0);scroll.content=body.rectTransform;
-        DetailsDivider(body);
-        var fit=body.GetComponent<ContentSizeFitter>()??body.gameObject.AddComponent<ContentSizeFitter>();fit.verticalFit=ContentSizeFitter.FitMode.PreferredSize;
-        var track=ImageAt(scroll.transform,"Scrollbar","scrollbar_track");track.raycastTarget=true;track.rectTransform.anchorMin=new Vector2(1,0);track.rectTransform.anchorMax=Vector2.one;track.rectTransform.offsetMin=new Vector2(-8,0);track.rectTransform.offsetMax=Vector2.zero;
-        var bar=track.GetComponent<Scrollbar>()??track.gameObject.AddComponent<Scrollbar>();bar.direction=Scrollbar.Direction.BottomToTop;
-        var handle=ImageAt(track.transform,"Handle","scrollbar_thumb_normal");Stretch(handle.rectTransform);bar.handleRect=handle.rectTransform;bar.targetGraphic=handle;scroll.verticalScrollbar=bar;scroll.verticalScrollbarVisibility=ScrollRect.ScrollbarVisibility.AutoHide;
-        var meta=Label(panel.transform,"DetailsMeta","",15);Place(meta.rectTransform,new Vector2(0,0),new Vector2(14,10),new Vector2(368,36),Vector2.zero);meta.textWrappingMode=TextWrappingModes.Normal;
-        Wire(view,"itemDetailsPanel",panel.gameObject);Wire(view,"inventoryScrollRect",inventoryScroll);Wire(view,"itemDetailsTitle",title);Wire(view,"itemDetailsBody",body);Wire(view,"itemDetailsIcon",icon);Wire(view,"itemDetailsMeta",meta);Wire(view,"closeItemDetailsButton",button);Wire(view,"itemDetailsScroll",scroll);panel.gameObject.SetActive(false);
-    }
     static void ConfigureTooltip()
     {
         var path=Root+"PF_UIW_Tooltip.prefab";var root=PrefabUtility.LoadPrefabContents(path);
@@ -241,7 +222,7 @@ public static class GodmistCharacterCardSetup
             ButtonStyle(Ref<Button>(view,"skillLoadoutButton"),"Umiejętności");ButtonStyle(Ref<Button>(view,"skillTreeButton"),"Rozwój");
             foreach(var button in new[]{Ref<Button>(view,"skillLoadoutButton"),Ref<Button>(view,"skillTreeButton")})
             {var element=button.GetComponent<LayoutElement>()??button.gameObject.AddComponent<LayoutElement>();element.minWidth=0;element.preferredWidth=150;element.flexibleWidth=1;element.minHeight=element.preferredHeight=42;}
-            var help=Label(center,"EquipmentHint","LPM: szczegóły • PPM: opcje\nPrzeciągnij do plecaka, aby zdjąć",15);help.alignment=TextAlignmentOptions.Center;help.textWrappingMode=TextWrappingModes.Normal;AtTop(help.rectTransform,550,42,0);
+            var help=Label(center,"EquipmentHint","LPM: zaznacz • dwuklik: akcja\nPPM: opcje",15);help.alignment=TextAlignmentOptions.Center;help.textWrappingMode=TextWrappingModes.Normal;AtTop(help.rectTransform,550,42,0);
             Heading(right,"InventoryHeading","Plecak",4);
             var search=Ref<TMP_InputField>(view,"inventorySearchInput");AtTop((RectTransform)search.transform,40,42);Paint(search.GetComponent<Image>(),"button_normal");search.customCaretColor=true;search.caretColor=TextColor;search.selectionColor=new Color(.5f,.45f,.25f,.6f);
             var area=(RectTransform)search.transform.Find("Text Area");Stretch(area,12,5,48,5);
@@ -257,7 +238,9 @@ public static class GodmistCharacterCardSetup
             var template=Ref<CharacterInfoItemView>(view,"inventoryItemTemplate");ItemStyle(template);
             var rarity=PlainImage(template.transform,"RarityAccent",new Color(.54f,.52f,.47f));Stretch(rarity.rectTransform,4,4,4,4);rarity.material=rarityMaterial;rarity.transform.SetAsLastSibling();Wire(template,"rarityAccent",rarity);Wire(template,"rarityAccentMaterial",rarityMaterial);
             rarity.color=ItemRarityPresentation.Color(RarityTier.Common);Wire(template,"godlyAccentMaterial",godlyMaterial);
-            DetailsPanel(view,right,(RectTransform)scroll.transform);
+            var oldDetails=right.Find("PinnedItemDetails");
+            if(oldDetails!=null)UnityEngine.Object.DestroyImmediate(oldDetails.gameObject);
+            Wire(view,"inventoryScrollRect",(RectTransform)scroll.transform);
             var empty=Label(scroll.transform,"EmptyInventory","Plecak jest pusty",20);empty.alignment=TextAlignmentOptions.Center;Stretch(empty.rectTransform,20,0,20,0);Wire(view,"inventoryEmptyText",empty);
             var bar=scroll.verticalScrollbar;Place((RectTransform)bar.transform,new Vector2(1,.5f),Vector2.zero,new Vector2(8,0),new Vector2(1,.5f));var br=(RectTransform)bar.transform;br.anchorMin=new Vector2(1,0);br.anchorMax=Vector2.one;br.offsetMin=new Vector2(-8,0);br.offsetMax=Vector2.zero;
             var barTrack=bar.GetComponent<Image>();barTrack.sprite=null;barTrack.overrideSprite=null;barTrack.type=Image.Type.Simple;barTrack.color=new Color(.25f,.27f,.25f);

@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 
 namespace Godmist.Views.UI.Workspace
 {
-    public sealed class CharacterInfoPartyPortraitView : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler
+    public sealed class CharacterInfoPartyPortraitView : MonoBehaviour, IDropHandler, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler
     {
         [SerializeField] private Button button;
         [SerializeField] private Image portrait;
@@ -88,6 +88,8 @@ namespace Godmist.Views.UI.Workspace
             if (insertBefore != null) insertBefore.enabled = before;
             if (insertAfter != null) insertAfter.enabled = after;
         }
+        public void OnDrop(PointerEventData e) => rail?.ReceiveItemDrop(CharacterId, e);
+
         public void OnPointerClick(PointerEventData e)
         {
             if (rail == null || dragging || e.dragging) return;

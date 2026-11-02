@@ -83,8 +83,8 @@ namespace Godmist.Editor
         {
             if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
             palette = AssetDatabase.LoadAssetAtPath<UIWorkspaceStylePalette>("Assets/_Project/ScriptableObjects/UI/Workspace/UIWorkspaceStylePalette.asset");
-            resourceSprites = Ref<TMP_Text>(AssetDatabase.LoadAssetAtPath<GameObject>(Root+"PF_UIW_CharacterInfoWindow Variant.prefab")
-                .GetComponent<CharacterInfoWindowView>(),"itemDetailsMeta").spriteAsset;
+            resourceSprites = Ref<TMP_Text>(AssetDatabase.LoadAssetAtPath<GameObject>(Root+"PF_UIW_Tooltip.prefab")
+                .GetComponent<UIWorkspaceTooltipView>(),"metaText").spriteAsset;
             var root = new GameObject("PF_UIW_ItemActionPopup",typeof(RectTransform),typeof(ItemActionPopupView));
             root.layer = 5; root.SetActive(false); Stretch((RectTransform)root.transform);
             try

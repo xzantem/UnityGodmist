@@ -212,6 +212,19 @@ namespace Godmist.Views.UI.Workspace
             foreach (var row in portraits) if (row != null) row.MarkInsertion(false, false);
             foreach (var group in groupViews) if (group != null) group.Highlight(false);
         }
+        public void ReceiveItemDrop(string recipientId, PointerEventData eventData)
+        {
+            if (eventData?.button != PointerEventData.InputButton.Left || session == null || eventData.pointerDrag == null) return;
+            var inventoryItem = eventData.pointerDrag?.GetComponent<CharacterInfoItemView>();
+            if (inventoryItem != null)
+                inventoryItem.Owner?.TryTransferDraggedItem(session, recipientId, inventoryItem.Item);
+            else
+            {
+                var equipmentItem = eventData.pointerDrag?.GetComponent<CharacterInfoEquipmentSlotView>();
+                equipmentItem?.Owner?.TryTransferDraggedItem(session, recipientId, equipmentItem.Item);
+            }
+        }
+
         public bool CanOpenDevelopment(CharacterInstance character) => character != null && session != null
             && session.CharactersById.TryGetValue(character.CharacterId, out var registered) && ReferenceEquals(registered, character)
             && character.AvailableSkillPoints > 0 && !session.IsCharacterInCombat(character.CharacterId);

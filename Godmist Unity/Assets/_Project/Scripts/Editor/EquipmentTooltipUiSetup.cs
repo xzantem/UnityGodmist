@@ -47,15 +47,6 @@ public static class EquipmentTooltipUiSetup
             PrefabUtility.SaveAsPrefabAsset(tooltip, TooltipPath);
         }
         finally { PrefabUtility.UnloadPrefabContents(tooltip); }
-        var character = PrefabUtility.LoadPrefabContents(CharacterPath);
-        try
-        {
-            var view = character.GetComponent<CharacterInfoWindowView>();
-            ConfigureColumns(Ref<TMP_Text>(view, "itemDetailsBody"));
-            Ref<TMP_Text>(view, "itemDetailsMeta").spriteAsset = sprites;
-            PrefabUtility.SaveAsPrefabAsset(character, CharacterPath);
-        }
-        finally { PrefabUtility.UnloadPrefabContents(character); }
         AssetDatabase.SaveAssets();
     }
     private static T Ref<T>(Object owner, string field) where T : Object =>
