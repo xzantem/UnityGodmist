@@ -1,0 +1,35 @@
+Godmist 0.1.2 — Early Access
+
+PARTY AND INVENTORY
+- New Party View brings every companion's equipment, backpack, statistics,
+  skills and development into one screen. Each column can show a different tab.
+- Transfer items directly between companions, including by dropping an item
+  onto a portrait. Stacks offer a quantity selector and a carrying-capacity preview.
+- Click to select, double-click to equip or use, and right-click for actions.
+  Hover tooltips replace the redundant item-details panel.
+- Blocked item actions explain why they cannot be used.
+- Inventory stacks keep their order when their quantity changes.
+
+COMBAT AND EXPLORATION
+- Choosing an out-of-range skill target now previews the approach, moves your
+  character into range and uses the skill. This also works when opening combat.
+- Approaches use the lowest available movement cost and follow moving targets.
+- You can keep moving while aiming a skill outside combat.
+- Revised highlights make movement, targets, areas and interactions easier to read.
+- Unavailable skill icons are dimmed and desaturated; frames and shortcuts stay clear.
+- New combat action icons for ending a turn, fleeing and choosing an item.
+- Enemies move continuously in combat instead of pausing at every tile.
+- Improved catacomb wall joins, corner faces, caps and floor masking.
+- Hover outlines now appear correctly in standalone builds.
+- Pan an unlocked exploration camera with the middle or right mouse button.
+  Dragging with the right button also unlocks a following camera.
+
+CONTROLLER AND PLATFORMS
+- Controller support for exploration, combat targeting, action wheels,
+  Party View, inventory actions and on-screen text entry.
+- Improved camera, targeting and panel navigation with contextual button hints.
+- macOS Universal download for Intel and Apple Silicon Macs.
+
+Open CONTROLS.txt for a quick guide and READ-ME.txt for launch instructions.
+Existing saves retain their location and compatibility.
+The macOS build still needs testing on actual Mac hardware and is not notarized.

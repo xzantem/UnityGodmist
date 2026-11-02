@@ -25015,7 +25015,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "0.1.2-beta.1 \u2014 Early Access"
+  m_text: "0.1.2 \u2014 Early Access"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b0366477598559848b91ffe6c1717e31, type: 2}
   m_sharedMaterial: {fileID: -8384879772825197092, guid: b0366477598559848b91ffe6c1717e31, type: 2}
