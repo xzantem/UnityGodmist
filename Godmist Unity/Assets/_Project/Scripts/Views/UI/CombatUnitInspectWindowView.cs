@@ -68,6 +68,24 @@ namespace Godmist.Views.UI
         private string statusSignature;
         private string skillSignature;
 
+        [SerializeField] private bool embedded;
+        [SerializeField] private RectTransform embeddedResistanceHeading;
+        public void ConfigureEmbedded(UIWorkspaceWindow host) { embedded = true; window = host; }
+        private void FitEmbeddedStats()
+        {
+            if(!embedded||statsLayout==null)return;
+            var left=Mathf.Ceil(statsLeftText.preferredHeight);
+            var right=Mathf.Ceil(statsRightText.preferredHeight);
+            statsLayout.minHeight=statsLayout.preferredHeight=left+right+68;
+            void Place(TMP_Text text,float x0,float x1,float y,float height)
+            {
+                if(text==null)return;
+                var r=text.rectTransform;r.anchorMin=new Vector2(x0,1);r.anchorMax=new Vector2(x1,1);r.pivot=new Vector2(.5f,1);r.anchoredPosition=new Vector2(0,-y);r.sizeDelta=new Vector2(0,height);
+            }
+            if(embeddedResistanceHeading!=null){var r=embeddedResistanceHeading;r.anchorMin=new Vector2(0,1);r.anchorMax=Vector2.one;r.pivot=new Vector2(.5f,1);r.anchoredPosition=new Vector2(0,-left-36);r.sizeDelta=new Vector2(0,26);}
+            Place(statsLeftText,0,.77f,30,left);Place(statsLeftValues,.77f,1,30,left);
+            Place(statsRightText,0,.77f,left+66,right);Place(statsRightValues,.77f,1,left+66,right);
+        }
         public BattleUnit BoundUnit => boundUnit;
         public bool IsVisible => gameObject.activeSelf;
 
@@ -206,6 +224,7 @@ namespace Godmist.Views.UI
             RefreshStatColumns();
             if(statsLayout!=null)
                 statsLayout.minHeight=statsLayout.preferredHeight=Mathf.Ceil(Mathf.Max(statsLeftText?.preferredHeight??0,statsRightText?.preferredHeight??0)+30);
+            FitEmbeddedStats();
             tooltip ??= UIWorkspaceTooltipView.ActiveInstance;
             var nextStatusSignature = BuildStatusSignature(
                 character.PassiveEffects,

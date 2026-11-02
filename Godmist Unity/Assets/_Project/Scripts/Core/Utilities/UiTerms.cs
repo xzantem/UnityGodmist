@@ -13,6 +13,18 @@ namespace Godmist.Core.Utilities
     /// </summary>
     public static class UiTerms
     {
+        public const string Development = "Rozwój";
+        public const string Experience = "Doświadczenie";
+        public const string Honor = "Honor";
+        public const string Level = "Poziom";
+        public const string Shield = "Tarcza";
+        public static string CharacterClass(string name) => name switch
+        { "Scout" => "Zwiadowca", "Warrior" => "Wojownik", "Mage" => "Mag", "Paladin" => "Paladyn", _ => name ?? "—" };
+        public static string LifeState(CharacterLifeState state) => state switch
+        { CharacterLifeState.Alive => "Żywy", CharacterLifeState.Downed => "Powalony", CharacterLifeState.Dead => "Martwy", _ => "Nieznany stan" };
+        public static string Availability(CharacterAvailabilityState state) => state switch
+        { CharacterAvailabilityState.Available => "Dostępny", CharacterAvailabilityState.Abandoned => "Opuścił drużynę",
+          CharacterAvailabilityState.StoryLocked => "Niedostępny fabularnie", CharacterAvailabilityState.Recoverable => "Możliwy do odzyskania", _ => "Niedostępny" };
         public const string PercentagePoints = "pp";
         public const string ActionPoints = "Punkty akcji";
         public const string ActionPointsShort = "PA";

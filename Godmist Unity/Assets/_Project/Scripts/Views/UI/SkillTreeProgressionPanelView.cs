@@ -59,6 +59,8 @@ namespace Godmist.Views.UI
         private string selectedNodeId;
         private Coroutine treeVisualRefresh;
         private Vector2 lastTreeAreaSize = new(-1f, -1f);
+        private bool embedded;
+        public void ConfigureEmbedded(UIWorkspaceWindow host) { embedded = true; workspaceWindow = host; }
         public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
 
         private void Awake()

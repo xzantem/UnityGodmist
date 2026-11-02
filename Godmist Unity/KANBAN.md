@@ -1,3 +1,9 @@
+## Party View — v0.1.2 beta — READY_FOR_SMOKE
+
+Jeden widok wszystkich aktywnych postaci, niezależne zakładki Ekwipunek / Statystyki / Umiejętności / Rozwój. I i LT otwierają widok, LB/RB wybierają kolumnę bez zmiany lidera. Indywidualna karta zachowana. Transfer stosu i założonego sprzętu przez istniejące transakcje; wybór ilości, podgląd odbiorcy i udźwigu. Nagłówki: HP, zasób i XP z cienkimi maskowanymi paskami, honor, stan, dostępność i tarcza. Brak powtórzonego XP w Rozwoju. Umiejętności po pięć ikon w rzędzie; większy opis. Usunięty skrót statystyk nad plecakiem. Wyśrodkowany tytuł i osobna oprawa złota. Fizyczny kontroler/paczka wymagają smoke testu.
+
+Wymagane zależności: przebudowa kontrolera i interakcje ekwipunku w oddzielnych commitach. Weryfikacja natywnymi testami w odizolowanym batch Editorze, bez otwierania/fokusowania Game View. Wyniki i screeny lokalne: ../LocalHandoffs/party-view-header-redesign-20261102/ oraz ../LocalHandoffs/party-view-commit-20261102/.
+
 ## v0.1.1 — korekta grafiki jadeitu według workflow C — 2026-10-27 — READY_FOR_SMOKE
 
 Zastąpiono wcześniejszy ręczny rysunek jadeitu nowym masterem z wbudowanego image_gen, zgodnym z przyjętym stylem C. Eksport oryginalnym skryptem Aseprite: premultiplied area average, 32×32, alfa 0/255, do 24 kolorów, bez ditheringu. 32 warianty biżuterii złożono oryginalnym pipeline'em warstw/metali i kanonicznych masek gniazd; 8-kolorowa rampa pochodzi z nowej ikony. Zachowano również produkcyjne przesunięcia centrowania. Usunięto poprzedni recolor HSV ze skryptu BossGemLootSetup, który teraz korzysta z gotowych PNG.

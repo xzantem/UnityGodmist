@@ -155,7 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Views::Godmist.Views.UI.Workspace.CharacterInfoPartyRailView
   portraitRoot: {fileID: 3178026205475393628}
   portraitTemplate: {fileID: 7197617726058514514, guid: f3ebac5c514448f49941fbfcb986a571, type: 3}
-  characterInfoWindowPrefab: {fileID: 0}
+  characterInfoWindowPrefab: {fileID: 807360567908940424, guid: cd19fb4f68345e046819eb5d194697bb, type: 3}
   workspaceManager: {fileID: 0}
   partyController: {fileID: 0}
   groupTemplate: {fileID: 715552808997506332, guid: 771735c82a5159c44a813c41da091255, type: 3}
@@ -164,6 +164,7 @@ MonoBehaviour:
   dropZone: {fileID: 4257144876099945265}
   dragGhost: {fileID: 8422267491124660327}
   newGroupMarker: {fileID: 5916082414595188990}
+  partyViewPrefab: {fileID: 6849497395160244859, guid: 0bcfb6ed1521906409121cf75b5ecc56, type: 3}
 --- !u!114 &8112149447416540353
 MonoBehaviour:
   m_ObjectHideFlags: 0

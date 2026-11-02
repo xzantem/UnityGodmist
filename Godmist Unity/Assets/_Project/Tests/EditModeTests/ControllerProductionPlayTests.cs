@@ -26,6 +26,7 @@ namespace Godmist.Tests.EditMode
         private Gamepad previousPad;
         private GamepadState desiredState;
         private Vector2 observedPointer;
+        private ControllerPointerSampler pointerProbe;
         private Mouse verificationMouse;
         private Keyboard verificationKeyboard;
         private bool sendMouse, sendKeyboard;
@@ -43,14 +44,9 @@ namespace Godmist.Tests.EditMode
                 "Integration tests must not replace unsaved user scenes.");
             Directory.CreateDirectory(Output);
             var setup = EditorSceneManager.GetSceneManagerSetup();
-            EditorApplication.ExecuteMenuItem("Window/General/Game");
-            var game = EditorWindow.focusedWindow;
-            Assert.That(game?.GetType().Name, Is.EqualTo("GameView"));
             File.WriteAllText(Path.Combine(Output, "play-test-scenes.json"), JsonUtility.ToJson(new PreviousScenes
-                { paths = setup.Select(s => s.path).ToArray(), loaded = setup.Select(s => s.isLoaded).ToArray(), active = setup.Select(s => s.isActive).ToArray(), gameMaximized = game.maximized }));
-            game.maximized = true;
+                { paths = setup.Select(s => s.path).ToArray(), loaded = setup.Select(s => s.isLoaded).ToArray(), active = setup.Select(s => s.isActive).ToArray() }));
             EditorSceneManager.OpenScene("Assets/_Project/Scenes/Bootstrap/Bootstrap.unity");
-            EditorApplication.ExecuteMenuItem("Window/General/Game");
             yield return new EnterPlayMode();
             oldBehavior = InputSystem.settings.editorInputBehaviorInPlayMode;
             oldBackgroundBehavior = InputSystem.settings.backgroundBehavior;
@@ -68,7 +64,7 @@ namespace Godmist.Tests.EditMode
                 { disabledDevices.Add(device); InputSystem.DisableDevice(device); }
             pad = InputSystem.AddDevice<Gamepad>("Godmist verification pad");
             InputSystem.onBeforeUpdate += FeedPad;
-            Application.onBeforeRender += TracePlayer;
+            pointerProbe=new ControllerPointerSampler(TracePlayer);
             desiredState = new GamepadState { leftStick = Vector2.up * .8f };
             for (var i = 0; i < 6; i++) yield return null;
             Assert.That(ControllerInput.UiActive, Is.True, "The authored Bootstrap controller must receive real player-loop input.");
@@ -82,7 +78,7 @@ namespace Godmist.Tests.EditMode
             if (configured)
             {
                 InputSystem.onBeforeUpdate -= FeedPad;
-                Application.onBeforeRender -= TracePlayer;
+                pointerProbe?.Dispose();pointerProbe=null;
                 if (pad is { added: true }) InputSystem.RemoveDevice(pad);
                 if (verificationMouse is { added: true }) InputSystem.RemoveDevice(verificationMouse);
                 if (verificationKeyboard is { added: true }) InputSystem.RemoveDevice(verificationKeyboard);
@@ -106,8 +102,6 @@ namespace Godmist.Tests.EditMode
                 if (previous.active[i]) activeScene = scene;
             }
             if (activeScene.IsValid()) SceneManager.SetActiveScene(activeScene);
-            EditorApplication.ExecuteMenuItem("Window/General/Game");
-            if (EditorWindow.focusedWindow?.GetType().Name == "GameView") EditorWindow.focusedWindow.maximized = previous.gameMaximized;
         }
 
         private static T ObjectField<T>(UnityEngine.Object owner, string name) where T : UnityEngine.Object
@@ -156,10 +150,9 @@ namespace Godmist.Tests.EditMode
         {
             var path = Path.Combine(Output, name + ".png");
             if (File.Exists(path)) File.Move(path, Path.Combine(Output, name + "-previous-" + DateTime.UtcNow.Ticks + ".png"));
-            ScreenCapture.CaptureScreenshot(path);
-            for (var i = 0; i < 30 && !File.Exists(path); i++) yield return null;
-            Assert.That(File.Exists(path), Is.True, "Game View must render the integration screenshot.");
-            Assert.That(new FileInfo(path).Length, Is.GreaterThan(1000));
+            yield return BackgroundGameCapture.Capture(path,name.StartsWith("08-"));
+            Assert.That(File.Exists(path),Is.True);
+            Assert.That(new FileInfo(path).Length,Is.GreaterThan(10000));
         }
 
         [UnityTest]
@@ -368,22 +361,31 @@ namespace Godmist.Tests.EditMode
             Assert.That(ControllerInput.WorldActive, Is.True);
             yield return Send(new GamepadState { leftTrigger = 1 });
             yield return Send(new GamepadState());
-            yield return Press(GamepadButton.South); // LT selects a subject, then shows its panels.
-            TownStage("panels opened", party);
-            Assert.That(ControllerInput.UiActive, Is.True);
-            yield return Capture("panels-selector-controller");
+            var partyWindow = View<Godmist.Views.UI.Workspace.PartyViewWindowView>();
+            Assert.That(partyWindow.Columns.Count, Is.EqualTo(party.Session.PlayerParty.ActiveMemberIds.Count()));
+            var leaderBeforeView = party.Session.PlayerParty.ActiveLeaderId;
+            partyWindow.Select(partyWindow.Columns[0].CharacterId,true);
+            yield return Press(GamepadButton.RightShoulder);
+            Assert.That(partyWindow.SelectedCharacterId,Is.EqualTo(partyWindow.Columns[1].CharacterId));
+            Assert.That(party.Session.PlayerParty.ActiveLeaderId,Is.EqualTo(leaderBeforeView));
+            yield return Capture("party-columns-controller");
+            yield return Press(GamepadButton.West);
+            var utilities=View<ControllerWheelView>();
+            Assert.That(utilities.IsOpen,Is.True);
+            yield return Capture("party-utilities-controller");
+            yield return Press(GamepadButton.East);
+            Assert.That(utilities.IsOpen,Is.False);Assert.That(ControllerInput.UiActive,Is.True);
+            Assert.That(partyWindow.gameObject.activeInHierarchy,Is.True);
             start = party.ActiveLeaderTransform.position;
-            yield return Send(new GamepadState { leftStick = Vector2.right * .8f }, 12);
-            Assert.That(Vector3.Distance(start, party.ActiveLeaderTransform.position), Is.LessThan(.01f), "UI navigation must not move the party.");
+            yield return Send(new GamepadState { leftStick = Vector2.right * .8f },12);
+            Assert.That(Vector3.Distance(start,party.ActiveLeaderTransform.position),Is.LessThan(.01f));
             yield return Send(new GamepadState());
-            var controllerWheel = View<ControllerWheelView>();
-            Assert.That(controllerWheel.IsOpen, Is.True);
-            yield return Send(new GamepadState { leftStick = Vector2.up * .8f });
-            yield return Send(new GamepadState());
-            Assert.That(controllerWheel.SelectedId, Is.EqualTo("Inventory"));
+            var individualButton=partyWindow.Columns[1].GetComponentsInChildren<Button>().Single(b=>b.name=="IndividualCard");
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(individualButton.gameObject);
             yield return Press(GamepadButton.South);
-            var card = View<Godmist.Views.UI.Workspace.CharacterInfoWindowView>();
-            Assert.That(card.gameObject.activeInHierarchy, Is.True);
+            var card = UnityEngine.Object.FindObjectsByType<Godmist.Views.UI.Workspace.CharacterInfoWindowView>(FindObjectsInactive.Exclude,FindObjectsSortMode.None)
+                .Single(v=>v.GetComponentInParent<Godmist.Views.UI.Workspace.PartyViewColumnView>()==null);
+            Assert.That(card.CharacterId,Is.EqualTo(partyWindow.Columns[1].CharacterId));
             yield return Capture("inventory-controller");
             var window = card.GetComponent<Godmist.Views.UI.Workspace.UIWorkspaceWindow>();
             var handle = card.GetComponentInChildren<Godmist.Views.UI.Workspace.UIWorkspaceWindowDragHandle>();
@@ -397,6 +399,7 @@ namespace Godmist.Tests.EditMode
             yield return Press(GamepadButton.East); // First B exits the optional cursor.
             yield return Press(GamepadButton.East); // Next B closes the card.
             Assert.That(window.IsOpen, Is.False);
+            yield return Press(GamepadButton.East); // Return from Party View too.
             Assert.That(ControllerInput.WorldActive, Is.True);
 
             var operation = SceneManager.LoadSceneAsync("CombatSandbox");

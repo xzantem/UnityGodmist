@@ -152,8 +152,8 @@ namespace Godmist.Views.UI
                     if (combatTargeting?.IsSelectingTarget != true)
                     {
                         Append(combatBootstrap?.Session == null
-                            ? "LB / RB – postać   LT – drużyna i panele   RT – akcje"
-                            : "LT – drużyna i panele   RT – akcje");
+                            ? "LB / RB – postać   LT – drużyna   RT – akcje"
+                            : "LT – drużyna   RT – akcje");
                     }
                     Append("D-pad ← / → – cel   ↑ / ↓ – zoom   Back – mapa   Start – pauza");
                 }

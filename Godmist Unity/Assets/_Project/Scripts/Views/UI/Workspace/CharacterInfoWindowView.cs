@@ -75,6 +75,9 @@ namespace Godmist.Views.UI.Workspace
         private SkillLoadoutModalView skillLoadoutWindow;
         private SkillTreeProgressionPanelView skillTreeWindow;
 
+        public void ConfigureEmbedded(UIWorkspaceWindow host) { window = host; }
+
+        public ItemInstance DraggedItem => draggedItem;
         public string CharacterId => character?.CharacterId;
         public Func<string, string, string> CampAction { private get; set; }
 
@@ -309,12 +312,10 @@ namespace Godmist.Views.UI.Workspace
             }
 
             var name = character.Definition?.DisplayName ?? character.CharacterId;
-            var className = LocalizeClass(character.ClassData?.ClassName);
+            var className = UiTerms.CharacterClass(character.ClassData?.ClassName);
             if (headerTitleText != null) headerTitleText.text = name;
             identityText.text = $"Klasa: {className}";
-            var experience = character.Level >= CharacterProgressionSystem.MaximumLevel
-                ? "maksimum"
-                : $"{character.CurrentExperience}/{progressionSystem.GetExperienceRequiredForNextLevel(character.Level)}";
+            var experience = CharacterOverviewPresentation.Experience(character, progressionSystem);
             progressionText.text = experienceValueText != null ? $"Poziom {character.Level}" : character.Level >= CharacterProgressionSystem.MaximumLevel
                 ? $"Poziom {character.Level}\nDoświadczenie: maksimum"
                 : $"Poziom {character.Level}\nXP: {character.CurrentExperience}/{progressionSystem.GetExperienceRequiredForNextLevel(character.Level)}";
@@ -325,7 +326,7 @@ namespace Godmist.Views.UI.Workspace
             RefreshVitals();
             RefreshStatTexts();
             honorAvailabilityText.text = (honorValueText == null ? $"Honor<pos=180>{character.Honor}\n" : string.Empty)
-                + $"Stan: {LifeStateName(character.LifeState)}\n{AvailabilityName(character.AvailabilityState)}";
+                + $"Stan: {UiTerms.LifeState(character.LifeState)}\n{UiTerms.Availability(character.AvailabilityState)}";
             if (honorValueText != null) honorValueText.text = character.Honor.ToString();
 
             RefreshInventory();
@@ -689,12 +690,5 @@ namespace Godmist.Views.UI.Workspace
             if (value == null) return "Odporności: -";
             return $"{UiTerms.ResistanceRow(ResistanceType.Bleed)}<pos=180>{value.BleedResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Poison)}<pos=180>{value.PoisonResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Fire)}<pos=180>{value.FireResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Weakening)}<pos=180>{value.WeakeningResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Suppression)}<pos=180>{value.SuppressionResistance * 100f:0.#}%\n{UiTerms.ResistanceRow(ResistanceType.Move)}<pos=180>{value.MoveResistance * 100f:0.#}%";
         }
-        private static string LocalizeClass(string name) => name switch
-        { "Scout" => "Zwiadowca", "Warrior" => "Wojownik", "Mage" => "Mag", "Paladin" => "Paladyn", _ => name ?? "—" };
-        private static string LifeStateName(CharacterLifeState state) => state switch
-        { CharacterLifeState.Alive => "Żywy", CharacterLifeState.Downed => "Powalony", CharacterLifeState.Dead => "Martwy", _ => "Nieznany stan" };
-        private static string AvailabilityName(CharacterAvailabilityState state) => state switch
-        { CharacterAvailabilityState.Available => "Dostępny", CharacterAvailabilityState.Abandoned => "Opuścił drużynę",
-            CharacterAvailabilityState.StoryLocked => "Niedostępny fabularnie", CharacterAvailabilityState.Recoverable => "Możliwy do odzyskania", _ => "Niedostępny" };
     }
 }

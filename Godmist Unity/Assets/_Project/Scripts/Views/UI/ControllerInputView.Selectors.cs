@@ -43,50 +43,18 @@ namespace Godmist.Views.UI
             uiRequested = true; SetContext(true);
         }
 
-        private void OpenPartySelector()
+        private void OpenPartyUtilities()
         {
-            var session = party?.Session;
-            if (session?.PlayerParty == null) return;
-            var entries = new List<ControllerWheelView.Entry>();
-            foreach (var id in session.PlayerParty.ActiveMemberIds)
-            {
-                if (!session.CharactersById.TryGetValue(id, out var character)) continue;
-                var captured = id;
-                entries.Add(new(id, character.Definition?.DisplayName ?? id, () =>
-                { panelSubject = captured; OpenPanelSelector(); },icon:character.Definition?.UiPortraitSprite));
-            }
-            var current = (combat?.Session?.ActiveUnit is { IsPlayerSide: true } actor
-                ? actor.Character?.CharacterId : session.PlayerParty.ActiveLeaderId);
-            ShowWheel("Drużyna", entries, current);
-        }
-
-        private void OpenPanelSelector()
-        {
-            var entries = new List<ControllerWheelView.Entry>();
-            var session = party?.Session;
-            var subjectId = panelSubject ?? session?.PlayerParty?.ActiveLeaderId;
-            var canDevelop = session != null && subjectId != null && !session.IsCharacterInCombat(subjectId);
-            if (partyRail != null && session != null)
-            {
-                void Panel(string label, ControllerCharacterPanel panel, bool enabled = true)
-                    => entries.Add(new(panel.ToString(), label, () =>
-                    {
-                        lastPanel = panel.ToString(); ReturnToWorld();
-                        partyRail.OpenControllerCharacterPanel(panel, subjectId);
-                    }, () => enabled, enabled ? null : "Postać uczestniczy w walce."));
-                Panel("Ekwipunek", ControllerCharacterPanel.Inventory);
-                Panel("Statystyki i efekty", ControllerCharacterPanel.Stats);
-                Panel("Drzewko umiejętności", ControllerCharacterPanel.Development, canDevelop);
-                Panel("Zestaw umiejętności", ControllerCharacterPanel.Skills, canDevelop);
-            }
-            if (combat?.Session == null && subjectId != null)
-                entries.Add(new("control", "Steruj postacią", () => { ReturnToWorld(); party.SelectMember(subjectId); }));
-            if (journal != null) entries.Add(new("journal", "Dziennik", () => { ReturnToWorld(); journal.Open(); },
-                () => session?.CurrentMode == Godmist.Core.Enums.GameModeState.Exploration, "Dostępny podczas eksploracji."));
-            if (minimap != null) entries.Add(new("map", "Mapa", () => { ReturnToWorld(); minimap.SetOverviewOpen(true); }));
-            var name = session != null && subjectId != null && session.CharactersById.TryGetValue(subjectId, out var character)
-                ? character.Definition?.DisplayName : "Postać";
-            ShowWheel(name, entries, lastPanel, OpenPartySelector);
+            var view=partyRail?.PartyView;
+            var session=party?.Session;
+            var id=view?.SelectedCharacterId;
+            if(view==null||session==null||id==null)return;
+            var entries=new List<ControllerWheelView.Entry>();
+            entries.Add(new("card","Karta postaci",()=>{wheel.Hide();partyRail.OpenControllerCharacterPanel(ControllerCharacterPanel.Inventory,id);uiRequested=true;}));
+            if(journal!=null)entries.Add(new("journal","Dziennik",()=>{wheel.Hide();view.Close();journal.Open();uiRequested=true;},
+                ()=>session.CurrentMode==Godmist.Core.Enums.GameModeState.Exploration,"Dostępny podczas eksploracji."));
+            if(minimap!=null)entries.Add(new("map","Mapa",()=>{wheel.Hide();view.Close();ReturnToWorld();minimap.SetOverviewOpen(true);}));
+            ShowWheel("Pozostałe okna",entries,back:()=>{wheel.Hide();view.Window.Focus();uiRequested=true;SetContext(true);});
         }
 
         private void OpenActionWheel()

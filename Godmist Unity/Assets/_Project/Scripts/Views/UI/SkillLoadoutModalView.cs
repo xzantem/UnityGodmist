@@ -68,6 +68,8 @@ namespace Godmist.Views.UI
         private Image dragGhostImage;
         private TextMeshProUGUI dragGhostFallback;
 
+        private bool embedded;
+        public void ConfigureEmbedded(UIWorkspaceWindow host) { embedded = true; workspaceWindow = host; }
         public bool IsOpen => panelRoot != null && panelRoot.activeSelf;
 
         private void Awake()
@@ -92,7 +94,7 @@ namespace Godmist.Views.UI
 
             UpdateDragGhost(Godmist.Views.UI.ControllerInput.PointerPosition);
 
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (!embedded && Input.GetKeyDown(KeyCode.Escape))
             {
                 if (!string.IsNullOrWhiteSpace(draggedSkillId))
                 {

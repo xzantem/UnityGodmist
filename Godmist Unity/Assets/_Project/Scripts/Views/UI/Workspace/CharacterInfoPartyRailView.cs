@@ -30,6 +30,9 @@ namespace Godmist.Views.UI.Workspace
         private readonly List<CharacterInfoPartyPortraitView> portraits = new();
         private readonly List<PartyRailGroupView> groupViews = new();
         private readonly Dictionary<string, CharacterInfoWindowView> windows = new();
+        [SerializeField] private PartyViewWindowView partyViewPrefab;
+        private PartyViewWindowView partyView;
+        public PartyViewWindowView PartyView => partyView;
         private GameSession session;
         private PartyRailMenuView menu;
         private CombatUnitInspectWindowView inspectWindow;
@@ -51,15 +54,15 @@ namespace Godmist.Views.UI.Workspace
             var next = Godmist.Views.Game.GameBootstrap.Instance?.Session;
             if (next != session)
             {
-                Unsubscribe(); CancelDrag(); menu?.Hide(); developmentWindow?.Close(); session = next;
+                Unsubscribe(); CancelDrag(); menu?.Hide(); developmentWindow?.Close(); partyView?.Close(); session = next;
                 if (session != null) { session.PartyRosterChanged += Refresh; session.PlayerParty.GroupsChanged += Refresh; }
                 dirty = true;
             }
             if (dragged != null && Input.GetKeyDown(KeyCode.Escape)) CancelDrag();
             if (session != null && (session.CurrentMode == GameModeState.Exploration || session.CurrentMode == GameModeState.Combat)
                 && !DevConsoleView.IsOpen && !UIWorkspaceInputRouter.HasFocusedTextInput()
-                && Input.GetKeyDown(KeyCode.I))
-                ToggleActiveCharacterInfo();
+                && UnityEngine.InputSystem.Keyboard.current?.iKey.wasPressedThisFrame == true)
+                TogglePartyView();
             if (dirty && dragged == null) Rebuild();
             foreach (var portrait in portraits)
             {
@@ -78,6 +81,7 @@ namespace Godmist.Views.UI.Workspace
         private void OnDestroy()
         {
             Unsubscribe();
+            if(partyView!=null)Destroy(partyView.gameObject);
             if (menu != null) Destroy(menu.gameObject);
             if (inspectWindow != null) Destroy(inspectWindow.gameObject);
             if (developmentWindow != null) Destroy(developmentWindow.gameObject);
@@ -304,22 +308,17 @@ namespace Godmist.Views.UI.Workspace
             view.CampAction = (ownerId, itemId) => partyController != null ? partyController.TryCamp(ownerId, itemId) : "Brak aktywnej drużyny.";
             manager.CascadeAndFocus(view.GetComponent<UIWorkspaceWindow>(), previousWindow);
         }
-        private void ToggleActiveCharacterInfo()
+        public void OpenPartyView()
         {
-            var leaderId = session?.PlayerParty.ActiveLeaderId;
-            if (string.IsNullOrEmpty(leaderId)
-                || !session.CharactersById.TryGetValue(leaderId, out var character)) return;
-
+            if(session==null||partyViewPrefab==null||workspaceManager?.WorkspaceRoot==null)return;
+            if(partyView==null)partyView=Instantiate(partyViewPrefab,workspaceManager.WorkspaceRoot);
             menu?.Hide();
-
-            if (windows.TryGetValue(leaderId, out var existing)
-                && existing != null && existing.gameObject.activeInHierarchy)
-            {
-                existing.GetComponent<UIWorkspaceWindow>()?.Close();
-                return;
-            }
-
-            OpenCharacterInfo(character);
+            partyView.Open(session,id=>{if(session.CharactersById.TryGetValue(id,out var c))OpenCharacterInfo(c);},
+                (id,item)=>partyController!=null?partyController.TryCamp(id,item):"Brak aktywnej drużyny.");
+        }
+        public void TogglePartyView()
+        {
+            if(partyView!=null&&partyView.gameObject.activeInHierarchy)partyView.Close();else OpenPartyView();
         }
     }
 }

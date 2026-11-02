@@ -186,24 +186,25 @@ namespace Godmist.Tests.EditMode
             rail.ShowMenu(row, Vector2.zero);
             Assert.That(Buttons(popup)[3].interactable, Is.False); Assert.That(Label(Buttons(popup)[4]), Does.StartWith("Dołącz"));
         }
-        [Test] public void ShortcutCanOpenAndCloseCardInCombatWithoutEnablingProgression()
+        [Test] public void PartyViewCanOpenAndCloseInCombatWithoutEnablingProgression()
         {
             var session = new GameSession(GameModeState.Combat);
             var character = new CharacterInstance { CharacterId = "a", Level = 1, Stats = new CharacterStats { MaxHealth = new Stat(350) }, CurrentHealth = 350 };
             session.TryRegisterCharacter(character); session.PlayerParty.TryAddActiveMember("a"); session.PlayerParty.TrySetActiveLeader("a");
-            var combat = new CombatSession(); combat.Units.Add(new BattleUnit { Character = character, IsPlayerSide = true });
+            var combat = new CombatSession(); var actor=new BattleUnit { Character = character, IsPlayerSide = true };combat.Units.Add(actor);
             Get<List<CombatSession>>(session, "combats").Add(combat);
             var manager = canvasObject.AddComponent<UIWorkspaceWindowManager>();
             var railObject = new GameObject("rail", typeof(RectTransform)); railObject.transform.SetParent(canvas.transform, false);
-            var rail = railObject.AddComponent<CharacterInfoPartyRailView>(); Set(rail, "session", session); Set(rail, "workspaceManager", manager);
-            Set(rail, "characterInfoWindowPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(Root + "PF_UIW_CharacterInfoWindow Variant.prefab").GetComponent<CharacterInfoWindowView>());
-            var toggle = typeof(CharacterInfoPartyRailView).GetMethod("ToggleActiveCharacterInfo", Fields);
-            toggle.Invoke(rail, null);
-            var card = Get<Dictionary<string, CharacterInfoWindowView>>(rail, "windows")["a"];
-            Assert.That(card.gameObject.activeInHierarchy, Is.True);
-            Assert.That(Get<Button>(card, "skillLoadoutButton").gameObject.activeSelf, Is.False);
-            Assert.That(Get<Button>(card, "skillTreeButton").gameObject.activeSelf, Is.False);
-            toggle.Invoke(rail, null); Assert.That(card.gameObject.activeSelf, Is.False);
+            var rail = railObject.AddComponent<CharacterInfoPartyRailView>(); Set(rail,"session",session);Set(rail,"workspaceManager",manager);
+            Set(rail,"partyViewPrefab",AssetDatabase.LoadAssetAtPath<GameObject>(Root+"PF_UIW_PartyView.prefab").GetComponent<PartyViewWindowView>());
+            rail.TogglePartyView();var view=rail.PartyView;Assert.That(view.gameObject.activeInHierarchy,Is.True);
+            var column=view.Columns.Single();column.Show(PartyViewMode.Development);
+            Assert.That(Get<TMPro.TMP_Text>(column,"blockedReason").gameObject.activeInHierarchy,Is.True);
+            Assert.That(Get<Godmist.Views.UI.SkillTreeProgressionPanelView>(column,"development").gameObject.activeInHierarchy,Is.False);
+            column.Show(PartyViewMode.Skills);
+            Assert.That(Get<Godmist.Views.UI.SkillLoadoutModalView>(column,"skills").gameObject.activeInHierarchy,Is.False);
+            Assert.That(session.PlayerParty.ActiveLeaderId,Is.EqualTo("a"));Assert.That(combat.Units[0],Is.SameAs(actor));
+            rail.TogglePartyView();Assert.That(view.gameObject.activeSelf,Is.False);
         }
         [TestCase(true)] [TestCase(false)] public void InventoryTransferIsBlockedIfSourceOrDestinationIsInCombat(bool sourceInCombat)
         {

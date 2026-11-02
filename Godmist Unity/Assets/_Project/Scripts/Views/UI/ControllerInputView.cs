@@ -48,7 +48,6 @@ namespace Godmist.Views.UI
         private bool hasWorldSelection;
         private ControllerWheelView wheel;
         private readonly Dictionary<string, string> lastSkills = new();
-        private string panelSubject, lastPanel = "Inventory";
         private string actionWheelActor;
         [SerializeField, Range(.25f, 2f)] private float cursorSensitivity = 1;
 
@@ -203,7 +202,10 @@ namespace Godmist.Views.UI
             var selectionActive = targeting?.IsSelectingTarget == true;
             if (!selectionActive && HasGameplay && TopScope?.IsModal != true)
             {
-                if (ControllerInput.Pressed(ControllerInput.GlobalMap, "Panels")) OpenPartySelector();
+                if (ControllerInput.Pressed(ControllerInput.GlobalMap, "Panels"))
+                {
+                    if(partyRail!=null){partyRail.TogglePartyView();uiRequested=partyRail.PartyView?.gameObject.activeInHierarchy==true;}
+                }
                 else if (!ControllerInput.UiActive && ControllerInput.Pressed(ControllerInput.GlobalMap, "Skills")) OpenActionWheel();
             }
             var useUi = !HasGameplay || uiRequested || TopScope?.IsModal == true;
@@ -352,6 +354,9 @@ namespace Godmist.Views.UI
                 if (ControllerInput.Pressed(ControllerInput.UiMap, "Next")) skillBar.PageForController(events, 1);
                 else if (ControllerInput.Pressed(ControllerInput.UiMap, "Previous")) skillBar.PageForController(events, -1);
             }
+            else if (TopScope != null && TopScope.GetComponent<PartyViewWindowView>() is {} partyWindow
+                && (ControllerInput.Pressed(ControllerInput.UiMap,"Next") || ControllerInput.Pressed(ControllerInput.UiMap,"Previous")))
+            { partyWindow.CycleColumn(ControllerInput.Pressed(ControllerInput.UiMap,"Next")?1:-1); }
             else if (TopScope != null && TopScope.GetComponentInChildren<Godmist.Views.UI.Workspace.NpcServicesWindowView>() is { } serviceTabs
                 && (ControllerInput.Pressed(ControllerInput.UiMap, "Next") || ControllerInput.Pressed(ControllerInput.UiMap, "Previous")))
             { serviceTabs.CycleControllerTab(ControllerInput.Pressed(ControllerInput.UiMap, "Next") ? 1 : -1); lastSelected = null; FocusFirst(); }
@@ -391,6 +396,9 @@ namespace Godmist.Views.UI
             }
             if (!freePointer && ControllerInput.Pressed(ControllerInput.UiMap, "Context"))
             {
+                if(TopScope?.GetComponent<PartyViewWindowView>()!=null && selected?.GetComponentInParent<CharacterInfoItemView>()==null
+                    && selected?.GetComponentInParent<CharacterInfoEquipmentSlotView>()==null)
+                {OpenPartyUtilities();return;}
                 var target = selected;
                 var data = new PointerEventData(events) { position = position, button = PointerEventData.InputButton.Right, clickCount = 1 };
                 if (target != null) ExecuteEvents.ExecuteHierarchy(target, data, ExecuteEvents.pointerClickHandler);
