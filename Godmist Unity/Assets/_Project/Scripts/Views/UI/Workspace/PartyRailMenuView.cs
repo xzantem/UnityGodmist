@@ -14,6 +14,7 @@ namespace Godmist.Views.UI.Workspace
         public sealed class Entry
         {
             public readonly string Label;
+            public readonly string DisabledReason;
             public readonly Action Action;
             public readonly bool Enabled, SeparatorBefore;
             public readonly IReadOnlyList<Entry> Children;
@@ -21,11 +22,11 @@ namespace Godmist.Views.UI.Workspace
 
             public Entry(string label, Action action = null, bool enabled = true,
                 bool separatorBefore = false, IReadOnlyList<Entry> children = null,
-                string childrenHint = "Wybierz grupę, do której dołączyć.")
+                string childrenHint = "Wybierz grupę, do której dołączyć.", string disabledReason = null)
             {
                 Label = label; Action = action; Enabled = enabled;
                 SeparatorBefore = separatorBefore; Children = children;
-                ChildrenHint = childrenHint;
+                ChildrenHint = childrenHint; DisabledReason = disabledReason;
             }
         }
 
@@ -36,6 +37,22 @@ namespace Godmist.Views.UI.Workspace
         [SerializeField] private RectTransform separatorTemplate;
         [SerializeField] private TMP_Text hintText;
         [SerializeField, Min(0)] private float anchorGap = 44; // 36px drawer handle + 8px breathing room.
+        public TMP_Text CreateControllerLabel(Transform parent, string labelName)
+        {
+            var label = Instantiate(header, parent); label.name = labelName; label.raycastTarget = false;
+            label.gameObject.SetActive(false); return label;
+        }
+
+        public ControllerWheelView CreateControllerWheel()
+        {
+            var node = new GameObject("Controller Action Wheel", typeof(RectTransform));
+            node.SetActive(false);
+            node.transform.SetParent(transform.parent, false);
+            var wheel = node.AddComponent<ControllerWheelView>();
+            wheel.Configure(entryTemplate, header, panel.GetComponentsInChildren<Image>(true).FirstOrDefault(image=>!image.fillCenter && image.sprite!=null) ?? panel.GetComponent<Image>());
+            return wheel;
+        }
+
         private readonly List<Button> entries = new();
         private readonly List<RectTransform> separators = new();
         private IReadOnlyList<Entry> rootActions;
@@ -87,6 +104,8 @@ namespace Godmist.Views.UI.Workspace
                 var normal = entryTemplate.GetComponentInChildren<TMP_Text>(true).color;
                 label.color = action.Enabled ? normal : new Color(normal.r * .55f, normal.g * .55f, normal.b * .55f, normal.a);
                 button.interactable = action.Enabled; button.onClick.RemoveAllListeners();
+                var availability = button.GetComponent<ControllerAvailabilityHint>() ?? button.gameObject.AddComponent<ControllerAvailabilityHint>();
+                availability.Bind(action.Enabled ? null : action.DisabledReason ?? "Teraz niedostępne.");
                 button.onClick.AddListener(() =>
                 {
                     if (!action.Enabled) return;
@@ -113,14 +132,14 @@ namespace Godmist.Views.UI.Workspace
 
         private void ConfigureNavigation()
         {
-            var enabled = entries.Where(button => button.gameObject.activeSelf && button.interactable).ToArray();
+            var enabled = entries.Where(button => button.gameObject.activeSelf && (button.interactable || button.GetComponent<ControllerAvailabilityHint>()?.CanInspect == true)).ToArray();
             foreach (var button in entries) button.navigation = new Navigation { mode = Navigation.Mode.None };
             if (enabled.Length > 0) EventSystem.current?.SetSelectedGameObject(enabled[0].gameObject);
         }
 
         public void MoveFocus(int direction)
         {
-            var enabled = entries.Where(button => button.gameObject.activeSelf && button.interactable).ToArray();
+            var enabled = entries.Where(button => button.gameObject.activeSelf && (button.interactable || button.GetComponent<ControllerAvailabilityHint>()?.CanInspect == true)).ToArray();
             if (enabled.Length == 0) return;
             var selected = EventSystem.current?.currentSelectedGameObject;
             var index = Array.FindIndex(enabled, button => button.gameObject == selected);

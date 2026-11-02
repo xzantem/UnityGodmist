@@ -61,6 +61,9 @@ namespace Godmist.Views.Combat
         private readonly Dictionary<int, int> rotationsByModeIndex = new();
         private readonly Dictionary<int, IReadOnlyList<GridPosition>> chosenPositionsByModeIndex = new();
         private int currentTargetModeIndex;
+        private bool controllerConfirmationRequired, controllerConfirmationPending;
+        private int controllerSelectionFrame;
+        public bool RequiresControllerConfirmation => controllerConfirmationPending;
         [System.NonSerialized] private SkillEffectData selectedTeleportEffect;
         private GridPosition selectedTeleportSourcePosition;
         private bool isSelectingTeleportDestination;
@@ -77,7 +80,7 @@ namespace Godmist.Views.Combat
         public GridPosition? HoveredPosition { get; private set; }
         public SkillData SelectedSkill => selectedSkill;
         public int CurrentTargetModeIndex => currentTargetModeIndex;
-        public bool IsControllerTarget(BattleUnit unit) => unit != null && IsSelectingTarget
+        public bool IsControllerTarget(BattleUnit unit) => unit != null && IsSelectingTarget && !controllerConfirmationPending
             && (CurrentTargetMode.TargetType is TargetType.Single or TargetType.MultipleChosen or TargetType.Chain
                 ? eligibleTargetPositions.Contains(unit.Position) : selectablePositions.Contains(unit.Position));
         public System.Func<Vector3, BattleUnit> ResolvePointerUnit { get; set; }
@@ -121,7 +124,7 @@ namespace Godmist.Views.Combat
         {
             get
             {
-                if (!IsSelectingTarget || isSelectingTeleportDestination || isSelectingObjectPlacement)
+                if (!IsSelectingTarget || controllerConfirmationPending || isSelectingTeleportDestination || isSelectingObjectPlacement)
                     return false;
 
                 var mode = CurrentTargetMode;
@@ -136,7 +139,7 @@ namespace Godmist.Views.Combat
         {
             get
             {
-                if (!IsSelectingTarget || isSelectingTeleportDestination || isSelectingObjectPlacement)
+                if (!IsSelectingTarget || controllerConfirmationPending || isSelectingTeleportDestination || isSelectingObjectPlacement)
                     return false;
 
                 var mode = CurrentTargetMode;
@@ -160,7 +163,10 @@ namespace Godmist.Views.Combat
             }
         }
 
-        public void BeginTargetSelection(SkillData skill)
+        // Preserve the original single-argument entry point, including serialized UnityEvents.
+        public void BeginTargetSelection(SkillData skill) => BeginTargetSelectionCore(skill,false);
+        public void BeginControllerTargetSelection(SkillData skill) => BeginTargetSelectionCore(skill,true);
+        private void BeginTargetSelectionCore(SkillData skill, bool requireControllerConfirmation)
         {
             using var sample = BeginSelectionSample.Auto();
             if (skill != null && selectedSkill == skill)
@@ -182,6 +188,13 @@ namespace Godmist.Views.Combat
                 && session.ActiveUnit.ActiveToggleSkillIds != null
                 && session.ActiveUnit.ActiveToggleSkillIds.Contains(skill.SkillId))
             {
+                if (requireControllerConfirmation)
+                {
+                    CancelTargetSelection(); selectedSkill = skill;
+                    controllerConfirmationRequired = controllerConfirmationPending = true; controllerSelectionFrame = Time.frameCount;
+                    if (movementInputController != null) movementInputController.enabled = false;
+                    return;
+                }
                 sandboxBootstrap.TryExecuteSkill(
                     skill,
                     new Dictionary<int, GridPosition?>());
@@ -219,6 +232,8 @@ namespace Godmist.Views.Combat
             }
 
             selectedSkill = skill;
+            controllerConfirmationRequired = requireControllerConfirmation;
+            controllerConfirmationPending = false; controllerSelectionFrame = Time.frameCount;
             currentTargetModeIndex = 0;
             selectedPositionsByModeIndex.Clear();
             chosenPositionsByModeIndex.Clear();
@@ -281,6 +296,11 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            if (controllerConfirmationRequired)
+            {
+                controllerConfirmationPending = true;
+                return;
+            }
             if (TryExecuteSelectedAction())
             {
                 CancelTargetSelection();
@@ -293,6 +313,7 @@ namespace Godmist.Views.Combat
         public void CancelTargetSelection()
         {
             selectedSkill = null;
+            controllerConfirmationRequired = controllerConfirmationPending = false;
             selectedConsumable = null;
             selectedConsumableActor = null;
             currentTargetModeIndex = 0;
@@ -348,6 +369,20 @@ namespace Godmist.Views.Combat
                 return;
             }
 
+            var mouseConfirm = Input.GetMouseButtonDown(0) && !UIWorkspaceInputRouter.IsPointerOverUi();
+            if (controllerConfirmationPending)
+            {
+                targetPreview?.Hide();
+                if (Input.GetKeyDown(KeyCode.Escape) || Godmist.Views.UI.ControllerInput.Cancel
+                    || Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context) CancelTargetSelection();
+                else if (Time.frameCount > controllerSelectionFrame && (mouseConfirm || Godmist.Views.UI.ControllerInput.Confirm))
+                {
+                    controllerConfirmationRequired = controllerConfirmationPending = false;
+                    TryExecuteSelectedAction(); CancelTargetSelection();
+                }
+                return;
+            }
+            if (mouseConfirm || Godmist.Views.UI.ControllerInput.Confirm) controllerConfirmationRequired = false;
             if (!isSelectingTeleportDestination
                 && !isSelectingObjectPlacement)
             {

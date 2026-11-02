@@ -3901,7 +3901,7 @@ MonoBehaviour:
   skillCastOpacity: {fileID: 0}
   skillCastDuration: 1.4
   movement: {fileID: 0}
-  targeting: {fileID: 0}
+  targeting: {fileID: 1046552047}
   inspect: {fileID: 0}
   skills: {fileID: 0}
   targetPanel: {fileID: 0}
@@ -5499,6 +5499,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  preferredFocus: {fileID: 0}
 --- !u!1001 &521937326
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9296,6 +9297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b95602060f77a6447aaade05c8932cf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatCameraFramer
+  controllerPanSensitivity: 1
   worldCamera: {fileID: 814189693}
   padding: 1.5
   minimumOrthographicSize: 5
@@ -14548,11 +14550,14 @@ MonoBehaviour:
   targeting: {fileID: 1046552047}
   unitViews: {fileID: 235486239}
   movement: {fileID: 1046552046}
+  inspect: {fileID: 1046552048}
   minimap: {fileID: 0}
   pause: {fileID: 0}
   cursor: {fileID: 412405740}
   keyboardView: {fileID: 544891844}
   repeatDelay: 0.16
+  cursorSensitivity: 1
+  scrollPixelsPerSecond: 700
 --- !u!4 &1399387684
 Transform:
   m_ObjectHideFlags: 0

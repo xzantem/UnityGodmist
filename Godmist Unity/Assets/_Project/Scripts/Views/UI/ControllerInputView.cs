@@ -27,6 +27,7 @@ namespace Godmist.Views.UI
         [SerializeField] private CombatTargetSelectionController targeting;
         [SerializeField] private CombatUnitViewSpawner unitViews;
         [SerializeField] private CombatMovementInputController movement;
+        [SerializeField] private CombatUnitInspectController inspect;
         [SerializeField] private Godmist.Views.Dungeons.DungeonMinimapView minimap;
         [SerializeField] private PauseMenuView pause;
         [SerializeField] private RectTransform cursor;
@@ -36,10 +37,27 @@ namespace Godmist.Views.UI
         {
             public ControllerNavigationScope Scope;
             public GameObject ReturnFocus, LastFocus;
+            public string LastFocusKey;
             public bool ReturnContext;
             public int OpeningOrder;
         }
         private readonly List<ScopeState> scopes = new();
+        private readonly Dictionary<ControllerNavigationScope, GameObject> scopeFocus = new();
+        private readonly Dictionary<ControllerNavigationScope, string> scopeFocusKeys = new();
+        private Vector3 worldSelection;
+        private bool hasWorldSelection;
+        private ControllerWheelView wheel;
+        private readonly Dictionary<string, string> lastSkills = new();
+        private string panelSubject, lastPanel = "Inventory";
+        private string actionWheelActor;
+        [SerializeField, Range(.25f, 2f)] private float cursorSensitivity = 1;
+
+        [SerializeField, Range(200, 1600)] private float scrollPixelsPerSecond = 700;
+        public float EndTurnHoldProgress => endTurnHold.Progress;
+        public float InteractionHoldProgress => searchHold.Progress;
+        public string InteractionPrompt => selectedInteraction is Component target && target != null
+            ? "A — " + (selectedInteraction is Godmist.Views.NPC.NpcView ? "Rozmawiaj: " : "") + InteractionName(selectedInteraction) : null;
+
         private int nextScopeOrder;
         private InputActionMap world, ui, global;
         private Mouse pointer;
@@ -52,12 +70,12 @@ namespace Godmist.Views.UI
         private readonly ControllerHoldGesture endTurnHold = new();
         private readonly ControllerHoldGesture searchHold = new();
         private bool interactionPress;
+        private bool inspectArmed, endTurnFired;
         [System.NonSerialized] private Godmist.Runtime.Combat.BattleUnit holdActor;
         private bool originalCursorVisible;
         private bool changedCursor;
         private float nextStep;
         private Vector2 position;
-        private Vector2 requestedScroll;
         private Vector2Int previousDirection;
         private Vector2Int previousUiDirection;
         private float nextUiStep;
@@ -68,6 +86,8 @@ namespace Godmist.Views.UI
             || combat?.Session?.Outcome == Godmist.Core.Enums.CombatOutcomeState.Ongoing;
         private ScopeState TopState => scopes.Count == 0 ? null : scopes[^1];
         private ControllerNavigationScope TopScope => TopState?.Scope;
+        public bool HasPanelFocus => ControllerInput.UiActive && TopScope != null;
+        public bool HasActionWheelFocus => wheel != null && wheel.IsOpen;
         public bool HasWindowFocus => ControllerInput.UiActive && TopScope != null && TopScope.GetComponent<UIWorkspaceWindow>() != null;
         public bool HasSkillBarFocus => ControllerInput.UiActive && skillScope != null && TopScope == skillScope;
 
@@ -83,20 +103,24 @@ namespace Godmist.Views.UI
             keyboardTime = keyboard?.lastUpdateTime ?? 0;
             padTime = Gamepad.current?.lastUpdateTime ?? 0;
             position = physicalMouse?.position.ReadValue() ?? new Vector2(Screen.width / 2f, Screen.height / 2f);
+            var projection = GetComponent<ControllerWorldSelectionProjection>() ?? gameObject.AddComponent<ControllerWorldSelectionProjection>();
+            projection.Bind(this);
             originalCursorVisible = Cursor.visible;
             global.Enable(); world.Disable(); ui.Disable();
         }
 
         private void OnDisable()
         {
-            endTurnHold.Reset(); searchHold.Reset(); interactionPress = false;
+            endTurnHold.Reset(); searchHold.Reset(); interactionPress = false; inspectArmed = false;
             selectorMenu?.Hide();
+            if (wheel != null) wheel.Hide();
             controllerActive = false;
             world?.Disable(); ui?.Disable(); global?.Disable();
             if (pointer != null) { InputSystem.RemoveDevice(pointer); pointer = null; }
             if (module != null) { module.move?.action?.Enable(); module.submit?.action?.Enable(); }
             if (cursor != null) cursor.gameObject.SetActive(false);
             if (changedCursor) { Cursor.visible = originalCursorVisible; changedCursor = false; }
+            ClearControllerPresentation();
             ReleaseCurrentFocus();
         }
 
@@ -105,7 +129,7 @@ namespace Godmist.Views.UI
             if (scopes.Any(state => state.Scope == scope)) return;
             scopes.Add(new ScopeState
             {
-                Scope = scope, ReturnFocus = events != null ? events.currentSelectedGameObject : null,
+                Scope = scope, LastFocus = scopeFocus.GetValueOrDefault(scope), LastFocusKey = scopeFocusKeys.GetValueOrDefault(scope), ReturnFocus = events != null ? events.currentSelectedGameObject : null,
                 ReturnContext = uiRequested, OpeningOrder = nextScopeOrder++
             });
             if (!controllerActive) return;
@@ -114,10 +138,14 @@ namespace Godmist.Views.UI
             FocusFirst();
         }
 
+        public void ForgetScope(ControllerNavigationScope scope)
+        { scopeFocus.Remove(scope); scopeFocusKeys.Remove(scope); }
+
         public void Unregister(ControllerNavigationScope scope)
         {
             var state = scopes.FirstOrDefault(entry => entry.Scope == scope);
             if (state == null) return;
+            if (state.LastFocus != null) { scopeFocus[scope] = state.LastFocus; scopeFocusKeys[scope] = state.LastFocusKey; }
             var wasTop = state == TopState;
             scopes.Remove(state);
             if (!wasTop || !controllerActive) return;
@@ -129,7 +157,6 @@ namespace Godmist.Views.UI
 
         private void Update()
         {
-            requestedScroll = Vector2.zero;
             global.FindAction("Confirm", true).Enable();
             global.FindAction("Context", true).Enable();
             var pad = Gamepad.current;
@@ -170,19 +197,30 @@ namespace Godmist.Views.UI
                 if (pause.IsOpen) pause.HandleEscape(); else pause.Open();
                 uiRequested = pause.IsOpen;
             }
+            if (wheel != null && wheel.IsOpen && actionWheelActor != null
+                && skillBar?.DisplayActor?.Character?.CharacterId != actionWheelActor)
+            { wheel.Hide(); ReturnToWorld(); actionWheelActor = null; }
             var selectionActive = targeting?.IsSelectingTarget == true;
             if (!selectionActive && HasGameplay && TopScope?.IsModal != true)
             {
-                if (ControllerInput.Pressed(ControllerInput.GlobalMap, "LeftTrigger")) OpenPartySelector();
-                else if ((!ControllerInput.UiActive || !precisePointer) && ControllerInput.Pressed(ControllerInput.GlobalMap, "Panels")) OpenPanelSelector();
+                if (ControllerInput.Pressed(ControllerInput.GlobalMap, "Panels")) OpenPartySelector();
+                else if (!ControllerInput.UiActive && ControllerInput.Pressed(ControllerInput.GlobalMap, "Skills")) OpenActionWheel();
             }
             var useUi = !HasGameplay || uiRequested || TopScope?.IsModal == true;
             SetContext(useUi);
-            if (ControllerInput.Pressed(ControllerInput.GlobalMap, "Cursor") && keyboardView?.gameObject.activeInHierarchy != true)
+            if (ControllerInput.Pressed(ControllerInput.GlobalMap, "Cursor") && keyboardView?.gameObject.activeInHierarchy != true && !HasActionWheelFocus)
             { precisePointer = !precisePointer; lastSelected = null; }
             ApplyPointerMode(useUi);
             TickEndTurnHold(useUi);
-            if (useUi) TickUi(); else { TickWorld(); BlockWorldPointerButtons(); }
+            if (wheel != null && wheel.IsOpen)
+            {
+                position = wheel.SelectedScreenPosition;
+                wheel.Tick(ControllerInput.Vector(ControllerInput.UiMap, "Navigate"),
+                    ControllerInput.Pressed(ControllerInput.UiMap, "Previous"), ControllerInput.Pressed(ControllerInput.UiMap, "Next"),
+                    ControllerInput.Pressed(ControllerInput.UiMap, "Confirm"), ControllerInput.Pressed(ControllerInput.UiMap, "Cancel"),
+                    ControllerInput.Pressed(ControllerInput.UiMap, "Details"));
+            }
+            else if (useUi) TickUi(); else { TickWorld(); BlockWorldPointerButtons(); }
             if (cursor != null)
             {
                 var worldPointer = ControllerInput.WorldActive
@@ -191,6 +229,7 @@ namespace Godmist.Views.UI
                 cursor.position = position;
             }
             UpdatePointer();
+            UpdateControllerPresentation();
         }
 
         private void SetActive(bool value)
@@ -214,14 +253,16 @@ namespace Godmist.Views.UI
             else
             {
                 selectorMenu?.Hide();
+                if (wheel != null) wheel.Hide();
                 precisePointer = false;
-                endTurnHold.Reset(); searchHold.Reset(); interactionPress = false;
+                endTurnHold.Reset(); searchHold.Reset(); interactionPress = false; inspectArmed = false;
                 activePad = null;
                 world.Disable(); ui.Disable();
                 if (pointer != null) InputSystem.DisableDevice(pointer);
                 module.move?.action?.Enable(); module.submit?.action?.Enable();
                 if (cursor != null) cursor.gameObject.SetActive(false);
                 if (changedCursor) { Cursor.visible = originalCursorVisible; changedCursor = false; }
+                ClearControllerPresentation();
                 ReleaseCurrentFocus();
             }
         }
@@ -231,7 +272,7 @@ namespace Godmist.Views.UI
             if (useUi != ui.enabled)
             {
                 precisePointer = false;
-                endTurnHold.Reset(); searchHold.Reset(); interactionPress = false;
+                endTurnHold.Reset(); searchHold.Reset(); interactionPress = false; inspectArmed = false;
             }
             if (useUi && !ui.enabled && rememberedFocus != null && rememberedFocus.activeInHierarchy && WithinScope(rememberedFocus.transform))
                 events.SetSelectedGameObject(rememberedFocus);
@@ -240,7 +281,7 @@ namespace Godmist.Views.UI
                 rememberedFocus = events.currentSelectedGameObject;
                 events.SetSelectedGameObject(null);
                 lastSelected = null;
-                cursorActor = null;
+                // The selected world cell survives temporary UI focus. Actor changes still reset it.
             }
             if (useUi) { world.Disable(); ui.Enable(); module.move?.action?.Disable(); module.submit?.action?.Disable(); }
             else { ui.Disable(); world.Enable(); module.move?.action?.Disable(); module.submit?.action?.Disable(); }
@@ -259,10 +300,19 @@ namespace Godmist.Views.UI
         private void TickEndTurnHold(bool useUi)
         {
             var actor = combat?.Session?.ActiveUnit;
-            if (actor != holdActor) { holdActor = actor; endTurnHold.Reset(); }
-            var eligible = !useUi && targeting?.IsSelectingTarget != true && combat?.CanEndTurn() == true;
-            if (endTurnHold.Tick(eligible, ControllerInput.Pressed(ControllerInput.GlobalMap, "Auxiliary"),
-                ControllerInput.Held(ControllerInput.GlobalMap, "Auxiliary"), Time.unscaledDeltaTime)) combat.RequestEndTurn();
+            if (actor != holdActor) { holdActor = actor; endTurnHold.Reset(); inspectArmed = false; }
+            var action = global.FindAction("Auxiliary", true);
+            var available = !useUi && targeting?.IsSelectingTarget != true;
+            if (!available) { inspectArmed = false; endTurnHold.Reset(); return; }
+            if (action.WasPressedThisFrame()) { inspectArmed = true; endTurnFired = false; }
+            var eligible = combat?.CanEndTurn() == true;
+            if (endTurnHold.Tick(eligible, action.WasPressedThisFrame(), action.IsPressed(), Time.unscaledDeltaTime))
+            { endTurnFired = true; combat.RequestEndTurn(); }
+            if (action.WasReleasedThisFrame() && inspectArmed)
+            {
+                inspectArmed = false;
+                if (!endTurnFired) inspect?.InspectControllerTarget(position, selectedWorldUnit);
+            }
         }
 
         private void ReleaseCurrentFocus()
@@ -302,6 +352,9 @@ namespace Godmist.Views.UI
                 if (ControllerInput.Pressed(ControllerInput.UiMap, "Next")) skillBar.PageForController(events, 1);
                 else if (ControllerInput.Pressed(ControllerInput.UiMap, "Previous")) skillBar.PageForController(events, -1);
             }
+            else if (TopScope != null && TopScope.GetComponentInChildren<Godmist.Views.UI.Workspace.NpcServicesWindowView>() is { } serviceTabs
+                && (ControllerInput.Pressed(ControllerInput.UiMap, "Next") || ControllerInput.Pressed(ControllerInput.UiMap, "Previous")))
+            { serviceTabs.CycleControllerTab(ControllerInput.Pressed(ControllerInput.UiMap, "Next") ? 1 : -1); lastSelected = null; FocusFirst(); }
             else if (TopScope?.IsModal != true && (ControllerInput.Pressed(ControllerInput.UiMap, "Next") || ControllerInput.Pressed(ControllerInput.UiMap, "Previous")))
             {
                 var windows = scopes.Where(s => s.Scope != null && !s.Scope.IsModal && s.Scope.GetComponent<UIWorkspaceWindow>() != null)
@@ -318,7 +371,7 @@ namespace Godmist.Views.UI
             selected = events.currentSelectedGameObject;
             if (!freePointer) Navigate(selected);
             selected = events.currentSelectedGameObject;
-            if (selected != null && TopState != null) TopState.LastFocus = selected;
+            if (selected != null && TopState != null) { TopState.LastFocus = selected; TopState.LastFocusKey = FocusKey(selected); }
             if (selected != null)
             {
                 if (selected != lastSelected && !freePointer)
@@ -332,7 +385,7 @@ namespace Godmist.Views.UI
             }
             if (freePointer)
             {
-                position += ControllerInput.Vector(ControllerInput.UiMap, "PointerMove") * (700 * Time.unscaledDeltaTime);
+                position += CursorDelta(ControllerInput.Vector(ControllerInput.UiMap, "PointerMove"), Time.unscaledDeltaTime, Screen.height, cursorSensitivity * ControllerPreferences.CursorSpeed);
                 position.x = Mathf.Clamp(position.x, 0, Screen.width);
                 position.y = Mathf.Clamp(position.y, 0, Screen.height);
             }
@@ -347,20 +400,21 @@ namespace Godmist.Views.UI
             { UIWorkspaceTooltipView.TryPinAtCurrentPointer(position); return; }
             if (!freePointer && ControllerInput.Pressed(ControllerInput.UiMap, "Confirm"))
             {
-                if (selected != null)
+                if (selected != null && (selected.GetComponent<Selectable>()?.IsInteractable() ?? true))
                 {
                     if (selected.TryGetComponent<TMPro.TMP_InputField>(out var field) && keyboardView != null) keyboardView.Open(field);
                     else if (selected.TryGetComponent<ControllerNavigationItem>(out var item) && item.UsesPointerSubmit) item.SubmitPointer();
                     else ExecuteEvents.Execute(selected, new BaseEventData(events), ExecuteEvents.submitHandler);
                 }
             }
-            requestedScroll = freePointer ? Vector2.zero : new Vector2(0, ControllerInput.Vector(ControllerInput.UiMap, "Scroll").y * 60);
+            ScrollFocusedContent(selected, freePointer);
         }
 
         private bool WithinScope(Transform target) => TopScope == null || target == TopScope.transform || target.IsChildOf(TopScope.transform);
         private bool CanNavigate(Selectable candidate)
         {
-            if (!candidate.IsActive() || !candidate.IsInteractable() || !WithinScope(candidate.transform)
+            if (!candidate.IsActive() || (!candidate.IsInteractable() && candidate.GetComponentInParent<CombatSkillSlotView>() == null
+                && candidate.GetComponent<ControllerAvailabilityHint>()?.CanInspect != true) || !WithinScope(candidate.transform)
                 || candidate.GetComponentInParent<DevConsoleView>() != null) return false;
             for (var parent = candidate.transform; parent != null; parent = parent.parent)
                 if (parent.TryGetComponent<Canvas>(out var parentCanvas) && !parentCanvas.isActiveAndEnabled) return false;
@@ -368,13 +422,29 @@ namespace Godmist.Views.UI
         }
         private void FocusFirst()
         {
-            foreach (var selectable in Selectable.allSelectablesArray)
-            {
-                if (!CanNavigate(selectable)) continue;
-                events.SetSelectedGameObject(selectable.gameObject);
-                return;
-            }
-            events.SetSelectedGameObject(null);
+            var key = TopState?.LastFocusKey;
+            var remembered = TopState?.LastFocus;
+            if (!string.IsNullOrEmpty(key) && TopScope != null)
+                remembered = TopScope.GetComponentsInChildren<Selectable>().FirstOrDefault(value => CanNavigate(value) && FocusKey(value.gameObject) == key)?.gameObject;
+            if (remembered != null && remembered.TryGetComponent<Selectable>(out var last) && CanNavigate(last))
+            { events.SetSelectedGameObject(remembered); return; }
+            if (TopScope?.PreferredFocus is { } preferred && CanNavigate(preferred))
+            { events.SetSelectedGameObject(preferred.gameObject); return; }
+            // Hierarchy order is authored content order, independent of Selectable registration timing.
+            var root = TopScope != null ? TopScope.transform : transform;
+            var first = root.GetComponentsInChildren<Selectable>().Where(CanNavigate)
+                .OrderBy(value => value.GetComponentInParent<GridLayoutGroup>() != null ? 0 : value is TMPro.TMP_InputField ? 1
+                    : value.name.IndexOf("Close", System.StringComparison.OrdinalIgnoreCase) >= 0 ? 3 : 2).FirstOrDefault();
+            events.SetSelectedGameObject(first != null ? first.gameObject : null);
+        }
+
+        private static string FocusKey(GameObject selected)
+        {
+            if (selected.GetComponentInParent<CharacterInfoItemView>() is { Item: { } item }) return "item:" + item.InstanceId;
+            if (selected.GetComponentInParent<TradeItemSlotView>() is { Item: { } trade }) return "trade:" + trade.InstanceId;
+            if (selected.GetComponentInParent<SkillTreeNodeView>() is { NodeId: { } node }) return "node:" + node;
+            if (selected.GetComponentInParent<CombatSkillSlotView>() is { ControllerSkill: { } skill }) return "skill:" + skill.SkillId;
+            return null;
         }
 
         private static void ScrollIntoView(Transform target)
@@ -395,7 +465,7 @@ namespace Godmist.Views.UI
         private void Navigate(GameObject selected)
         {
             var value = ControllerInput.Vector(ControllerInput.UiMap, "Navigate");
-            var direction = value.sqrMagnitude > .25f
+            var direction = value.sqrMagnitude > (previousUiDirection == Vector2Int.zero ? .09f : .04f)
                 ? Mathf.Abs(value.x) > Mathf.Abs(value.y) ? new Vector2Int(value.x > 0 ? 1 : -1, 0) : new Vector2Int(0, value.y > 0 ? 1 : -1)
                 : Vector2Int.zero;
             if (direction == Vector2Int.zero) { previousUiDirection = direction; return; }
@@ -415,6 +485,14 @@ namespace Godmist.Views.UI
                 { moveVector = direction, moveDir = direction.x > 0 ? MoveDirection.Right : direction.x < 0 ? MoveDirection.Left : direction.y > 0 ? MoveDirection.Up : MoveDirection.Down }, ExecuteEvents.moveHandler);
                 return;
             }
+            var current = selected.GetComponent<Selectable>();
+            if (current != null && current.navigation.mode == Navigation.Mode.Explicit)
+            {
+                var explicitNext = direction.x > 0 ? current.navigation.selectOnRight : direction.x < 0 ? current.navigation.selectOnLeft
+                    : direction.y > 0 ? current.navigation.selectOnUp : current.navigation.selectOnDown;
+                if (explicitNext != null && CanNavigate(explicitNext)) events.SetSelectedGameObject(explicitNext.gameObject);
+                return;
+            }
             Selectable best = null;
             var score = float.PositiveInfinity;
             var origin = ScreenCenter(selected.transform);
@@ -425,7 +503,8 @@ namespace Godmist.Views.UI
                 var forward = Vector2.Dot(offset, direction);
                 if (forward <= 1) continue;
                 var side = Mathf.Abs(Vector2.Dot(offset, new Vector2(-direction.y, direction.x)));
-                var next = offset.magnitude + side * 2;
+                var sameGroup = candidate.transform.parent == selected.transform.parent;
+                var next = forward + side * 4 + (sameGroup ? 0 : 1000);
                 if (next < score) { best = candidate; score = next; }
             }
             if (best != null) events.SetSelectedGameObject(best.gameObject);
@@ -441,22 +520,17 @@ namespace Godmist.Views.UI
                 minimap.SetOverviewOpen(true);
                 if (minimap.IsOverviewOpen) return;
             }
-            if (targeting?.IsSelectingTarget != true && (ControllerInput.Pressed(ControllerInput.WorldMap, "Next")
-                || ControllerInput.Pressed(ControllerInput.WorldMap, "Previous")) && skillBar != null)
-            {
-                if (skillScope != null) skillScope.enabled = true;
-                uiRequested = true;
-                SetContext(true);
-                if (!skillBar.FocusForController(events)) { ReturnToWorld(); SetContext(false); }
-                return;
-            }
+            if (targeting?.IsSelectingTarget != true && combat?.Session == null &&
+                (ControllerInput.Pressed(ControllerInput.WorldMap, "Next") || ControllerInput.Pressed(ControllerInput.WorldMap, "Previous")))
+                CyclePartyMember(ControllerInput.Pressed(ControllerInput.WorldMap, "Next") ? 1 : -1);
             if (worldCamera == null) return;
             var actor = combat?.Session?.ActiveUnit ?? skillBar?.DisplayActor;
             if (actor != null && actor != cursorActor && unitViews != null && unitViews.TryGetWorldPosition(actor, out var actorPosition))
             {
                 cursorActor = actor;
                 selectedWorldUnit = null;
-                position = worldCamera.WorldToScreenPoint(actorPosition);
+                worldSelection = actorPosition; hasWorldSelection = true;
+                position = worldCamera.WorldToScreenPoint(worldSelection);
             }
             if (ControllerInput.Pressed(ControllerInput.WorldMap, "NextTarget")) CycleWorldTarget(1);
             else if (ControllerInput.Pressed(ControllerInput.WorldMap, "PreviousTarget")) CycleWorldTarget(-1);
@@ -466,6 +540,7 @@ namespace Godmist.Views.UI
                 if (selectedInteraction == null || available == null || !available.Contains(selectedInteraction))
                     selectedInteraction = available?.FirstOrDefault();
                 var interaction = selectedInteraction;
+                inspect?.SetControllerInteraction(interaction);
                 if (interaction is Component target) position = worldCamera.WorldToScreenPoint(target.transform.position);
                 else if (party?.ActiveLeaderTransform != null) position = worldCamera.WorldToScreenPoint(party.ActiveLeaderTransform.position);
                 BlockWorldPointerButtons();
@@ -479,7 +554,8 @@ namespace Godmist.Views.UI
                 else if (interactionPress && confirm.WasReleasedThisFrame())
                 {
                     interactionPress = false;
-                    if (pressedInteraction is Component pressed && pressed != null && pressedInteraction.CanInteract()) pressedInteraction.Interact();
+                    if (pressedInteraction is Component pressed && pressed != null && ReferenceEquals(pressedInteraction,selectedInteraction)
+                        && pressedInteraction.CanInteract()) pressedInteraction.Interact();
                     pressedInteraction = null;
                 }
                 // The direct interaction owns A, not the world-click handlers.
@@ -487,28 +563,31 @@ namespace Godmist.Views.UI
             }
             if (precisePointer)
             {
-                position += ControllerInput.Vector(ControllerInput.WorldMap, "PointerMove") * (600 * Time.unscaledDeltaTime);
+                position += CursorDelta(ControllerInput.Vector(ControllerInput.WorldMap, "PointerMove"), Time.unscaledDeltaTime, Screen.height, cursorSensitivity * ControllerPreferences.CursorSpeed);
                 position.x = Mathf.Clamp(position.x, 0, Screen.width);
                 position.y = Mathf.Clamp(position.y, 0, Screen.height);
+                worldSelection = worldCamera.ScreenToWorldPoint(position); hasWorldSelection = true; selectedWorldUnit = null;
                 return;
             }
+            RefreshWorldSelection();
             var move = ControllerInput.Movement;
-            var direction = move.sqrMagnitude > .25f
-                ? new Vector2Int(Mathf.Abs(move.x) > .35f ? move.x > 0 ? 1 : -1 : 0,
-                    Mathf.Abs(move.y) > .35f ? move.y > 0 ? 1 : -1 : 0)
+            var direction = move.sqrMagnitude > (previousDirection == Vector2Int.zero ? .09f : .04f)
+                ? new Vector2Int(Mathf.Abs(move.x) > .25f ? move.x > 0 ? 1 : -1 : 0,
+                    Mathf.Abs(move.y) > .25f ? move.y > 0 ? 1 : -1 : 0)
                 : Vector2Int.zero;
             if (direction == Vector2Int.zero) { previousDirection = direction; return; }
             if (direction == previousDirection && Time.unscaledTime < nextStep) return;
             previousDirection = direction;
             nextStep = Time.unscaledTime + repeatDelay;
-            var point = worldCamera.ScreenToWorldPoint(position);
+            var point = worldSelection;
+            selectedWorldUnit = null;
             var size = movement != null ? movement.GridCellSize : 1;
             var anchor = Vector3.zero;
             if (actor != null && unitViews != null) unitViews.TryGetWorldPosition(actor, out anchor);
             point.x = anchor.x + Mathf.Round((point.x - anchor.x) / size) * size;
             point.y = anchor.y + Mathf.Round((point.y - anchor.y) / size) * size;
-            var next = worldCamera.WorldToScreenPoint(point + (Vector3)((Vector2)direction * size));
-            position = new Vector2(Mathf.Clamp(next.x, 0, Screen.width), Mathf.Clamp(next.y, 0, Screen.height));
+            worldSelection = point + (Vector3)((Vector2)direction * size); hasWorldSelection = true;
+            position = worldCamera.WorldToScreenPoint(worldSelection);
         }
 
         public void ReturnToWorld()
@@ -517,10 +596,68 @@ namespace Godmist.Views.UI
             uiRequested = false;
         }
 
+        public void ProjectWorldSelection()
+        {
+            if (!controllerActive || ControllerInput.UiActive || precisePointer || worldCamera == null) return;
+            if (combat?.Session == null && targeting?.SelectedSkill == null)
+            {
+                if (selectedInteraction is Component target && target != null) position = worldCamera.WorldToScreenPoint(target.transform.position);
+                else if (party?.ActiveLeaderTransform != null) position = worldCamera.WorldToScreenPoint(party.ActiveLeaderTransform.position);
+            }
+            else RefreshWorldSelection();
+            if (cursor != null) cursor.position = position;
+            UpdatePointer();
+            UpdateControllerPresentation();
+        }
+
+        private void RefreshWorldSelection()
+        {
+            if (selectedWorldUnit != null)
+            {
+                if (combat?.Session?.Units.Contains(selectedWorldUnit) == true && unitViews != null
+                    && unitViews.IsUnitKnown(selectedWorldUnit) && unitViews.IsUnitVisible(selectedWorldUnit)
+                    && (targeting?.IsSelectingTarget != true || targeting.IsControllerTarget(selectedWorldUnit))
+                    && unitViews.TryGetWorldPosition(selectedWorldUnit, out var point))
+                { worldSelection = point; hasWorldSelection = true; }
+                else selectedWorldUnit = null;
+            }
+            if (!hasWorldSelection) { worldSelection = worldCamera.ScreenToWorldPoint(position); hasWorldSelection = true; }
+            position = worldCamera.WorldToScreenPoint(worldSelection);
+        }
+
+        public static Vector2 CursorDelta(Vector2 input, float delta, float screenHeight, float sensitivity = 1)
+            => Vector2.ClampMagnitude(input, 1) * Mathf.Lerp(.35f, 1, input.magnitude) * (screenHeight * .65f * sensitivity * delta);
+
+        private void ScrollFocusedContent(GameObject selected, bool freePointer)
+        {
+            var input = ControllerInput.Vector(ControllerInput.UiMap, "Scroll").y;
+            if (Mathf.Abs(input) < .01f) return;
+            ScrollRect scroll = null;
+            if (freePointer)
+            {
+                var hits = new List<RaycastResult>();
+                events.RaycastAll(new PointerEventData(events) { position = position }, hits);
+                scroll = hits.Select(h => h.gameObject.GetComponentInParent<ScrollRect>()).FirstOrDefault(s => s != null && s.vertical && WithinScope(s.transform));
+            }
+            else scroll = selected != null ? selected.GetComponentsInParent<ScrollRect>().FirstOrDefault(s => s.vertical && s.isActiveAndEnabled) : null;
+            if (scroll == null && TopScope != null)
+                scroll = TopScope.GetComponentsInChildren<ScrollRect>().Where(s => s.isActiveAndEnabled && s.vertical)
+                    .OrderBy(s => selected != null ? (ScreenCenter(s.transform) - ScreenCenter(selected.transform)).sqrMagnitude : 0).FirstOrDefault();
+            if (scroll == null || !scroll.isActiveAndEnabled || !WithinScope(scroll.transform)) return;
+            // Call the owning list directly; it clamps and applies nested viewport semantics itself.
+            ScrollContent(scroll, input, Time.unscaledDeltaTime, scrollPixelsPerSecond);
+        }
+
+        public static void ScrollContent(ScrollRect scroll, float input, float delta, float pixelsPerSecond)
+        {
+            scroll.OnScroll(new PointerEventData(EventSystem.current) { scrollDelta = Vector2.up * input * pixelsPerSecond
+                * delta / Mathf.Max(.01f, scroll.scrollSensitivity) });
+        }
+
         private void BlockWorldPointerButtons()
         {
             if (!ControllerInput.WorldActive) return;
-            if (world.FindAction("DirectInteraction", true).enabled) return;
+            if (targeting?.RequiresControllerConfirmation == true || world.FindAction("DirectInteraction", true).enabled) return;
             var results = new List<RaycastResult>();
             events.RaycastAll(new PointerEventData(events) { position = position }, results);
             if (!results.Any(r => r.module is GraphicRaycaster)) return;
@@ -537,7 +674,7 @@ namespace Godmist.Views.UI
             var state = new MouseState
             {
                 position = position, delta = delta,
-                scroll = ControllerInput.UiActive ? requestedScroll : Vector2.zero
+                scroll = Vector2.zero // Pad scrolling goes directly to its owning ScrollRect.
             };
             state = state.WithButton(MouseButton.Left,
                 precise && (pointer.leftButton.isPressed || canStart) && ControllerInput.Held(ControllerInput.UiMap, "Confirm"));

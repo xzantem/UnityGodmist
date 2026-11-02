@@ -21,7 +21,7 @@ namespace Godmist.Tests.EditMode
     /// <summary>Real Bootstrap wiring, real UGUI and action processing; never creates/loads a campaign or writes a save.</summary>
     public sealed class ControllerProductionPlayTests
     {
-        private static string Output => Path.GetFullPath(Path.Combine(Application.dataPath, "../../LocalHandoffs/controller-support-20261031"));
+        private static string Output => Path.GetFullPath(Path.Combine(Application.dataPath, "../../LocalHandoffs/controller-rework-20261102"));
         private Gamepad pad;
         private Gamepad previousPad;
         private GamepadState desiredState;
@@ -181,10 +181,20 @@ namespace Godmist.Tests.EditMode
             Assert.That(ControllerInput.WorldActive, Is.False);
             var panel = ObjectField<GameObject>(settings, "panelRoot");
             Assert.That(events.currentSelectedGameObject.transform.IsChildOf(panel.transform), Is.True);
+            var cursorSpeed = ObjectField<Slider>(settings,"controllerCursorSlider");
+            var cameraSpeed = ObjectField<Slider>(settings,"controllerCameraSlider");
+            Assert.That(cursorSpeed,Is.Not.Null); Assert.That(cameraSpeed,Is.Not.Null);
+            var savedCursorSpeed = ControllerPreferences.CursorSpeed;
+            var savedCameraSpeed = ControllerPreferences.CameraSpeed;
+            cursorSpeed.value = savedCursorSpeed < 1.9f ? savedCursorSpeed+.1f : savedCursorSpeed-.1f;
+            Assert.That(cameraSpeed.value,Is.EqualTo(savedCameraSpeed),"Cursor and camera have independent settings.");
+            Assert.That(ObjectField<Button>(settings,"applyButton").interactable,Is.True);
             yield return Capture("settings-controller");
             yield return Send(new GamepadState());
             yield return Press(GamepadButton.East);
             Assert.That(settings.IsOpen, Is.False);
+            Assert.That(ControllerPreferences.CursorSpeed,Is.EqualTo(savedCursorSpeed),"Cancel does not persist cursor tuning.");
+            Assert.That(ControllerPreferences.CameraSpeed,Is.EqualTo(savedCameraSpeed));
             Assert.That(events.currentSelectedGameObject, Is.SameAs(settingsButton.gameObject));
             Assert.That(clicks, Is.EqualTo(1));
             InputSystem.RemoveDevice(pad);
@@ -313,6 +323,11 @@ namespace Godmist.Tests.EditMode
             TownStage("loaded", party);
             Assert.That(party.ActiveLeaderTransform, Is.Not.Null);
             yield return Press(GamepadButton.RightStick);
+            var initialLeader = party.Session.PlayerParty.ActiveLeaderId;
+            yield return Press(GamepadButton.RightShoulder);
+            Assert.That(party.Session.PlayerParty.ActiveLeaderId, Is.Not.EqualTo(initialLeader), "RB selects the next party member in exploration.");
+            yield return Press(GamepadButton.LeftShoulder);
+            Assert.That(party.Session.PlayerParty.ActiveLeaderId, Is.EqualTo(initialLeader), "LB returns to the previous member.");
             var start = party.ActiveLeaderTransform.position;
             yield return Send(new GamepadState { leftStick = Vector2.left * .8f }, 20);
             TownStage("moved", party);
@@ -332,6 +347,8 @@ namespace Godmist.Tests.EditMode
             party.ActiveLeaderTransform.position = npc.transform.position + Vector3.down * .5f;
             yield return Send(new GamepadState());
             Assert.That(npc.CanInteract(), Is.True);
+            Assert.That(View<ControllerInputView>().InteractionPrompt, Does.Contain(npc.DisplayName));
+            yield return Capture("interaction-target-controller");
             yield return Send(new GamepadState().WithButton(GamepadButton.South));
             yield return new WaitForSecondsRealtime(.8f);
             Assert.That(ControllerInput.UiActive, Is.True, "Held A must open nearby interaction selection.");
@@ -349,8 +366,9 @@ namespace Godmist.Tests.EditMode
             yield return Capture("party-selector-controller");
             yield return Press(GamepadButton.East);
             Assert.That(ControllerInput.WorldActive, Is.True);
-            yield return Send(new GamepadState { rightTrigger = 1 });
+            yield return Send(new GamepadState { leftTrigger = 1 });
             yield return Send(new GamepadState());
+            yield return Press(GamepadButton.South); // LT selects a subject, then shows its panels.
             TownStage("panels opened", party);
             Assert.That(ControllerInput.UiActive, Is.True);
             yield return Capture("panels-selector-controller");
@@ -358,9 +376,11 @@ namespace Godmist.Tests.EditMode
             yield return Send(new GamepadState { leftStick = Vector2.right * .8f }, 12);
             Assert.That(Vector3.Distance(start, party.ActiveLeaderTransform.position), Is.LessThan(.01f), "UI navigation must not move the party.");
             yield return Send(new GamepadState());
-            var context = ObjectField<Godmist.Views.UI.Workspace.PartyRailMenuView>(View<ControllerInputView>(), "selectorMenu");
-            var cardAction = context.GetComponentsInChildren<Button>().Single(b => b.GetComponentInChildren<TMP_Text>()?.text == "Karta postaci i ekwipunek");
-            EventSystem.current.SetSelectedGameObject(cardAction.gameObject);
+            var controllerWheel = View<ControllerWheelView>();
+            Assert.That(controllerWheel.IsOpen, Is.True);
+            yield return Send(new GamepadState { leftStick = Vector2.up * .8f });
+            yield return Send(new GamepadState());
+            Assert.That(controllerWheel.SelectedId, Is.EqualTo("Inventory"));
             yield return Press(GamepadButton.South);
             var card = View<Godmist.Views.UI.Workspace.CharacterInfoWindowView>();
             Assert.That(card.gameObject.activeInHierarchy, Is.True);
@@ -394,15 +414,56 @@ namespace Godmist.Tests.EditMode
             Assert.That(Vector2.Distance(cursorStart, observedPointer), Is.GreaterThan(2));
             Assert.That(actor.Position, Is.EqualTo(actorStart));
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(ap));
+            var worldCamera = Camera.main;
+            var combatSpawner = View<Godmist.Views.Combat.CombatUnitViewSpawner>();
+            // The standalone sandbox has no DungeonCombatCoordinator. Use its same public focus
+            // contract with the actual grid bounds; do not bypass framing, constraints or input.
+            Assert.That(combatSpawner.TryGetWorldPosition(new Godmist.Runtime.Combat.GridPosition(0,0),out var gridMin),Is.True);
+            Assert.That(combatSpawner.TryGetWorldPosition(new Godmist.Runtime.Combat.GridPosition(combat.Session.Grid.Width-1,combat.Session.Grid.Height-1),out var gridMax),Is.True);
+            var cameraBounds = new Bounds((gridMin+gridMax)*.5f,gridMax-gridMin+Vector3.one);
+            combat.CameraFramer.Focus(combat.Session,cameraBounds,cameraBounds,unit=>combatSpawner.TryGetWorldPosition(unit,out var point)?point:Vector3.zero);
+            combat.CameraFramer.Zoom(7);
+            for(var i=0;i<60;i++) yield return null;
+            Assert.That(combat.CameraFramer.CanAcceptManualInput,Is.True);
+            var selectedWorldPoint = (Vector2)worldCamera.ScreenToWorldPoint(observedPointer);
+            var beforeCamera = worldCamera.transform.position;
+            yield return Send(new GamepadState { rightStick = Vector2.up * .8f }, 8);
+            yield return Send(new GamepadState());
+            Assert.That(Vector3.Distance(beforeCamera,worldCamera.transform.position),Is.GreaterThan(.01f));
+            Assert.That(Vector2.Distance(selectedWorldPoint,worldCamera.ScreenToWorldPoint(observedPointer)),Is.LessThan(.01f),"Panning must retain the selected world cell.");
+            var zoomBefore = worldCamera.orthographicSize;
+            yield return Send(new GamepadState().WithButton(GamepadButton.DpadUp),8);
+            yield return Send(new GamepadState());
+            Assert.That(Mathf.Abs(zoomBefore-worldCamera.orthographicSize),Is.GreaterThan(.001f));
+            Assert.That(Vector2.Distance(selectedWorldPoint,worldCamera.ScreenToWorldPoint(observedPointer)),Is.LessThan(.01f),"Zooming must retain the selected world cell.");
+            yield return Capture("world-cell-camera-controller");
             yield return Press(GamepadButton.DpadRight);
             var firstTarget = observedPointer;
             yield return Press(GamepadButton.DpadRight);
             Assert.That(Vector2.Distance(firstTarget, observedPointer), Is.GreaterThan(2), "D-pad must cycle real visible combat targets.");
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(ap));
-            yield return Press(GamepadButton.RightShoulder);
+            yield return Press(GamepadButton.North);
+            Assert.That(View<ControllerInputView>().HasWindowFocus,Is.True,"A short Y opens inspection, never ends the turn.");
+            Assert.That(combat.Session.ActiveUnit,Is.SameAs(actor));
+            yield return Capture("target-inspection-controller");
+            yield return Press(GamepadButton.East);
+            Assert.That(ControllerInput.WorldActive,Is.True);
+            yield return Send(new GamepadState { rightTrigger = 1 });
+            yield return Send(new GamepadState());
             Assert.That(ControllerInput.UiActive, Is.True);
-            Assert.That(EventSystem.current.currentSelectedGameObject.GetComponentInParent<CombatSkillBarView>(), Is.Not.Null);
+            Assert.That(EventSystem.current.currentSelectedGameObject.GetComponentInParent<ControllerWheelView>(), Is.Not.Null);
             yield return Capture("combat-skills-controller");
+            var radial = View<ControllerWheelView>();
+            var radialTooltip = ObjectField<Godmist.Views.UI.Workspace.UIWorkspaceTooltipView>(View<CombatSkillBarView>(),"tooltipView");
+            yield return Press(GamepadButton.North);
+            yield return new WaitForSecondsRealtime(.4f);
+            Assert.That(radialTooltip.IsVisibleOrPendingFor(radial),Is.True,"Y opens details of the selected radial skill.");
+            yield return Capture("radial-skill-details-controller");
+            yield return Send(new GamepadState { leftStick=Vector2.right*.8f });
+            yield return Send(new GamepadState());
+            Assert.That(radialTooltip.IsVisibleOrPendingFor(radial),Is.False,"Changing selection must close old skill details.");
+            yield return Send(new GamepadState { leftStick=Vector2.up*.8f });
+            yield return Send(new GamepadState());
             yield return Press(GamepadButton.South);
             var targeting = View<Godmist.Views.Combat.CombatTargetSelectionController>();
             Assert.That(targeting.SelectedSkill, Is.Not.Null);
@@ -419,12 +480,34 @@ namespace Godmist.Tests.EditMode
             Assert.That(combat.Session.ActiveUnit, Is.SameAs(actor), "Carrying Y through target cancellation must not end the turn.");
             Assert.That(actor.CurrentActionPoints, Is.EqualTo(ap), "Choosing and cancelling a skill must not spend AP.");
             yield return Send(new GamepadState());
+            var inputView = View<ControllerInputView>();
+            var lastSkillId = View<CombatSkillBarView>().ControllerSlots.First().ControllerSkill.SkillId;
             yield return Send(new GamepadState { rightTrigger = 1 });
             yield return Send(new GamepadState());
-            var panels = ObjectField<Godmist.Views.UI.Workspace.PartyRailMenuView>(View<ControllerInputView>(), "selectorMenu");
-            var items = panels.GetComponentsInChildren<Button>().Single(button => button.GetComponentInChildren<TMP_Text>()?.text == "Przedmioty");
-            Assert.That(items.interactable, Is.True);
-            EventSystem.current.SetSelectedGameObject(items.gameObject);
+            Assert.That(View<ControllerWheelView>().SelectedId,Is.EqualTo(lastSkillId),"RT remembers the last chosen skill for this character.");
+            yield return Press(GamepadButton.East);
+            var targetSelector = View<Godmist.Views.Combat.CombatTargetSelectionController>();
+            actor.CurrentActionPoints = 0;
+            yield return Send(new GamepadState());
+            yield return Send(new GamepadState { rightTrigger = 1 });
+            yield return Send(new GamepadState());
+            yield return Capture("disabled-action-controller");
+            yield return Press(GamepadButton.South);
+            Assert.That(View<ControllerWheelView>().IsOpen,Is.True,"A cannot execute an unavailable action.");
+            Assert.That(targetSelector.SelectedSkill,Is.Null);
+            yield return Press(GamepadButton.East);
+            actor.CurrentActionPoints = ap;
+            yield return Send(new GamepadState());
+            yield return Send(new GamepadState { rightTrigger = 1 });
+            yield return Send(new GamepadState());
+            var actionWheel = View<ControllerWheelView>();
+            var bar = View<CombatSkillBarView>();
+            var itemIndex = bar.ControllerSlots.Count(slot => slot != null && slot.isActiveAndEnabled && slot.ControllerSkill != null);
+            for (var i = 0; i < itemIndex / 8; i++) yield return Press(GamepadButton.RightShoulder);
+            var angle = (itemIndex % 8) * Mathf.PI * 2 / actionWheel.PageEntryCount;
+            yield return Send(new GamepadState { leftStick = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle)) * .8f });
+            yield return Send(new GamepadState());
+            Assert.That(actionWheel.SelectedId, Is.EqualTo("items"));
             yield return Press(GamepadButton.South);
             var combatActions = ObjectField<CombatActionButtonsView>(View<ControllerInputView>(), "combatActions");
             Assert.That(combatActions.IsConsumableSelectionOpen, Is.True, "RT → Przedmioty must open the window owned by the authored combat action view.");
@@ -442,6 +525,78 @@ namespace Godmist.Tests.EditMode
             yield return Send(new GamepadState());
             Assert.That(combat.Session.ActiveUnit != actor || combat.Session.ActiveTurnIndex != turn, Is.True,
                 "A fresh held Y in neutral combat must invoke the production end-turn action.");
+            // Reach an actual player's caster-only skill through the normal turn flow.
+            // The Scout's initial five-slot loadout has none; do not substitute a fake skill.
+            CombatSkillSlotView selfSlot = null;
+            var casterDeadline = Time.realtimeSinceStartup + 45;
+            while (selfSlot == null && Time.realtimeSinceStartup < casterDeadline)
+            {
+                yield return Send(new GamepadState());
+                selfSlot = View<CombatSkillBarView>().ControllerSlots.FirstOrDefault(slot => slot.ControllerAvailable
+                    && slot.ControllerSkill != null && slot.ControllerSkill.TargetModes.Count > 0
+                    && slot.ControllerSkill.TargetModes.All(mode=>mode.TargetType==Godmist.Core.Enums.TargetType.Caster));
+                if (selfSlot != null) break;
+                if (combat.CanEndTurn())
+                {
+                    yield return Send(heldY);
+                    yield return new WaitForSecondsRealtime(.8f);
+                    yield return Send(new GamepadState());
+                }
+                else yield return null;
+            }
+            Assert.That(selfSlot,Is.Not.Null,"The real party turn flow must reach an available caster-only action.");
+            var selfSkill = selfSlot.ControllerSkill;
+            var caster = combat.Session.ActiveUnit;
+            var casterAp = caster.CurrentActionPoints;
+            var wasActive = caster.ActiveToggleSkillIds.Contains(selfSkill.SkillId);
+            yield return ChooseWheelSkill(selfSkill.SkillId);
+            Assert.That(targetSelector.SelectedSkill,Is.SameAs(selfSkill));
+            Assert.That(targetSelector.RequiresControllerConfirmation,Is.True);
+            Assert.That(caster.CurrentActionPoints,Is.EqualTo(casterAp));
+            Assert.That(caster.ActiveToggleSkillIds.Contains(selfSkill.SkillId),Is.EqualTo(wasActive));
+            yield return Send(new GamepadState(),3);
+            var confirmationHint = View<CombatHudView>().GetComponentInParent<Canvas>().GetComponentsInChildren<TMP_Text>(true)
+                .Single(label=>label.name=="Contextual Input Hints");
+            Assert.That(confirmationHint.text,Does.Contain("A – użyj umiejętności"));
+            yield return Capture("self-skill-confirmation-controller");
+            yield return Press(GamepadButton.East);
+            Assert.That(targetSelector.SelectedSkill,Is.Null);
+            Assert.That(caster.CurrentActionPoints,Is.EqualTo(casterAp));
+            yield return ChooseWheelSkill(selfSkill.SkillId);
+            Assert.That(targetSelector.RequiresControllerConfirmation,Is.True);
+            yield return Press(GamepadButton.South);
+            Assert.That(targetSelector.SelectedSkill,Is.Null);
+            if (selfSkill.IsToggle) Assert.That(caster.ActiveToggleSkillIds.Contains(selfSkill.SkillId),Is.Not.EqualTo(wasActive),"Only the second A changes the toggle state.");
+            else Assert.That(caster.CurrentActionPoints,Is.LessThan(casterAp),"Only the second A spends the caster-only skill cost.");
+            if (selfSkill.IsToggle && !wasActive)
+            {
+                yield return ChooseWheelSkill(selfSkill.SkillId);
+                Assert.That(targetSelector.RequiresControllerConfirmation,Is.True);
+                Assert.That(caster.ActiveToggleSkillIds.Contains(selfSkill.SkillId),Is.True,"Selecting an active toggle must not immediately switch it off.");
+                yield return Press(GamepadButton.East);
+                Assert.That(caster.ActiveToggleSkillIds.Contains(selfSkill.SkillId),Is.True);
+            }
+
+        }
+
+        private IEnumerator ChooseWheelSkill(string id)
+        {
+            var slots = View<CombatSkillBarView>().ControllerSlots.Where(slot=>slot!=null && slot.isActiveAndEnabled && slot.ControllerSkill!=null).ToArray();
+            var index = Array.FindIndex(slots,slot=>slot.ControllerSkill.SkillId==id);
+            Assert.That(index,Is.GreaterThanOrEqualTo(0));
+            yield return Send(new GamepadState { rightTrigger=1 });
+            yield return Send(new GamepadState());
+            // The wheel may reopen on the last page; use its actual current selection to choose a page.
+            var wheel = View<ControllerWheelView>();
+            var currentIndex = Array.FindIndex(slots,slot=>slot.ControllerSkill.SkillId==wheel.SelectedId);
+            var currentPage = Mathf.Max(0,currentIndex)/8;
+            for (var i=currentPage;i<index/8;i++) yield return Press(GamepadButton.RightShoulder);
+            for (var i=currentPage;i>index/8;i--) yield return Press(GamepadButton.LeftShoulder);
+            var angle=(index%8)*Mathf.PI*2/wheel.PageEntryCount;
+            yield return Send(new GamepadState { leftStick=new Vector2(Mathf.Sin(angle),Mathf.Cos(angle))*.8f });
+            yield return Send(new GamepadState());
+            Assert.That(wheel.SelectedId,Is.EqualTo(id));
+            yield return Press(GamepadButton.South);
         }
 
         private IEnumerator MovePointerTo(Vector2 destination, bool dragging)

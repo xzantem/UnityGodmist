@@ -68,9 +68,10 @@ namespace Godmist.Views.UI.Workspace
                     () => Transfer(character, false), ItemOwnershipActions.CanReceive(session, character, InCity()))).ToList();
             var free = !session.IsCharacterInCombat(owner.CharacterId);
             entries.Add(new PartyRailMenuView.Entry("Przekaż towarzyszowi…", enabled: free && recipients.Any(entry => entry.Enabled),
-                separatorBefore: entries.Count > 0, children: recipients, childrenHint: "Wybierz odbiorcę przedmiotu."));
+                separatorBefore: entries.Count > 0, children: recipients, childrenHint: "Wybierz odbiorcę przedmiotu.",
+                disabledReason: !free ? "Postać uczestniczy w walce." : "Brak dostępnego odbiorcy."));
             entries.Add(new PartyRailMenuView.Entry(InCity() ? "Przenieś do schowka…" : "Schowek — tylko w mieście",
-                () => Transfer(null, true), free && InCity()));
+                () => Transfer(null, true), free && InCity(), disabledReason: !free ? "Postać uczestniczy w walce." : "Schowek jest dostępny tylko w mieście."));
             AddCompare(entries, owner, item);
             var protect = !item.IsSaleProtected;
             entries.Add(new PartyRailMenuView.Entry(protect ? "Zablokuj sprzedaż" : "Odblokuj sprzedaż", () =>

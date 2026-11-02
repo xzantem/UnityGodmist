@@ -36,6 +36,8 @@ namespace Godmist.Views.Combat
         private NpcView tooltipTargetNpc;
         private string tooltipBody;
         public bool HasWorldUnitHover => HoveredUnit != null || hoveredView != null || hoveredNpc != null;
+        private Godmist.Core.Interfaces.IInteractable controllerInteraction;
+        public void SetControllerInteraction(Godmist.Core.Interfaces.IInteractable target) => controllerInteraction = target;
         private int primaryFrame = -1, secondaryFrame = -1;
         public bool ConsumedPrimaryClickThisFrame => primaryFrame == Time.frameCount;
         public bool ConsumedSecondaryClickThisFrame => secondaryFrame == Time.frameCount;
@@ -121,6 +123,12 @@ namespace Godmist.Views.Combat
             var hoveredKnife = combat != null && HoveredUnit == null
                 ? GetVisibleKnifeUnderMouse(combat)
                 : null;
+            if (!pointerHover && ControllerInput.WorldActive)
+            {
+                hoveredView = null;
+                hoveredNpc = controllerInteraction as NpcView;
+                if (hoveredNpc != null && !hoveredNpc.isActiveAndEnabled) hoveredNpc = null;
+            }
             if (hoveredView != null) hoveredView.SetInspectionHighlight(true);
             if (hoveredNpc != null) hoveredNpc.SetInspectionHighlight(true);
             // Target selection already paints eligible knife cells and owns the
@@ -205,6 +213,29 @@ namespace Godmist.Views.Combat
             return unit != null && unit.Character != null && unit.Character.LifeState != Godmist.Core.Enums.CharacterLifeState.Dead && session != null && session.Units.Contains(unit)
                 && !Godmist.Systems.Combat.StatusEffectSystem.IsInvisibleToPlayer(unit)
                 && IsPositionVisible?.Invoke(unit.Position) != false;
+        }
+
+        public void InspectControllerTarget(Vector2 screenPosition, BattleUnit lockedUnit = null)
+        {
+            if (worldCamera == null || sandboxBootstrap?.IsGameplaySuspended == true
+                || targetSelectionController?.IsSelectingTarget == true) return;
+            if (lockedUnit != null)
+            {
+                if (IsCombatTargetVisible(lockedUnit)) InspectWorldTarget(null,lockedUnit);
+                return;
+            }
+            var world = (Vector2)worldCamera.ScreenToWorldPoint(screenPosition);
+            if (sandboxBootstrap?.Session != null)
+            {
+                var unit = sandboxBootstrap.Session.Units.FirstOrDefault(value => IsCombatTargetVisible(value)
+                    && unitViewSpawner != null && unitViewSpawner.TryGetWorldPosition(value, out var point)
+                    && Vector2.Distance(point, world) < .6f);
+                if (unit != null) InspectWorldTarget(null, unit);
+                return;
+            }
+            var view = explorationParty?.ActiveMemberViews.FirstOrDefault(value => value != null && value.IsVisibleForInspection && value.IsPointerHit(world))
+                ?? encounterSpawner?.EnemyViews.FirstOrDefault(value => value != null && value.IsVisibleForInspection && value.IsPointerHit(world));
+            if (view != null) InspectWorldTarget(view, null);
         }
 
         private void InspectWorldTarget(ExplorationCharacterView view, BattleUnit unit)

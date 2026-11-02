@@ -96,9 +96,8 @@ public static partial class GodmistMainMenuSetup
         var revert=MakeSettingsButton(dialog.transform,"Revert","Przywróć",false);Fixed(revert.transform,Vector2.zero,Vector2.zero,new Vector2(28,24),new Vector2(220,44));
         var keep=MakeSettingsButton(dialog.transform,"Keep","Zachowaj",true);Fixed(keep.transform,new Vector2(1,0),new Vector2(1,0),new Vector2(-28,24),new Vector2(220,44));
         Assign(settings,"confirmationRoot",modal.gameObject);Assign(settings,"keepDisplayButton",keep);Assign(settings,"revertDisplayButton",revert);modal.gameObject.SetActive(false);panel.gameObject.SetActive(false);
-        // Confirmation navigation cannot escape into disabled settings controls.
-        var keepNav=keep.navigation;keepNav.mode=Navigation.Mode.Explicit;keepNav.selectOnLeft=revert;keepNav.selectOnRight=revert;keep.navigation=keepNav;
-        var revertNav=revert.navigation;revertNav.mode=Navigation.Mode.Explicit;revertNav.selectOnLeft=keep;revertNav.selectOnRight=keep;revert.navigation=revertNav;
+        // Keep re-authoring the main menu consistent with the controller settings schema.
+        Godmist.Editor.ControllerRevisionSetup.ConfigureSettings(settings);
     }
     private static void WhiteInteraction(Selectable control)
     {var colors=control.colors;colors.normalColor=colors.highlightedColor=colors.pressedColor=colors.selectedColor=colors.disabledColor=Color.white;colors.colorMultiplier=1;control.colors=colors;}

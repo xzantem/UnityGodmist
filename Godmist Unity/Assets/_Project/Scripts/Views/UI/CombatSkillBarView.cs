@@ -24,6 +24,7 @@ namespace Godmist.Views.UI
         [SerializeField] private GridLayoutGroup skillGrid;
 
         public SkillData HoveredSkill { get; private set; }
+        public IReadOnlyList<CombatSkillSlotView> ControllerSlots => spawnedSlots;
         public bool FocusForController(UnityEngine.EventSystems.EventSystem events)
         {
             foreach (var slot in spawnedSlots)
@@ -74,9 +75,17 @@ namespace Godmist.Views.UI
         }
         public BattleUnit DisplayActor => sandboxBootstrap?.Session?.ActiveUnit ?? explorationActor?.Invoke();
 
+        public void DismissControllerSkillInspection(object source) { if (tooltipView != null) tooltipView.InvalidateSource(source); }
+        public void InspectControllerSkill(CombatSkillSlotView slot, object source)
+        {
+            if (slot == null) return;
+            tooltipView?.ShowSkill(slot.ControllerSkill, slot.ControllerActionCost, source, DisplayActor, slot.ControllerUnavailableReason);
+        }
+
         private void SelectSkill(SkillData skill)
         {
             if (sandboxBootstrap?.Session == null) selectExplorationSkill?.Invoke(skill);
+            else if (ControllerInput.UiActive) targetSelectionController?.BeginControllerTargetSelection(skill);
             else targetSelectionController?.BeginTargetSelection(skill);
             if (ControllerInput.UiActive) GetComponentInParent<ControllerInputView>()?.ReturnToWorld();
         }

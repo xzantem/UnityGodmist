@@ -47,6 +47,11 @@ namespace Godmist.Tests.EditMode
                         Assert.That(new SerializedObject(buttons).FindProperty("targetSelectionController").objectReferenceValue,
                             Is.SameAs(data.FindProperty("targeting").objectReferenceValue));
                 }
+                if (all.Any(t => t.GetComponent<Godmist.Views.Combat.CombatUnitInspectController>() != null))
+                    Assert.That(data.FindProperty("inspect").objectReferenceValue, Is.Not.Null, "Y inspection must use an authored reference.");
+                foreach (var hud in all.Select(t=>t.GetComponent<CombatHudView>()).Where(h=>h!=null))
+                    Assert.That(new SerializedObject(hud).FindProperty("targeting").objectReferenceValue,
+                        Is.SameAs(data.FindProperty("targeting").objectReferenceValue),"HUD hints and controller must share target selection.");
                 var module = (InputSystemUIInputModule)data.FindProperty("module").objectReferenceValue;
                 Assert.That(module, Is.Not.Null);
                 Assert.That(module.actionsAsset, Is.SameAs(data.FindProperty("actions").objectReferenceValue));

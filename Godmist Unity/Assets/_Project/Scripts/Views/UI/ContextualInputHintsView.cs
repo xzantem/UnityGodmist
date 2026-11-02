@@ -124,7 +124,7 @@ namespace Godmist.Views.UI
                 builder.Clear();
                 if (ControllerInput.UiActive)
                 {
-                    if (controller != null && controller.HasWindowFocus) { SetText(string.Empty); return; }
+                    if (controller != null && controller.HasPanelFocus) { SetText(string.Empty); return; }
                     Append("A – wybierz   B – wróć   X – akcje   Y – szczegóły");
                     Append(ControllerInput.PrecisePointer
                         ? "Lewy drążek – kursor   Prawy – przewijanie   RT – cały stos"
@@ -135,19 +135,25 @@ namespace Godmist.Views.UI
                 }
                 else
                 {
-                    Append("A – wybierz   X – akcje   L3 – tryb kursora");
+                    Append(combatTargeting?.IsSelectingTarget == true
+                        ? combatTargeting.RequiresControllerConfirmation ? "L3 – tryb kursora" : "A – wskaż cel   L3 – tryb kursora"
+                        : "A – wybierz   X – akcje   L3 – tryb kursora");
                     Append(combatBootstrap?.Session != null ? "Lewy drążek – pole   Prawy – kamera   R3 – środek" : "Lewy drążek – ruch   Prawy – kamera   R3 – środek");
                     if (combatTargeting?.IsSelectingTarget == true)
                     {
+                        if (combatTargeting.RequiresControllerConfirmation) Append("A – użyj umiejętności");
                         if (combatTargeting.CanRotateCurrentSelection) Append("LB / RB – obrót");
                         if (combatTargeting.CanConfirmMultipleTargetSelection) Append("Y – zatwierdź cele");
                         Append("B – anuluj");
                     }
-                    else if (combatBootstrap?.CanEndTurn() == true) Append("Przytrzymaj Y – koniec tury");
+                    else if (combatBootstrap?.CanEndTurn() == true) Append(controller != null && controller.EndTurnHoldProgress > 0
+                        ? $"Koniec tury — {Mathf.CeilToInt(controller.EndTurnHoldProgress * 100)}%" : "Y – inspekcja   Przytrzymaj Y – koniec tury");
                     else if (combatBootstrap?.Session == null) Append("Przytrzymaj A – interakcje w pobliżu");
                     if (combatTargeting?.IsSelectingTarget != true)
                     {
-                        Append("LB / RB – umiejętności   LT – drużyna   RT – panele");
+                        Append(combatBootstrap?.Session == null
+                            ? "LB / RB – postać   LT – drużyna i panele   RT – akcje"
+                            : "LT – drużyna i panele   RT – akcje");
                     }
                     Append("D-pad ← / → – cel   ↑ / ↓ – zoom   Back – mapa   Start – pauza");
                 }

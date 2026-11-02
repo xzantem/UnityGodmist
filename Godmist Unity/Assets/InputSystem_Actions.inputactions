@@ -1393,17 +1393,6 @@
                 },
                 {
                     "name": "",
-                    "id": "bbe52858-2300-4be0-941c-05ee9ef493e2",
-                    "path": "<Gamepad>/rightShoulder",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Skills",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "ee8b1b0f-ecae-44a5-954d-451846b0d107",
                     "path": "<Gamepad>/select",
                     "interactions": "",
@@ -1459,8 +1448,19 @@
                 },
                 {
                     "name": "",
-                    "id": "7d58087b-1822-4b5c-9b6e-81f8144bf33c",
+                    "id": "55c9a9d5-ad81-425b-ac5c-4e603b361908",
                     "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Skills",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "98f6e4a5-f9cf-4801-9367-8698500ada61",
+                    "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

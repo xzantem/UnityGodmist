@@ -74,14 +74,14 @@ namespace Godmist.Editor
             Add(global, "RightTrigger", "<Gamepad>/rightTrigger");
             Add(global, "Next", "<Gamepad>/rightShoulder");
             Add(global, "Previous", "<Gamepad>/leftShoulder");
-            BindOnly(global, "Skills", "<Gamepad>/rightShoulder");
+            BindOnly(global, "Skills", "<Gamepad>/rightTrigger");
             BindOnly(global, "Map", "<Gamepad>/select");
             BindOnly(global, "Center", "<Gamepad>/rightStickPress");
             Add(global, "Cursor", "<Gamepad>/leftStickPress");
             Add(global, "NextTarget", "<Gamepad>/dpad/right");
             Add(global, "PreviousTarget", "<Gamepad>/dpad/left");
             Add(global, "Pause", "<Gamepad>/start");
-            BindOnly(global, "Panels", "<Gamepad>/rightTrigger");
+            BindOnly(global, "Panels", "<Gamepad>/leftTrigger");
             // Native UI Submit must not also receive gamepad A, which the context owner routes once.
             var native = asset.FindActionMap("UI", true);
             Add(native, "KeyboardSubmit", "<Keyboard>/enter");
@@ -181,12 +181,15 @@ namespace Godmist.Editor
                     Set(view, "targeting", all.OfType<CombatTargetSelectionController>().FirstOrDefault());
                     Set(view, "unitViews", all.OfType<CombatUnitViewSpawner>().FirstOrDefault());
                     Set(view, "movement", all.OfType<CombatMovementInputController>().FirstOrDefault());
+                    Set(view, "inspect", all.OfType<CombatUnitInspectController>().FirstOrDefault());
                     Set(view, "minimap", all.OfType<Godmist.Views.Dungeons.DungeonMinimapView>().FirstOrDefault());
                     Set(view, "skillBar", all.OfType<CombatSkillBarView>().FirstOrDefault());
                     Set(view, "pause", all.OfType<PauseMenuView>().FirstOrDefault());
                     Set(view, "partyRail", all.OfType<CharacterInfoPartyRailView>().FirstOrDefault());
                     Set(view, "journal", all.OfType<QuestJournalPanelView>().FirstOrDefault());
                     Set(view, "combatActions", all.OfType<CombatActionButtonsView>().FirstOrDefault());
+                    foreach (var hud in all.OfType<CombatHudView>())
+                        Set(hud, "targeting", all.OfType<CombatTargetSelectionController>().FirstOrDefault());
                     foreach (var buttons in all.OfType<CombatActionButtonsView>())
                         Set(buttons, "targetSelectionController", all.OfType<CombatTargetSelectionController>().FirstOrDefault());
                     var selector = owner.GetComponentsInChildren<PartyRailMenuView>(true).FirstOrDefault(value => value.name == "ControllerSelectors");
@@ -269,7 +272,8 @@ namespace Godmist.Editor
             foreach (var selectable in root.GetComponentsInChildren<Selectable>(true))
             {
                 if (selectable is Slider slider && !slider.interactable) continue;
-                var navigation = selectable.navigation; navigation.mode = Navigation.Mode.Automatic; selectable.navigation = navigation;
+                var navigation = selectable.navigation;
+                if (navigation.mode != Navigation.Mode.Explicit) { navigation.mode = Navigation.Mode.Automatic; selectable.navigation = navigation; }
             }
             foreach (var behavior in root.GetComponentsInChildren<MonoBehaviour>(true))
             {
@@ -283,8 +287,7 @@ namespace Godmist.Editor
                 if (selectable == null) continue;
                 if (selectable is Slider slider && !slider.interactable) continue;
                 var nav = selectable.navigation;
-                nav.mode = Navigation.Mode.Automatic;
-                selectable.navigation = nav;
+                if (nav.mode != Navigation.Mode.Explicit) { nav.mode = Navigation.Mode.Automatic; selectable.navigation = nav; }
                 var item = behavior.GetComponent<ControllerNavigationItem>() ?? behavior.gameObject.AddComponent<ControllerNavigationItem>();
                 if (behavior is IPointerClickHandler && behavior is not Selectable && behavior is not ISubmitHandler
                     && behavior is not CharacterInfoPartyPortraitView) Set(item, "pointerHandler", behavior);

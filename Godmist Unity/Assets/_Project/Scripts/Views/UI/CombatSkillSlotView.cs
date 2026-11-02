@@ -134,6 +134,11 @@ namespace Godmist.Views.UI
 
         }
 
+        public SkillData ControllerSkill => skill;
+        public int ControllerActionCost => actionCost;
+        public string ControllerUnavailableReason => unavailableReason;
+        public bool ControllerAvailable => button != null && button.interactable;
+
         public bool TryActivate()
         {
             if (button == null || !button.interactable)

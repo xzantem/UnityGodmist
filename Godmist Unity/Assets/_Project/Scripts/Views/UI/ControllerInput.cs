@@ -68,13 +68,15 @@ namespace Godmist.Views.UI
     {
         private bool armed;
         private float elapsed;
-        public void Reset() { armed = false; elapsed = 0; }
+        public float Progress { get; private set; }
+        public void Reset() { armed = false; elapsed = 0; Progress = 0; }
         public bool Tick(bool eligible, bool pressed, bool held, float delta, float duration = .65f)
         {
             if (!eligible || !held) { Reset(); return false; }
             if (pressed) { armed = true; elapsed = 0; }
             if (!armed) return false;
             elapsed += Mathf.Max(0, delta);
+            Progress = Mathf.Clamp01(elapsed / Mathf.Max(.01f, duration));
             if (elapsed < duration) return false;
             Reset();
             return true;

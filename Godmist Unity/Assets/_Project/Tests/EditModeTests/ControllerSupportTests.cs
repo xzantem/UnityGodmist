@@ -129,6 +129,21 @@ namespace Godmist.Tests.EditMode
         }
 
         [Test]
+        public void TriggersOpenActionsAndPanelsWithoutStealingTheExplorationBumpers()
+        {
+            asset.FindActionMap(ControllerInput.WorldMap,true).Enable();
+            State(new GamepadState { rightTrigger=1 });
+            Assert.That(ControllerInput.Pressed(asset,ControllerInput.WorldMap,"Skills"),Is.True);
+            Assert.That(ControllerInput.Pressed(asset,ControllerInput.WorldMap,"Next"),Is.False);
+            State(new GamepadState { leftTrigger=1 });
+            Assert.That(ControllerInput.Pressed(asset,ControllerInput.GlobalMap,"Panels"),Is.True);
+            Assert.That(ControllerInput.Pressed(asset,ControllerInput.WorldMap,"Previous"),Is.False);
+            State(new GamepadState().WithButton(GamepadButton.RightShoulder));
+            Assert.That(ControllerInput.Pressed(asset,ControllerInput.WorldMap,"Next"),Is.True);
+            Assert.That(ControllerInput.Pressed(asset,ControllerInput.WorldMap,"Skills"),Is.False);
+        }
+
+        [Test]
         public void RemappedWorldBindingsKeepTargetsSeparateFromZoomAndCameraCenter()
         {
             asset.FindActionMap(ControllerInput.WorldMap, true).Enable();

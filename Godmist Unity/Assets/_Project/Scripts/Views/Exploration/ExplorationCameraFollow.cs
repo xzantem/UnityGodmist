@@ -13,6 +13,7 @@ namespace Godmist.Views.Exploration
             FreeRoam
         }
 
+        [SerializeField, Range(.25f, 2f)] private float controllerPanSensitivity = 1;
         [SerializeField] private ExplorationPartyController partyController;
         [SerializeField] private BoxCollider2D cameraBounds;
         [SerializeField] private float followSpeed = 8f;
@@ -157,12 +158,9 @@ namespace Godmist.Views.Exploration
                 return;
             }
 
-            var keyboardDirection = Vector2.ClampMagnitude(ExplorationKeyboardInput.ReadMovement() + ControllerInput.Camera, 1f);
-
-            if (keyboardDirection.sqrMagnitude > 1f)
-            {
-                keyboardDirection.Normalize();
-            }
+            var analog = ControllerInput.Camera;
+            var keyboardDirection = Vector2.ClampMagnitude(ExplorationKeyboardInput.ReadMovement() + analog, 1f);
+            if (analog.sqrMagnitude > 0) keyboardDirection *= controllerPanSensitivity * ControllerPreferences.CameraSpeed;
 
             if (keyboardDirection.sqrMagnitude > 0f)
             {

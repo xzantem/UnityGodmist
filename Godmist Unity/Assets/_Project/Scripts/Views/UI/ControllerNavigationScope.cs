@@ -8,6 +8,8 @@ namespace Godmist.Views.UI
     {
         [SerializeField] private bool modal = true;
         [SerializeField] private UnityEvent cancel = new();
+        [SerializeField] private UnityEngine.UI.Selectable preferredFocus;
+        public UnityEngine.UI.Selectable PreferredFocus => preferredFocus;
         private ControllerInputView owner;
         public bool IsModal => modal;
         public UnityEvent CancelAction => cancel;
@@ -18,6 +20,7 @@ namespace Godmist.Views.UI
             owner = GetComponentInParent<ControllerInputView>();
             if (owner != null) owner.Register(this);
         }
+        private void OnDestroy() { if (owner != null) owner.ForgetScope(this); }
         private void OnDisable() { if (owner != null) owner.Unregister(this); }
     }
 }
