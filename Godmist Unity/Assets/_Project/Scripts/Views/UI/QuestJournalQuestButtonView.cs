@@ -15,7 +15,7 @@ namespace Godmist.Views.UI
         [SerializeField] private TextMeshProUGUI titleText;
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private TextMeshProUGUI levelText;
-        [SerializeField] private Color selectedColor = new(0.38f, 0.29f, 0.09f, 1f);
+        private Color selectedColor => HighlightStyle.SelectionSurface(defaultColor);
         [SerializeField] private Color defaultColor = new(0.08f, 0.12f, 0.18f, 1f);
         [SerializeField] private UIWorkspaceStylePalette palette;
         [SerializeField] private Image selectionFrame;

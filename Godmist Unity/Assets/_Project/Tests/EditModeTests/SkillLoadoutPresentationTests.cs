@@ -6,6 +6,7 @@ using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Data.Skills;
 using Godmist.Runtime.Game;
+using Godmist.Runtime.Characters;
 using Godmist.Systems.Characters;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
@@ -42,11 +43,11 @@ namespace Godmist.Tests.EditMode
                 Assert.That(body, Does.Not.Contain(skill.TooltipDescription));
                 if (asset == "SD_KnifeToss")
                 {
-                    Assert.That(body, Does.Contain("W zwarciu: 60%"));
+                    Assert.That(body, Does.Contain("W zwarciu zadaje 60%"));
                     Assert.That(body.Split(new[] { "Zadaje" }, System.StringSplitOptions.None).Length, Is.EqualTo(2));
                     var meta = (string)typeof(UIWorkspaceTooltipView).GetMethod("BuildSkillMeta", BindingFlags.Static | BindingFlags.NonPublic)
                         .Invoke(null, new object[] { skill, 825, null });
-                    Assert.That(meta, Does.Contain("SZTYLETY 1 na dystans").And.Contain("W zwarciu: bez zużycia"));
+                    Assert.That(System.Text.RegularExpressions.Regex.Replace(meta, "<[^>]*>", ""), Does.Contain("Sztylety: 1 na dystans").And.Contain("W zwarciu: bez zużycia"));
                 }
                 else if (asset == "SD_ScoutSmoke") Assert.That(body.Split(new[] { "80%" }, System.StringSplitOptions.None).Length, Is.EqualTo(2));
             }
@@ -86,7 +87,7 @@ namespace Godmist.Tests.EditMode
                 var skill = AssetDatabase.LoadAssetAtPath<SkillData>("Assets/_Project/ScriptableObjects/Skills/SD_ScoutSmoke.asset");
                 var body = node.GetComponent<UIWorkspaceTooltipView>().BuildLoadoutSkillDetails(skill, null);
                 body = System.Text.RegularExpressions.Regex.Replace(body, "<[^>]*>", "");
-                Assert.That(body, Does.Contain("80%").And.Contain("-20").And.Contain("3 tury").And.Contain("wszyscy wrogowie"));
+                Assert.That(body, Does.Contain("80%").And.Contain("zmniejszenie celności o 20").And.Contain("3 tury").And.Contain("wszyscy wrogowie"));
                 Assert.That(body.Split(new[] { "80%" }, System.StringSplitOptions.None).Length, Is.EqualTo(2), "The chance must be stated once.");
                 Assert.That(body.Count(c => c == '•'), Is.EqualTo(1));
                 Assert.That(skill.TooltipDescription, Does.Contain("80%"), "Presentation must not modify authored assets.");
@@ -103,11 +104,11 @@ namespace Godmist.Tests.EditMode
             {
                 string Body() => System.Text.RegularExpressions.Regex.Replace(node.GetComponent<UIWorkspaceTooltipView>().BuildLoadoutSkillDetails(skill, null), "<[^>]*>", "");
                 var body = Body();
-                Assert.That(body, Does.Contain("80% szansy na zamianę miejsc rzucającego z celem").And.Contain("pojedynczy wróg"));
+                Assert.That(body, Does.Contain("80% szansy na zamianę miejsc z celem").And.Contain("pojedynczy wróg"));
                 Assert.That(body, Does.Not.Contain("dodatkowy efekt"));
                 Assert.That(body.Split(new[] { "80%" }, System.StringSplitOptions.None).Length, Is.EqualTo(2));
                 typeof(Godmist.Data.Effects.SkillEffectData).GetField("baseChance", Flags).SetValue(skill.Effects[0], 1f);
-                Assert.That(Body(), Does.Contain("Zamienia miejscami rzucającego i cel").And.Not.Contain("80%"));
+                Assert.That(Body(), Does.Contain("100% szansy na zamianę miejsc z celem").And.Not.Contain("80%"));
             }
             finally { Object.DestroyImmediate(node); Object.DestroyImmediate(skill); }
         }
@@ -121,9 +122,9 @@ namespace Godmist.Tests.EditMode
                 var skill = AssetDatabase.LoadAssetAtPath<SkillData>("Assets/_Project/ScriptableObjects/Skills/SD_ScoutAimedThrow.asset");
                 var body = node.GetComponent<UIWorkspaceTooltipView>().BuildLoadoutSkillDetails(skill, null);
                 body = System.Text.RegularExpressions.Regex.Replace(body, "<[^>]*>", "");
-                Assert.That(body, Does.Contain("• W zwarciu: 60% obrażeń").And.Contain("zawsze krytyczne"));
+                Assert.That(body, Does.Contain("• W zwarciu zadaje 60% obrażeń").And.Contain("zawsze krytyczne"));
                 Assert.That(body, Does.Not.Contain("Zakres bazowy"));
-                Assert.That(UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, null), Does.Contain("Sztylety: 1 na dystans").And.Contain("W zwarciu: bez zużycia"));
+                Assert.That(System.Text.RegularExpressions.Regex.Replace(UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, null), "<[^>]*>", ""), Does.Contain("Sztylety: 1 na dystans").And.Contain("W zwarciu: bez zużycia"));
             }
             finally { Object.DestroyImmediate(node); }
         }
@@ -143,7 +144,7 @@ namespace Godmist.Tests.EditMode
                 typeof(Godmist.Data.Effects.SkillEffectData).GetField("effectType", Flags).SetValue(effect, EffectType.DealDamage);
                 SetSkill(skill, "GuaranteedCritical", true); SetSkill(skill, "PointBlankDamageMultiplier", .6f);
                 var body = node.GetComponent<UIWorkspaceTooltipView>().BuildLoadoutSkillDetails(skill, null);
-                Assert.That(body, Does.Contain("zawsze krytyczne").And.Contain("W zwarciu: 60%"));
+                Assert.That(System.Text.RegularExpressions.Regex.Replace(body, "<[^>]*>", ""), Does.Contain("zawsze krytyczne").And.Contain("W zwarciu zadaje 60%"));
             }
             finally { Object.DestroyImmediate(node); Object.DestroyImmediate(skill); }
         }
@@ -209,21 +210,24 @@ namespace Godmist.Tests.EditMode
             try
             {
                 SetSkill(skill, "ActionCost", 70); SetSkill(skill, "KnifeCost", 1); SetSkill(skill, "FreeKnivesInMelee", freeInMelee);
-                var text = UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, null);
-                Assert.That(text, Does.Contain("70% AP")); Assert.That(text, Does.Contain("Sztylety: 1"));
+                var text = System.Text.RegularExpressions.Regex.Replace(UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, null), "<[^>]*>", "");
+                Assert.That(text, Does.Contain("70% " + Godmist.Core.Utilities.UiTerms.ActionPointsShort)); Assert.That(text, Does.Contain("Sztylety: 1"));
                 Assert.That(text.Contains("W zwarciu: bez zużycia"), Is.EqualTo(freeInMelee));
             }
             finally { Object.DestroyImmediate(skill); }
         }
 
-        [Test]
-        public void ToggleCost_ShowsMaximumOfFlatAndPercentUpkeep()
+        [TestCase(40, 8)]
+        [TestCase(200, 20)]
+        public void ToggleCost_ShowsCalculatedMaximumOfFlatAndPercentUpkeep(int maximum, int expected)
         {
             var skill = ScriptableObject.CreateInstance<SkillData>();
             try
             {
                 SetSkill(skill, "IsToggle", true); SetSkill(skill, "ToggleUpkeepFlatResourceCost", 8); SetSkill(skill, "ToggleUpkeepMaxResourcePercent", .1f);
-                Assert.That(UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, null), Does.Contain("max(8, 10% maks.)"));
+                var character = new CharacterInstance { ResourcePool = new ResourcePool(ResourceType.Mana, maximum, maximum, 0) };
+                var text = System.Text.RegularExpressions.Regex.Replace(UIWorkspaceTooltipView.BuildLoadoutSkillCost(skill, character), "<[^>]*>", "");
+                Assert.That(text, Does.Contain($"Podtrzymanie: {expected} many na turę").And.Not.Contain("max("));
             }
             finally { Object.DestroyImmediate(skill); }
         }

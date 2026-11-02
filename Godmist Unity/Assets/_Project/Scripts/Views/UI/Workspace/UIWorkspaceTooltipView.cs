@@ -405,13 +405,30 @@ namespace Godmist.Views.UI.Workspace
             string availabilityReason = null)
         {
             if (suppressForDrag || skill == null) return;
-            QueueShow(source ?? skill, () => SetContent(
+            QueueShow(source ?? skill, () => SetSkillContent(skill, actionCost, caster, availabilityReason));
+        }
+
+        public void RefreshSkillAvailability(SkillData skill, int actionCost, object source, BattleUnit caster, string reason)
+        {
+            if (skill == null || source == null) return;
+            if (visible && ReferenceEquals(sourceIdentity, source) && metaText != null)
+            {
+                metaText.text = BuildSkillMeta(skill, actionCost, caster) + (string.IsNullOrEmpty(reason) ? string.Empty : "\n" + reason);
+                resizeAfterLayout = true;
+            }
+            else if (pendingShow != null && ReferenceEquals(pendingSource, source))
+                pendingShow = () => SetSkillContent(skill, actionCost, caster, reason);
+        }
+
+        private void SetSkillContent(SkillData skill, int actionCost, BattleUnit caster, string availabilityReason)
+        {
+            SetContent(
                 skill.Icon,
                 string.IsNullOrWhiteSpace(skill.DisplayName)
                     ? "Przedmiot użytkowy"
                     : skill.DisplayName,
                 BuildSkillDescription(skill, caster),
-                BuildSkillMeta(skill, actionCost, caster) + (string.IsNullOrEmpty(availabilityReason) ? string.Empty : "\n" + availabilityReason)));
+                BuildSkillMeta(skill, actionCost, caster) + (string.IsNullOrEmpty(availabilityReason) ? string.Empty : "\n" + availabilityReason));
         }
 
         public void ShowStatus(CombatStatusPresentation presentation, object source)

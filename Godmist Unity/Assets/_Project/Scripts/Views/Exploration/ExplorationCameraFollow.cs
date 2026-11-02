@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Godmist.Views.Combat;
 using Godmist.Views.UI;
 using Godmist.Views.UI.Workspace;
@@ -24,8 +25,10 @@ namespace Godmist.Views.Exploration
 
         private Camera worldCamera;
         private CameraMode currentMode = CameraMode.FollowLeader;
-        private Vector3 previousMouseWorldPosition;
+        private Vector2 previousPanScreen;
         private bool isPanning;
+        private int panButton = -1;
+        private Mouse panMouse;
         public const float RightDragThreshold = 6f;
         private Vector2 panPressScreen;
         private bool panDragged;
@@ -40,7 +43,7 @@ namespace Godmist.Views.Exploration
             combatSuspended = suspended;
             zooming = false;
             if (worldCamera != null) targetZoom = worldCamera.orthographicSize;
-            isPanning = false;
+            CancelMousePan();
             enabled = !suspended;
         }
 
@@ -90,7 +93,7 @@ namespace Godmist.Views.Exploration
         public void CenterOn(Vector3 position, bool followLeader = false)
         {
             currentMode = followLeader ? CameraMode.FollowLeader : CameraMode.FreeRoam;
-            isPanning = false;
+            CancelMousePan();
             transform.position = ClampToBounds(position + cameraOffset);
         }
 
@@ -110,16 +113,20 @@ namespace Godmist.Views.Exploration
 
         private void Update()
         {
-            if(partyController!=null && partyController.IsMapOverviewBlockingInput){isPanning=false;return;}
-            if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) return;
+            if (partyController != null && partyController.IsMapOverviewBlockingInput
+                || DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()
+                || UIWorkspaceInputRouter.HasFocusedContextMenu()
+                || UIWorkspaceWindowManager.Instance?.HasOpenWindows == true)
+            { CancelMousePan(); return; }
 
             if (inventoryEquipmentPanel != null && inventoryEquipmentPanel.IsOpen)
             {
-                isPanning = false;
+                CancelMousePan();
                 return;
             }
             if (Input.GetKeyDown(toggleModeKey))
             {
+                CancelMousePan();
                 currentMode = currentMode == CameraMode.FollowLeader
                     ? CameraMode.FreeRoam
                     : CameraMode.FollowLeader;
@@ -152,9 +159,9 @@ namespace Godmist.Views.Exploration
         [SerializeField] private Godmist.Views.Combat.CombatUnitInspectController unitInteractions;
         private void HandleFreeRoamPanning()
         {
-            if (currentMode != CameraMode.FreeRoam || worldCamera == null)
+            if (worldCamera == null)
             {
-                isPanning = false;
+                CancelMousePan();
                 return;
             }
 
@@ -162,55 +169,66 @@ namespace Godmist.Views.Exploration
             var keyboardDirection = Vector2.ClampMagnitude(ExplorationKeyboardInput.ReadMovement() + analog, 1f);
             if (analog.sqrMagnitude > 0) keyboardDirection *= controllerPanSensitivity * ControllerPreferences.CameraSpeed;
 
-            if (keyboardDirection.sqrMagnitude > 0f)
+            if (currentMode == CameraMode.FreeRoam && keyboardDirection.sqrMagnitude > 0f)
             {
                 transform.position = ClampToBounds(
                     transform.position + (Vector3)(keyboardDirection * keyboardPanSpeed * Time.deltaTime));
             }
 
-            if (unitInteractions != null && unitInteractions.ConsumedSecondaryClickThisFrame) { isPanning = false; return; }
-            if ((Input.GetMouseButtonDown(1) || Godmist.Views.UI.ControllerInput.Context)
-                && !UIWorkspaceInputRouter.IsPointerOverUi()
-                && !UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
+            HandleMousePanning();
+        }
+
+        private void HandleMousePanning()
+        {
+            var mouse = Mouse.current;
+            if (worldCamera == null || mouse == null || !mouse.enabled
+                || combatSuspended || UIWorkspaceInputRouter.IsPointerOverUi()
+                || UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(mouse.position.ReadValue()))
+            { CancelMousePan(); return; }
+
+            // MMB matches combat panning and does not consume skill confirmation/cancellation.
+            // Secondary-button dragging also unlocks follow mode after the dead zone.
+            var secondaryClaimed = unitInteractions != null && unitInteractions.ConsumedSecondaryClickThisFrame;
+            if (mouse.middleButton.wasPressedThisFrame && currentMode == CameraMode.FreeRoam
+                || mouse.rightButton.wasPressedThisFrame && !secondaryClaimed)
             {
-                previousMouseWorldPosition = GetMouseWorldPosition();
-                panPressScreen = Godmist.Views.UI.ControllerInput.PointerPosition;
+                panButton = mouse.middleButton.wasPressedThisFrame && currentMode == CameraMode.FreeRoam ? 2 : 1;
+                panMouse = mouse;
+                previousPanScreen = panPressScreen = mouse.position.ReadValue();
                 panDragged = false;
                 isPanning = true;
             }
 
-            if (Input.GetMouseButtonUp(1))
-            {
-                isPanning = false;
-            }
+            if (!isPanning) return;
+            if (panMouse != mouse || !(panButton == 2 ? mouse.middleButton.isPressed : mouse.rightButton.isPressed)
+                || panButton == 1 && secondaryClaimed || panButton == 2 && currentMode != CameraMode.FreeRoam)
+            { CancelMousePan(); return; }
 
-            if (!isPanning
-                || !Input.GetMouseButton(1)
-                || UIWorkspaceInputRouter.IsPointerOverUi()
-                || UIWorkspaceTooltipView.IsPointerOverVisibleTooltip(Godmist.Views.UI.ControllerInput.PointerPosition))
-            {
-                return;
-            }
-
-            var currentMouseWorldPosition = GetMouseWorldPosition();
+            var screen = mouse.position.ReadValue();
             if (!panDragged)
             {
-                if (((Vector2)Godmist.Views.UI.ControllerInput.PointerPosition - panPressScreen).sqrMagnitude <= RightDragThreshold * RightDragThreshold) return;
+                if ((screen - panPressScreen).sqrMagnitude <= RightDragThreshold * RightDragThreshold) return;
                 panDragged = true;
+                if (panButton == 1) currentMode = CameraMode.FreeRoam;
             }
-            var dragOffset = previousMouseWorldPosition - currentMouseWorldPosition;
-
+            // Project both samples with the same current camera pose. Retaining a
+            // previous world point feeds camera motion back into the next delta.
+            var depth = -worldCamera.transform.position.z;
+            var dragOffset = worldCamera.ScreenToWorldPoint(new Vector3(previousPanScreen.x, previousPanScreen.y, depth))
+                - worldCamera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, depth));
+            dragOffset.z = 0;
             transform.position = ClampToBounds(transform.position + dragOffset);
-            previousMouseWorldPosition = currentMouseWorldPosition;
+            previousPanScreen = screen;
         }
 
-        private Vector3 GetMouseWorldPosition()
+        private void CancelMousePan()
         {
-            var mousePosition = Godmist.Views.UI.ControllerInput.PointerPosition;
-            mousePosition.z = -transform.position.z;
-
-            return worldCamera.ScreenToWorldPoint(mousePosition);
+            isPanning = false; panDragged = false; panButton = -1; panMouse = null;
         }
+
+        private void OnDisable() => CancelMousePan();
+        private void OnApplicationFocus(bool focused) { if (!focused) CancelMousePan(); }
+        private void OnApplicationPause(bool paused) { if (paused) CancelMousePan(); }
 
         private Vector3 ClampToBounds(Vector3 position)
         {

@@ -2062,7 +2062,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 202282732}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2102,7 +2102,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1895567301940117598, guid: b0984867858d37c449cf67c7f6634576, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 03032b12b4a31374a845fa642468016b, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -2180,8 +2180,6 @@ MonoBehaviour:
   actionPointPipRoot: {fileID: 463171858}
   actionPointPipTemplate: {fileID: 51195255}
   statusCollection: {fileID: 242573436}
-  playerAccentColor: {r: 0.88, g: 0.67, b: 0.24, a: 1}
-  enemyAccentColor: {r: 0.78, g: 0.2, b: 0.18, a: 1}
   inactivePipColor: {r: 0.12, g: 0.15, b: 0.19, a: 0.95}
   unitNameText: {fileID: 0}
 --- !u!114 &210206977
@@ -4083,7 +4081,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 416080811}
-  m_LocalRotation: {x: 0, y: -0, z: 0.7071068, w: -0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4123,7 +4121,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5793611358319359223, guid: 96def5153af6bff4c91c168534d474fa, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e8be461f52acdca45b338c5f5989167e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -11588,7 +11586,6 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
-  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!212 &1038029989
 SpriteRenderer:
   serializedVersion: 2
@@ -11700,12 +11697,8 @@ MonoBehaviour:
   inspectController: {fileID: 0}
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
-  movementRangeColor: {r: 1, g: 0.72, b: 0.2, a: 0.85}
-  movementPreviewColor: {r: 1, g: 0.84, b: 0.38, a: 1}
-  inspectedMovementRangeColor: {r: 0.85, g: 0.3, b: 1, a: 0.85}
   movementFillAlpha: 0.025
   difficultTerrainFillAlpha: 0.1
-  trapPreviewColor: {r: 1, g: 0.2, b: 0.1, a: 0.85}
   surchargeGradientEndColor: {r: 0.65, g: 0.27, b: 0.09, a: 1}
   surchargeGradientMaximum: 3
 --- !u!114 &1046552047
@@ -11726,10 +11719,6 @@ MonoBehaviour:
   movementInputController: {fileID: 1046552046}
   gridOrigin: {x: 0, y: 0}
   cellSize: 1
-  targetHighlightColor: {r: 0.19999999, g: 1, b: 0.24321392, a: 0.65}
-  absoluteRangeHighlightColor: {r: 0.25, g: 0.55, b: 1, a: 0.25}
-  relativeRangeHighlightColor: {r: 1, g: 0.3, b: 0.12, a: 0.42}
-  affectedTargetHighlightColor: {r: 1, g: 0.45, b: 0.15, a: 0.8}
 --- !u!114 &1046552048
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12799,8 +12788,6 @@ MonoBehaviour:
   pathCostWorldScale: 0.12
   innerGridAlpha: 0.18
   innerGridThickness: 0.012
-  haloAlpha: 0.12
-  haloWidthMultiplier: 3
   destinationFillAlpha: 0.1
 --- !u!1001 &1253100412
 PrefabInstance:
@@ -13757,8 +13744,8 @@ MonoBehaviour:
   targetSelectionController: {fileID: 1046552047}
   endTurnButton: {fileID: 898882913}
   escapeButton: {fileID: 1410363340}
-  escapeIcon: {fileID: 0}
-  escapeDisabledMaterial: {fileID: 0}
+  escapeIcon: {fileID: 202282736}
+  escapeDisabledMaterial: {fileID: 2100000, guid: ad4b5c7276e230c47bd6fdfebd3d4278, type: 2}
   consumablesButton: {fileID: 762926060}
   consumableSelectionPrefab: {fileID: 2094127076370181901, guid: cab111c817306cd45b212af06acf48fa, type: 3}
   tooltipView: {fileID: 322252238}
@@ -15929,7 +15916,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 771779622273499393, guid: d601c9de68016834889fd954f4efa9ef, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 16067df708bc74843b35cfb162a75a12, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -18265,7 +18252,6 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
-  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!1 &1692990194
 GameObject:
   m_ObjectHideFlags: 0
@@ -18498,7 +18484,6 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
-  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!212 &1759156879
 SpriteRenderer:
   serializedVersion: 2
@@ -22087,7 +22072,6 @@ MonoBehaviour:
   inactiveColor: {r: 0.35, g: 0.4, b: 0.45, a: 0.35}
   closedDoorColor: {r: 0.45, g: 0.23, b: 0.1, a: 1}
   openDoorColor: {r: 0.3, g: 0.7, b: 0.45, a: 0.35}
-  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
 --- !u!1001 &2056099115
 PrefabInstance:
   m_ObjectHideFlags: 0

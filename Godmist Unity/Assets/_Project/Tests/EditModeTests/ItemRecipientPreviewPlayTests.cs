@@ -68,7 +68,7 @@ namespace Godmist.Tests.EditMode
             yield return Frames();
             var path=Path.Combine(Output,name+".png");
             if(File.Exists(path))File.Move(path,Path.Combine(Output,name+"-previous-"+DateTime.UtcNow.Ticks+".png"));
-            ScreenCapture.CaptureScreenshot(path);
+            yield return BackgroundGameCapture.Capture(path);
             for(var i=0;i<120 && !File.Exists(path);i++)yield return null;
             Assert.That(File.Exists(path),Is.True); Assert.That(new FileInfo(path).Length,Is.GreaterThan(10000));
         }
@@ -79,13 +79,11 @@ namespace Godmist.Tests.EditMode
             Assert.That(Enumerable.Range(0,SceneManager.sceneCount).Any(i=>SceneManager.GetSceneAt(i).isDirty),Is.False,"Do not replace unsaved user scenes.");
             Directory.CreateDirectory(Output);
             var setup=EditorSceneManager.GetSceneManagerSetup();
-            EditorApplication.ExecuteMenuItem("Window/General/Game");
-            var game=EditorWindow.focusedWindow;
-            Assert.That(game.GetType().Name,Is.EqualTo("GameView"));
+
             File.WriteAllText(Path.Combine(Output,"previous-scenes.json"),JsonUtility.ToJson(new Scenes {
                 paths=setup.Select(s=>s.path).ToArray(),loaded=setup.Select(s=>s.isLoaded).ToArray(),active=setup.Select(s=>s.isActive).ToArray(),
-                maximized=game.maximized,background=PlayerSettings.runInBackground }));
-            game.maximized=true;
+                background=PlayerSettings.runInBackground }));
+
             EditorSceneManager.OpenScene("Assets/_Project/Scenes/Bootstrap/Bootstrap.unity");
             yield return new EnterPlayMode();
             yield return RunAuthoredGame();
@@ -220,8 +218,7 @@ namespace Godmist.Tests.EditMode
             PlayerSettings.runInBackground=previous.background;
             if(previous.paths.Length==0 || previous.paths.Any(string.IsNullOrEmpty))EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
             else EditorSceneManager.RestoreSceneManagerSetup(previous.paths.Select((p,i)=>new SceneSetup {path=p,isLoaded=previous.loaded[i],isActive=previous.active[i]}).ToArray());
-            EditorApplication.ExecuteMenuItem("Window/General/Game");
-            EditorWindow.focusedWindow.maximized=previous.maximized;
+
         }
     }
 }

@@ -337,8 +337,8 @@ namespace Godmist.Views.Dungeons
                 var origin = map.CellToWorldCenter(Vector2Int.zero);
                 gridFeedback.SetGridMapping(origin, Vector2.Distance(origin, map.CellToWorldCenter(Vector2Int.right)));
             }
-            gridFeedback.ShowFill(CombatGridFeedbackLayer.EnemyFov, cells, new Color(1f, .12f, .08f, .2f));
-            gridFeedback.ShowOutline(CombatGridFeedbackLayer.EnemyFov, cells, new Color(1f, .2f, .1f, .8f));
+            gridFeedback.ShowFill(CombatGridFeedbackLayer.EnemyFov, cells, HighlightStyle.WithAlpha(HighlightStyle.Hostile, .2f));
+            gridFeedback.ShowOutline(CombatGridFeedbackLayer.EnemyFov, cells, HighlightStyle.WithAlpha(HighlightStyle.Hostile, .8f));
         }
     }
 }

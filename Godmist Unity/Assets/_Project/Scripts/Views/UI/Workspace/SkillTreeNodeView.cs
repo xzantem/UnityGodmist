@@ -290,8 +290,8 @@ namespace Godmist.Views.UI.Workspace
                 rankAccent.color = stateAccent;
             }
             if (activeRankAccent != null) { activeRankAccent.enabled = activeShape; activeRankAccent.color = stateAccent; }
-            if (activeHoverBorder != null) activeHoverBorder.color = stateAccent;
-            if (hoverBorder != null) hoverBorder.color = stateAccent;
+            if (activeHoverBorder != null) activeHoverBorder.color = HighlightStyle.Hover;
+            if (hoverBorder != null) hoverBorder.color = HighlightStyle.Hover;
             if (rankText != null) rankText.color = state switch {
                 NodeVisualState.Locked => new Color(.67f, .65f, .6f),
                 NodeVisualState.MaxRank => new Color(.5f, 1f, .65f),

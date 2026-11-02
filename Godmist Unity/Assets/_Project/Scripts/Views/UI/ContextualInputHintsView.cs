@@ -138,7 +138,9 @@ namespace Godmist.Views.UI
                     Append(combatTargeting?.IsSelectingTarget == true
                         ? combatTargeting.RequiresControllerConfirmation ? "L3 – tryb kursora" : "A – wskaż cel   L3 – tryb kursora"
                         : "A – wybierz   X – akcje   L3 – tryb kursora");
-                    Append(combatBootstrap?.Session != null ? "Lewy drążek – pole   Prawy – kamera   R3 – środek" : "Lewy drążek – ruch   Prawy – kamera   R3 – środek");
+                    var stickRole = ControllerInput.PrecisePointer ? "kursor"
+                        : combatBootstrap?.Session != null && explorationParty?.CanMoveWhileTargeting != true ? "pole" : "ruch";
+                    Append($"Lewy drążek – {stickRole}   Prawy – kamera   R3 – środek");
                     if (combatTargeting?.IsSelectingTarget == true)
                     {
                         if (combatTargeting.RequiresControllerConfirmation) Append("A – użyj umiejętności");
@@ -209,7 +211,9 @@ namespace Godmist.Views.UI
             if (!pointerOverUi && combatMovement?.IsMovementRangeInspectionAvailable == true)
                 Append("Ctrl – zasięg ruchu");
 
-            if (combatCamera?.CanAcceptManualInput == true)
+            if (combatBootstrap?.IsOpeningPreview == true)
+                AppendExplorationCameraHints(pointerOverUi);
+            else if (combatCamera?.CanAcceptManualInput == true)
             {
                 Append("F – skup na aktywnej jednostce");
                 Append("Home – arena");
@@ -238,20 +242,20 @@ namespace Godmist.Views.UI
             if (GameBootstrap.Instance?.QuestService != null)
                 Append("J – dziennik");
             if(explorationParty.DungeonMinimap!=null)Append("M – mapa odkrytego terenu");
-            if (explorationCamera != null)
-            {
-                Append("F – tryb kamery");
-                if (!pointerOverUi)
-                {
-                    Append("Scroll – zoom");
-                    if (!explorationCamera.IsFollowingLeader)
-                        Append("PPM – przesuwanie");
-                }
-            }
+            AppendExplorationCameraHints(pointerOverUi);
             if (explorationParty.HasAvailableInteraction)
                 Append("E – interakcja");
 
             SetText(builder.ToString());
+        }
+
+        private void AppendExplorationCameraHints(bool pointerOverUi)
+        {
+            if (explorationCamera == null) return;
+            Append("F – tryb kamery");
+            if (pointerOverUi) return;
+            Append("Scroll – zoom");
+            Append(explorationCamera.IsFollowingLeader ? "PPM + ruch – odblokuj kamerę" : "MMB / PPM – przesuwanie");
         }
 
         private void Append(string hint)

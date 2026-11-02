@@ -27,6 +27,8 @@ namespace Godmist.Tests.EditMode
             const int width=1920,height=1080;
             var target=new RenderTexture(width,height,24,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB);
             var pixels=new Texture2D(width,height,TextureFormat.RGBA32,false);
+            var worldTarget=new RenderTexture(width,height,24,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB);
+            GameObject backdrop=null;
             var oldTarget=camera.targetTexture;var oldMask=camera.cullingMask;var oldRect=camera.rect;
             var active=RenderTexture.active;
             var overlayCameraObject=new GameObject("Offscreen overlay camera",typeof(Camera));
@@ -42,7 +44,7 @@ namespace Godmist.Tests.EditMode
             var scrolls=Object.FindObjectsByType<ScrollRect>(FindObjectsInactive.Exclude).Where(s=>s.content!=null).ToDictionary(s=>s,s=>s.content.anchoredPosition);
             try
             {
-                target.Create();camera.targetTexture=target;camera.cullingMask=oldMask&~(1<<captureLayer);camera.rect=new Rect(0,0,1,1);camera.aspect=(float)width/height;
+                target.Create();worldTarget.Create();camera.targetTexture=worldTarget;camera.cullingMask=oldMask&~(1<<captureLayer);camera.rect=new Rect(0,0,1,1);camera.aspect=(float)width/height;
                 foreach(var canvas in Object.FindObjectsByType<Canvas>(FindObjectsInactive.Exclude).Where(c=>c.isRootCanvas&&c.renderMode==RenderMode.ScreenSpaceOverlay))
                 {
                     var scaler=canvas.GetComponent<CanvasScaler>();
@@ -65,8 +67,23 @@ namespace Godmist.Tests.EditMode
                 Canvas.ForceUpdateCanvases();
                 foreach(var mask in Object.FindObjectsByType<RectMask2D>(FindObjectsInactive.Exclude))mask.PerformClipping();
                 Canvas.ForceUpdateCanvases();camera.Render();
-                // Overlay UI is a separate final pass, exactly as in the live viewport.
-                // World sorting layers/nameplates must never draw over it.
+                // URP base cameras clear colour even with Depth flags. Preserve the
+                // native world render as the lowest UI layer of the final pass,
+                // rather than losing it when rendering the screen-space canvases.
+                backdrop=new GameObject("Offscreen world backdrop",typeof(RectTransform),typeof(Canvas));
+                backdrop.layer=captureLayer;
+                var backdropCanvas=backdrop.GetComponent<Canvas>();
+                backdropCanvas.renderMode=RenderMode.ScreenSpaceCamera;
+                backdropCanvas.worldCamera=overlayCamera;
+                backdropCanvas.planeDistance=overlayCamera.nearClipPlane+1;
+                backdropCanvas.sortingOrder=short.MinValue;
+                var surface=new GameObject("Native world render",typeof(RectTransform),typeof(RawImage));
+                surface.layer=captureLayer;surface.transform.SetParent(backdrop.transform,false);
+                var surfaceRect=surface.GetComponent<RectTransform>();
+                surfaceRect.anchorMin=Vector2.zero;surfaceRect.anchorMax=Vector2.one;
+                surfaceRect.offsetMin=surfaceRect.offsetMax=Vector2.zero;
+                var surfaceImage=surface.GetComponent<RawImage>();surfaceImage.texture=worldTarget;surfaceImage.raycastTarget=false;
+                Canvas.ForceUpdateCanvases();
                 overlayCamera.Render();RenderTexture.active=target;
                 pixels.ReadPixels(new Rect(0,0,width,height),0,0);pixels.Apply();
                 Assert.That(pixels.GetPixels32().Where((_,i)=>i%127==0).Select(c=>(c.r,c.g,c.b)).Distinct().Count(),Is.GreaterThan(32),"A native game capture must contain scene/UI detail, not an empty framebuffer.");
@@ -87,7 +104,8 @@ namespace Godmist.Tests.EditMode
                 foreach(var pair in windows)if(pair.Key!=null)pair.Key.RectTransform.sizeDelta=pair.Value;
                 Canvas.ForceUpdateCanvases();
                 foreach(var pair in scrolls)if(pair.Key!=null&&pair.Key.content!=null)pair.Key.content.anchoredPosition=pair.Value;
-                RenderTexture.active=active;overlayCamera.targetTexture=null;Object.DestroyImmediate(overlayCameraObject);target.Release();Object.DestroyImmediate(target);Object.DestroyImmediate(pixels);
+                if(backdrop!=null)Object.DestroyImmediate(backdrop);
+                RenderTexture.active=active;worldTarget.Release();Object.DestroyImmediate(worldTarget);overlayCamera.targetTexture=null;Object.DestroyImmediate(overlayCameraObject);target.Release();Object.DestroyImmediate(target);Object.DestroyImmediate(pixels);
             }
             // Let the normal player loop settle restored viewport/layout state before the next input.
             yield return null;yield return null;

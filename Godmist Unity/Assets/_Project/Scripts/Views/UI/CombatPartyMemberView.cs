@@ -31,8 +31,8 @@ namespace Godmist.Views.UI
         public void Bind(BattleUnit unit, bool selected = false, bool hasTurn = false)
         {
             explorationCharacter = null;
-            if (selectedMarker != null) selectedMarker.color = new Color(.35f,.85f,1f);
-            if (turnMarker != null) turnMarker.color = new Color(1f,.81f,.4f);
+            if (selectedMarker != null) selectedMarker.color = HighlightStyle.Selection;
+            if (turnMarker != null) turnMarker.color = HighlightStyle.Selection;
             BindPresentation(unit?.Character, selected, hasTurn);
             if (downedStyle == null && CombatDownedIndicatorView.ShouldShow(unit))
                 downedStyle = (healthSlider != null ? healthSlider.GetComponent<Godmist.Views.UI.Workspace.UIWorkspaceSliderStyleApplier>()?.Palette : null)

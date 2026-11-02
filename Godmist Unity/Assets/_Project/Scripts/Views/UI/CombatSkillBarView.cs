@@ -279,47 +279,38 @@ namespace Godmist.Views.UI
                     continue;
                 }
 
-                var canRecoverKnife = skill.CanRecoverKnives && sandboxBootstrap?.Session?.MapObjects
-                    .OfType<KnifeCombatMapObject>().Any(k => ScoutCombatSystem.RecoverableKnife(
-                        sandboxBootstrap.Session, activeUnit, skill, k.Position) != null) == true;
-                var actionCost = PaladinCombatSystem.PreviewHealCost(sandboxBootstrap?.Session,activeUnit,skill,null,CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill));
-                var activationActionCost = canRecoverKnife
-                    ? CombatActionCostCalculator.CalculateSkillCost(activeUnit, skill, true) : actionCost;
-                var resourceCost = PassiveEffectCombatExecutionSystem.ResolveResourceCost(activeUnit, skill, canRecoverKnife);
-                var resource = activeUnit.Character.ResourcePool;
-                var isActiveToggle = skill.IsToggle
-                    && activeUnit.ActiveToggleSkillIds != null
-                    && activeUnit.ActiveToggleSkillIds.Contains(skill.SkillId);
-                var wasChangedThisTurn = skill.IsToggle
-                    && activeUnit.ToggleSkillIdsUsedThisTurn != null
-                    && activeUnit.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId);
-                var canPayActivationCost = activeUnit.CurrentActionPoints >= activationActionCost
-                    && (resourceCost <= 0
-                        || (resource != null
-                            && resource.ResourceType == skill.ResourceType
-                            && (resource.CurrentValue >= resourceCost
-                                || WarriorCombatSystem.CanOverspend(activeUnit,skill,resourceCost))));
-                var canPayKnives = skill.KnifeCost <= 0
-                    || activeUnit.AvailableKnives >= skill.KnifeCost
-                    || skill.FreeKnivesInMelee;
-                var canUse = activeUnit.IsPlayerSide && (isActiveToggle
-                    || (!wasChangedThisTurn && canPayActivationCost && canPayKnives && WarriorCombatSystem.CanActivate(activeUnit,skill)));
-                var reason = !activeUnit.IsPlayerSide ? "Tura przeciwnika."
-                    : canUse ? null
-                    : wasChangedThisTurn ? "Przełączono już w tej turze."
-                    : activeUnit.CurrentActionPoints < activationActionCost ? "Za mało punktów akcji."
-                    : !canPayKnives ? "Za mało noży."
-                    : "Za mało zasobu lub niewłaściwy typ zasobu.";
+                var availability = SkillExecutionSystem.GetSelectionAvailability(sandboxBootstrap?.Session, activeUnit, skill,
+                    sandboxBootstrap?.IsSkillInputBusy == true);
                 spawnedSlots[slotIndex].RefreshAvailability(
-                    canUse,
-                    isActiveToggle ? 0 : actionCost,
-                    isActiveToggle,
+                    availability.CanSelect,
+                    availability.ActionCost,
+                    availability.IsActiveToggle,
                     string.Empty,
                     targetSelectionController?.SelectedSkill == skill,
-                    reason);
+                    FormatUnavailableReason(availability.Reason, skill));
                 slotIndex++;
             }
         }
+
+        private static string FormatUnavailableReason(SkillUseBlockReason reason, SkillData skill) => reason switch
+        {
+            SkillUseBlockReason.None => null,
+            SkillUseBlockReason.EnemyTurn or SkillUseBlockReason.NotActiveTurn => "Tura przeciwnika.",
+            SkillUseBlockReason.ActionInProgress => "Trwa wykonywanie akcji.",
+            SkillUseBlockReason.InvalidActor => "Postać nie może teraz działać.",
+            SkillUseBlockReason.RequiredStatus => "Brak wymaganego efektu na postaci.",
+            SkillUseBlockReason.Immobilized => "Unieruchomienie blokuje umiejętności ruchowe.",
+            SkillUseBlockReason.CrowdControlled => "Status blokuje używanie umiejętności.",
+            SkillUseBlockReason.ToggleAlreadyUsed => "Przełączono już w tej turze.",
+            SkillUseBlockReason.WarriorRequirement => skill.SkillId == WarriorDischargeRules.SkillId
+                ? "Wymaga co najmniej 20 furii." : "Za mało furii do podtrzymania umiejętności.",
+            SkillUseBlockReason.NotEnoughActionPoints => "Za mało punktów akcji.",
+            SkillUseBlockReason.NotEnoughKnives => "Za mało sztyletów.",
+            SkillUseBlockReason.MissingResource or SkillUseBlockReason.WrongResource => "Niewłaściwy typ zasobu.",
+            SkillUseBlockReason.NotEnoughResource => "Za mało " + Godmist.Core.Utilities.UiTerms.Resource(skill.ResourceType, genitive: true) + ".",
+            SkillUseBlockReason.MissingSummon => "Brak wymaganego przywołania.",
+            _ => "Umiejętność niedostępna."
+        };
 
         private void ClearSlots()
         {

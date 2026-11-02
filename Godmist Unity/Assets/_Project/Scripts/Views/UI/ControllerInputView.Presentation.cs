@@ -36,10 +36,13 @@ namespace Godmist.Views.UI
                 if (!string.IsNullOrWhiteSpace(reason)) text = reason + "   ·   B — wróć";
                 if (TopScope.GetComponentInChildren<Godmist.Views.UI.Workspace.NpcServicesWindowView>() != null)
                     text += "   LB / RB — zakładki";
+                var partyWindow=TopScope.GetComponent<Godmist.Views.UI.Workspace.PartyViewWindowView>();
+                if(partyWindow!=null)text+="   LB / RB — postać"+(itemContext?"":"   X — pozostałe okna");
                 panelHint.text = text; panelHint.fontSize = 15; panelHint.alignment = TextAlignmentOptions.Center;
                 var rect = panelHint.rectTransform;
                 rect.anchorMin = new Vector2(0, 0); rect.anchorMax = new Vector2(1, 0); rect.pivot = new Vector2(.5f, 1);
                 rect.offsetMin = new Vector2(8, -28); rect.offsetMax = new Vector2(-8, -3);
+                if(partyWindow!=null){rect.pivot=new Vector2(.5f,0);rect.offsetMin=new Vector2(8,5);rect.offsetMax=new Vector2(-8,29);}
                 panelHint.gameObject.SetActive(true);
                 return;
             }

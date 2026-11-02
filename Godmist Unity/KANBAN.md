@@ -1,8 +1,20 @@
-## Party View — v0.1.2 beta — READY_FOR_SMOKE
+## Całe 0.1.3 → 0.1.2 beta — konsolidacja — READY_FOR_SMOKE
 
-Jeden widok wszystkich aktywnych postaci, niezależne zakładki Ekwipunek / Statystyki / Umiejętności / Rozwój. I i LT otwierają widok, LB/RB wybierają kolumnę bez zmiany lidera. Indywidualna karta zachowana. Transfer stosu i założonego sprzętu przez istniejące transakcje; wybór ilości, podgląd odbiorcy i udźwigu. Nagłówki: HP, zasób i XP z cienkimi maskowanymi paskami, honor, stan, dostępność i tarcza. Brak powtórzonego XP w Rozwoju. Umiejętności po pięć ikon w rzędzie; większy opis. Usunięty skrót statystyk nad plecakiem. Wyśrodkowany tytuł i osobna oprawa złota. Fizyczny kontroler/paczka wymagają smoke testu.
+Decyzja użytkownika: pełna zawartość 0.1.3, w tym non-UX, wchodzi do 0.1.2; osobny update 0.1.3 zostaje wchłonięty. Zachowane bieżące Party View i przebudowa kontrolera. Zakres: osiem commitów gałęzi 0.1.3 oraz lokalne zmiany dostępności skilli, aktualizacji tooltipów, inspekcji ruchu i testu wyposażenia. Cache fontu, różnice końców linii i wygenerowane obrazy nie są zmianami gry. Właściwy merge historii przygotowany w izolowanym worktree. Dowody: ../LocalHandoffs/full-013-consolidation-20261102/. Weryfikacja: 339/339 odrębnych najnowszych wyników PASS po celowanych powtórkach, zero skips; końcowe 8/8 scenariuszy produkcyjnych PASS. Zachowane pełne setupy, sceny i wirtualne urządzenia wejścia. Nieaktualne oczekiwania testów ujednolicone z zatwierdzonym słownikiem, HP i układem UI. Screeny z natywnego renderowania świata i UI bez otwierania Game View: report.html. Trzy konflikty historii rozwiązane; source worktree bez zmian. Fizyczny pad i nowy build gracza nie były testowane w tej karcie. Użytkownik autoryzował wspólny commit i push.
 
-Wymagane zależności: przebudowa kontrolera i interakcje ekwipunku w oddzielnych commitach. Weryfikacja natywnymi testami w odizolowanym batch Editorze, bez otwierania/fokusowania Game View. Wyniki i screeny lokalne: ../LocalHandoffs/party-view-header-redesign-20261102/ oraz ../LocalHandoffs/party-view-commit-20261102/.
+## Party View — paski HP/zasobu/XP — 2026-11-02 — READY_FOR_SMOKE
+
+Paski 10 px z istniejącymi ramkami/maskami w nagłówkach. Usunięty powtórzony poziom i XP z osadzonego Rozwoju. Weryfikacja 26/26 PASS; screeny: ../LocalHandoffs/party-view-bars-20261102/report.html. Bez commita.
+
+## Party View — uzupełnienie danych i czytelność — 2026-11-02 — READY_FOR_SMOKE
+
+XP, honor, stan, dostępność i tarcza w nagłówku. Rozwój i pełne nazwy z UiTerms. Złoto: ikona + liczba. Umiejętności: 64×64, pięć w rzędzie, większy opis. Weryfikacja 26/26 PASS, screeny i wyniki: ../LocalHandoffs/party-view-refinement-20261102/report.html. Bez commita.
+
+## v0.1.2 beta — konsolidacja UX i Party View — 2026-11-02 — READY_FOR_SMOKE
+
+Decyzja użytkownika: dotychczasowe karty UX 0.1.3 oraz Party View wchodzą do nadal testowanego 0.1.2. Zmiany z ośmiu commitów 2a7e2e14b–831b13cf7 przeniesione do working tree 0.1.2 z zachowaniem lokalnej przebudowy kontrolera. Osobne źródłowe worktree 0.1.3 pozostaje nietknięte; brak commit/push/release w tej karcie.
+
+Party View: wszystkie aktywne postaci jednocześnie, niezależne zakładki kolumn (ekwipunek, statystyki i efekty, umiejętności, rozwój), pamięć trybu w obrębie sesji, I / LT. LB/RB wybierają kolumnę bez zmiany lidera lub aktywnej tury. Nagłówek otwiera zachowaną indywidualną kartę. Drag & drop między kolumnami korzysta z istniejących transakcji i wyboru liczby sztuk; założony sprzęt trafia do plecaka. Bez zmiany save/schema i balansu. Dowody: ../LocalHandoffs/party-view-20261102/. 148/148 celowanych testów PASS; ponowny przebieg obu natywnych scenariuszy po poprawie renderowania bez okna: 2/2 PASS. Screeny: report.html. Manualny smoke fizycznego kontrolera/paczki NOT RUN. Testy nie otwierają ani nie fokusują Game View.
 
 ## v0.1.1 — korekta grafiki jadeitu według workflow C — 2026-10-27 — READY_FOR_SMOKE
 

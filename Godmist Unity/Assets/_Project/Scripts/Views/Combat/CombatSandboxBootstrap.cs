@@ -69,23 +69,35 @@ namespace Godmist.Views.Combat
             IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosen);
         private OpeningSkillCommit commitOpening;
         private Func<BattleUnit, bool> openingVisibility;
+        private Func<IReadOnlyList<GridPosition>, bool> openingApproach;
+        private Func<bool> openingApproachBusy;
+        private Action openingApproachCompleted;
+        private Func<GridPosition, IReadOnlyList<GridPosition>> openingApproachPath;
+        private Action cancelOpeningApproach;
+        public void SynchronizeSkillApproachArrival() => openingApproachCompleted?.Invoke();
+        public void StopOpeningSkillApproach() { if (IsOpeningPreview) cancelOpeningApproach?.Invoke(); }
         public CombatSession Session => focused?.Session ?? openingPreview?.Session;
         public CombatExecutionDriver OpeningPreview => openingPreview;
-        public bool BeginOpeningPreview(CombatSession session, OpeningSkillCommit commit, Func<BattleUnit, bool> visible)
+        public bool BeginOpeningPreview(CombatSession session, OpeningSkillCommit commit, Func<BattleUnit, bool> visible,
+            Func<IReadOnlyList<GridPosition>, bool> approach = null, Func<bool> approachBusy = null, Action approachCompleted = null,
+            Func<GridPosition, IReadOnlyList<GridPosition>> approachPath = null, Action cancelApproach = null)
         {
             if (!seamlessDungeon || focused != null || session?.ActiveUnit == null || commit == null) return false;
             openingPreview = CreateDriver();
             openingPreview.InitializeTargetingPreview(session);
             commitOpening = commit; openingVisibility = visible;
+            openingApproach = approach; openingApproachBusy = approachBusy; openingApproachCompleted = approachCompleted; openingApproachPath = approachPath;
+            cancelOpeningApproach = cancelApproach;
             return true;
         }
         public void CancelOpeningPreview()
-        { openingPreview = null; commitOpening = null; openingVisibility = null; }
+        { openingPreview = null; commitOpening = null; openingVisibility = null; openingApproach = null; openingApproachBusy = null; openingApproachCompleted = null; openingApproachPath = null; cancelOpeningApproach = null; }
         public bool IsUnitVisible(BattleUnit unit) => unit != null && !Godmist.Systems.Combat.StatusEffectSystem.IsInvisibleToPlayer(unit)
             && (IsOpeningPreview ? openingVisibility?.Invoke(unit) == true : unitViewSpawner == null || unitViewSpawner.IsUnitVisible(unit));
         public bool IsUnitKnown(BattleUnit unit) => unit != null && !Godmist.Systems.Combat.StatusEffectSystem.IsInvisibleToPlayer(unit)
             && (IsOpeningPreview ? openingVisibility?.Invoke(unit) == true : unitViewSpawner == null || unitViewSpawner.IsUnitKnown(unit));
-        public bool IsPlayerMovementPresentationInProgress => focused?.IsPlayerMovementPresentationInProgress == true;
+        public bool IsPlayerMovementPresentationInProgress => focused?.IsPlayerMovementPresentationInProgress == true || openingApproachBusy?.Invoke() == true;
+        public bool IsSkillInputBusy => focused?.IsActionInProgress == true || openingApproachBusy?.Invoke() == true;
         public bool IsGameplaySuspended => GameBootstrap.Instance?.Session?.CurrentMode is GameModeState.Menu or GameModeState.Loading;
         public event Action<CombatMapObject> CombatMapObjectChanged;
         public event Action<CombatSession, BattleUnit> UnitLeftCombat;
@@ -217,7 +229,28 @@ namespace Godmist.Views.Combat
         public Dictionary<GridPosition, List<GridPosition>> GetUnitNextTurnMovementPaths(BattleUnit unit) => focused?.GetUnitNextTurnMovementPaths(unit) ?? new();
         public int GetActiveUnitMovementPathCost(IReadOnlyList<GridPosition> path) => focused?.GetActiveUnitMovementPathCost(path) ?? 0;
         public bool TryMoveActiveUnitAlongPath(
-            IReadOnlyList<GridPosition> path) => focused?.TryMoveActiveUnitAlongPath(path) ?? false;
+            IReadOnlyList<GridPosition> path) => IsOpeningPreview
+                ? openingApproach?.Invoke(path) == true : focused?.TryMoveActiveUnitAlongPath(path) ?? false;
+        public bool TryPlanSkillApproach(SkillData skill, int modeIndex, GridPosition target,
+            IReadOnlyDictionary<int, GridPosition?> previous, IReadOnlyDictionary<int, int> rotations,
+            IReadOnlyDictionary<int, IReadOnlyList<GridPosition>> chosen, Func<GridPosition, bool> visible,
+            out List<GridPosition> path, out int cost)
+        {
+            path = null; cost = 0;
+            IReadOnlyList<GridPosition> ownerPath = null;
+            bool Reachable(GridPosition destination)
+            {
+                ownerPath = openingApproachPath?.Invoke(destination);
+                return ownerPath != null && ownerPath.Count > 0 && ownerPath.All(p => visible?.Invoke(p) != false);
+            }
+            if ((focused ?? openingPreview)?.TryPlanSkillApproach(skill, modeIndex, target,
+                previous, rotations, chosen, IsOpeningPreview, visible, out path, out cost,
+                IsOpeningPreview ? Reachable : null) != true) return false;
+            if (IsOpeningPreview && path.Count > 0) path = ownerPath.ToList();
+            return true;
+        }
+        public bool IsPotentialApproachTarget(SkillData skill, int modeIndex, BattleUnit target) =>
+            (focused ?? openingPreview)?.IsPotentialApproachTarget(skill, modeIndex, target) == true;
         public bool TryExecuteSkill(
             SkillData skill,
             GridPosition? selectedPosition) => TryExecuteSkill(skill, new Dictionary<int, GridPosition?> { [0] = selectedPosition }, null, null);

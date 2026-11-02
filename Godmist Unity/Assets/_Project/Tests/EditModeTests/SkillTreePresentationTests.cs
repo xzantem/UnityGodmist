@@ -368,7 +368,7 @@ namespace Godmist.Tests.EditMode
             var node=new SkillTreeNodeDefinition();Set(node,"MaxRanks",2);Set(node,"Description","Premia 10%/20%");
             var body=SkillTreeNodeView.BuildDetails(node,rank);
             if (current && next)
-                Assert.That(body, Is.EqualTo("<b>Aktualne → następne:</b>\nPremia 10% → 20%"));
+                Assert.That(body, Is.EqualTo("<b>Aktualne:</b>\nPremia 10%\n\n<b>Następne:</b>\nPremia 20%"));
             else
             {
                 Assert.That(body.Contains("Aktualne:"),Is.EqualTo(current));Assert.That(body.Contains("Następne:"),Is.EqualTo(next));
@@ -428,9 +428,11 @@ namespace Godmist.Tests.EditMode
                 Canvas.ForceUpdateCanvases();
                 Assert.That(((Image)Field(view,"experienceFill")).fillAmount,Is.EqualTo(.25f).Within(.001f));
                 var passive=((TMP_Text)Field(view,"globalPassiveText")).text;
-                Assert.That(passive,Does.Contain("Premia za punkt"));Assert.That(passive,Does.Contain("Aktualnie:"));Assert.That(passive,Does.Contain("szansy krytycznej"));
+                Assert.That(passive,Does.Contain("Premia za punkt"));Assert.That(passive,Does.Contain("Aktualnie:"));Assert.That(passive,Does.Contain("szansę krytyczną"));
                 var tab=(Transform)Field(view,"treeTabRoot");foreach(var button in tab.GetComponentsInChildren<Button>())
-                    Assert.That(button.transform.Find("Label").GetSiblingIndex(),Is.EqualTo(button.transform.childCount-1),"State frames must not cover tab text.");
+                    Assert.That(button.GetComponentsInChildren<Image>().Where(image=>image.transform.parent==button.transform)
+                        .All(image=>image.transform.GetSiblingIndex()<button.transform.Find("Label").GetSiblingIndex()),
+                        Is.True,"State frame images must render below tab text; non-rendering components may follow it.");
                 var card=Card(view,node.Id);var neutral=((Image)Field(card,"rankAccent")).color;
                 var pointer=new PointerEventData(EventSystem.current){button=PointerEventData.InputButton.Left,pointerId=-1,position=Vector2.zero};
                 card.OnPointerDown(pointer);Call(card,"AdvanceHold",.35f);

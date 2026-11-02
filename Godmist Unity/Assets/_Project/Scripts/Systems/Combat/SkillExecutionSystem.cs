@@ -10,7 +10,7 @@ using Godmist.Core.Constants;
 
 namespace Godmist.Systems.Combat
 {
-    public class SkillExecutionSystem
+    public partial class SkillExecutionSystem
     {
         private readonly Action<string> battleLog;
         private readonly Action<BattleUnit> removeUnitFromCombat;
@@ -1627,9 +1627,7 @@ namespace Godmist.Systems.Combat
         private static bool CanExecuteContext(CombatSession session, BattleUnit caster, SkillData skill,
             IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex)
         {
-            if (skill?.Effects != null && skill.Effects.Any(effect => effect != null
-                && !string.IsNullOrWhiteSpace(effect.DamagePerOwnedSummonGroup)
-                && SummonSystem.CountOwnedSummons(session, caster, effect.DamagePerOwnedSummonGroup) == 0)) return false;
+            if (!HasRequiredOwnedSummons(session, caster, skill)) return false;
             if (session?.CanUseBossSkill?.Invoke(caster, skill) == false) return false;
             if(skill?.SkillId==BanditLeaderBossSystem.OrderId && (targetsByModeIndex==null
                 || !targetsByModeIndex.TryGetValue(0,out var orderTargets) || orderTargets.Count!=1
@@ -1648,6 +1646,27 @@ namespace Godmist.Systems.Combat
                 && CanExecute(session, caster, skill, targets,
                 teleport, placement, IsToggleActive(caster, skill), false, positions);
 
+        public bool CanAfford(CombatSession session, BattleUnit caster, SkillData skill,
+            IReadOnlyDictionary<int, IReadOnlyList<BattleUnit>> targetsByModeIndex,
+            IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
+        {
+            if (session == null || caster?.Character == null || skill == null || targetsByModeIndex == null) return false;
+            var recoveringKnife = ScoutCombatSystem.IsKnifeRecovery(session, caster, skill,
+                targetsByModeIndex, selectedPositionsByModeIndex);
+            var actionCost =
+                CombatActionCostCalculator.CalculateSkillCostForTarget(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),recoveringKnife);
+
+            var block = GetPaymentBlockReason(caster, skill, actionCost, recoveringKnife);
+            switch (block)
+            {
+                case SkillUseBlockReason.NotEnoughActionPoints: battleLog?.Invoke("Not enough AP."); break;
+                case SkillUseBlockReason.MissingResource: Debug.LogWarning($"Skill '{skill.SkillId}' requires a resource pool."); break;
+                case SkillUseBlockReason.WrongResource: Debug.LogWarning($"Skill '{skill.SkillId}' uses an incompatible resource type."); break;
+                case SkillUseBlockReason.NotEnoughResource: battleLog?.Invoke("Not enough resource."); break;
+            }
+            return block == SkillUseBlockReason.None;
+        }
+
         private bool CanExecute(
             CombatSession session,
             BattleUnit caster,
@@ -1658,80 +1677,14 @@ namespace Godmist.Systems.Combat
             bool isToggleDeactivation,
             bool skipCosts, IReadOnlyDictionary<int, GridPosition?> selectedPositionsByModeIndex)
         {
-            if (session == null || caster?.Character == null
-                || skill == null || targetsByModeIndex == null
-                || caster.Character.LifeState != CharacterLifeState.Alive)
-            {
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(skill.RequiredCasterStatusId)
-                && !StatusEffectSystem.HasStatus(caster, skill.RequiredCasterStatusId))
-                return false;
-
+            if (targetsByModeIndex == null) return false;
+            var casterBlock = GetCasterBlockReason(session, caster, skill, isToggleDeactivation);
+            if (casterBlock != SkillUseBlockReason.None)
+            { ReportCasterBlock(casterBlock, caster, skill); return false; }
             if (skill.SkillId == "skill.scout.shadow" && (!teleportDestination.HasValue
-                || !session.Grid.CanMoveBetween(caster.Position,teleportDestination.Value))) return false;
-            if (StatusEffectSystem.IsImmobilized(caster)
-                && (ContainsMobilityEffect(skill) || skill.Effects.Any(e=>e.EffectType==EffectType.SwapPositions)))
-            {
-                battleLog?.Invoke(
-                    $"{caster.Character.Definition.DisplayName} cannot use a mobility skill while immobilized.");
-
-                return false;
-            }
-
-            if (StatusEffectSystem.IsHardCrowdControlled(caster))
-            {
-                battleLog?.Invoke(
-                    $"{caster.Character.Definition.DisplayName} cannot use skills while crowd controlled.");
-
-                return false;
-            }
-
-            if (session.Outcome != CombatOutcomeState.Ongoing
-                || (session.ActiveUnit != caster && session.EntryActionCaster != caster)
-                || !session.Units.Contains(caster))
-            {
-                return false;
-            }
-
-            if (skill.Effects == null || skill.Effects.Count == 0)
-            {
-                Debug.LogWarning($"Skill '{skill.SkillId}' has no effects.");
-                return false;
-            }
-
-            if (!isToggleDeactivation
-                && skill.IsToggle
-                && !ToggleSkillRules.IsValid(skill))
-            {
-                Debug.LogWarning(
-                    $"Toggle skill '{skill.SkillId}' contains an unsupported effect.");
-                return false;
-            }
-
+                || !session.Grid.CanMoveBetween(caster.Position, teleportDestination.Value))) return false;
             var isObjectPlacementOnlySkill = IsObjectPlacementOnlySkill(skill);
-
-            if (ContainsEffectType(skill, EffectType.CreateObject)
-                && ContainsEffectType(skill, EffectType.Summon))
-            {
-                Debug.LogWarning(
-                    $"Skill '{skill.SkillId}' mixes CreateObject and Summon. " +
-                    "This is not supported in v1.");
-                return false;
-            }
-
-            if (!isToggleDeactivation
-                && skill.IsToggle
-                && caster.ToggleSkillIdsUsedThisTurn != null
-                && caster.ToggleSkillIdsUsedThisTurn.Contains(skill.SkillId))
-            {
-                battleLog?.Invoke("Toggle can be activated only once per turn.");
-                return false;
-            }
-
             if (isToggleDeactivation) return true;
-            if(!WarriorCombatSystem.CanActivate(caster,skill)){battleLog?.Invoke(skill.SkillId == WarriorDischargeRules.SkillId ? "Wyładowanie wymaga co najmniej 20 furii." : "Za mało wściekłości do podtrzymania Pragnienia Śmierci.");return false;}
 
             if (!isObjectPlacementOnlySkill
                 && (skill.TargetModes == null || skill.TargetModes.Count == 0))
@@ -1881,43 +1834,7 @@ namespace Godmist.Systems.Combat
                 }
             }
 
-            var recoveringKnife = ScoutCombatSystem.IsKnifeRecovery(session, caster, skill,
-                targetsByModeIndex, selectedPositionsByModeIndex);
-            var actionCost =
-                CombatActionCostCalculator.CalculateSkillCostForTarget(caster,skill,targetsByModeIndex.Values.SelectMany(v=>v).FirstOrDefault(),recoveringKnife);
-
-            if (!skipCosts && caster.CurrentActionPoints < actionCost)
-            {
-                battleLog?.Invoke("Not enough AP.");
-                return false;
-            }
-
-            if (!skipCosts && PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife) > 0
-                && caster.Character.ResourcePool == null)
-            {
-                Debug.LogWarning(
-                    $"Skill '{skill.SkillId}' requires a resource pool.");
-
-                return false;
-            }
-
-            if (!skipCosts && PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife) > 0
-                && caster.Character.ResourcePool.ResourceType != skill.ResourceType)
-            {
-                Debug.LogWarning(
-                    $"Skill '{skill.SkillId}' uses an incompatible resource type.");
-
-                return false;
-            }
-
-            if (!skipCosts
-                && caster.Character.ResourcePool != null
-                && caster.Character.ResourcePool.CurrentValue < PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster, skill, recoveringKnife)
-                && !WarriorCombatSystem.CanOverspend(caster,skill,PassiveEffectCombatExecutionSystem.ResolveResourceCost(caster,skill,recoveringKnife)))
-            {
-                battleLog?.Invoke("Not enough resource.");
-                return false;
-            }
+            if (!skipCosts && !CanAfford(session, caster, skill, targetsByModeIndex, selectedPositionsByModeIndex)) return false;
 
             try { SkillEffectIdentity.ExecutionOrder(skill); }
             catch (InvalidOperationException error) { Debug.LogWarning(error.Message); return false; }

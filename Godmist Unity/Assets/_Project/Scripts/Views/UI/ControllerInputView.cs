@@ -174,7 +174,8 @@ namespace Godmist.Views.UI
             {
                 mouseTime = physicalMouse.lastUpdateTime;
                 if (physicalMouse.delta.ReadValue().sqrMagnitude > 4 || physicalMouse.leftButton.wasPressedThisFrame
-                    || physicalMouse.rightButton.wasPressedThisFrame || physicalMouse.scroll.ReadValue().sqrMagnitude > 0)
+                    || physicalMouse.rightButton.wasPressedThisFrame || physicalMouse.middleButton.wasPressedThisFrame
+                    || physicalMouse.scroll.ReadValue().sqrMagnitude > 0)
                 {
                     if (physicalMouse.lastUpdateTime > activityTime) { activityTime = physicalMouse.lastUpdateTime; controllerWasLast = false; }
                 }
@@ -576,6 +577,15 @@ namespace Godmist.Views.UI
                 position.x = Mathf.Clamp(position.x, 0, Screen.width);
                 position.y = Mathf.Clamp(position.y, 0, Screen.height);
                 worldSelection = worldCamera.ScreenToWorldPoint(position); hasWorldSelection = true; selectedWorldUnit = null;
+                return;
+            }
+            if (party?.CanMoveWhileTargeting == true)
+            {
+                // Outside combat the stick keeps its exploration movement role.
+                // D-pad target cycling and L3 precise aiming retain separate ownership.
+                if (selectedWorldUnit != null && unitViews != null
+                    && unitViews.TryGetWorldPosition(selectedWorldUnit, out var selectedPosition))
+                    position = worldCamera.WorldToScreenPoint(selectedPosition);
                 return;
             }
             RefreshWorldSelection();

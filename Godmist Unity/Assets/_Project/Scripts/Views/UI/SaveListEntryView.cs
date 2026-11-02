@@ -17,7 +17,7 @@ namespace Godmist.Views.UI
 
         [Header("Colors")]
         [SerializeField] private Color normalColor = new(0.08f, 0.12f, 0.18f, 0.92f);
-        [SerializeField] private Color selectedColor = new(0.36f, 0.25f, 0.06f, 0.96f);
+        private Color selectedColor => HighlightStyle.SelectionSurface(normalColor);
         [SerializeField] private Sprite normalBackground;
         [SerializeField] private Sprite selectedBackground;
 

@@ -64,8 +64,6 @@ namespace Godmist.Views.Combat
 
         [SerializeField, Range(0f, 1f)] private float innerGridAlpha = .18f;
         [SerializeField, Min(.001f)] private float innerGridThickness = .012f;
-        [SerializeField, Range(0f, 1f)] private float haloAlpha = .12f;
-        [SerializeField, Min(1f)] private float haloWidthMultiplier = 3f;
         [SerializeField, Range(0f, 1f)] private float destinationFillAlpha = .1f;
 
         private readonly Dictionary<CombatGridFeedbackLayer, List<SpriteRenderer>> outlines = new();
@@ -130,9 +128,27 @@ namespace Godmist.Views.Combat
 
         private static bool IsPixelMarkerLayer(CombatGridFeedbackLayer layer) => layer is
             CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.ChosenSkillTargets
-            or CombatGridFeedbackLayer.AffectedArea or CombatGridFeedbackLayer.RelativeRange
+            or CombatGridFeedbackLayer.AffectedArea
             or CombatGridFeedbackLayer.MovementPreview or CombatGridFeedbackLayer.ActiveMovementUnit
             or CombatGridFeedbackLayer.JudgementField;
+
+        public static int LayerPriority(CombatGridFeedbackLayer layer) => layer switch
+        {
+            CombatGridFeedbackLayer.EnemyFov => 0,
+            CombatGridFeedbackLayer.JudgementField => 2,
+            CombatGridFeedbackLayer.MovementRange or CombatGridFeedbackLayer.InspectedMovementRange => 4,
+            CombatGridFeedbackLayer.SkillHover => 6,
+            CombatGridFeedbackLayer.SkillRange => 8,
+            CombatGridFeedbackLayer.RelativeRange => 10,
+            CombatGridFeedbackLayer.SkillTarget => 12,
+            CombatGridFeedbackLayer.AffectedArea => 14,
+            CombatGridFeedbackLayer.ChosenSkillTargets => 16,
+            CombatGridFeedbackLayer.ActiveMovementUnit => 18,
+            CombatGridFeedbackLayer.MovementPreview => 20,
+            _ => 0
+        };
+
+        private int SortingOrder(CombatGridFeedbackLayer layer) => feedbackSortingOrder + LayerPriority(layer);
 
         private void Awake()
         {
@@ -178,22 +194,10 @@ namespace Godmist.Views.Combat
             {
                 var renderer = CreateSpriteRenderer("Combat feedback edge");
                 renderer.color = cellColor?.Invoke(projected[edge.Cell]) ?? color;
+                renderer.sortingOrder = SortingOrder(layer);
                 ConfigureEdge(renderer.transform, renderer.sprite, edge);
-                if (layer == CombatGridFeedbackLayer.MovementPreview || layer == CombatGridFeedbackLayer.ActiveMovementUnit)
-                    renderer.sortingOrder = pathSortingOrder;
                 renderers.Add(renderer);
-                if (haloAlpha > 0f)
-                {
-                    var halo = CreateSpriteRenderer("Combat boundary halo");
-                    halo.sortingOrder = renderer.sortingOrder;
-                    halo.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, renderer.color.a * haloAlpha);
-                    ConfigureEdge(halo.transform, halo.sprite, edge);
-                    var scale = halo.transform.localScale;
-                    if (edge.Direction == CombatGridEdgeDirection.Top || edge.Direction == CombatGridEdgeDirection.Bottom) scale.y *= haloWidthMultiplier;
-                    else scale.x *= haloWidthMultiplier;
-                    halo.transform.localScale = scale;
-                    renderers.Add(halo);
-                }
+
             }
             if (layer == CombatGridFeedbackLayer.MovementRange || layer == CombatGridFeedbackLayer.InspectedMovementRange)
             {
@@ -206,6 +210,7 @@ namespace Godmist.Views.Combat
             void AddInnerEdge(GridPosition cell, CombatGridEdgeDirection direction)
             {
                 var line = CreateSpriteRenderer("Combat individual cell edge");
+                line.sortingOrder = SortingOrder(layer);
                 var tint = cellColor?.Invoke(projected[cell]) ?? color;
                 line.color = new Color(tint.r, tint.g, tint.b, innerGridAlpha);
                 ConfigureEdge(line.transform, line.sprite, new CombatGridOutlineEdge(cell, direction));
@@ -236,7 +241,7 @@ namespace Godmist.Views.Combat
             var opacity = layer switch
             {
                 CombatGridFeedbackLayer.MovementRange or CombatGridFeedbackLayer.InspectedMovementRange => .06f,
-                CombatGridFeedbackLayer.SkillRange or CombatGridFeedbackLayer.RelativeRange => .18f,
+                CombatGridFeedbackLayer.SkillRange or CombatGridFeedbackLayer.RelativeRange or CombatGridFeedbackLayer.SkillHover => .045f,
                 CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.AffectedArea => .55f,
                 _ => 1f
             };
@@ -285,7 +290,7 @@ namespace Godmist.Views.Combat
                 var renderer = gameObject.GetComponent<MeshRenderer>();
                 renderer.sharedMaterial = fillBatchMaterial;
                 renderer.sortingLayerID = SortingLayer.NameToID(feedbackSortingLayer);
-                renderer.sortingOrder = feedbackSortingOrder;
+                renderer.sortingOrder = SortingOrder(layer);
                 fillBatches.Add(layer, batch = new FillBatch
                 {
                     GameObject = gameObject, Mesh = mesh, Renderer = renderer
@@ -369,14 +374,15 @@ namespace Godmist.Views.Combat
             EnsurePixelSprites();
             for (var index = 0; index < path.Count; index++)
             {
-                for (var pip = 1; pip <= 4; pip++)
+                var pipCount = Mathf.Max(2, Mathf.CeilToInt(new Vector2(path[index].X - previous.X, path[index].Y - previous.Y).magnitude * 2f));
+                for (var pip = 1; pip <= pipCount; pip++)
                 {
                     var marker = CreateSpriteRenderer("Combat pixel path gem");
                     marker.sprite = pathGemSprite;
-                    marker.sortingOrder = pathSortingOrder;
+                    marker.sortingOrder = SortingOrder(CombatGridFeedbackLayer.MovementPreview) + 1;
                     marker.color = !danger && stepColor != null ? stepColor(previous, path[index]) : color;
-                    marker.transform.localPosition = Vector3.Lerp(GridToLocal(previous), GridToLocal(path[index]), pip / 4f);
-                    ScaleSprite(marker.transform, marker.sprite, Vector2.one * cellSize * (5f / 32f));
+                    marker.transform.localPosition = Vector3.Lerp(GridToLocal(previous), GridToLocal(path[index]), pip / (float)pipCount);
+                    ScaleSprite(marker.transform, marker.sprite, Vector2.one * cellSize * (3f / 32f));
                     marker.gameObject.SetActive(CanPresent(CombatGridFeedbackLayer.MovementPreview, path[index]));
                     pathMarkers.Add(marker);
                     pathMarkerCells[marker] = path[index];
@@ -609,7 +615,7 @@ namespace Godmist.Views.Combat
                 return Mathf.Min(x,31-x) + Mathf.Min(y,31-y) >= 7;
             }
             for(var y=0;y<32;y++)for(var x=0;x<32;x++)
-                marks[y*32+x] = (x<12 || x>19) && (y<12 || y>19) && Inside(x,y)
+                marks[y*32+x] = (x<10 || x>21) && (y<10 || y>21) && Inside(x,y)
                     && (!Inside(x-1,y) || !Inside(x+1,y) || !Inside(x,y-1) || !Inside(x,y+1));
             var pixels = new Color32[marks.Length];
             for(var y=0;y<32;y++)for(var x=0;x<32;x++)
@@ -649,7 +655,7 @@ namespace Godmist.Views.Combat
             EnsurePixelSprites();
             var cells=source.Where(p=>CanPresent(layer,p)).Distinct().ToArray();
             var renderers=new List<SpriteRenderer>();
-            if(layer is CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.ChosenSkillTargets
+            if(layer is CombatGridFeedbackLayer.SkillTarget or CombatGridFeedbackLayer.ChosenSkillTargets or CombatGridFeedbackLayer.AffectedArea
                 or CombatGridFeedbackLayer.MovementPreview or CombatGridFeedbackLayer.ActiveMovementUnit)
             {
                 ShowCornerBatch(layer, cells, tint, cellTint);
@@ -661,6 +667,7 @@ namespace Godmist.Views.Combat
                 {
                     var marker=CreateSpriteRenderer("Combat pixel area edge");marker.sprite=areaEdgeSprite;
                     marker.color=cellTint?.Invoke(projected[edge.Cell]) ?? tint;
+                    marker.sortingOrder = SortingOrder(layer);
                     var center=GridToLocal(edge.Cell);
                     switch(edge.Direction)
                     {
@@ -699,11 +706,11 @@ namespace Godmist.Views.Combat
                 batch.Renderer.sharedMaterial = cornerMaterial;
             }
             batch.Renderer.sortingLayerID = SortingLayer.NameToID(feedbackSortingLayer);
-            batch.Renderer.sortingOrder = feedbackSortingOrder;
+            batch.Renderer.sortingOrder = SortingOrder(layer);
             if (ResolveExplorationMarker == null && cellTint == null && batch.Cells != null && batch.Cells.SequenceEqual(cells)
                 && batch.Tint == tint && batch.Origin == gridOrigin && batch.Size == cellSize && batch.Depth == feedbackZ)
             { batch.Renderer.enabled = true; return; }
-            batch.Cells = cellTint == null ? cells : null;
+            batch.Cells = cells;
             batch.Tint = tint; batch.Origin = gridOrigin; batch.Size = cellSize; batch.Depth = feedbackZ;
             var vertices = new List<Vector3>(cells.Length * 4);
             var colors = new List<Color>(cells.Length * 4);
@@ -713,14 +720,19 @@ namespace Godmist.Views.Combat
             foreach (var cell in cells)
             {
                 var center = MarkerToLocal(layer, cell);
-                var index = vertices.Count;
-                vertices.Add(center + new Vector3(-half, -half)); vertices.Add(center + new Vector3(-half, half));
-                vertices.Add(center + new Vector3(half, half)); vertices.Add(center + new Vector3(half, -half));
-                var color = cellTint?.Invoke(cell) ?? tint;
-                for (var i = 0; i < 4; i++) colors.Add(color);
-                uv.Add(Vector2.zero); uv.Add(Vector2.up); uv.Add(Vector2.one); uv.Add(Vector2.right);
-                triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
-                triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
+                // Confirmed targets retain their relation colour and gain an inset corner.
+                for (var stroke = 0; stroke < (layer == CombatGridFeedbackLayer.ChosenSkillTargets ? 2 : 1); stroke++)
+                {
+                    half = cellSize * (.5f - stroke * .055f);
+                    var index = vertices.Count;
+                    vertices.Add(center + new Vector3(-half, -half)); vertices.Add(center + new Vector3(-half, half));
+                    vertices.Add(center + new Vector3(half, half)); vertices.Add(center + new Vector3(half, -half));
+                    var color = cellTint?.Invoke(cell) ?? tint;
+                    for (var i = 0; i < 4; i++) colors.Add(color);
+                    uv.Add(Vector2.zero); uv.Add(Vector2.up); uv.Add(Vector2.one); uv.Add(Vector2.right);
+                    triangles.Add(index); triangles.Add(index + 1); triangles.Add(index + 2);
+                    triangles.Add(index); triangles.Add(index + 2); triangles.Add(index + 3);
+                }
             }
             batch.Mesh.Clear(); batch.Mesh.SetVertices(vertices); batch.Mesh.SetColors(colors);
             batch.Mesh.SetUVs(0, uv); batch.Mesh.SetTriangles(triangles, 0); batch.Mesh.RecalculateBounds();
@@ -732,7 +744,7 @@ namespace Godmist.Views.Combat
         // remain seamless. Padding keeps bilinear sampling inside each sprite.
         private const int SoftTileSize = 32, SoftTileStride = 36, SoftAtlasSize = 16 * SoftTileStride;
         private static readonly Dictionary<int, (Color32[] Fill, Color32[] Boundary)> softTilePixels = new();
-        private static readonly float[,] softPixelWeights = new float[1024, 8], softPixelDistances = new float[1024, 8];
+        private static readonly float[,] softPixelWeights = new float[1024, 8];
         private static readonly float[] softPixelCenters = new float[1024], softPixelGrain = new float[1024];
         private static bool softPixelGeometryReady;
         private void EnsureSoftTextures()
@@ -763,10 +775,7 @@ namespace Godmist.Views.Combat
                     for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++)
                     {
                         if (dx == 0 && dy == 0) continue;
-                        softPixelWeights[i, bit] = softWeights[px, dx + 1] * softWeights[py, dy + 1];
-                        var q = point - new Vector2(dx + .5f, dy + .5f);
-                        softPixelDistances[i, bit++] = new Vector2(Mathf.Max(Mathf.Abs(q.x) - .5f, 0),
-                            Mathf.Max(Mathf.Abs(q.y) - .5f, 0)).magnitude;
+                        softPixelWeights[i, bit++] = softWeights[px, dx + 1] * softWeights[py, dy + 1];
                     }
                 }
                 softPixelGeometryReady = true;
@@ -786,7 +795,6 @@ namespace Godmist.Views.Combat
                     var px = Mathf.Clamp(x - 2, 0, SoftTileSize - 1);
                     var py = Mathf.Clamp(y - 2, 0, SoftTileSize - 1);
                     var sample = py * 32 + px;
-                    var distance = 1f;
                     var coverage = softPixelCenters[sample];
                     for (var bit = 0; bit < 8; bit++)
                     {
@@ -795,18 +803,23 @@ namespace Godmist.Views.Combat
                             coverage += softPixelWeights[sample, bit];
                             continue;
                         }
-                        distance = Mathf.Min(distance, softPixelDistances[sample, bit]);
                     }
                     // Blur the union rather than each cell: convex and concave
                     // corners soften without introducing internal tile seams.
                     var fade = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.55f, .93f, coverage));
                     // Periodic, subtle grain: no seams and no opaque paint over the floor.
                     var grain = softPixelGrain[sample];
-                    var edge = .20f * (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.025f, .16f, distance)));
-                    var boundaryFade = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(.5f, .75f, coverage));
                     var index = y * SoftTileStride + x;
                     fill[index] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * fade * grain));
-                    boundary[index] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * boundaryFade * edge * grain));
+                    // Follow the coverage of the connected area, not the square tile edge.
+                    // A feathered, pigment-like rim rounds corners without drawing a grid.
+                    // Periodic grain joins across tiles; it is static, not a moving shimmer.
+                    var u = (px + .5f) / 32f; var v = (py + .5f) / 32f;
+                    var pigment = .72f + .18f * Mathf.Sin(u * Mathf.PI * 4f) * Mathf.Sin(v * Mathf.PI * 6f)
+                        + .10f * Mathf.Cos((u * 5f + v * 2f) * Mathf.PI * 2f);
+                    var rim = (coverage - .70f) / .085f;
+                    var alpha = .45f * Mathf.Exp(-rim * rim) * pigment;
+                    boundary[index] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(255f * alpha));
                 }
                 softTilePixels.Add(mask, pixels = (fill, boundary));
             }
@@ -821,7 +834,7 @@ namespace Godmist.Views.Combat
         private static Texture2D CreateSoftTexture(string name, Color32[] pixels)
         {
             var texture = new Texture2D(SoftAtlasSize, SoftAtlasSize, TextureFormat.RGBA32, false)
-                { name = name, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
+                { name = name, filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
             texture.SetPixels32(pixels);
             texture.Apply(false, false);
             return texture;
@@ -845,7 +858,7 @@ namespace Godmist.Views.Combat
             batch.Renderer.sharedMaterial = boundary ? softBoundaryMaterial : softFillMaterial;
             batch.Renderer.sortingLayerID = SortingLayer.NameToID(feedbackSortingLayer);
             // Floor feedback stays below the characters, including the destination marker.
-            batch.Renderer.sortingOrder = feedbackSortingOrder;
+            batch.Renderer.sortingOrder = SortingOrder(layer);
             if (cellTint == null && batch.Cells != null && batch.Cells.SequenceEqual(cells)
                 && batch.Tint == tint && batch.Origin == gridOrigin && batch.Size == cellSize)
             { batch.Renderer.enabled = true; return; }

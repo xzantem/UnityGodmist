@@ -149,7 +149,8 @@ namespace Godmist.Views.Combat
                     isFocused && ((targetSelectionController != null && targetSelectionController.HoveredUnit == unit)
                         || (inspectController != null && (inspectController.HoveredUnit == unit || inspectController.InspectedUnit == unit))
                         || (hud != null && hud.HighlightedUnit == unit)),
-                    isFocused && targetSelectionController != null && targetSelectionController.HoveredUnit == unit && !unit.IsPlayerSide && targetSelectionController.IsSelectingTarget);
+                    isFocused && targetSelectionController != null && targetSelectionController.HoveredUnit == unit && targetSelectionController.IsHighlightedSkillTarget(unit),
+                    targetSelectionController?.HoverTargetColor(unit));
             }
             RemoveMissingViews(aggregate);
             RemoveMissingSummonedObjectViews(aggregate);
@@ -637,8 +638,8 @@ namespace Godmist.Views.Combat
                     (targetSelectionController != null && targetSelectionController.HoveredUnit == unit)
                     || (inspectController != null && (inspectController.HoveredUnit == unit || inspectController.InspectedUnit == unit))
                         || (hud != null && hud.HighlightedUnit == unit),
-                    targetSelectionController != null && targetSelectionController.HoveredUnit == unit && !unit.IsPlayerSide && targetSelectionController.IsSelectingTarget,
-                    preserveBodyColors: true);
+                    targetSelectionController != null && targetSelectionController.HoveredUnit == unit && targetSelectionController.IsHighlightedSkillTarget(unit),
+                    preserveBodyColors: true, targetAccent: targetSelectionController?.HoverTargetColor(unit));
             }
         }
 
