@@ -195,7 +195,7 @@ namespace Godmist.Tests.EditMode
                     dungeon.TryGetPreRolledRewards("encounter",out var loot);
                     DungeonCombatMembershipSystem.RegisterEnemy(fight,"encounter",enemies[enemyIndex].EnemyInstanceId,loot,enemy);
                     var activate=typeof(DungeonCombatCoordinator).GetMethod("ActivateBoundSession",flags);
-                    Assert.That((bool)activate.Invoke(coordinator,new object[]{fight,new Dictionary<BattleUnit,ExplorationCharacterView>{[ally]=playerViews[allyIndex],[enemy]=enemies[enemyIndex]},trigger,
+                    Assert.That((bool)activate.Invoke(coordinator,new object[]{fight,new Dictionary<BattleUnit,ExplorationCharacterView>{[ally]=playerViews[allyIndex],[enemy]=enemies[enemyIndex]},
                         new Action<CombatExecutionDriver>(d=>d.StartTurns(ally))}),Is.True);
                     ally.CurrentActionPoints=400;return fight;
                 }

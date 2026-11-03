@@ -21,6 +21,7 @@ namespace Godmist.Runtime.Combat
         [NonSerialized] public Action<BattleUnit, Godmist.Data.Skills.SkillData, string> SkillResolved;
         [NonSerialized] public Func<BattleUnit, Godmist.Data.Skills.SkillData, bool> CanUseBossSkill;
         [NonSerialized] public int SkillResolutionDepth;
+        [NonSerialized] public Func<bool> IsExecutionBusy;
         [NonSerialized] public BattleUnit EntryActionCaster;
         [NonSerialized] public CombatDiagnosticRecorder Diagnostics;
         [NonSerialized] public Action SkillsFinished;
@@ -300,6 +301,9 @@ namespace Godmist.Runtime.Combat
             return true;
         }
 
+        public void RestoreEnemyDeathPosition(string id, GridPosition position)
+        { if (!DefeatedEnemyInstanceIds.Contains(id)) throw new InvalidOperationException("Unknown defeated enemy: " + id); enemyDeathPositions.Add(id, position); }
+
         public bool TryGetEnemyDeathPosition(
             string enemyInstanceId,
             out GridPosition deathPosition)
@@ -317,9 +321,10 @@ namespace Godmist.Runtime.Combat
 namespace Godmist.Runtime.Combat
 {
     // Per-session contact; never serialized as a mid-combat save.
-    public sealed class DungeonContactState
+    public sealed partial class DungeonContactState
     {
-        private readonly Func<BattleUnit, BattleUnit, bool> canSee;
+        private Func<BattleUnit, BattleUnit, bool> canSee;
+        public void BindVisibility(Func<BattleUnit, BattleUnit, bool> query) => canSee = query ?? throw new ArgumentNullException(nameof(query));
         private sealed class Observation
         {
             public GridPosition Position;

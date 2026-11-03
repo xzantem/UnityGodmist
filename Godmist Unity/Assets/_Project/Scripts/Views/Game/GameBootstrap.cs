@@ -778,7 +778,7 @@ namespace Godmist.Views.Game
 
             if (sceneLoader.TryLoadScene(
                     destinationSceneName,
-                    GameModeState.Exploration))
+                    restoredSession.ActiveCombat != null ? GameModeState.Combat : GameModeState.Exploration))
             {
                 message = "Wczytano zapis gry.";
                 return true;

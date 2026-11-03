@@ -62,7 +62,7 @@ namespace Godmist.Views.Dungeons
         private ExplorationPartyController party;
         private DungeonObjectSpawner objects;
         private DungeonEncounterSpawner encounters;
-        private readonly Dictionary<CombatSession, EncounterTriggerView> sources = new();
+        private readonly HashSet<CombatSession> boundSessions = new();
         private readonly Dictionary<BattleUnit, ExplorationCharacterView> bindings = new();
         private readonly Dictionary<string, BattleUnit> retainedPlayers = new();
         private readonly Dictionary<BattleUnit, CombatSession> bindingSessions = new();
@@ -184,7 +184,8 @@ namespace Godmist.Views.Dungeons
                 GetExplorationSkillActor, skill => TrySelectOpeningSkill(skill), ShowExplorationSkillHover);
             UpdateFog(true);
             ReportStage("fog");
-            SetFocus(null, true);
+            RestoreSavedCombats();
+            SetFocus(game.ActiveCombat, true);
             ReportStage("focus");
             return true;
         }
@@ -256,7 +257,7 @@ namespace Godmist.Views.Dungeons
                 { view.RuntimeCharacter.CharacterId = unit.Character.CharacterId; unit.Character = view.RuntimeCharacter; }
                 nextBindings.Add(unit, view);
             }
-            if (!ActivateBoundSession(session, nextBindings, trigger, driver => driver.StartTurns())) return RejectStart();
+            if (!ActivateBoundSession(session, nextBindings, driver => driver.StartTurns())) return RejectStart();
             trigger.MarkTriggered();
             party.SeparateForCombat();
             RefreshFocus();
@@ -265,20 +266,25 @@ namespace Godmist.Views.Dungeons
         }
 
         private bool ActivateBoundSession(CombatSession session,
-            Dictionary<BattleUnit, ExplorationCharacterView> nextBindings, EncounterTriggerView trigger,
+            Dictionary<BattleUnit, ExplorationCharacterView> nextBindings,
             System.Action<CombatExecutionDriver> startTurns)
+            => BindSession(session, nextBindings, startTurns, restoring: false);
+
+        private bool BindSession(CombatSession session,
+            Dictionary<BattleUnit, ExplorationCharacterView> nextBindings,
+            System.Action<CombatExecutionDriver> startTurns, bool restoring)
         {
             using var entrySample = CombatEntryBindingSample.Auto();
-            if (!game.TryRegisterDungeonCombat(session)) return false;
-            session.Contact = new DungeonContactState((enemy, player) =>
-                CanEnemySeeCombatTarget(session, enemy, player));
+            if (!restoring && !game.TryRegisterDungeonCombat(session)) return false;
+            session.Contact ??= new DungeonContactState((enemy, player) => CanEnemySeeCombatTarget(session, enemy, player));
+            session.Contact.BindVisibility((enemy, player) => CanEnemySeeCombatTarget(session, enemy, player));
             session.CanReceiveReinforcements = DungeonCombatArenaSystem.CanReceiveReinforcements(game, session);
             RefreshExits(session);
             // Start execution only after every participant has a valid, unique view.
             if (!combatHost.TryBegin(session)) return false;
-            sources.Add(session, trigger);
+            boundSessions.Add(session);
             foreach(var trap in floor.Objects.OfType<SpikeTrapDungeonObjectInstance>())
-                if(session.DungeonContext.ContainsWorldCell(trap.Position))
+                if(!restoring && session.DungeonContext.ContainsWorldCell(trap.Position))
                     session.MapObjects.Add(new TrapCombatMapObject(trap, DungeonBattleGridFactory.ToBattlePosition(session.DungeonContext, trap.Position)));
             session.UnitEnteredCell = unit => {
                 using (ContactRefreshSample.Auto()) session.Contact?.Refresh(session);
@@ -288,7 +294,11 @@ namespace Godmist.Views.Dungeons
             session.EvaluateTrapRisk = (unit, path) => trapSystem.EstimateRisk(unit,
                 path.Where(cell => cell.Level == 0 && !cell.IsOnStairs).Select(cell => DungeonBattleGridFactory.ToWorldPosition(session.DungeonContext, cell)).ToArray());
             foreach (var pair in nextBindings)
-            { bindings.Add(pair.Key, pair.Value); bindingSessions[pair.Key] = session; unitViews.Borrow(session, pair.Key, pair.Value); }
+            {
+                bindings.Add(pair.Key, pair.Value); bindingSessions[pair.Key] = session;
+                unitViews.Borrow(session, pair.Key, pair.Value);
+                if (restoring) pair.Value.RestoreCombatPresentation();
+            }
             session.TrySpawnReinforcements = () => TrySpawnReinforcements(session);
             session.EnemyDefeated = id => rewards.TryGrantDefeatExperience(game, session, id);
             startTurns(combatHost.GetDriver(session));
@@ -602,7 +612,7 @@ namespace Godmist.Views.Dungeons
             objects.RefreshBodies(floor, party);
             foreach (var trigger in encounters.Triggers)
                 if (session.EnemySources.Values.Any(source => source.EncounterId == trigger.Encounter.InstanceId)) trigger.ReleaseEncounter();
-            sources.Remove(session);
+            boundSessions.Remove(session);
             session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; session.TrySpawnReinforcements = null;
             combatHost.End(session);
             combatCamera.Forget(session);
@@ -616,7 +626,7 @@ namespace Godmist.Views.Dungeons
         private void EndCampaign()
         {
             game.MarkDefeated();
-            foreach (var session in sources.Keys.ToArray())
+            foreach (var session in boundSessions.ToArray())
             {
                 session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; session.TrySpawnReinforcements = null;
                 combatHost.End(session);
@@ -624,7 +634,7 @@ namespace Godmist.Views.Dungeons
                 game.TryRemoveCombat(session);
             }
             foreach (var unit in bindings.Keys.ToArray()) Release(unit);
-            sources.Clear();
+            boundSessions.Clear();
             retainedPlayers.Clear();
             targeting.CancelTargetSelection();
             targeting.enabled = movementInput.enabled = inspectInput.enabled = false;
@@ -753,7 +763,7 @@ namespace Godmist.Views.Dungeons
             combatHost.CombatMapObjectChanged -= HandleMapObjectChanged;
             combatHost.UnitLeftCombat -= HandleUnitLeftCombat;
             floor.Map.ProgressionGateStateChanged -= InvalidateFovPreview;
-            foreach (var session in sources.Keys.ToArray())
+            foreach (var session in boundSessions.ToArray())
             {
                 session.UnitEnteredCell = null; session.EvaluateTrapRisk = null; session.TrapRouteState = null; session.TrySpawnReinforcements = null;
                 if (combatCamera != null) combatCamera.Forget(session);

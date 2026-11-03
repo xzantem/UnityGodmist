@@ -34,6 +34,7 @@ namespace Godmist.Tests.EditMode
             var game = new GameSession(GameModeState.Exploration);
             Assert.That(game.TryRegisterCharacter(character), Is.True); Assert.That(game.TryAddCharacterToActiveParty(character.CharacterId), Is.True);
             var snapshot = new GameSessionSaveSnapshotFactory().CreateSnapshot(game, "v0.1.0-compatible legacy fixture");
+            snapshot.SaveVersion = 1; // Deliberately exercise the pre-combat persistence format.
             Assert.That(snapshot.SaveVersion, Is.EqualTo(1));
             var savedWeapon = snapshot.ItemInstances.Single(item => item.InstanceId == weapon.InstanceId);
             savedWeapon.BaseStatModifiers.Clear(); foreach (var stat in savedWeapon.StatModifiers) stat.Value = 150;

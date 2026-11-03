@@ -453,7 +453,7 @@ namespace Godmist.Systems.Combat
             return true;
         }
 
-        private static void AddDungeonMapObjects(
+        public static void AddDungeonMapObjects(
             CombatSession session,
             DungeonCombatContext context)
         {

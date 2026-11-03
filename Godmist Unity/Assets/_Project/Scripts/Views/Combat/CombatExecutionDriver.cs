@@ -175,6 +175,7 @@ namespace Godmist.Views.Combat
                 onUnitDownedTurn: unit => statusEffectSystem.ProcessDownedTurn(unit),
                 resourceRuleSystem: resourceRuleSystem);
             Session = suppliedSession ?? CreateInitialSession();
+            Session.IsExecutionBusy = () => IsActionInProgress;
             Session.Diagnostics = GameBootstrap.Instance?.Session?.CombatDiagnostics;
             Session.EnemyDefeated = id => rewardSystem.TryGrantDefeatExperience(GameBootstrap.Instance?.Session, Session, id);
             if (Session != null) Session.ResumeTurn = ResumeSuspendedTurn;
@@ -533,6 +534,14 @@ namespace Godmist.Views.Combat
             turnSystem.InitializeTurnOrder(Session, openingActor, detection);
         }
 
+        public void ResumeSavedPlayerTurn()
+        {
+            if (Session.ActiveUnit?.IsPlayerControlled != true || Session.ActiveParticipant?.Unit != Session.ActiveUnit)
+                throw new InvalidOperationException("Zapis walki nie wskazuje stabilnej tury gracza.");
+            // Beginning the turn again would grant AP/resources and tick durations twice.
+            cameraFramer?.NotifyTurnBegan(Session, Session.ActiveUnit);
+        }
+
         public void Dispose() => Dispose(false);
 
         public void Dispose(bool preserveCombatState)
@@ -552,7 +561,7 @@ namespace Godmist.Views.Combat
             deadKingBossSystem = null;
             forestEntBossSystem?.Dispose(preserveCombatState);
             forestEntBossSystem = null;
-            if (Session != null) { Session.EnemyDefeated = null; Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; Session.EnemyHealthChanged = null; Session.BossRuneEnteredCell = null; }
+            if (Session != null) { Session.IsExecutionBusy = null; Session.EnemyDefeated = null; Session.PassiveEffectEventDispatcher = null; Session.ObjectDurabilityChanged = null; Session.EnemyHealthChanged = null; Session.BossRuneEnteredCell = null; }
             passiveEffectCombatExecutionSystem?.Dispose();
             passiveEffectCombatExecutionSystem = null;
             if (activeAiTurnCoroutine != null)

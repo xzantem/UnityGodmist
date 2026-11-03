@@ -6,7 +6,7 @@ namespace Godmist.Core.Serialization
     [Serializable]
     public class GameSaveData
     {
-        public const int CurrentSaveVersion = 1;
+        public const int CurrentSaveVersion = 2;
 
         public int SaveVersion = CurrentSaveVersion;
         public string SaveId = string.Empty;
@@ -26,6 +26,7 @@ namespace Godmist.Core.Serialization
         public List<QuestSaveData> Quests = new();
         public List<NpcSaveData> Npcs = new();
         public DungeonSaveData ActiveDungeon;
+        public List<CombatSaveData> Combats;
         public DungeonOfferBoardSaveData DungeonOffers;
         public bool HasExplorationPosition;
         public float ExplorationPositionX;

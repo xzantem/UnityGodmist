@@ -127,12 +127,12 @@ namespace Godmist.Views.UI
             ownsTimePause = true;
             Time.timeScale = 0f;
             gameSession.TrySetMode(GameModeState.Menu);
-            saveGameButton.interactable = !gameSession.HasCombat;
+            saveGameButton.interactable = Godmist.Systems.SaveLoad.CombatPersistence.CanSave(gameSession, out var saveReason);
 
             menuPanelRoot.SetActive(true);
             overlayRoot.SetActive(true);
             SetGameTitleVisible(true);
-            SetMessage(gameSession.HasCombat ? "Nie można zapisać gry podczas walki." : string.Empty);
+            SetMessage(saveReason);
             Focus(resumeButton);
         }
 
@@ -161,7 +161,7 @@ namespace Godmist.Views.UI
 
         private void OpenSavePanel()
         {
-            if (gameSession?.HasCombat == true) return;
+            if (!Godmist.Systems.SaveLoad.CombatPersistence.CanSave(gameSession, out _)) return;
             saveLoadReturnButton = saveGameButton;
             menuPanelRoot.SetActive(false);
             SetGameTitleVisible(false);

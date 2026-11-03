@@ -3,7 +3,7 @@ using System;
 namespace Godmist.Runtime.Combat
 {
     [Serializable]
-    public struct GridPosition : IEquatable<GridPosition>
+    public partial struct GridPosition : IEquatable<GridPosition>
     {
         public int X;
         public int Y;

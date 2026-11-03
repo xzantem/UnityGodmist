@@ -24,7 +24,7 @@ namespace Godmist.Views.UI
             if (string.IsNullOrEmpty(preview.DungeonId)) return "Arungard";
             var name = catalog != null && catalog.TryGetDungeon(preview.DungeonId, out var dungeon)
                 ? dungeon.DisplayName : "Wyprawa";
-            return $"{Safe(name)} • piętro {preview.Floor}";
+            return $"{Safe(name)} • piętro {preview.Floor}" + (preview.IsInCombat ? " • walka" : string.Empty);
         }
         public static string Title(GameSaveSummary summary, GameContentCatalog catalog) => summary.SlotType == SaveSlotType.Manual
             ? Safe(summary.DisplayName) : Location(summary, catalog);

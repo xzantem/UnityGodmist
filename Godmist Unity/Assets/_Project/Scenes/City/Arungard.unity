@@ -1561,7 +1561,6 @@ MonoBehaviour:
   slotNameText: {fileID: 1966295640}
   itemNameText: {fileID: 2117613440}
   normalColor: {r: 0.11, g: 0.15, b: 0.2, a: 1}
-  selectedColor: {r: 0.35, g: 0.28, b: 0.12, a: 1}
 --- !u!114 &42238417
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9567,11 +9566,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a1df5fa5e14b2aa48660e3e86f7c4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatUnitVisualStateView
-  activeTurnColor: {r: 1, g: 0.78, b: 0.22, a: 1}
-  inspectColor: {r: 0.5, g: 0.86, b: 1, a: 1}
-  targetColor: {r: 1, g: 0.34, b: 0.28, a: 1}
-  outlineWidth: 0.025
-  pulseSpeed: 2.5
 --- !u!1 &277796475
 GameObject:
   m_ObjectHideFlags: 0
@@ -9931,7 +9925,6 @@ MonoBehaviour:
   slotNameText: {fileID: 548189862}
   itemNameText: {fileID: 1575453906}
   normalColor: {r: 0.11, g: 0.15, b: 0.2, a: 1}
-  selectedColor: {r: 0.35, g: 0.28, b: 0.12, a: 1}
 --- !u!114 &289178700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17543,7 +17536,6 @@ MonoBehaviour:
   slotNameText: {fileID: 1898601143}
   itemNameText: {fileID: 1318455264}
   normalColor: {r: 0.11, g: 0.15, b: 0.2, a: 1}
-  selectedColor: {r: 0.35, g: 0.28, b: 0.12, a: 1}
 --- !u!114 &514121535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30391,7 +30383,6 @@ MonoBehaviour:
   slotNameText: {fileID: 959044925}
   itemNameText: {fileID: 265325071}
   normalColor: {r: 0.11, g: 0.15, b: 0.2, a: 1}
-  selectedColor: {r: 0.35, g: 0.28, b: 0.12, a: 1}
 --- !u!114 &941529115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43605,7 +43596,6 @@ MonoBehaviour:
   slotNameText: {fileID: 773186676}
   itemNameText: {fileID: 524628311}
   normalColor: {r: 0.11, g: 0.15, b: 0.2, a: 1}
-  selectedColor: {r: 0.35, g: 0.28, b: 0.12, a: 1}
 --- !u!114 &1340153904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46938,11 +46928,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a1df5fa5e14b2aa48660e3e86f7c4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatUnitVisualStateView
-  activeTurnColor: {r: 1, g: 0.78, b: 0.22, a: 1}
-  inspectColor: {r: 1, g: 1, b: 1, a: 1}
-  targetColor: {r: 1, g: 0.34, b: 0.28, a: 1}
-  outlineWidth: 0.06
-  pulseSpeed: 2.5
 --- !u!114 &1435999707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55359,7 +55344,6 @@ MonoBehaviour:
   slotNameText: {fileID: 1189019649}
   itemNameText: {fileID: 940091353}
   normalColor: {r: 0.11, g: 0.15, b: 0.2, a: 1}
-  selectedColor: {r: 0.35, g: 0.28, b: 0.12, a: 1}
 --- !u!114 &1703082598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57906,11 +57890,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73a1df5fa5e14b2aa48660e3e86f7c4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Views::Godmist.Views.Combat.CombatUnitVisualStateView
-  activeTurnColor: {r: 1, g: 0.78, b: 0.22, a: 1}
-  inspectColor: {r: 1, g: 1, b: 1, a: 1}
-  targetColor: {r: 1, g: 0.34, b: 0.28, a: 1}
-  outlineWidth: 0.06
-  pulseSpeed: 2.5
 --- !u!114 &1795648259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59087,10 +59066,10 @@ RectTransform:
   m_Father: {fileID: 779505130}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 220, y: -450}
-  m_SizeDelta: {x: 384, y: 56}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -440}
+  m_SizeDelta: {x: -56, y: 24}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1831772050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59125,7 +59104,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -59158,15 +59137,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 2
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 1024
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -59175,9 +59154,9 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
+  m_overflowMode: 1
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
