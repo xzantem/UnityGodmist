@@ -1330,7 +1330,7 @@ namespace Godmist.Views.Exploration
         private void CommitTraversalRoute(ExplorationCharacterView leader, IReadOnlyList<DungeonTraversalPosition> path, Vector2 world)
         {
             meshRoutes.TryGetValue(leader, out var plannedMeshRoute);
-            CancelMovement();
+            ClearMovementRoute(preserveFollowers: pointerMovementMouse != null);
             if (plannedMeshRoute != null) meshRoutes[leader] = plannedMeshRoute;
             movementDestination = world; leaderStalledTime = 0; lastLeaderNavigationPosition = leader.Position;
             foreach (var position in path.Skip(1)) traversalPath.Enqueue(position);
@@ -1357,7 +1357,7 @@ namespace Godmist.Views.Exploration
                 var chestTarget = pendingChest;
                 var worldObjectTarget = pendingWorldObject;
                 var arrived = movementDestination.HasValue && Vector2.Distance(leader.Position, movementDestination.Value) < .1f;
-                CancelMovement();
+                ClearMovementRoute(preserveFollowers: pointerMovementMouse != null);
                 if (arrived) { destroyTarget = pending; pendingChest = chestTarget; pendingWorldObject = worldObjectTarget; }
             }
             if (movementDestination.HasValue && traversalPath.Count == 0
@@ -1650,7 +1650,7 @@ namespace Godmist.Views.Exploration
         {
             var actor = GetActiveLeaderView();
             if (actor == null || !TryFindWorldRoute(actor, goal, out var points)) return false;
-            CancelMovement(); movementDestination = goal;
+            ClearMovementRoute(preserveFollowers: pointerMovementMouse != null); movementDestination = goal;
             foreach (var point in points) cityLeaderRoute.Enqueue(point);
             return true;
         }

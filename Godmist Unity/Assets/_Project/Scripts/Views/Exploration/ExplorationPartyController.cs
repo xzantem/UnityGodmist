@@ -34,7 +34,7 @@ namespace Godmist.Views.Exploration
             || unitInteractions != null && (unitInteractions.ConsumedPrimaryClickThisFrame || unitInteractions.HasWorldUnitHover);
         public bool IsWorldInteractionClaimedThisFrame => claimedPrimaryFrame == Time.frameCount
             || unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame;
-        public void ClaimWorldPrimaryClick() => claimedPrimaryFrame = Time.frameCount;
+        public void ClaimWorldPrimaryClick() { claimedPrimaryFrame = Time.frameCount; CancelPointerMovementGesture(); }
         public bool TryGetPointerWorldPosition(out Vector2 position)
         {
             position = worldCamera != null ? (Vector2)worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition) : default;
@@ -119,7 +119,21 @@ namespace Godmist.Views.Exploration
             IsSeparated = true;
             if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
         }
-        public void CancelMovement() { IsSkillApproachInProgress = false; meshRoutes.Clear(); pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
+        public void CancelMovement() { CancelPointerMovementGesture(); ClearMovementRoute(); }
+        private void ClearMovementRoute(bool preserveFollowers = false)
+        {
+            IsSkillApproachInProgress = false;
+            var leader = GetActiveLeaderView();
+            if (preserveFollowers && leader != null) meshRoutes.Remove(leader);
+            else meshRoutes.Clear();
+            pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null;
+            pendingWorldObject = null; destroyTarget = null; movementDestination = null;
+            traversalPath.Clear(); cityLeaderRoute.Clear();
+            if (!preserveFollowers) { followerRoutes.Clear(); cityFollowerRoutes.Clear(); }
+            foreach (var view in viewsById.Values)
+                if (!preserveFollowers || view == leader) view.PreferredTraversalDestination = null;
+        }
+
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -238,7 +252,9 @@ namespace Godmist.Views.Exploration
             }
 
             if (claimedPrimaryFrame == Time.frameCount || unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame) return;
-            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
+            var mousePrimaryPressed = UnityEngine.InputSystem.Mouse.current?.leftButton.wasPressedThisFrame == true
+                && !Godmist.Views.UI.ControllerInput.Active;
+            if (!(mousePrimaryPressed || Godmist.Views.UI.ControllerInput.Confirm)
                 || worldCamera == null
                 || UIWorkspaceInputRouter.IsPointerOverUi())
             {
@@ -252,23 +268,17 @@ namespace Godmist.Views.Exploration
                     && (view.TerrainView == null || view.TerrainView.IsTraversalVisible(view.DungeonPosition))
                     && Vector2.Distance(view.Position, point) < .4f && SelectMember(view.CharacterId)) return;
             destroyTarget = null;
-            TryMoveLeaderToPointerPosition();
+            TryMoveLeaderToWorldPosition(point);
+            if (mousePrimaryPressed) BeginPointerMovementGesture(point, Time.unscaledTime);
         }
 
-        private void TryMoveLeaderToPointerPosition()
+        private bool TryMoveLeaderToWorldPosition(Vector2 point)
         {
-            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition);
-            var terrainView = GetActiveLeaderView()?.TerrainView;
-            if (!IsNoclipEnabled && traversalFloor?.Map != null)
-            { TrySetTraversalDestination(pointerWorldPosition); return; }
-
-            if (DungeonEnemyBodyView.IsPointerOverBody(pointerWorldPosition))
-            {
-                return;
-            }
-
-            if (!IsNoclipEnabled) { TrySetCityDestination(pointerWorldPosition); return; }
-            movementDestination = new Vector2(pointerWorldPosition.x, pointerWorldPosition.y);
+            if (!IsNoclipEnabled && traversalFloor?.Map != null) return TrySetTraversalDestination(point);
+            if (DungeonEnemyBodyView.IsPointerOverBody(point)) return false;
+            if (!IsNoclipEnabled) return TrySetCityDestination(point);
+            movementDestination = point;
+            return true;
         }
 
         private void FixedUpdate()
