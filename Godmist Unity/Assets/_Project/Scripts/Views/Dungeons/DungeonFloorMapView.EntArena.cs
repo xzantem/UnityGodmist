@@ -18,7 +18,6 @@ namespace Godmist.Views.Dungeons
             if (vegetationPresentation == null || floor?.Map == null) return;
             foreach (var type in new[]{Godmist.Core.Enums.DungeonRoomType.Final, Godmist.Core.Enums.DungeonRoomType.Start})
             {
-                if (type == Godmist.Core.Enums.DungeonRoomType.Start && floor.FloorIndex == 0) continue;
                 var room = floor.Rooms.FirstOrDefault(r => r.RoomType == type);
                 if (room == null) continue;
                 // New generation guarantees an exterior edge. A historical

@@ -527,10 +527,24 @@ namespace Godmist.Views.Game
         public bool TryAbandonDungeon()
         {
             if(Session?.ActiveDungeon==null || Session.HasCombat || SceneManager.GetActiveScene().name!=explorationSceneName) return false;
-            new DungeonCampService().RemoveSupplies(Session);
-            if(!Session.TryClearActiveDungeon()) return false;
-            Session.DungeonOffers.CompleteExpedition();
+            if(!DungeonAbandonmentSystem.TryAbandon(Session, Session.ActiveDungeon)) return false;
             RequestAutosave("Porzucenie wyprawy");return true;
+        }
+
+        public bool TryRetreatFromDungeon()
+        {
+            var dungeon = Session?.ActiveDungeon;
+            if (dungeon == null || Session.HasCombat || dungeon.CurrentFloorIndex != 0
+                || !IsDungeonScene || sceneLoader == null || sceneLoader.IsLoading) return false;
+
+            // Commit only after the city has loaded. A rejected or failed scene
+            // transition must preserve the live expedition and its supplies.
+            return sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration,
+                onLoaded: () =>
+                {
+                    if (DungeonAbandonmentSystem.TryAbandon(Session, dungeon))
+                        RequestAutosave("Wycofanie z wyprawy");
+                });
         }
 
         public bool TryEnterDungeonOffer(int index, DungeonDefinition configuredDefinition = null)
