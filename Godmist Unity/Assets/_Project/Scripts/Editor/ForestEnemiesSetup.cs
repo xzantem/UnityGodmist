@@ -28,7 +28,7 @@ namespace Godmist.Editor
             var asset = AssetDatabase.LoadAssetAtPath<T>(Root + file + ".asset");
             if (asset != null) return asset;
             if (typeof(T) == typeof(CharacterDefinition))
-                throw new InvalidOperationException("Forest content setup requires an authored CharacterDefinition at " + Root + file + ".asset; attack data belongs to that definition.");
+                throw new InvalidOperationException("Forest content setup requires an authored CharacterDefinition at " + Root + file + ".asset; HP/ATK data belongs to that definition.");
             asset = ScriptableObject.CreateInstance<T>();
             AssetDatabase.CreateAsset(asset, Root + file + ".asset");
             return asset;
@@ -190,12 +190,10 @@ namespace Godmist.Editor
             Field(data, "BasicAttackSkill", bite); Field(data, "LootTable", loot);
             var tags = data.FindProperty(F("Tags")); tags.ClearArray(); Add(tags).enumValueIndex = (int)CharacterTag.Beast;
             var stats = data.FindProperty(F("BaseStats"));
-            Sub(stats, "MaxHealth", 190);
             Sub(stats, "Dodge", 25f); Sub(stats, "PhysicalDefense", 5f); Sub(stats, "MagicalDefense", 2f);
             Sub(stats, "CritChance", .14f); Sub(stats, "CritDamage", 2.1f); Sub(stats, "Speed", 64f);
             Sub(stats, "WeaponAccuracy", 100f); Sub(stats, "MaxResource", 100); Sub(stats, "ResourceRegeneration", 15);
             var growth = data.FindProperty(F("GrowthData"));
-            Sub(growth, "MaxHealth", 13f);
             Sub(growth, "Dodge", .1875f); Sub(growth, "PhysicalDefense", 1f); Sub(growth, "MagicalDefense", .4f);
             Sub(growth, "CritChance", .00035f);
             var resist = data.FindProperty(F("BaseResistances"));

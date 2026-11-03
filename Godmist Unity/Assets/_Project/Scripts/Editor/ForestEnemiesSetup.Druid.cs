@@ -57,12 +57,10 @@ namespace Godmist.Editor
             var tags = data.FindProperty(F("Tags")); tags.ClearArray();
             Add(tags).enumValueIndex = (int)CharacterTag.Human;
             var stats = data.FindProperty(F("BaseStats"));
-            Sub(stats, "MaxHealth", 200);
             Sub(stats, "Dodge", 17f); Sub(stats, "PhysicalDefense", 3f); Sub(stats, "MagicalDefense", 13f);
             Sub(stats, "CritChance", .03f); Sub(stats, "CritDamage", 1.4f); Sub(stats, "Speed", 42f);
             Sub(stats, "WeaponAccuracy", 100f); Sub(stats, "MaxResource", 100); Sub(stats, "ResourceRegeneration", 15);
             var growth = data.FindProperty(F("GrowthData"));
-            Sub(growth, "MaxHealth", 13f);
             Sub(growth, "Dodge", .1275f); Sub(growth, "PhysicalDefense", .6f); Sub(growth, "MagicalDefense", 2.6f);
             Sub(growth, "CritChance", .000075f);
             var resist = data.FindProperty(F("BaseResistances"));
@@ -101,7 +99,6 @@ namespace Godmist.Editor
             Field(so, "AiPersonality", CombatAiPersonality.Neutral); Field(so, "BasicAttackSkill", pulse);
             so.FindProperty(F("LootTable")).objectReferenceValue = null;
             var stats = so.FindProperty(F("BaseStats"));
-            Sub(stats, "MaxHealth", 30); Sub(stats, "MinAttack", 20); Sub(stats, "MaxAttack", 30);
             Sub(stats, "Speed", 42f); Sub(stats, "WeaponAccuracy", 100f);
             Sub(stats, "CritChance", 0f); Sub(stats, "MaxResource", 100);
             var skills = so.FindProperty(F("StartingSkills")); skills.ClearArray(); Add(skills).objectReferenceValue = pulse;

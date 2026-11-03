@@ -37,9 +37,9 @@ MonoBehaviour:
   <RecruitmentQuestId>k__BackingField: 
   <ClassData>k__BackingField: {fileID: 11400000, guid: 9dce49355f0e9444a81f6bcd1c9351fd, type: 2}
   <BaseStats>k__BackingField:
-    <MaxHealth>k__BackingField: 504
-    <MinAttack>k__BackingField: 34.850002
-    <MaxAttack>k__BackingField: 68.85
+    <MaxHealth>k__BackingField: 403
+    <MinAttack>k__BackingField: 38.335003
+    <MaxAttack>k__BackingField: 75.735
     <PhysicalDefense>k__BackingField: 14
     <MagicalDefense>k__BackingField: 35
     <PhysicalDefensePenetration>k__BackingField: 0
@@ -60,15 +60,15 @@ MonoBehaviour:
     <SuppressionResistance>k__BackingField: 1
     <MoveResistance>k__BackingField: 0
   <GrowthData>k__BackingField:
-    <MaxHealth>k__BackingField: 59
-    <MinAttack>k__BackingField: 2.652
-    <MaxAttack>k__BackingField: 5.304
-    <LateMaxHealth>k__BackingField: 17.463568
-    <LateMinAttack>k__BackingField: 1.4071559
-    <LateMaxAttack>k__BackingField: 2.8143117
+    <MaxHealth>k__BackingField: 47.2
+    <MinAttack>k__BackingField: 2.9172
+    <MaxAttack>k__BackingField: 5.8344
+    <LateMaxHealth>k__BackingField: 13.970855
+    <LateMinAttack>k__BackingField: 1.5478715
+    <LateMaxAttack>k__BackingField: 3.095743
     <EarlyMaxHealth>k__BackingField: 0
-    <EarlyMinAttack>k__BackingField: 0.00000009727478
-    <EarlyMaxAttack>k__BackingField: 0.00000019454956
+    <EarlyMinAttack>k__BackingField: 0.00000010700226
+    <EarlyMaxAttack>k__BackingField: 0.00000021400452
     <LateMaxHealthOffset>k__BackingField: 0
     <HealthCurve>k__BackingField: []
     <LateMinAttackOffset>k__BackingField: 0

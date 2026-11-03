@@ -70,7 +70,7 @@ namespace Godmist.Tests.EditMode
             var clone = UnityEngine.Object.Instantiate(source); temporary.Add(clone); clones.Add(source, clone);
             var data = new SerializedObject(clone);
             var lateOffset=Vector3.zero;
-            if (Godmist.Editor.EnemyScalingBalanceSetup.TryGetOriginalBase(source.Id,out var historicalBase))
+            if (HistoricalEnemyBalanceReference.TryGetOriginalBase(source.Id,out var historicalBase))
             {
                 var basis=data.FindProperty("<BaseStats>k__BackingField");
                 basis.FindPropertyRelative("<MaxHealth>k__BackingField").intValue=(int)historicalBase.x;
@@ -91,16 +91,16 @@ namespace Godmist.Tests.EditMode
                 var value = data.FindProperty("<GrowthData>k__BackingField");
                 var ramp=candidate=="uniform" && activeSettings.ramp;
                 var full=new Vector3(Mathf.Round(growth.x*healthFactor*1000)/1000,Mathf.Round(growth.y*attackFactor*1000)/1000,Mathf.Round(growth.z*attackFactor*1000)/1000);
-                if(candidate=="uniform" && Godmist.Editor.EnemyScalingBalanceSetup.TryGetOriginalBase(source.Id,out var originalBase))
+                if(candidate=="uniform" && HistoricalEnemyBalanceReference.TryGetOriginalBase(source.Id,out var originalBase))
                 {
-                    var ordinary=Godmist.Editor.EnemyScalingBalanceSetup.UsesEarlyThreatCalibration(source.Id);
-                    var anchorBase=new Vector3(BaseId(source.Id)=="enemy.catacombs.spectral_knight"?originalBase.x:Mathf.Max(1,Mathf.RoundToInt(originalBase.x*Godmist.Editor.EnemyScalingBalanceSetup.AnchorBaseHealthFactor)),
-                        Mathf.Max(1,Mathf.RoundToInt(originalBase.y*Godmist.Editor.EnemyScalingBalanceSetup.AnchorBaseAttackFactor)),Mathf.Max(1,Mathf.RoundToInt(originalBase.z*Godmist.Editor.EnemyScalingBalanceSetup.AnchorBaseAttackFactor)));
+                    var ordinary=HistoricalEnemyBalanceReference.UsesEarlyThreatCalibration(source.Id);
+                    var anchorBase=new Vector3(BaseId(source.Id)=="enemy.catacombs.spectral_knight"?originalBase.x:Mathf.Max(1,Mathf.RoundToInt(originalBase.x*HistoricalEnemyBalanceReference.AnchorBaseHealthFactor)),
+                        Mathf.Max(1,Mathf.RoundToInt(originalBase.y*HistoricalEnemyBalanceReference.AnchorBaseAttackFactor)),Mathf.Max(1,Mathf.RoundToInt(originalBase.z*HistoricalEnemyBalanceReference.AnchorBaseAttackFactor)));
                     var reduced=ordinary?new Vector3(Mathf.Max(1,Mathf.RoundToInt(originalBase.x*activeSettings.baseHealth)),
                         Mathf.Max(1,Mathf.RoundToInt(originalBase.y*activeSettings.baseAttack)),Mathf.Max(1,Mathf.RoundToInt(originalBase.z*activeSettings.baseAttack))):anchorBase;
                     var basis=data.FindProperty("<BaseStats>k__BackingField");
                     var multiplier=ordinary?activeSettings.baseStatMultiplier
-                        :Godmist.Editor.EnemyScalingBalanceSetup.UsesBossBaseBoost(source.Id)?activeSettings.bossBaseStatMultiplier:1f;
+                        :HistoricalEnemyBalanceReference.UsesBossBaseBoost(source.Id)?activeSettings.bossBaseStatMultiplier:1f;
                     var authoredBase=new Vector3(Mathf.RoundToInt(reduced.x*multiplier),
                         Mathf.RoundToInt(reduced.y*multiplier),Mathf.RoundToInt(reduced.z*multiplier));
                     basis.FindPropertyRelative("<MaxHealth>k__BackingField").intValue=(int)authoredBase.x;
@@ -608,7 +608,7 @@ namespace Godmist.Tests.EditMode
             foreach(var guid in AssetDatabase.FindAssets("t:CharacterDefinition",new[]{Root+"Catacombs/Enemies",Root+"Dungeons/Forest"}))
             {
                 var definition=AssetDatabase.LoadAssetAtPath<CharacterDefinition>(AssetDatabase.GUIDToAssetPath(guid));
-                if(!Godmist.Editor.EnemyScalingBalanceSetup.TryGetOriginalBase(definition.Id,out _))continue;
+                if(!HistoricalEnemyBalanceReference.TryGetOriginalBase(definition.Id,out _))continue;
                 var candidate=Clone(definition,"uniform",activeSettings.uniformHealth,activeSettings.uniformAttack);
                 foreach(var level in new[]{1,10,48,50})
                 {
@@ -844,11 +844,11 @@ namespace Godmist.Tests.EditMode
                 dungeons=new[]{"dungeon.catacombs.expedition","dungeon.forest.expedition"},
                 length=DungeonLength.Short,compareScouting=true,encounterBalanceRoutes=true,
                 progression=true,completionQuest=true,highestQuality=true,
-                baseHealth=strengthened?Godmist.Editor.EnemyScalingBalanceSetup.BaseHealthFactor:.4f,
-                baseAttack=strengthened?Godmist.Editor.EnemyScalingBalanceSetup.BaseAttackFactor:.6f,
+                baseHealth=strengthened?HistoricalEnemyBalanceReference.BaseHealthFactor:.4f,
+                baseAttack=strengthened?HistoricalEnemyBalanceReference.BaseAttackFactor:.6f,
                 bossBaseStatMultiplier=1f, baseStatMultiplier=1f, // Historical 2026-10-18 comparison, before the later base-only boost.
-                earlyHealth=strengthened?Godmist.Editor.EnemyScalingBalanceSetup.EarlyHealthGrowthFactor:.6f,
-                earlyAttack=strengthened?Godmist.Editor.EnemyScalingBalanceSetup.EarlyAttackGrowthFactor:.6f,
+                earlyHealth=strengthened?HistoricalEnemyBalanceReference.EarlyHealthGrowthFactor:.6f,
+                earlyAttack=strengthened?HistoricalEnemyBalanceReference.EarlyAttackGrowthFactor:.6f,
                 tag=(strengthened?"-early-threat-after-20261018":"-early-threat-before-20261018")+"-level"+level
             });
         }
@@ -1073,10 +1073,10 @@ namespace Godmist.Tests.EditMode
             public bool starter,upgraded,highestQuality;
             public DungeonLength length;
             public bool progression,completionQuest;
-            public float baseHealth=Godmist.Editor.EnemyScalingBalanceSetup.BaseHealthFactor,
-                baseAttack=Godmist.Editor.EnemyScalingBalanceSetup.BaseAttackFactor;
-            public float baseStatMultiplier=Godmist.Editor.EnemyScalingBalanceSetup.OrdinaryBaseStatMultiplier;
-            public float bossBaseStatMultiplier=Godmist.Editor.EnemyScalingBalanceSetup.BossBaseStatMultiplier;
+            public float baseHealth=HistoricalEnemyBalanceReference.BaseHealthFactor,
+                baseAttack=HistoricalEnemyBalanceReference.BaseAttackFactor;
+            public float baseStatMultiplier=HistoricalEnemyBalanceReference.OrdinaryBaseStatMultiplier;
+            public float bossBaseStatMultiplier=HistoricalEnemyBalanceReference.BossBaseStatMultiplier;
             public DungeonLength[] lengths=Array.Empty<DungeonLength>();
             public bool regularOnly;
             public string rosterCandidate="legacy";
@@ -1084,8 +1084,8 @@ namespace Godmist.Tests.EditMode
             public bool encounterBalanceRoutes,compareScouting,scouting;
             public bool ramp=true;
             public float uniformHealth=2f,uniformAttack=2.5f;
-            public float earlyHealth=Godmist.Editor.EnemyScalingBalanceSetup.EarlyHealthGrowthFactor,
-                earlyAttack=Godmist.Editor.EnemyScalingBalanceSetup.EarlyAttackGrowthFactor;
+            public float earlyHealth=HistoricalEnemyBalanceReference.EarlyHealthGrowthFactor,
+                earlyAttack=HistoricalEnemyBalanceReference.EarlyAttackGrowthFactor;
             public bool camps=true;
             public float travelSeconds=18;
             public string[] dungeons={"catacombs", "forest"};

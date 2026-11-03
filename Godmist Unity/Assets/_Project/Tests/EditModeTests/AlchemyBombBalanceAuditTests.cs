@@ -83,7 +83,7 @@ namespace Godmist.Tests.EditMode
                 ["1DoT"]=new[]{utilities[0],Ingredient(ConsumableRuntimeEffectType.ApplyStun),Ingredient(ConsumableRuntimeEffectType.Slow)},
                 ["3DoT"]=new[]{utilities[0],Ingredient(ConsumableRuntimeEffectType.ApplyPoison),Ingredient(ConsumableRuntimeEffectType.ApplyBurn)} };
             var enemies=catalog.CharacterDefinitions.Where(d=>d!=null
-                && (Godmist.Editor.EnemyScalingBalanceSetup.UsesEarlyThreatCalibration(d.Id) || Godmist.Editor.EnemyScalingBalanceSetup.UsesBossBaseBoost(d.Id))
+                && (HistoricalEnemyBalanceReference.UsesEarlyThreatCalibration(d.Id) || HistoricalEnemyBalanceReference.UsesBossBaseBoost(d.Id))
                 && !d.Id.EndsWith(".enraged") && !d.Id.EndsWith(".burning") && !d.Id.EndsWith(".revealed")).ToArray();
             Assert.That(enemies.Length,Is.EqualTo(18));
             var factory=new CharacterInstanceFactory();
@@ -112,7 +112,7 @@ namespace Godmist.Tests.EditMode
                             var hp=target.Character.Stats.MaxHealth.GetValue();
                             var row=new Row { level=level,enemy=definition.Id,name=definition.DisplayName,
                                 dungeon=definition.Id.Contains(".forest.")?"forest":"catacombs",
-                                boss=Godmist.Editor.EnemyScalingBalanceSetup.UsesBossBaseBoost(definition.Id),recipe=recipe.Key,catalyst=boost,
+                                boss=HistoricalEnemyBalanceReference.UsesBossBaseBoost(definition.Id),recipe=recipe.Key,catalyst=boost,
                                 hp=hp,physicalDefense=target.Character.Stats.PhysicalDefense.GetValue(),magicalDefense=target.Character.Stats.MagicalDefense.GetValue() };
                             row.physicalHitChance=CombatDamageSystem.CalculateSkillHitChance(caster,target,skill);
                             foreach(var effect in skill.Effects.Where(e=>e.EffectType==EffectType.ApplyStatus && e.StatusDamageMultiplier>0))

@@ -217,7 +217,7 @@ namespace Godmist.Tests.EditMode
             Assert.That(Definition.TransformationFrames.Count,Is.EqualTo(6));Assert.That(Definition.TransformationFramesPerSecond,Is.EqualTo(5));
             foreach(var d in new[]{Definition,Definition.SecondPhaseDefinition})
             {Assert.That(d.DeadSprite,Is.Not.Null);Assert.That(d.PortraitSprite,Is.Not.Null);Assert.That(d.StartingSkills.All(k=>k.Icon!=null),Is.True);Assert.That(d.Tags,Contains.Item(CharacterTag.Giant));Assert.That(d.LootTable,Is.Null);}
-            Assert.That(Definition.BaseStats.MaxHealth,Is.EqualTo(700));Assert.That(Definition.BaseStats.MinAttack,Is.EqualTo(50));
+            Assert.That(Definition.BaseStats.MaxHealth,Is.EqualTo(560));Assert.That(Definition.BaseStats.MinAttack,Is.EqualTo(46.75f));
             Assert.That(Definition.DeadSprite,Is.Not.SameAs(Definition.SecondPhaseDefinition.DeadSprite));
         }
     }
