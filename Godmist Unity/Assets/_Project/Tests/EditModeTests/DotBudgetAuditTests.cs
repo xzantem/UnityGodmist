@@ -33,6 +33,15 @@ namespace Godmist.Tests.EditMode
         public void Before() => Report("before");
         [Test, Explicit("Read-only paired after measurement on the same controlled actors and seeds.")]
         public void After() => Report("after");
+        [Test, Explicit("Read-only normalized eight-skill DoT benchmark; controlled ATK100/DEF100, not a real-character simulation.")]
+        public void CurrentIdentityBaseline() => Report("normalized-current", "../LocalHandoffs/dot-identity-audit-20261103");
+        [Test, Explicit("Additional read-only normalized ordinary-enemy risk probes; same controlled actors and seeds as the main benchmark.")]
+        public void CurrentIdentityRiskCases() => Report("normalized-risk", "../LocalHandoffs/dot-identity-audit-20261103", new[] {
+            ("skill.enemy.forest.wolf_bite", "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_Wolf_bite.asset", "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_RabidWolf.asset"),
+            ("skill.enemy.forest.bandit_knife", "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_Bandit_knife.asset", "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_BanditThug.asset"),
+            ("skill.enemy.forest.poacher_poison_bag", "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_Poacher_poison_bag.asset", "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_ElfPoacher.asset"),
+            ("skill.enemy.forest.tree_dark_roots", "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_Tree_dark_roots.asset", "Assets/_Project/ScriptableObjects/Dungeons/Forest/CD_Forest_InfectedTree.asset"),
+        });
         static string N(float value) => value.ToString("0.#####", CultureInfo.InvariantCulture);
         internal static BattleUnit Unit(string path, bool player, float resistance, bool target)
         {
@@ -48,14 +57,14 @@ namespace Godmist.Tests.EditMode
             return new BattleUnit { Character = c, IsPlayerSide = player, Position = new GridPosition(2, target ? 3 : 2),
                 CurrentActionPoints = 1000, MaxActionPoints = 1000, AvailableKnives = 5, MaxKnives = 5 };
         }
-        static void Report(string phase)
+        static void Report(string phase, string root = "../LocalHandoffs/dot-balance-20261024", (string Id, string Path, string Character)[] cases = null)
         {
-            var output = "../LocalHandoffs/dot-balance-20261024/" + phase; Directory.CreateDirectory(output);
+            var output = root + "/" + phase; Directory.CreateDirectory(output);
             var rows = new List<string> { "skill,resistance,samples,apCost,resourceType,resourcePaid,resourceNetSpent,knivesPaid,initialDamageMean,dotDamageMean,totalDamageMean,anyDotChance,applicationsMean,totalPer100AP,totalPerResourcePaid" };
             var previous = UnityEngine.Random.state;
             try
             {
-                foreach (var entry in Cases) foreach (var resistance in new[] { .25f, .5f, .75f })
+                foreach (var entry in cases ?? Cases) foreach (var resistance in new[] { .25f, .5f, .75f })
                 {
                     var skill = AssetDatabase.LoadAssetAtPath<SkillData>(entry.Path); Assert.That(skill, Is.Not.Null, entry.Path);
                     File.WriteAllText(output + "/" + skill.name + "-config.json", EditorJsonUtility.ToJson(skill, true));
