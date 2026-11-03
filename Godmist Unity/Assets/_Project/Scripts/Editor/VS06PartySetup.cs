@@ -56,9 +56,8 @@ public static class VS06PartySetup
         };
         string[] growthNames = { "MaxHealth", "MinAttack", "MaxAttack", "PhysicalDefense", "MagicalDefense", "Dodge" };
         float[,] growth = {{10,.8f,1.1f,.33f,.2f,.08f},{12.5f,.7f,.95f,.45f,.3f,.05f},{7.5f,1,1.3f,.25f,.5f,.04f},{20,.6f,.8f,.6f,.6f,.04f}};
-        string[] resistanceNames = { "BleedResistance", "PoisonResistance", "FireResistance", "WeakeningResistance", "SuppressionResistance", "MoveResistance" };
-        // EOR maps to both existing hard-control resistance fields, as on Jerzy.
-        float[,] resistance = {{.5f,.7f,.4f,.5f,.35f,.35f},{.7f,.5f,.4f,.6f,.6f,.6f},{.25f,.25f,.8f,.7f,.3f,.3f},{.3f,.4f,.5f,.25f,.75f,.75f}};
+        // Resistance profiles are authored in CharacterDefinition assets, including
+        // later balance changes. This historical setup must not restore the old sheet.
         for (var i = 0; i < names.Length; i++)
         {
             var character = AssetDatabase.LoadAssetAtPath<CharacterDefinition>(Root + "CD_" + names[i] + ".asset")
@@ -66,7 +65,6 @@ public static class VS06PartySetup
             var so = new SerializedObject(character);
             for (var j=0;j<stats.Length;j++) Number(so.FindProperty(Field("BaseStats")),stats[j],values[i,j]);
             for (var j=0;j<growthNames.Length;j++) Number(so.FindProperty(Field("GrowthData")),growthNames[j],growth[i,j]);
-            for (var j=0;j<resistanceNames.Length;j++) Number(so.FindProperty(Field("BaseResistances")),resistanceNames[j],resistance[i,j]);
             if (i >= 2)
             {
                 var prefix = i == 2 ? "wizzard_f" : "knight_f";
