@@ -334,7 +334,7 @@ namespace Godmist.Tests.EditMode
                 character,
                 returnScroll,
                 out var effect,
-                returnTransition: () => false), Is.False);
+                returnTransition: _ => false), Is.False);
             Assert.That(effect, Is.EqualTo(ExplorationConsumableEffect.None));
             Assert.That(character.Inventory.Items, Has.Count.EqualTo(1));
             Assert.That(returnScroll.CurrentCharges, Is.EqualTo(1));
@@ -343,7 +343,7 @@ namespace Godmist.Tests.EditMode
                 character,
                 returnScroll,
                 out effect,
-                returnTransition: () => true), Is.True);
+                returnTransition: commit => { commit(); return true; }), Is.True);
             Assert.That(effect, Is.EqualTo(ExplorationConsumableEffect.ReturnToArungard));
             Assert.That(character.Inventory.Items, Is.Empty);
             Assert.That(returnScroll.CurrentCharges, Is.EqualTo(0));

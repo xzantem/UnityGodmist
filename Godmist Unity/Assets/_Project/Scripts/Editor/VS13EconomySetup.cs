@@ -150,6 +150,8 @@ public static class VS13EconomySetup
             var group = groups.GetArrayElementAtIndex(index);
             group.FindPropertyRelative("Id").stringValue = spec.Id;
             group.FindPropertyRelative("Slots").intValue = spec.Slots;
+            group.FindPropertyRelative("AvailabilityChance").floatValue = 1f;
+            group.FindPropertyRelative("GuaranteedInitially").boolValue = false;
             var candidates = group.FindPropertyRelative("Candidates");
             candidates.arraySize = spec.Candidates.Length;
             for (var candidate = 0; candidate < spec.Candidates.Length; candidate++)
@@ -196,6 +198,7 @@ public static class VS13EconomySetup
             throw new InvalidOperationException("VS-13: brak roli Zaklinacza lub kamienia T1.");
         ConfigureRole(alchemist, alchemistLocal, alchemistRotating, items);
         ConfigureRole(enchanter, enchanterLocal, enchanterRotating, items);
+        Godmist.Editor.ReturnScrollSetup.ConfigureMerchant(enchanter);
         var services = new SerializedObject(enchanterServices);
         services.FindProperty(Field("GalduryteStones")).arraySize = 1;
         services.ApplyModifiedPropertiesWithoutUndo();

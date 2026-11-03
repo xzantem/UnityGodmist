@@ -665,11 +665,11 @@ namespace Godmist.Views.Game
             return false;
         }
 
-    public bool TryReturnToArungardFromDungeon()
+        public bool TryReturnToArungardFromDungeon(Action onReturned = null)
         {
-            if (Session?.ActiveDungeon == null || Session.HasCombat) return false;
-
-            var isAssetAuditRoom = Session.ActiveDungeon.IsAssetAuditRoom;
+            var dungeon = Session?.ActiveDungeon;
+            if (dungeon == null || Session.HasCombat || !IsDungeonScene
+                || sceneLoader == null || sceneLoader.IsLoading) return false;
 
             // Scene loading is asynchronous. Capture the live leader position
             // before the dungeon scene is destroyed so resuming the same
@@ -677,24 +677,19 @@ namespace Godmist.Views.Game
             FindAnyObjectByType<Godmist.Views.Exploration.ExplorationPartyController>()
                 ?.PersistCurrentPosition();
 
-            if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
-
-            if (isAssetAuditRoom)
+            return sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration, onLoaded: () =>
             {
-                Session.TryClearActiveDungeon();
-                return true;
-            }
-
-            new DungeonCampService().RemoveSupplies(Session);
-            new TraderStockService().TryRefreshAfterReturn(Session, Session.ActiveDungeon,
-                contentCatalog);
-            NpcEconomyService?.TryApplyDungeonProgress(
-                Session,
-                Session.ActiveDungeon,
-                out _,
-                out _);
-            RequestAutosave("Return scroll");
-            return true;
+                if (Session?.ActiveDungeon != dungeon || Session.HasCombat) return;
+                if (dungeon.IsAssetAuditRoom) Session.TryClearActiveDungeon();
+                else
+                {
+                    new DungeonCampService().RemoveSupplies(Session);
+                    new TraderStockService().TryRefreshAfterReturn(Session, dungeon, contentCatalog);
+                    NpcEconomyService?.TryApplyDungeonProgress(Session, dungeon, out _, out _);
+                }
+                onReturned?.Invoke();
+                RequestAutosave("Zwój powrotu");
+            });
         }
 
         private static bool AreFinalBossEncountersCleared(

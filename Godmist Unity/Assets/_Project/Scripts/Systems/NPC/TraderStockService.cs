@@ -56,8 +56,14 @@ namespace Godmist.Systems.NPC
             var pools = new Dictionary<TraderStockGroup, List<TraderStockEntry>>();
             foreach (var group in groups)
             {
+                if (float.IsNaN(group.AvailabilityChance) || float.IsInfinity(group.AvailabilityChance)
+                    || group.AvailabilityChance < 0f || group.AvailabilityChance > 1f)
+                    throw new InvalidOperationException($"Invalid availability chance for stock group '{group.Id}'.");
+                var available = !rotate && group.GuaranteedInitially
+                    || group.AvailabilityChance >= 1f
+                    || group.AvailabilityChance > 0f && random.NextDouble() < group.AvailabilityChance;
                 var pool = (group.Candidates ?? new List<TraderStockEntry>())
-                    .Where(e => e != null && e.IsAvailable(level) && !localIds.Contains(e.Item.Id))
+                    .Where(e => available && e != null && e.IsAvailable(level) && !localIds.Contains(e.Item.Id))
                     .GroupBy(e => e.Item.Id).Select(g => g.First()).ToList();
                 pools[group] = pool;
                 foreach (var entry in pool.Where(e => previous.Contains(e.Item.Id)).Take(group.Slots))
@@ -66,8 +72,11 @@ namespace Godmist.Systems.NPC
             if (rotate)
             {
                 // Half of the whole rotating offer, not half of every material category.
-                var count = (selected.Count + 1) / 2;
-                var eligible = selected.OrderBy(_ => random.Next()).ToList();
+                // Optional groups have their own availability roll. They do not
+                // change the half-rotation budget of the ordinary merchandise.
+                var rotating = selected.Where(s => s.Group.AvailabilityChance >= 1f).ToList();
+                var count = (rotating.Count + 1) / 2;
+                var eligible = rotating.OrderBy(_ => random.Next()).ToList();
                 foreach (var old in eligible)
                 {
                     if (count == 0) break;
