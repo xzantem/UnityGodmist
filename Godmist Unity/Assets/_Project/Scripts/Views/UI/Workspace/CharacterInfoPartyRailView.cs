@@ -46,6 +46,7 @@ namespace Godmist.Views.UI.Workspace
 
         private void Awake()
         {
+            ContextualInputHintsView.Ensure(GetComponentInParent<Canvas>())?.BindPartyRail(this);
             if (workspaceManager == null) workspaceManager = UIWorkspaceWindowManager.Instance;
             CancelDrag();
         }

@@ -85,7 +85,7 @@ namespace Godmist.Tests.EditMode
         }
 
         [TestCase(false, false)][TestCase(true, false)][TestCase(false, true)]
-        public void AuthoredKickReportsBlockedOrInterruptedPushWithoutCallingItAMiss(bool partial, bool missed)
+        public void AuthoredKickUsesCollisionStunFeedbackForAnImmediateBlock(bool partial, bool missed)
         {
             var source=Unit(true); var target=Unit(false,2,1); var session=Session(source,target);
             var skill=Keep(Object.Instantiate(AssetDatabase.LoadAssetAtPath<SkillData>("Assets/_Project/ScriptableObjects/Skills/SD_WarriorKick.asset")));
@@ -105,8 +105,10 @@ namespace Godmist.Tests.EditMode
             }
             else
             {
-                var failure=events.Single(e=>e.Type==CombatFeedbackType.EffectFailed && e.EffectName=="Odepchnięcie");
-                Assert.That(failure.FailureReason,Is.EqualTo(partial?CombatEffectFailureReason.Interrupted:CombatEffectFailureReason.Blocked));
+                var failures=events.Where(e=>e.Type==CombatFeedbackType.EffectFailed && e.EffectName=="Odepchnięcie").ToArray();
+                Assert.That(failures.Select(e=>e.FailureReason),Is.EqualTo(partial
+                    ? new[]{CombatEffectFailureReason.Interrupted} : System.Array.Empty<CombatEffectFailureReason>()));
+                Assert.That(events.Any(e=>e.Type==CombatFeedbackType.StatusApplied),Is.True);
                 Assert.That(events.Any(e=>e.Type==CombatFeedbackType.Miss),Is.False);
                 Assert.That(target.Position,Is.EqualTo(new GridPosition(partial?3:2,1)));
                 Assert.That(StatusEffectSystem.IsStunned(target),Is.True,"Blocked push preserves collision stun.");

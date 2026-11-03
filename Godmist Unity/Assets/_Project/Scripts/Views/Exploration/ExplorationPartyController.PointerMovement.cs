@@ -50,9 +50,10 @@ namespace Godmist.Views.Exploration
                 || !pointerMovementMouse.added || !pointerMovementMouse.enabled
                 || !pointerMovementMouse.leftButton.isPressed
                 || !worldCamera.pixelRect.Contains(pointerMovementMouse.position.ReadValue())
-                || pointerMovementMouse.rightButton.isPressed || pointerMovementMouse.middleButton.isPressed
                 || pointerMovementLeader != gameSession.PlayerParty.ActiveLeaderId)
             { CancelPointerMovementGesture(); return; }
+            // Camera dragging suspends steering while LPM remains held.
+            if (pointerMovementMouse.rightButton.isPressed || pointerMovementMouse.middleButton.isPressed) return;
             if (now - pointerMovementPressedAt < PointerHoldDelay || now < nextPointerMovementRepath) return;
             var leader = GetActiveLeaderView();
             if (leader.IsCrossingLowWall || leader.DungeonPosition.IsOnStairs) return;

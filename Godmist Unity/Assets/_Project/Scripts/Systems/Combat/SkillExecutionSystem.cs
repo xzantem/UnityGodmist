@@ -2689,7 +2689,7 @@ namespace Godmist.Systems.Combat
                         && nextPosition == referenceUnit.Position && movedUnit.Position != initialPosition
                         && !CombatObjectDamageSystem.IsCollisionBarrier(session, nextPosition)
                         && session.Grid.CanDisplaceBetween(movedUnit.Position, nextPosition);
-                    if (!reachedPuller)
+                    if (!reachedPuller && (!damageObstacleOnCollision || movedUnit.Position != initialPosition))
                         CombatFailureFeedback.Effect(feedbackBus, feedbackSource, movedUnit, feedbackEffect,
                             movedUnit.Position == initialPosition ? CombatEffectFailureReason.Blocked : CombatEffectFailureReason.Interrupted);
                     if (damageObstacleOnCollision)

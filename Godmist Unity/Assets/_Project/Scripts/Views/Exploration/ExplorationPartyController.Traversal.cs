@@ -1355,10 +1355,11 @@ namespace Godmist.Views.Exploration
             {
                 var pending = destroyTarget;
                 var chestTarget = pendingChest;
+                var bodyTarget = pendingBody;
                 var worldObjectTarget = pendingWorldObject;
                 var arrived = movementDestination.HasValue && Vector2.Distance(leader.Position, movementDestination.Value) < .1f;
                 ClearMovementRoute(preserveFollowers: pointerMovementMouse != null);
-                if (arrived) { destroyTarget = pending; pendingChest = chestTarget; pendingWorldObject = worldObjectTarget; }
+                if (arrived) { destroyTarget = pending; pendingChest = chestTarget; pendingBody = bodyTarget; pendingWorldObject = worldObjectTarget; }
             }
             if (movementDestination.HasValue && traversalPath.Count == 0
                 && Vector2.Distance(leader.Position, movementDestination.Value) <= .03f) movementDestination = null;
@@ -1556,6 +1557,35 @@ namespace Godmist.Views.Exploration
         }
 
         private DungeonChestView pendingChest;
+        private DungeonEnemyBodyView pendingBody;
+
+        private bool RequestBodyLoot(DungeonEnemyBodyView target)
+        {
+            if (GetActiveLeaderView()?.RuntimeCharacter?.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive) return false;
+            CancelMovement();
+            if (target.CanInteract()) { target.Interact(); return true; }
+            if (!TryApproachPosition(target.transform.position, target.InteractionRadius, target.CanLootFrom)) return false;
+            pendingBody = target;
+            return true;
+        }
+
+        private bool TickBodyApproach()
+        {
+            if (ReferenceEquals(pendingBody, null)) return false;
+            if (pendingBody == null || !pendingBody.CanRequestLoot
+                || ExplorationKeyboardInput.ReadGameplayMovement().sqrMagnitude > 0f)
+            { CancelMovement(); return false; }
+            if (pendingBody.CanInteract())
+            {
+                var target = pendingBody;
+                CancelMovement();
+                target.Interact();
+                return true;
+            }
+            if (!movementDestination.HasValue) CancelMovement();
+            return false;
+        }
+
         public bool RequestChestInteraction(DungeonChestView target)
         {
             if (target == null || !target.IsOwnedBy(this) || target.Floor != traversalFloor

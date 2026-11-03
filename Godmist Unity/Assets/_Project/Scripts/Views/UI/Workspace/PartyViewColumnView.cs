@@ -6,6 +6,7 @@ using Godmist.Systems.Characters;
 using Godmist.Runtime.Game;
 using Godmist.Runtime.Characters;
 using Godmist.Runtime.Combat;
+using Godmist.Views.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -40,11 +41,39 @@ namespace Godmist.Views.UI.Workspace
   public void Bind(PartyViewWindowView parent,GameSession game,string id,UIWorkspaceWindow host,Action individual,Func<string,string,string> camp)
   {
    owner=parent;session=game;character=game.CharactersById[id];
+   FitHeaderMetrics();
    equipment.ConfigureEmbedded(host);equipment.CampAction=camp;equipment.Initialize(session,id);
    stats.ConfigureEmbedded(host);skills.ConfigureEmbedded(host);development.ConfigureEmbedded(host);
    individualButton.onClick.AddListener(()=>individual?.Invoke());
    for(var i=0;i<modeButtons.Length;i++){var mode=(PartyViewMode)i;modeButtons[i].onClick.AddListener(()=>{owner.Select(CharacterId,false);Show(mode);});}
    Refresh();
+  }
+  private void FitHeaderMetrics()
+  {
+   const float halfGap = 10f;
+   var healthBar = healthFill.GetComponentInParent<UIBarFillMask>();
+   var experienceBar = experienceFill.GetComponentInParent<UIBarFillMask>();
+   SetMetricHalf(vitals.rectTransform, false, halfGap);
+   SetMetricHalf((RectTransform)healthBar.transform, false, halfGap);
+   SetMetricHalf(resourceValue.rectTransform, true, halfGap);
+   SetMetricHalf((RectTransform)resourceTrack.transform, true, halfGap);
+   SetMetricHalf((RectTransform)experience.transform.parent, false, halfGap);
+   SetMetricHalf((RectTransform)experienceBar.transform, false, halfGap);
+   SetMetricHalf((RectTransform)honor.transform.parent, true, halfGap);
+  }
+
+  private static void SetMetricHalf(RectTransform rect, bool right, float halfGap)
+  {
+   if(right)
+   {
+    rect.anchorMin = new Vector2(.5f, rect.anchorMin.y);
+    rect.offsetMin = new Vector2(halfGap, rect.offsetMin.y);
+   }
+   else
+   {
+    rect.anchorMax = new Vector2(.5f, rect.anchorMax.y);
+    rect.offsetMax = new Vector2(-halfGap, rect.offsetMax.y);
+   }
   }
   public void Refresh()
   {

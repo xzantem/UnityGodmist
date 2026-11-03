@@ -31,6 +31,8 @@ namespace Godmist.Views.UI
         private float acceptedCursorSpeed, acceptedCameraSpeed, pendingCursorSpeed, pendingCameraSpeed;
         private IMainMenuSettingsPlatform platform;
         private TMP_Text applyLabel;
+        private Button controlsButton, closeControlsButton;
+        private GameObject controlsPreview;
         private Color applyEnabledTextColor;
         private IMainMenuSettingsPlatform Platform => platform ??= new UnityMainMenuSettingsPlatform();
         private List<Vector2Int> resolutions;
@@ -70,6 +72,7 @@ namespace Godmist.Views.UI
             applyEnabledTextColor = applyLabel != null ? applyLabel.color : Color.white;
             applyButton.onClick.AddListener(Apply);
             closeButton.onClick.AddListener(Close);
+            CreateControlsPreview();
             volumeSlider.onValueChanged.AddListener(PreviewVolume);
             controllerCursorSlider?.onValueChanged.AddListener(ControllerChanged);
             controllerCameraSlider?.onValueChanged.AddListener(ControllerChanged);
@@ -141,6 +144,7 @@ namespace Godmist.Views.UI
             volumeValueText.text = $"{Mathf.RoundToInt(volumeSlider.value * 100)}%";
             volumeSlider.interactable = resolutionDropdown.interactable = fullscreenToggle.interactable = !awaitingConfirmation;
             closeButton.interactable = !awaitingConfirmation;
+            if (controlsButton != null) controlsButton.interactable = !awaitingConfirmation;
             applyButton.interactable = !awaitingConfirmation && HasChanges;
             if (applyLabel != null)
                 applyLabel.color = applyButton.interactable ? applyEnabledTextColor : applyDisabledTextColor;
@@ -183,7 +187,7 @@ namespace Godmist.Views.UI
             resolutionDropdown.RefreshShownValue();
             awaitingConfirmation = false;
             confirmationRoot.SetActive(false);
-            messageText.text = Platform.IsEditor ? "Zapisano. Zmianę obrazu sprawdź w buildzie." : "Zastosowano ustawienia.";
+            messageText.text = "Zapisano ustawienia.";
             RefreshControls();
             Focus(closeButton);
         }
@@ -221,7 +225,7 @@ namespace Godmist.Views.UI
         {
             var seconds = Math.Max(0, (int)Math.Ceiling(confirmationDeadline - Platform.Now));
             confirmationMessageText.text = $"Zachować ustawienia obrazu?\nPowrót do poprzednich za {seconds} s."
-                + (Platform.IsEditor ? "\nPodgląd zmiany obrazu działa w buildzie." : string.Empty);
+                + (Platform.IsEditor ? "\nEdytor nie pokazuje zmian rozdzielczości ani trybu ekranu." : string.Empty);
         }
         private void Update()
         {
@@ -241,12 +245,14 @@ namespace Godmist.Views.UI
         {
             if (!IsOpen || resolutionDropdown.IsExpanded) return;
             if (awaitingConfirmation) RevertDisplay();
+            else if (controlsPreview != null && controlsPreview.activeSelf) ShowControlsPreview(false);
             else Close();
         }
         public void Close()
         {
             if (!IsOpen) return;
             if (resolutionDropdown.IsExpanded) resolutionDropdown.Hide();
+            if (controlsPreview != null) controlsPreview.SetActive(false);
             RestoreAccepted();
             panelRoot.SetActive(false);
             Closed?.Invoke();
@@ -255,6 +261,143 @@ namespace Godmist.Views.UI
         {
             if (EventSystem.current != null && control != null && control.gameObject.activeInHierarchy)
                 EventSystem.current.SetSelectedGameObject(control.gameObject);
+        }
+
+        private void CreateControlsPreview()
+        {
+            var panel = panelRoot.transform;
+            controlsButton = CreateControlsButton(panel, "Sterowanie", Vector2.one, new Vector2(-28, -24));
+            controlsButton.onClick.AddListener(() => ShowControlsPreview(true));
+            var overlay = new GameObject("Controls Preview", typeof(RectTransform), typeof(Image));
+            controlsPreview = overlay;
+            var rect = overlay.GetComponent<RectTransform>();
+            rect.SetParent(panel, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            var background = overlay.GetComponent<Image>();
+            var source = panel.GetComponent<Image>();
+            background.sprite = source != null ? source.sprite : null;
+            background.type = source != null ? source.type : Image.Type.Simple;
+            background.color = background.sprite != null ? Color.white : new Color(.10f, .09f, .11f);
+
+            var frame = panel.Find("GothicSettingsFrame")?.GetComponent<Image>();
+            if (frame != null)
+            {
+                var copy = Instantiate(frame, rect);
+                copy.name = "Window Frame";
+                copy.raycastTarget = false;
+            }
+            AddControlsText(rect, "Sterowanie", 32, 0f, 1f, 24, 42, 28, 28, TextAlignmentOptions.Center);
+            AddControlsColumn(rect, "Klawiatura i mysz", 0f, .5f, new (string Key, string Action)[]
+            {
+                ("WASD / strzałki", "Ruch"),
+                ("LPM", "Ruch, także przytrzymany"),
+                ("PPM + ruch", "Odblokuj kamerę"),
+                ("ŚPM", "Przesuń kamerę"),
+                ("Rolka", "Zoom"),
+                ("F", "Tryb kamery / skupienie"),
+                ("Tab", "Zmień lidera"),
+                ("E", "Interakcja"),
+                ("I", "Drużyna i ekwipunek"),
+                ("J", "Dziennik zadań"),
+                ("M", "Mapa lochu"),
+                ("1–0", "Akcje bojowe"),
+                ("R", "Obrót obszaru"),
+                ("Enter", "Zatwierdź cele"),
+                ("Esc / PPM", "Anuluj celowanie")
+            });
+            AddControlsColumn(rect, "Kontroler", .5f, 1f, new (string Key, string Action)[]
+            {
+                ("Lewy drążek", "Ruch / wybór pola"),
+                ("Prawy drążek", "Kamera"),
+                ("R3", "Wyśrodkuj kamerę"),
+                ("L3", "Tryb kursora"),
+                ("A", "Wybierz / zatwierdź"),
+                ("Przytrzymaj A", "Interakcje"),
+                ("B", "Wróć / anuluj"),
+                ("X", "Akcje"),
+                ("Y", "Inspekcja / potwierdź"),
+                ("Przytrzymaj Y", "Koniec tury"),
+                ("LT / RT", "Drużyna / akcje"),
+                ("LB / RB", "Zmień postać / obróć"),
+                ("D-pad", "Cel / zoom"),
+                ("Back", "Mapa"),
+                ("Start", "Pauza")
+            });
+            closeControlsButton = CreateControlsButton(rect, "WrÃ³Ä‡", Vector2.zero, new Vector2(28, 24));
+            closeControlsButton.navigation = new Navigation { mode = Navigation.Mode.None };
+            closeControlsButton.onClick.AddListener(() => ShowControlsPreview(false));
+            overlay.SetActive(false);
+        }
+
+        private Button CreateControlsButton(Transform parent, string label, Vector2 anchor, Vector2 position)
+        {
+            var button = Instantiate(closeButton, parent);
+            button.name = label;
+            button.onClick = new Button.ButtonClickedEvent();
+            button.navigation = new Navigation { mode = Navigation.Mode.Automatic };
+            var rect = (RectTransform)button.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = anchor;
+            rect.sizeDelta = new Vector2(180, 44);
+            rect.anchoredPosition = position;
+            var text = button.GetComponentInChildren<TMP_Text>(true);
+            if (text != null) text.text = label;
+            return button;
+        }
+
+        private void AddControlsColumn(RectTransform parent, string title, float left, float right,
+            (string Key, string Action)[] bindings)
+        {
+            var inset = left == 0f ? 28f : 16f;
+            var rightInset = right == 1f ? 28f : 16f;
+            AddControlsText(parent, title, 23, left, right, 85, 32, inset, rightInset);
+            var separator = panelRoot.transform.Find("GothicSettingsSeparator")?.GetComponent<Image>();
+            if (separator != null)
+            {
+                var line = Instantiate(separator, parent);
+                line.raycastTarget = false;
+                PlaceControlsRow(line.rectTransform, left, right, 120, 6, inset, rightInset);
+            }
+
+            for (var index = 0; index < bindings.Length; index++)
+            {
+                var top = 135 + 31 * index;
+                var (key, action) = bindings[index];
+                var keyLabel = AddControlsText(parent, key, 17, left, left, top, 29, inset, -inset - 106);
+                keyLabel.color = new Color(.93f, .81f, .51f);
+                AddControlsText(parent, action, 17, left, right, top, 29, inset + 112, rightInset);
+            }
+        }
+
+        private TMP_Text AddControlsText(Transform parent, string value, float size, float left, float right,
+            float top, float height, float inset, float rightInset,
+            TextAlignmentOptions alignment = TextAlignmentOptions.MidlineLeft)
+        {
+            var label = Instantiate(messageText, parent);
+            label.text = value;
+            label.fontSize = size;
+            label.alignment = alignment;
+            label.raycastTarget = false;
+            PlaceControlsRow(label.rectTransform, left, right, top, height, inset, rightInset);
+            label.gameObject.SetActive(true);
+            return label;
+        }
+
+        private static void PlaceControlsRow(RectTransform rect, float left, float right,
+            float top, float height, float inset, float rightInset)
+        {
+            rect.anchorMin = new Vector2(left, 1f);
+            rect.anchorMax = new Vector2(right, 1f);
+            rect.offsetMin = new Vector2(inset, -top - height);
+            rect.offsetMax = new Vector2(-rightInset, -top);
+        }
+
+        private void ShowControlsPreview(bool show)
+        {
+            if (!IsOpen || awaitingConfirmation) return;
+            controlsPreview.SetActive(show);
+            Focus(show ? closeControlsButton : controlsButton);
         }
         private void OnDisable() { if (IsOpen && resolutions != null) Close(); }
         private void OnDestroy()

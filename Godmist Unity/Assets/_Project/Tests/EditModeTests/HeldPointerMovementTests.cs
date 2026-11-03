@@ -58,10 +58,47 @@ namespace Godmist.Tests.EditMode
             actor.ConfigureTerrain(map,terrain);actor.SetPosition(tiles.GetCellCenterWorld(new Vector3Int(1,3,0)));
             party.ConfigureTraversal(floor,terrain,null);
         }
-        void Send(Vector2 world,bool held=true)
+        void Send(Vector2 world,bool held=true, bool pan=false)
         {
             var state=new MouseState{position=camera.WorldToScreenPoint(world)};if(held)state=state.WithButton(MouseButton.Left);
+            if(pan)state=state.WithButton(MouseButton.Right);
             InputSystem.QueueStateEvent(mouse,state);InputSystem.Update();
+        }
+        [Test]
+        public void RightDragSuspendsSteeringUntilReleasedWithoutLosingTheLeftHold()
+        {
+            var first = new Vector2(4.5f, 3.5f);
+            var next = new Vector2(7.5f, 3.5f);
+            Begin(first);
+            Send(next, pan: true);
+            camera.transform.position += Vector3.right;
+            Call(party, "TickPointerMovementGesture", .3f);
+            Assert.That(Get<Vector2?>(party, "movementDestination"), Is.EqualTo(first));
+            Send(next);
+            Call(party, "TickPointerMovementGesture", .4f);
+            Assert.That(Vector2.Distance(Get<Vector2?>(party, "movementDestination").Value, next), Is.LessThan(.001f));
+        }
+
+        [Test]
+        public void RequestingDistantCorpseLootRoutesToAReachableAdjacentPosition()
+        {
+            Dungeon();
+            var floor = Get<DungeonFloorInstance>(party, "traversalFloor");
+            var tiles = root.GetComponentInChildren<Tilemap>();
+            var body = new DungeonEnemyBodyInstance("corpse.route", "enemy.route", new Vector2Int(7, 3), 13, null);
+            Assert.That(floor.TryAddEnemyBody(body), Is.True);
+            var view = DungeonEnemyBodyView.CreateFallback(root.transform);
+            view.transform.position = tiles.GetCellCenterWorld(new Vector3Int(7, 3, 0));
+            Set(view, "partyController", party);
+            Set(view, "floor", floor);
+            Set(view, "body", body);
+            Set(view, "floorTilemap", tiles);
+            Assert.That(view.CanInteract(), Is.False);
+            Assert.That(Call(party, "RequestBodyLoot", view), Is.True);
+            Assert.That(Get<DungeonEnemyBodyView>(party, "pendingBody"), Is.SameAs(view));
+            Assert.That(view.CanLootFrom(Get<Vector2?>(party, "movementDestination").Value), Is.True);
+            party.CancelMovement();
+            Assert.That(Get<DungeonEnemyBodyView>(party, "pendingBody"), Is.Null);
         }
         void Begin(Vector2 goal)
         {

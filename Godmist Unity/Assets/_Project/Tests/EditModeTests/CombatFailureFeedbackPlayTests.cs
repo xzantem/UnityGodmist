@@ -82,11 +82,12 @@ namespace Godmist.Tests.EditMode
                 UnityEngine.Random.state=randomState;
                 Object.Destroy(skill);
                 yield return new WaitForSecondsRealtime(1.1f);
-                var expected=scenario is 2 or 3?CombatFeedbackType.Miss:CombatFeedbackType.EffectFailed;
+                var expected=scenario==0?CombatFeedbackType.StatusApplied:scenario is 2 or 3?CombatFeedbackType.Miss:CombatFeedbackType.EffectFailed;
                 Assert.That(messages.Any(e=>e.Type==expected),Is.True);
                 var labels=Object.FindObjectsByType<CombatFloatingFeedbackView>(FindObjectsInactive.Exclude,FindObjectsSortMode.None)
                     .SelectMany(v=>v.GetComponentsInChildren<TMPro.TMP_Text>()).Select(t=>t.text).ToArray();
-                Assert.That(labels.Any(t=>t.Contains(scenario==2?"Pudło":scenario==3?"Unik":scenario>=4?"Odporność":"Zablokowano")),Is.True,string.Join(" | ",labels));
+                Assert.That(labels.Any(t=>t.Contains(scenario==0?"Ogłuszenie":scenario==2?"Pudło":scenario==3?"Unik":scenario>=4?"Odporność":"Zablokowano")),Is.True,string.Join(" | ",labels));
+                if(scenario==0)Assert.That(labels,Has.None.Contains("Zablokowano"));
                 if(scenario>=4)Assert.That(labels,Is.EqualTo(new[]{"Odporność"}),"No effect name or duplicate resistance.");
                 textOutput.Add(scenario+": "+string.Join(" | ",labels));
                 yield return BackgroundGameCapture.Capture(Path.Combine(Output,$"0{scenario+1}-"+(scenario==0?"kick-blocked":scenario==1?"hook-blocked":scenario==2?"miss":scenario==3?"dodge":scenario==4?"hook-resisted":scenario==5?"poison-resisted":"burn-resisted")+".png"));

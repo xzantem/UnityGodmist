@@ -42,6 +42,21 @@ namespace Godmist.Tests.EditMode
         }
         [TearDown] public void CloseScene(){view.Close();if(scene.IsValid())EditorSceneManager.ClosePreviewScene(scene);}
         private void ChangeDisplay(){Ref<TMP_Dropdown>("resolutionDropdown").value=0;}
+        [Test] public void ControlsPreviewClosesBackToSettingsAndPreservesPendingChanges()
+        {
+            ChangeDisplay();
+            var panel = Ref<GameObject>("panelRoot").transform;
+            panel.Find("Sterowanie").GetComponent<Button>().onClick.Invoke();
+            var preview = panel.Find("Controls Preview").gameObject;
+            Assert.That(preview.activeSelf, Is.True);
+            Assert.That(preview.GetComponentsInChildren<TMP_Text>().Any(label => label.text.Contains("Klawiatura i mysz")), Is.True);
+            Assert.That(preview.GetComponentsInChildren<TMP_Text>().Any(label => label.text.Contains("Kontroler")), Is.True);
+            view.HandleEscape();
+            Assert.That(preview.activeSelf, Is.False);
+            Assert.That(view.IsOpen, Is.True);
+            Assert.That(Ref<Button>("applyButton").interactable, Is.True);
+            Assert.That(platform.Saves, Is.Zero);
+        }
         [Test] public void OpeningIsCleanAndChangingThenRestoringControlsDisablesApply()
         {
             var apply=Ref<Button>("applyButton");Assert.That(apply.interactable,Is.False);
@@ -119,7 +134,7 @@ namespace Godmist.Tests.EditMode
         {
             view.Close();platform.IsEditor=true;view.Open();ChangeDisplay();Ref<Button>("applyButton").onClick.Invoke();
             Assert.That(platform.Display.Resolution,Is.EqualTo(new Vector2Int(1920,1080)));Assert.That(platform.Saves,Is.Zero);
-            Assert.That(Ref<TMP_Text>("confirmationMessageText").text,Does.Contain("buildzie"));
+            Assert.That(Ref<TMP_Text>("confirmationMessageText").text,Does.Contain("Edytor nie pokazuje"));
             Ref<Button>("keepDisplayButton").onClick.Invoke();Assert.That(platform.Saves,Is.EqualTo(1));
         }
         [Test] public void EmptyNativeResolutionListStillIncludesCurrentWindowAndIsClean()
