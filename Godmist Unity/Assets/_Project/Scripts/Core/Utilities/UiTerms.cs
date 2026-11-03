@@ -13,6 +13,19 @@ namespace Godmist.Core.Utilities
     /// </summary>
     public static class UiTerms
     {
+        public const string MissedAttack = "Pudło";
+        public const string DodgedAttack = "Unik";
+        public const string EffectNotApplied = "Odporność";
+        public const string EffectImmune = "Odporność";
+        public const string EffectBlocked = "Zablokowano";
+        public const string EffectInterrupted = "Przerwano";
+        public static string CombatEffect(EffectType type) => type switch
+        {
+            EffectType.Push => "Odepchnięcie", EffectType.Pull => "Przyciągnięcie",
+            EffectType.Fallback => "Wycofanie", EffectType.SwapPositions => "Zamiana miejsc",
+            EffectType.Charge => "Szarża", EffectType.MarkWeakPoint => "Słaby punkt",
+            _ => "Efekt"
+        };
         public const string Development = "Rozwój";
         public const string Experience = "Doświadczenie";
         public const string Honor = "Honor";

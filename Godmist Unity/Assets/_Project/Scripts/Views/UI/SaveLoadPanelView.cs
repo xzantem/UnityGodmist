@@ -506,7 +506,7 @@ namespace Godmist.Views.UI
             var session = bootstrap?.Session;
             var canQuickSave = currentMode == SaveLoadPanelMode.Save
                 && session != null
-                && !session.HasCombat
+                && CombatPersistence.CanSave(session, out _)
                 && bootstrap.SaveManager != null
                 && session.ActiveDungeon?.IsAssetAuditRoom != true;
             var canQuickLoad = currentMode == SaveLoadPanelMode.Load

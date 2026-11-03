@@ -45,6 +45,7 @@ namespace Godmist.Systems.SaveLoad
         public int DungeonLevel { get; }
         public int Floor { get; }
         public int Gold { get; }
+        public bool IsInCombat { get; }
         public string TrackedQuestId { get; }
         public string TrackedQuestDisplayName { get; }
         public IReadOnlyList<GameSavePartyMember> Party { get; }
@@ -55,6 +56,7 @@ namespace Godmist.Systems.SaveLoad
             DungeonLevel = data.ActiveDungeon?.DungeonLevel ?? 0;
             Floor = data.ActiveDungeon != null ? data.ActiveDungeon.CurrentFloorIndex + 1 : 0;
             Gold = data.Gold;
+            IsInCombat = data.Combats?.Count > 0;
             TrackedQuestId = data.TrackedQuestId ?? string.Empty;
             var tracked=data.Quests?.FirstOrDefault(q=>q!=null&&q.QuestId==TrackedQuestId);
             if(tracked?.HasBoardContract==true)

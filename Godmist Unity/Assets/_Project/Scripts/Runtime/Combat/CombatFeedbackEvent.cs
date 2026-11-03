@@ -25,8 +25,11 @@ namespace Godmist.Runtime.Combat
         MapObjectTriggered,
         VisualCue,
         TargetEffect,
-        Downed
+        Downed,
+        EffectFailed
     }
+
+    public enum CombatEffectFailureReason { NotApplied, Immune, Blocked, Interrupted }
 
     public readonly struct CombatFeedbackEvent
     {
@@ -44,7 +47,9 @@ namespace Godmist.Runtime.Combat
             CombatTargetVfxKind? targetVfx = null,
             float cueDelaySeconds = 0,
             string actionId = null,
-            bool isCritical = false)
+            bool isCritical = false,
+            bool wasDodged = false,
+            CombatEffectFailureReason failureReason = CombatEffectFailureReason.NotApplied)
         {
             Target = target;
             Type = type;
@@ -61,6 +66,8 @@ namespace Godmist.Runtime.Combat
             CueDelaySeconds = cueDelaySeconds;
             ActionId = actionId;
             IsCritical = isCritical;
+            WasDodged = wasDodged;
+            FailureReason = failureReason;
         }
 
         public BattleUnit Target { get; }
@@ -79,6 +86,8 @@ namespace Godmist.Runtime.Combat
         // Presentation correlation only; no saved state or gameplay timing.
         public string ActionId { get; }
         public bool IsCritical { get; }
+        public bool WasDodged { get; }
+        public CombatEffectFailureReason FailureReason { get; }
     }
 
     public enum CombatTargetVfxKind

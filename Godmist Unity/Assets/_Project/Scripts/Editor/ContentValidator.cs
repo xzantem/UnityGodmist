@@ -439,6 +439,11 @@ namespace Godmist.Editor
             if (npc.BaseDialogue == null)
                 collector.Warning(npc, "BaseDialogue", "NPC nie ma przypisanego dialogu bazowego.");
             ValidateListNulls(npc, "Roles", npc.Roles, collector, false);
+            var trader = npc.GetRole<TraderRoleData>();
+            foreach (var group in trader?.RotatingStock ?? new List<TraderStockGroup>())
+                if (group != null && (float.IsNaN(group.AvailabilityChance) || float.IsInfinity(group.AvailabilityChance)
+                    || group.AvailabilityChance < 0f || group.AvailabilityChance > 1f))
+                    collector.Error(trader, "RotatingStock.AvailabilityChance", "Szansa dostępności oferty musi mieścić się w zakresie 0–1.");
         }
 
         private static void ValidateDialogue(DialogueDefinition dialogue, Collector collector)

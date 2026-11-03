@@ -249,7 +249,7 @@ namespace Godmist.Views.Dungeons
             combatHost.End(source, true);
             combatCamera.Forget(source);
             game.TryRemoveCombat(source);
-            sources.Remove(source);
+            boundSessions.Remove(source);
             source.UnitEnteredCell = null; source.EvaluateTrapRisk = null; source.TrapRouteState = null;
             source.ResumeTurn = null; source.TrySpawnReinforcements = null;
             for (var i = 0; i < pendingMerges.Count; i++)

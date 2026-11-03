@@ -52,11 +52,10 @@ namespace Godmist.Editor
                 var tags=d.FindProperty(F("Tags"));tags.ClearArray();Add(tags).enumValueIndex=(int)CharacterTag.Undead;Add(tags).enumValueIndex=(int)CharacterTag.Giant;
                 var b=d.FindProperty(F("BaseStats"));var g=d.FindProperty(F("GrowthData"));
                 // Przeciwnicy NPC.xlsx, Statystyki row9 (same growth convention as the King).
-                foreach(var v in new[]{("MaxHealth",1250f,82f),
+                foreach(var v in new[]{
                     ("Dodge",15f,.1125f),("PhysicalDefense",22f,4.4f),("MagicalDefense",10f,2f),("CritChance",.13f,.000325f)})
                 {
-                    if(v.Item1 == "MaxHealth")Sub(b,v.Item1,Mathf.RoundToInt(v.Item2));
-                    else Sub(b,v.Item1,v.Item2);
+                    Sub(b,v.Item1,v.Item2);
                     Sub(g,v.Item1,v.Item3);
                 }
                 Sub(b,"CritDamage",2f);Sub(b,"Speed",80f);

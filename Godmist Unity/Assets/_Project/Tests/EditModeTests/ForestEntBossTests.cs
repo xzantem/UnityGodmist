@@ -114,7 +114,7 @@ namespace Godmist.Tests.EditMode
         }
         [Test] public void AssetsContainBothSkillsetsAndApprovedRanges()
         {
-            Assert.That(Ent.BaseStats.MaxHealth, Is.EqualTo(784)); Assert.That(Ent.GrowthData.MaxHealth, Is.EqualTo(91f)); // PT-06.
+            Assert.That(Ent.BaseStats.MaxHealth, Is.EqualTo(627)); Assert.That(Ent.GrowthData.MaxHealth, Is.EqualTo(72.8f).Within(.0001f)); // PT-06.
             Assert.That(Ent.StartingSkills.Select(s=>s.ResourceCost), Is.EqualTo(new[]{0,40,60}));
             Assert.That(Ent.StartingSkills.Select(s=>s.ActionCost), Is.EqualTo(new[]{60,70,20}));
             var roots = Ent.StartingSkills[1];
@@ -401,9 +401,11 @@ namespace Godmist.Tests.EditMode
             var bag=AssetDatabase.LoadAssetAtPath<LootBagItemDefinition>(ForestEnemiesSetup.Root+"Loot/ID_Forest_EntBag.asset");
             Assert.That(bag.BossUniqueDrop.DropChance,Is.EqualTo(.3f));Assert.That(bag.BossUniqueDrop.EquipmentDefinitions,Has.Count.EqualTo(4));
             Assert.That(bag.BossUniqueDrop.EquipmentDefinitions.Select(u=>u.RequiredClass.Id).Distinct().Count(),Is.EqualTo(4));
-            Assert.That(bag.Brackets[0].Pools,Is.Empty);
-            var rune=bag.Brackets[1].Pools.Last().Entries.Single();Assert.That(rune.FixedGalduryteLevel,Is.EqualTo(20));
-            Assert.That(rune.MinimumGalduryteRarity,Is.EqualTo(RarityTier.Rare));
+            // Both brackets now also contain the approved skill-gem pool. Verify the
+            // level-20 reward by identity, rather than assuming it is the last pool.
+            Assert.That(bag.Brackets[0].Pools.SelectMany(p=>p.Entries).Any(e=>e.FixedGalduryteLevel==20),Is.False);
+            var rune=bag.Brackets[1].Pools.SelectMany(p=>p.Entries).Single(e=>e.FixedGalduryteLevel==20);
+            Assert.That(rune.MinimumGalduryteRarity,Is.GreaterThanOrEqualTo(RarityTier.Rare));
             foreach(var unique in bag.BossUniqueDrop.EquipmentDefinitions.Cast<UniqueEquipmentDefinition>())
                 foreach(var effect in unique.Effects.Concat(unique.EffectsLevel20)) Assert.That(PassiveEffectDefinitionValidator.Validate(effect).IsValid,Is.True);
         }

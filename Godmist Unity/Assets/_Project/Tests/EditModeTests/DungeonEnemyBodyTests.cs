@@ -191,7 +191,12 @@ namespace Godmist.Tests.EditMode
             Assert.That(tiles.GetComponent<UnityEngine.Tilemaps.TilemapRenderer>().sortingOrder, Is.LessThan(renderer.sortingOrder - 1));
             for (var y = -1; y < 42; y++)
                 Assert.That(renderer.sortingOrder, Is.LessThan(mapView.GetActorDepthSortingOrder(y)));
-            foreach (var outline in view.GetComponentsInChildren<SpriteRenderer>().Where(r => r != renderer))
+            Assert.That(view.CanInteract(), Is.False);
+            typeof(DungeonEnemyBodyView).GetField("isPointerHovered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(view, true);
+            typeof(DungeonEnemyBodyView).GetMethod("RefreshHoverVisual", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(view, null);
+            var outlines = view.GetComponentsInChildren<SpriteRenderer>().Where(r => r != renderer && r.enabled).ToArray();
+            Assert.That(outlines, Is.Not.Empty, "Visible loot should highlight even when it cannot be reached.");
+            foreach (var outline in outlines)
                 Assert.That(outline.sortingOrder, Is.EqualTo(renderer.sortingOrder - 1));
             Assert.That(view.GetComponent<CircleCollider2D>().isTrigger, Is.True);
             Assert.That(body.Gold, Is.EqualTo(13));

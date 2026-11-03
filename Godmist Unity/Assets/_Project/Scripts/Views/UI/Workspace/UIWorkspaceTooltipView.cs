@@ -3774,7 +3774,9 @@ namespace Godmist.Views.UI.Workspace
                     out var impliedUtilityEffect)
                     && impliedUtilityEffect.EffectType == ConsumableRuntimeEffectType.ReturnToArungard)
                 {
-                    Append(result, "Wraca do Arungardu.");
+                    // This is the authored utility's description, not a
+                    // generated potion payload. It explains return/resume rules.
+                    Append(result, consumable.ConsumableDefinition.Description);
                 }
 
                 // Consumable effects are runtime payload, not definition data.

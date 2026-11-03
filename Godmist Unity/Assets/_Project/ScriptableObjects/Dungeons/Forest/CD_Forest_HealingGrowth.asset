@@ -30,9 +30,9 @@ MonoBehaviour:
   <RecruitmentQuestId>k__BackingField: 
   <ClassData>k__BackingField: {fileID: 11400000, guid: 5a083fbc40bc3fb438346336a20313dc, type: 2}
   <BaseStats>k__BackingField:
-    <MaxHealth>k__BackingField: 30
-    <MinAttack>k__BackingField: 20
-    <MaxAttack>k__BackingField: 30
+    <MaxHealth>k__BackingField: 24
+    <MinAttack>k__BackingField: 22
+    <MaxAttack>k__BackingField: 33
     <PhysicalDefense>k__BackingField: 10
     <MagicalDefense>k__BackingField: 10
     <PhysicalDefensePenetration>k__BackingField: 0

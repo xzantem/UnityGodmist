@@ -34,7 +34,7 @@ namespace Godmist.Views.Exploration
             || unitInteractions != null && (unitInteractions.ConsumedPrimaryClickThisFrame || unitInteractions.HasWorldUnitHover);
         public bool IsWorldInteractionClaimedThisFrame => claimedPrimaryFrame == Time.frameCount
             || unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame;
-        public void ClaimWorldPrimaryClick() => claimedPrimaryFrame = Time.frameCount;
+        public void ClaimWorldPrimaryClick() { claimedPrimaryFrame = Time.frameCount; CancelPointerMovementGesture(); }
         public bool TryGetPointerWorldPosition(out Vector2 position)
         {
             position = worldCamera != null ? (Vector2)worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition) : default;
@@ -119,7 +119,21 @@ namespace Godmist.Views.Exploration
             IsSeparated = true;
             if (gameSession == null || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null) CancelMovement();
         }
-        public void CancelMovement() { IsSkillApproachInProgress = false; meshRoutes.Clear(); pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; traversalPath.Clear(); followerRoutes.Clear(); cityLeaderRoute.Clear(); cityFollowerRoutes.Clear(); foreach (var view in viewsById.Values) view.PreferredTraversalDestination = null; }
+        public void CancelMovement() { CancelPointerMovementGesture(); ClearMovementRoute(); }
+        private void ClearMovementRoute(bool preserveFollowers = false)
+        {
+            IsSkillApproachInProgress = false;
+            var leader = GetActiveLeaderView();
+            if (preserveFollowers && leader != null) meshRoutes.Remove(leader);
+            else meshRoutes.Clear();
+            pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingBody = null;
+            pendingWorldObject = null; destroyTarget = null; movementDestination = null;
+            traversalPath.Clear(); cityLeaderRoute.Clear();
+            if (!preserveFollowers) { followerRoutes.Clear(); cityFollowerRoutes.Clear(); }
+            foreach (var view in viewsById.Values)
+                if (!preserveFollowers || view == leader) view.PreferredTraversalDestination = null;
+        }
+
         public void CloseInventoryForCombat() => inventoryEquipmentPanel?.Close();
         public void RefreshControlState() => RefreshLeaderVisuals();
 
@@ -188,7 +202,7 @@ namespace Godmist.Views.Exploration
             RefreshLeaderVisuals();
 
             var canvas = inventoryEquipmentPanel?.GetComponentInParent<Canvas>();
-            ContextualInputHintsView.Ensure(canvas)?.BindExploration(this, cameraController);
+            ContextualInputHintsView.Ensure(canvas);
         }
 
         private void Update()
@@ -238,37 +252,39 @@ namespace Godmist.Views.Exploration
             }
 
             if (claimedPrimaryFrame == Time.frameCount || unitInteractions != null && unitInteractions.ConsumedPrimaryClickThisFrame) return;
-            if (!(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
+            var mousePrimaryPressed = UnityEngine.InputSystem.Mouse.current?.leftButton.wasPressedThisFrame == true
+                && !Godmist.Views.UI.ControllerInput.Active;
+            if (!(mousePrimaryPressed || Godmist.Views.UI.ControllerInput.Confirm)
                 || worldCamera == null
                 || UIWorkspaceInputRouter.IsPointerOverUi())
             {
                 return;
             }
 
-            pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null;
             var point = (Vector2)worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition);
+            if (CanAcceptExplorationInput && DungeonEnemyBodyView.FindPointerBody(point, this) is { } body)
+            {
+                ClaimWorldPrimaryClick();
+                RequestBodyLoot(body);
+                return;
+            }
+            pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingBody = null; pendingWorldObject = null;
             foreach (var view in viewsById.Values)
                 if (view.CharacterId != gameSession.PlayerParty.ActiveLeaderId
                     && (view.TerrainView == null || view.TerrainView.IsTraversalVisible(view.DungeonPosition))
                     && Vector2.Distance(view.Position, point) < .4f && SelectMember(view.CharacterId)) return;
             destroyTarget = null;
-            TryMoveLeaderToPointerPosition();
+            TryMoveLeaderToWorldPosition(point);
+            if (mousePrimaryPressed) BeginPointerMovementGesture(point, Time.unscaledTime);
         }
 
-        private void TryMoveLeaderToPointerPosition()
+        private bool TryMoveLeaderToWorldPosition(Vector2 point)
         {
-            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(Godmist.Views.UI.ControllerInput.PointerPosition);
-            var terrainView = GetActiveLeaderView()?.TerrainView;
-            if (!IsNoclipEnabled && traversalFloor?.Map != null)
-            { TrySetTraversalDestination(pointerWorldPosition); return; }
-
-            if (DungeonEnemyBodyView.IsPointerOverBody(pointerWorldPosition))
-            {
-                return;
-            }
-
-            if (!IsNoclipEnabled) { TrySetCityDestination(pointerWorldPosition); return; }
-            movementDestination = new Vector2(pointerWorldPosition.x, pointerWorldPosition.y);
+            if (!IsNoclipEnabled && traversalFloor?.Map != null) return TrySetTraversalDestination(point);
+            if (DungeonEnemyBodyView.IsPointerOverBody(point)) return false;
+            if (!IsNoclipEnabled) return TrySetCityDestination(point);
+            movementDestination = point;
+            return true;
         }
 
         private void FixedUpdate()
@@ -304,7 +320,7 @@ namespace Godmist.Views.Exploration
                 || combatCoordinator?.IsPreparingOpening == true && !CanMoveWhileTargeting
                 || gameSession.GetCombatForCharacter(gameSession.PlayerParty.ActiveLeaderId) != null)
             {
-                destroyTarget = null; pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null;
+                destroyTarget = null; pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingBody = null; pendingWorldObject = null;
                 return;
             }
 
@@ -316,6 +332,7 @@ namespace Godmist.Views.Exploration
             if (TickReviveApproach()) return;
             if (leaderView.RuntimeCharacter != null && leaderView.RuntimeCharacter.LifeState != CharacterLifeState.Alive) { CancelMovement(); return; }
             if (TickChestApproach()) return;
+            if (TickBodyApproach()) return;
             if (TickWorldObjectApproach()) return;
             if (traversalFloor?.Map != null && !IsNoclipEnabled)
             {
@@ -483,7 +500,7 @@ namespace Godmist.Views.Exploration
             var directMovement = ExplorationKeyboardInput.ReadGameplayMovement(cameraController == null || cameraController.IsFollowingLeader);
             if (directMovement.sqrMagnitude > 0f)
             {
-                pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
+                pendingNpc = null; pendingEntrance = null; pendingReviveTarget = null; pendingChest = null; pendingBody = null; pendingWorldObject = null; destroyTarget = null; movementDestination = null; cityLeaderRoute.Clear();
                 return directMovement;
             }
 

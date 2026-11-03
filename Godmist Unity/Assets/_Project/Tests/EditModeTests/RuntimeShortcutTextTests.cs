@@ -98,7 +98,22 @@ namespace Godmist.Tests.EditMode
             var label = (TextMeshProUGUI)typeof(ContextualInputHintsView).GetField("text", PrivateInstance).GetValue(view);
             Assert.That(label.font, Is.SameAs(source.font));
             Assert.That(label.fontSharedMaterial, Is.SameAs(missingMaterial ? source.font.material : authoredMaterial));
-            AssertRenderable(label, "Tab");
+            Assert.That(label.text, Is.EqualTo("I"));
+            var row = label.transform.parent.parent;
+            Assert.That(row.Find("J/Key").GetComponent<TextMeshProUGUI>().text, Is.EqualTo("J"));
+            foreach (var key in new[] { "I", "J" })
+            {
+                var icon = row.Find(key + "/Icon").GetComponent<UnityEngine.UI.RawImage>();
+                Assert.That(icon.texture.width, Is.EqualTo(32));
+                Assert.That(icon.texture.height, Is.EqualTo(32));
+                foreach (var frameName in new[] { "Key Frame", "Icon Frame" })
+                {
+                    var frame = row.Find(key + "/" + frameName).GetComponent<UnityEngine.UI.Image>();
+                    Assert.That(frame.sprite.texture, Is.SameAs(Resources.Load<Texture2D>("Godmist/hud-shortcut-frame")));
+                }
+            }
+            row.gameObject.SetActive(true);
+            AssertRenderable(label, "I");
         }
 
         private TextMeshProUGUI CreateInactiveStyle(Transform parent, bool missingMaterial)

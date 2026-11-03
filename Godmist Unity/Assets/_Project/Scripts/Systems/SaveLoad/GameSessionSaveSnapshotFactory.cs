@@ -25,10 +25,10 @@ namespace Godmist.Systems.SaveLoad
                 throw new ArgumentNullException(nameof(session));
             }
 
-            if ((session.HasCombat || session.IsDefeated))
+            if (!CombatPersistence.CanSave(session, out var reason))
             {
                 throw new InvalidOperationException(
-                    "Nie mozna utworzyc zapisu podczas aktywnej walki.");
+                    reason);
             }
 
             var saveData = GameSaveData.CreateNew(displayName, session.CampaignId);
@@ -48,7 +48,7 @@ namespace Godmist.Systems.SaveLoad
         {
             if (saveData == null
                 || session == null
-                || (session.HasCombat || session.IsDefeated)
+                || !CombatPersistence.CanSave(session, out _)
                 || string.IsNullOrWhiteSpace(saveData.SaveId))
             {
                 return false;
@@ -127,11 +127,18 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
+            saveData.Combats = CombatPersistence.Capture(session, actor =>
+            {
+                if (!TryCaptureCharacter(actor, saveData, capturedItemIds, out var data))
+                    throw new InvalidOperationException("Nie można zapisać uczestnika walki: " + actor?.CharacterId);
+                return data;
+            });
             return true;
         }
 
         private static void ClearRuntimePayload(GameSaveData saveData)
         {
+            saveData.Combats = null;
             saveData.Gold = 0;
             saveData.TrackedQuestId = string.Empty;
             saveData.HasExplorationPosition = false;
@@ -661,7 +668,7 @@ namespace Godmist.Systems.SaveLoad
             return true;
         }
 
-        private static ResourcePoolSaveData CopyResourcePool(ResourcePool resourcePool)
+        internal static ResourcePoolSaveData CopyResourcePool(ResourcePool resourcePool)
         {
             return new ResourcePoolSaveData
             {
@@ -675,7 +682,7 @@ namespace Godmist.Systems.SaveLoad
             };
         }
 
-        private static ResistanceSetSaveData CopyResistances(
+        internal static ResistanceSetSaveData CopyResistances(
             ResistanceSet resistances)
         {
             return new ResistanceSetSaveData

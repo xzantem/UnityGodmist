@@ -29,6 +29,14 @@ namespace Godmist.Views.UI.Workspace
   public IReadOnlyList<PartyViewColumnView> Columns=>columns;
   public string SelectedCharacterId=>selectedId;
   public UIWorkspaceWindow Window=>window;
+  private void Awake()
+  {
+   if(goldText==null)return;
+   var metric=goldText.transform.parent;
+   if(metric.TryGetComponent<Image>(out var background))background.color=Color.clear;
+   var frame=metric.Find("GoldFrame");
+   if(frame!=null)frame.gameObject.SetActive(false);
+  }
   public void Open(GameSession value,Action<string> individual,Func<string,string,string> campAction)
   {
    if(session!=value){Unsubscribe();Clear();modes.Clear();session=value;if(session!=null)session.PartyRosterChanged+=OnRosterChanged;}

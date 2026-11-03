@@ -41,6 +41,26 @@ public static partial class GodmistMainMenuSetup
         Debug.Log("GODMIST_PAUSE_MENU_CONFIGURED");
     }
 
+    // Shared by the full menu authoring and the focused update of existing scenes.
+    public static void AuthorPauseReason(PauseMenuView pause)
+    {
+        palette ??= AssetDatabase.LoadAssetAtPath<UIWorkspaceStylePalette>(
+            "Assets/_Project/ScriptableObjects/UI/Workspace/UIWorkspaceStylePalette.asset");
+        var panel = Reference<GameObject>(pause, "menuPanelRoot").transform;
+        if (panel.GetComponents<LayoutGroup>().Any(group => group.enabled))
+            throw new InvalidOperationException("Pause panel uses an unexpected layout owner.");
+        var message = Reference<TextMeshProUGUI>(pause, "messageText");
+        if (message == null) throw new InvalidOperationException("Missing pause reason label.");
+        message.transform.SetParent(panel, false);
+        Top(message.transform, 440, 24, 28, 28);
+        message.font = palette.Font;
+        message.fontSize = 18;
+        message.alignment = TextAlignmentOptions.Center;
+        message.textWrappingMode = TextWrappingModes.NoWrap;
+        message.overflowMode = TextOverflowModes.Ellipsis;
+        message.raycastTarget = false;
+    }
+
     private static void AuthorPause(PauseMenuView pause, MainMenuSettingsView source, SaveLoadPanelView savesSource)
     {
         var overlay = Reference<GameObject>(pause, "overlayRoot").transform;
@@ -90,6 +110,7 @@ public static partial class GodmistMainMenuSetup
         }
         var message = Reference<TextMeshProUGUI>(pause, "messageText");
         message.text = string.Empty; message.gameObject.SetActive(false);
+        AuthorPauseReason(pause);
         foreach (var oldHeading in panel.GetComponentsInChildren<TMP_Text>(true))
             if (oldHeading != heading && oldHeading != message && !oldHeading.transform.IsChildOf(title)
                 && !fields.Any(field => oldHeading.transform.IsChildOf(Reference<Button>(pause, field).transform)))

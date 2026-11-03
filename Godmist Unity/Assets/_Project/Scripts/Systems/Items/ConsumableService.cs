@@ -32,7 +32,7 @@ namespace Godmist.Systems.Items
             CharacterInstance character,
             ConsumableItemInstance item,
             out ExplorationConsumableEffect effect,
-            System.Func<bool> returnTransition,
+            System.Func<System.Action, bool> returnTransition,
             bool passiveTicksActive = true)
         {
             effect = ExplorationConsumableEffect.None;
@@ -113,10 +113,9 @@ namespace Godmist.Systems.Items
                     };
             }
 
-            // Returning to Arungard is a two-phase use: the scene transition must
-            // be accepted before the one-use scroll is consumed. Direct service
-            // callers can inspect the effect and confirm it themselves; the UI
-            // supplies the transition callback for the atomic flow.
+            // The transition invokes the commit only after successful loading.
+            // Failed or rejected loads retain the scroll; repeated completion
+            // callbacks cannot consume a second charge.
             if (effect == ExplorationConsumableEffect.ReturnToArungard)
             {
                 if (returnTransition == null)
@@ -124,11 +123,19 @@ namespace Godmist.Systems.Items
                     return true;
                 }
 
-                if (!returnTransition())
+                var committed = false;
+                if (!returnTransition(() =>
+                    {
+                        if (committed) return;
+                        committed = true;
+                        if (character.Inventory.Items.Contains(item) && item.HasCharges)
+                            ConsumeCharge(character, item);
+                    }))
                 {
                     effect = ExplorationConsumableEffect.None;
                     return false;
                 }
+                return true;
             }
 
             return ConsumeCharge(character, item);

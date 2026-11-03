@@ -190,6 +190,7 @@ namespace Godmist.Tests.EditMode
                 }
                 strip.Apply();
                 var output=System.IO.Path.GetFullPath(System.IO.Path.Combine(Application.dataPath,"../../LocalHandoffs/resource-status-tooltip-20261021/radial-tick.png"));
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(output));
                 System.IO.File.WriteAllBytes(output,strip.EncodeToPNG());
             }
             finally

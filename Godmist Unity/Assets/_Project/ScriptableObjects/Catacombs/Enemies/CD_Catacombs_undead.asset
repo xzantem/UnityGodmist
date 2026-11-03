@@ -31,9 +31,9 @@ MonoBehaviour:
   <RecruitmentQuestId>k__BackingField: 
   <ClassData>k__BackingField: {fileID: 11400000, guid: 4f9660cac6f7c7e43b17f9958298f7b4, type: 2}
   <BaseStats>k__BackingField:
-    <MaxHealth>k__BackingField: 308
-    <MinAttack>k__BackingField: 22.95
-    <MaxAttack>k__BackingField: 35.7
+    <MaxHealth>k__BackingField: 246
+    <MinAttack>k__BackingField: 25.245
+    <MaxAttack>k__BackingField: 39.27
     <PhysicalDefense>k__BackingField: 12
     <MagicalDefense>k__BackingField: 8
     <PhysicalDefensePenetration>k__BackingField: 0
@@ -54,37 +54,37 @@ MonoBehaviour:
     <SuppressionResistance>k__BackingField: 0.4
     <MoveResistance>k__BackingField: 0
   <GrowthData>k__BackingField:
-    <MaxHealth>k__BackingField: 33
-    <MinAttack>k__BackingField: 1.6575
-    <MaxAttack>k__BackingField: 2.652
-    <LateMaxHealth>k__BackingField: 34.507538
-    <LateMinAttack>k__BackingField: 2.5375063
-    <LateMaxAttack>k__BackingField: 4.0591564
+    <MaxHealth>k__BackingField: 26.4
+    <MinAttack>k__BackingField: 1.82325
+    <MaxAttack>k__BackingField: 2.9172
+    <LateMaxHealth>k__BackingField: 27.606031
+    <LateMinAttack>k__BackingField: 2.7912571
+    <LateMaxAttack>k__BackingField: 4.465072
     <EarlyMaxHealth>k__BackingField: 0
-    <EarlyMinAttack>k__BackingField: -0.00000004053116
-    <EarlyMaxAttack>k__BackingField: 0.00000009727478
-    <LateMaxHealthOffset>k__BackingField: -20
+    <EarlyMinAttack>k__BackingField: -0.000000044584276
+    <EarlyMaxAttack>k__BackingField: 0.00000010700226
+    <LateMaxHealthOffset>k__BackingField: -16
     <HealthCurve>k__BackingField:
     - <Level>k__BackingField: 1
-      <MaxHealth>k__BackingField: 299
+      <MaxHealth>k__BackingField: 239
     - <Level>k__BackingField: 10
-      <MaxHealth>k__BackingField: 668
+      <MaxHealth>k__BackingField: 534
     - <Level>k__BackingField: 15
-      <MaxHealth>k__BackingField: 1177
+      <MaxHealth>k__BackingField: 942
     - <Level>k__BackingField: 20
-      <MaxHealth>k__BackingField: 1840
+      <MaxHealth>k__BackingField: 1472
     - <Level>k__BackingField: 25
-      <MaxHealth>k__BackingField: 2877
+      <MaxHealth>k__BackingField: 2302
     - <Level>k__BackingField: 30
-      <MaxHealth>k__BackingField: 4078
+      <MaxHealth>k__BackingField: 3262
     - <Level>k__BackingField: 40
-      <MaxHealth>k__BackingField: 8149
+      <MaxHealth>k__BackingField: 6519
     - <Level>k__BackingField: 48
-      <MaxHealth>k__BackingField: 13035
+      <MaxHealth>k__BackingField: 10428
     - <Level>k__BackingField: 50
-      <MaxHealth>k__BackingField: 14303
-    <LateMinAttackOffset>k__BackingField: -0.85
-    <LateMaxAttackOffset>k__BackingField: -0.85
+      <MaxHealth>k__BackingField: 11442
+    <LateMinAttackOffset>k__BackingField: -0.93500006
+    <LateMaxAttackOffset>k__BackingField: -0.93500006
     <PhysicalDefense>k__BackingField: 0
     <MagicalDefense>k__BackingField: 0
     <DefenseCurve>k__BackingField:

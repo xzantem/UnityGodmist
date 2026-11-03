@@ -43,11 +43,7 @@ namespace Godmist.Views.UI
                 sandboxBootstrap.CameraFramer.ActionSafeViewport = ActionSafeViewport;
 
             var canvas = GetComponentInParent<Canvas>();
-            ContextualInputHintsView.Ensure(canvas)?.BindCombat(
-                sandboxBootstrap,
-                targeting,
-                movement,
-                sandboxBootstrap?.CameraFramer);
+            ContextualInputHintsView.Ensure(canvas);
         }
 
         private void PositionSkillCastBanner()

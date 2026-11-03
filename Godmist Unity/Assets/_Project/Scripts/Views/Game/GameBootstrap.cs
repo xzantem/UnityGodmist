@@ -527,10 +527,24 @@ namespace Godmist.Views.Game
         public bool TryAbandonDungeon()
         {
             if(Session?.ActiveDungeon==null || Session.HasCombat || SceneManager.GetActiveScene().name!=explorationSceneName) return false;
-            new DungeonCampService().RemoveSupplies(Session);
-            if(!Session.TryClearActiveDungeon()) return false;
-            Session.DungeonOffers.CompleteExpedition();
+            if(!DungeonAbandonmentSystem.TryAbandon(Session, Session.ActiveDungeon)) return false;
             RequestAutosave("Porzucenie wyprawy");return true;
+        }
+
+        public bool TryRetreatFromDungeon()
+        {
+            var dungeon = Session?.ActiveDungeon;
+            if (dungeon == null || Session.HasCombat || dungeon.CurrentFloorIndex != 0
+                || !IsDungeonScene || sceneLoader == null || sceneLoader.IsLoading) return false;
+
+            // Commit only after the city has loaded. A rejected or failed scene
+            // transition must preserve the live expedition and its supplies.
+            return sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration,
+                onLoaded: () =>
+                {
+                    if (DungeonAbandonmentSystem.TryAbandon(Session, dungeon))
+                        RequestAutosave("Wycofanie z wyprawy");
+                });
         }
 
         public bool TryEnterDungeonOffer(int index, DungeonDefinition configuredDefinition = null)
@@ -651,11 +665,11 @@ namespace Godmist.Views.Game
             return false;
         }
 
-    public bool TryReturnToArungardFromDungeon()
+        public bool TryReturnToArungardFromDungeon(Action onReturned = null)
         {
-            if (Session?.ActiveDungeon == null || Session.HasCombat) return false;
-
-            var isAssetAuditRoom = Session.ActiveDungeon.IsAssetAuditRoom;
+            var dungeon = Session?.ActiveDungeon;
+            if (dungeon == null || Session.HasCombat || !IsDungeonScene
+                || sceneLoader == null || sceneLoader.IsLoading) return false;
 
             // Scene loading is asynchronous. Capture the live leader position
             // before the dungeon scene is destroyed so resuming the same
@@ -663,24 +677,19 @@ namespace Godmist.Views.Game
             FindAnyObjectByType<Godmist.Views.Exploration.ExplorationPartyController>()
                 ?.PersistCurrentPosition();
 
-            if (!sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration)) return false;
-
-            if (isAssetAuditRoom)
+            return sceneLoader.TryLoadScene(explorationSceneName, GameModeState.Exploration, onLoaded: () =>
             {
-                Session.TryClearActiveDungeon();
-                return true;
-            }
-
-            new DungeonCampService().RemoveSupplies(Session);
-            new TraderStockService().TryRefreshAfterReturn(Session, Session.ActiveDungeon,
-                contentCatalog);
-            NpcEconomyService?.TryApplyDungeonProgress(
-                Session,
-                Session.ActiveDungeon,
-                out _,
-                out _);
-            RequestAutosave("Return scroll");
-            return true;
+                if (Session?.ActiveDungeon != dungeon || Session.HasCombat) return;
+                if (dungeon.IsAssetAuditRoom) Session.TryClearActiveDungeon();
+                else
+                {
+                    new DungeonCampService().RemoveSupplies(Session);
+                    new TraderStockService().TryRefreshAfterReturn(Session, dungeon, contentCatalog);
+                    NpcEconomyService?.TryApplyDungeonProgress(Session, dungeon, out _, out _);
+                }
+                onReturned?.Invoke();
+                RequestAutosave("Zwój powrotu");
+            });
         }
 
         private static bool AreFinalBossEncountersCleared(
@@ -769,7 +778,7 @@ namespace Godmist.Views.Game
 
             if (sceneLoader.TryLoadScene(
                     destinationSceneName,
-                    GameModeState.Exploration))
+                    restoredSession.ActiveCombat != null ? GameModeState.Combat : GameModeState.Exploration))
             {
                 message = "Wczytano zapis gry.";
                 return true;

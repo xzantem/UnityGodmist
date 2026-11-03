@@ -273,7 +273,7 @@ public static class VS12ConsumablesSetup
         var returnScroll = AssetDatabase.LoadAssetAtPath<ConsumableItemDefinition>(
             Root + "Items/Consumables/CID_ReturnScroll.asset");
         if (returnScroll != null)
-            Describe(returnScroll, "Jednorazowy zwój przenoszący drużynę z wyprawy do Arungardu.");
+            Godmist.Editor.ReturnScrollSetup.ConfigureScroll(returnScroll);
 
         var bandageVariants = fabrics.Select(fabric =>
             (fabric.DisplayName, new[] { (alcohol, 1), (fabric, 2) })).ToList();

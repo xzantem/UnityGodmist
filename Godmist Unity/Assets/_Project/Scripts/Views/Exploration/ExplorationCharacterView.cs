@@ -428,6 +428,17 @@ namespace Godmist.Views.Exploration
             if (body != null) body.simulated = false;
             if (movementCollider != null) movementCollider.enabled = false;
         }
+        public void RestoreCombatPresentation()
+        {
+            transformation.Stop();
+            combatPose?.Clear();
+            ConfigureVisual(RuntimeCharacter.Definition);
+            hasDisplayedLifeState = false;
+            SyncLifeStatePose();
+            if (CombatUnit.ScoutState.Facing != Vector2Int.zero)
+                FaceTowards(Position + (Vector2)CombatUnit.ScoutState.Facing);
+        }
+
         public void ReleaseCombat()
         {
             EndWallCrossing();

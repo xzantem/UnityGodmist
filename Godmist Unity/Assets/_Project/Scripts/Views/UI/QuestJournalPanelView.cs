@@ -70,6 +70,7 @@ namespace Godmist.Views.UI
 
         private void Awake()
         {
+            ContextualInputHintsView.Ensure(GetComponentInParent<Canvas>())?.BindJournal(this);
             if (trackedQuestHudPrefab != null && panelRoot != null)
             {
                 trackedQuestHud = Instantiate(trackedQuestHudPrefab, panelRoot.transform.parent);
@@ -86,13 +87,14 @@ namespace Godmist.Views.UI
 
         private void Update()
         {
-            if (DevConsoleView.IsOpen) return;
+            if (DevConsoleView.IsOpen || UIWorkspaceInputRouter.HasFocusedTextInput()) return;
             
             var session = GameBootstrap.Instance?.Session;
 
             if (session == null) return;
-            if (!IsOpen && session.CurrentMode != GameModeState.Exploration) return;
-            if (!Input.GetKeyDown(KeyCode.J)) return;
+            if (!IsOpen && !CanOpenInMode(session.CurrentMode)) return;
+            if (UnityEngine.InputSystem.Keyboard.current?.jKey.wasPressedThisFrame != true
+                && !Input.GetKeyDown(KeyCode.J)) return;
 
             Toggle();
         }
@@ -126,13 +128,14 @@ namespace Godmist.Views.UI
 
             if (gameSession == null || questService == null) return;
 
-            if (gameSession.CurrentMode != GameModeState.Exploration)
+            if (!CanOpenInMode(gameSession.CurrentMode))
             {
                 return;
             }
 
             modeBeforeOpen = gameSession.CurrentMode;
-            gameSession.TrySetMode(GameModeState.Menu);
+            if (modeBeforeOpen == GameModeState.Exploration)
+                gameSession.TrySetMode(GameModeState.Menu);
 
             BindServices();
 
@@ -146,6 +149,9 @@ namespace Godmist.Views.UI
             EnsureSelectedQuest();
             RefreshAll();
         }
+
+        internal static bool CanOpenInMode(GameModeState mode)
+            => mode is GameModeState.Exploration or GameModeState.Combat;
 
         public void Close()
         {

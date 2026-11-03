@@ -20,7 +20,7 @@ namespace Godmist.Tests.EditMode
             public Canvas Canvas; public Camera Camera; public RenderMode Mode; public float Plane, Scale;
             public CanvasScaler Scaler; public bool ScalerEnabled;
         }
-        public static IEnumerator Capture(string path,bool preserveWindowSize=false)
+        public static IEnumerator Capture(string path,bool preserveWindowSize=false,Action beforeRender=null)
         {
             var camera=Camera.main;
             Assert.That(camera,Is.Not.Null,"The production scene must provide its actual camera.");
@@ -84,6 +84,7 @@ namespace Godmist.Tests.EditMode
                 surfaceRect.offsetMin=surfaceRect.offsetMax=Vector2.zero;
                 var surfaceImage=surface.GetComponent<RawImage>();surfaceImage.texture=worldTarget;surfaceImage.raycastTarget=false;
                 Canvas.ForceUpdateCanvases();
+                beforeRender?.Invoke();
                 overlayCamera.Render();RenderTexture.active=target;
                 pixels.ReadPixels(new Rect(0,0,width,height),0,0);pixels.Apply();
                 Assert.That(pixels.GetPixels32().Where((_,i)=>i%127==0).Select(c=>(c.r,c.g,c.b)).Distinct().Count(),Is.GreaterThan(32),"A native game capture must contain scene/UI detail, not an empty framebuffer.");

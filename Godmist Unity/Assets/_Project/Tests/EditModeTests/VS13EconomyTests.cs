@@ -86,9 +86,9 @@ namespace Godmist.Tests.EditMode
                         metal.Material.DisplayName);
                 foreach (var gem in jewelry.Gems)
                 {
-                    // Obsidian is the Catacombs boss gem, not regular stock.
+                    // Obsidian and jadeite are biome boss gems, not regular stock.
                     var name = gem.CraftingMaterial.DisplayName;
-                    Assert.That(name == "Obsydian" || stock.Contains(name), Is.True, name);
+                    Assert.That(name is "Obsydian" or "Jadeit" || stock.Contains(name), Is.True, name);
                 }
             }
             foreach (var powder in role.GaldurytePowders)
@@ -98,8 +98,8 @@ namespace Godmist.Tests.EditMode
             Assert.That(stock.Contains("Wapienny kamień galdurytu"), Is.True);
         }
 
-        [TestCase(1, 8, 5)]
-        [TestCase(11, 8, 7)]
+        [TestCase(1, 8, 6)]
+        [TestCase(11, 8, 8)]
         public void AuthoredOffersRespectLevelAndReplaceLegacyInitialOffer(
             int level, int alchemistSlots, int enchanterSlots)
         {

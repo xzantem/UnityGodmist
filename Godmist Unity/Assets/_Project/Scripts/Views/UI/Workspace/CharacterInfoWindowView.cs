@@ -422,9 +422,9 @@ namespace Godmist.Views.UI.Workspace
                     character,
                     consumable,
                     out _,
-                    returnTransition: () =>
+                    returnTransition: commit =>
                         Godmist.Views.Game.GameBootstrap.Instance
-                            ?.TryReturnToArungardFromDungeon() ?? false,
+                            ?.TryReturnToArungardFromDungeon(commit) ?? false,
                     passiveTicksActive: Godmist.Views.Game.GameBootstrap.Instance?.IsDungeonScene == true)) return;
             Refresh();
         }

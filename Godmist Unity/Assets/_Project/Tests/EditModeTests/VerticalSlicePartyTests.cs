@@ -67,9 +67,9 @@ namespace Godmist.Tests.EditMode
         }
         [TestCase(0,.5f,.7f,.4f,.5f,.35f)]
         [TestCase(1,.7f,.5f,.4f,.6f,.6f)]
-        [TestCase(2,.25f,.25f,.8f,.7f,.3f)]
-        [TestCase(3,.3f,.4f,.5f,.25f,.75f)]
-        public void ResistancesFollowClassSheet(int index,float bleed,float poison,float fire,float weakening,float control)
+        [TestCase(2,.4f,.4f,.6f,.7f,.3f)]
+        [TestCase(3,.4f,.4f,.5f,.25f,.75f)]
+        public void ResistancesFollowApprovedPartyProfiles(int index,float bleed,float poison,float fire,float weakening,float control)
         {
             var r=Create().CharactersById[Profile.Characters[index].Character.Id].Resistances;
             Assert.That(r.BleedResistance,Is.EqualTo(bleed));Assert.That(r.PoisonResistance,Is.EqualTo(poison));

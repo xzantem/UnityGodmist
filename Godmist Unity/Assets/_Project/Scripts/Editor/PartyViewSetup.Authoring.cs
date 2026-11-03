@@ -181,7 +181,7 @@ namespace Godmist.Editor
    var gold=header.Find("GoldMetric") as RectTransform??Node(header,"GoldMetric");
    gold.anchorMin=gold.anchorMax=new Vector2(1,.5f);gold.pivot=new Vector2(1,.5f);gold.sizeDelta=new Vector2(160,34);gold.anchoredPosition=new Vector2(-64,0);
    Metric(gold,"Gold","gold","Złoto drużyny",value);
-   // A centered window title and a separate treasury plate give the header a clear hierarchy.
+   // Keep the amount and icon directly on the window header.
    var title=header.Find("Title").GetComponent<TMP_Text>();title.fontSize=28;title.alignment=TextAlignmentOptions.Center;title.color=new Color(.93f,.87f,.70f);title.margin=Vector4.zero;Stretch(title.rectTransform,250,0,250,0);
    var close=(RectTransform)header.Find("CloseButton");close.anchorMin=close.anchorMax=new Vector2(1,.5f);close.pivot=new Vector2(1,.5f);close.sizeDelta=new Vector2(28,28);close.anchoredPosition=new Vector2(-12,0);
    gold.anchoredPosition=new Vector2(-62,0);
@@ -189,9 +189,8 @@ namespace Godmist.Editor
    var goldSize=gold.GetComponent<ContentSizeFitter>()??gold.gameObject.AddComponent<ContentSizeFitter>();goldSize.horizontalFit=ContentSizeFitter.FitMode.PreferredSize;goldSize.verticalFit=ContentSizeFitter.FitMode.Unconstrained;
    var goldIcon=gold.Find("GoldIcon");var iconLayout=goldIcon.GetComponent<LayoutElement>()??goldIcon.gameObject.AddComponent<LayoutElement>();iconLayout.minWidth=iconLayout.preferredWidth=28;iconLayout.minHeight=iconLayout.preferredHeight=28;
    value.fontSize=20;value.color=new Color(.96f,.82f,.43f);value.alignment=TextAlignmentOptions.MidlineRight;value.margin=Vector4.zero;
-   var plate=gold.GetComponent<Image>();plate.sprite=palette.GetArtwork("surface_solid");plate.type=Image.Type.Sliced;plate.color=Color.white;
-   var goldFrame=gold.Find("GoldFrame")?.GetComponent<Image>()??Art(gold,"GoldFrame","tooltip_frame",true);
-   var ignore=goldFrame.GetComponent<LayoutElement>()??goldFrame.gameObject.AddComponent<LayoutElement>();ignore.ignoreLayout=true;Stretch(goldFrame.rectTransform);goldFrame.transform.SetAsFirstSibling();
+   var oldGoldFrame=gold.Find("GoldFrame");
+   if(oldGoldFrame!=null)UnityEngine.Object.DestroyImmediate(oldGoldFrame.gameObject);
 
 
    var head=(RectTransform)column.transform.Find("CharacterHeader");Top(head,8,194,10,10);

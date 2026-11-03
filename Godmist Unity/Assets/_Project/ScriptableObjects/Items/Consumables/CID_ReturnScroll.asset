@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Data::Godmist.Data.Items.ConsumableItemDefinition
   <Id>k__BackingField: item.consumable.return_scroll
   <DisplayName>k__BackingField: "Zw\xF3j powrotu"
-  <Description>k__BackingField: "Jednorazowy zw\xF3j przenosz\u0105cy dru\u017Cyn\u0119
-    z wyprawy do Arungardu."
+  <Description>k__BackingField: "Wraca z dru\u017Cyn\u0105 do Arungardu poza walk\u0105.
+    Zachowuje wypraw\u0119 do wznowienia."
   <Icon>k__BackingField: {fileID: 21300000, guid: 8c1fff2acf858324b9311719cbbd966e, type: 3}
   <ItemType>k__BackingField: 10
   <MaterialDiscipline>k__BackingField: 0
   <BaseRarity>k__BackingField: 5
-  <BaseValue>k__BackingField: 0
+  <BaseValue>k__BackingField: 200
   <Weight>k__BackingField: 0
-  <IsStackable>k__BackingField: 0
+  <IsStackable>k__BackingField: 1
   <UseType>k__BackingField: 2
   <MaxCharges>k__BackingField: 1

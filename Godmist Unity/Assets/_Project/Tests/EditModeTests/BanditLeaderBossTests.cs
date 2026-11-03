@@ -225,7 +225,7 @@ namespace Godmist.Tests.EditMode
             var encounter=Asset<EncounterDefinition>(VS16CatacombsBossSetup.BanditEncounterPath);Assert.That(encounter.Enemies.Count,Is.EqualTo(4));Assert.That(encounter.BossEnemyIndex,Is.Zero);
             Assert.That(encounter.Enemies.Skip(1).Count(e=>e.CharacterDefinition.Id=="enemy.forest.bandit_thug"),Is.EqualTo(2));
             Assert.That(encounter.Enemies.Last().CharacterDefinition.Id,Is.EqualTo("enemy.forest.bandit_shooter"));
-            Assert.That(Definition.BaseStats.MaxHealth,Is.EqualTo(280));Assert.That(Definition.GrowthData.MaxHealth,Is.EqualTo(33f));Assert.That(Definition.LootTable,Is.Null); // PT-06.
+            Assert.That(Definition.BaseStats.MaxHealth,Is.EqualTo(224));Assert.That(Definition.GrowthData.MaxHealth,Is.EqualTo(26.4f).Within(.0001f));Assert.That(Definition.LootTable,Is.Null); // PT-06.
             var dungeon=Asset<DungeonDefinition>(VS16CatacombsBossSetup.BanditDungeonPath);var ent=Asset<DungeonDefinition>(ForestExpeditionsSetup.BossPath);
             Assert.That(dungeon.BossEncounterDefinition,Is.SameAs(encounter));Assert.That(dungeon.FixedOfferLevels,Is.EqualTo(new[]{10,20}));Assert.That(dungeon.LootTableCatalog,Is.Not.SameAs(ent.LootTableCatalog));
             var bag=Asset<LootBagItemDefinition>(VS16CatacombsBossSetup.BanditBagPath);Assert.That(bag.BossUniqueDrop.EquipmentDefinitions.Count,Is.EqualTo(4));

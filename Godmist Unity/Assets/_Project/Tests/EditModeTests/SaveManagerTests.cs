@@ -44,7 +44,7 @@ namespace Godmist.Tests.EditMode
         {
             var manager=new SaveManager(temporaryDirectoryPath);
             var directory=manager.GetCampaignDirectoryPath(CampaignId);Directory.CreateDirectory(directory);
-            var data=GameSaveData.CreateNew("Test",CampaignId);data.Gold=456;
+            var data=GameSaveData.CreateNew("Test",CampaignId);data.SaveVersion=1;data.Gold=456;
             data.ActiveDungeon=new DungeonSaveData{DungeonId="dungeon.test",DungeonLevel=9,CurrentFloorIndex=2};
             data.Party.ActiveMemberIds.Add("hero");data.Characters.Add(new CharacterSaveData{CharacterId="hero",Level=8});
             var path=Path.Combine(directory,"manual_"+data.SaveId+".json");File.WriteAllText(path,new GameSaveJsonSerializer().Serialize(data));

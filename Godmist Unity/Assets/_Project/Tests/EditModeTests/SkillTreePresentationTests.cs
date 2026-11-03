@@ -44,6 +44,32 @@ namespace Godmist.Tests.EditMode
         }
         static SkillTreeNodeView Card(SkillTreeProgressionPanelView view, string id) => view.GetComponentsInChildren<SkillTreeNodeView>().Single(card => card.NodeId == id);
 
+        [TestCase(Prefab)]
+        [TestCase("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_PartyView.prefab")]
+        public void InvestmentReasonHasItsOwnSpaceBetweenDescriptionAndButton(string path)
+        {
+            var root = Workspace();
+            try
+            {
+                var window = Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(path), root.transform);
+                var views = window.GetComponentsInChildren<SkillTreeProgressionPanelView>(true);
+                Assert.That(views, Is.Not.Empty);
+                foreach (var view in views)
+                {
+                    Call(view, "Awake");
+                    var label = (TMP_Text)Field(view, "investmentBlockText");
+                    var reason = label.rectTransform;
+                    var button = (RectTransform)((Button)Field(view, "investButton")).transform;
+                    var description = (RectTransform)((ScrollRect)Field(view, "detailsScroll")).transform;
+                    Assert.That(reason.offsetMin.y, Is.GreaterThan(button.offsetMax.y));
+                    Assert.That(reason.offsetMax.y, Is.LessThan(description.offsetMin.y));
+                    var size = label.GetPreferredValues("Brak dostępnych punktów umiejętności.", reason.rect.width, 0);
+                    Assert.That(size.y, Is.LessThanOrEqualTo(reason.rect.height));
+                }
+            }
+            finally { Object.DestroyImmediate(root); }
+        }
+
         [UnityTest]
         public IEnumerator NodeSelectionDoesNotSpendAndInvestmentPreservesSelectionAndSafeFocus()
         {

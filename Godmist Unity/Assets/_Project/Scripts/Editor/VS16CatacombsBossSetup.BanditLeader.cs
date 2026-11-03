@@ -84,9 +84,9 @@ namespace Godmist.Editor
                 Field(d,"DisplayName","Przywódca Bandytów");Field(d,"LootTable",null);Field(d,"SecondPhaseDefinition",null);
                 Field(d,"AiRole",definition==boss?CombatAiRole.Support:CombatAiRole.Dps);
                 var b=d.FindProperty(F("BaseStats"));var g=d.FindProperty(F("GrowthData"));
-                foreach(var value in new[]{("MaxHealth",500f,33f),("Dodge",25f,.1875f),("PhysicalDefense",15f,3f),("MagicalDefense",12f,2.4f),("CritChance",.12f,.0003f)})
+                foreach(var value in new[]{("Dodge",25f,.1875f),("PhysicalDefense",15f,3f),("MagicalDefense",12f,2.4f),("CritChance",.12f,.0003f)})
                 {
-                    if(value.Item1 == "MaxHealth")Sub(b,value.Item1,Mathf.RoundToInt(value.Item2));else Sub(b,value.Item1,value.Item2);
+                    Sub(b,value.Item1,value.Item2);
                     Sub(g,value.Item1,value.Item3);
                 }
                 Sub(b,"CritDamage",2f);Sub(b,"Speed",80f);Sub(b,"MaxResource",100);Sub(b,"ResourceRegeneration",15);

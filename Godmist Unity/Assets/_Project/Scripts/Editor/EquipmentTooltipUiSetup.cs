@@ -10,6 +10,27 @@ public static class EquipmentTooltipUiSetup
     public const string SpritePath = "Assets/_Project/UI/ResourceCurrencySprites.asset";
     public const string TooltipPath = "Assets/_Project/Prefabs/UI/Workspace/PF_UIW_Tooltip.prefab";
     public const string CharacterPath = "Assets/_Project/Prefabs/UI/Workspace/PF_UIW_CharacterInfoWindow Variant.prefab";
+    public const string CombatHudPath = "Assets/_Project/Prefabs/UI/Workspace/PF_UIW_CombatHud.prefab";
+
+    public static void ConfigureCombatHudCurrency()
+    {
+        var sprites = AssetDatabase.LoadAssetAtPath<TMP_SpriteAsset>(SpritePath);
+        if (sprites == null) throw new System.InvalidOperationException("Missing currency sprite library.");
+        var root = PrefabUtility.LoadPrefabContents(CombatHudPath);
+        try
+        {
+            var changed = false;
+            foreach (var view in root.GetComponentsInChildren<UIWorkspaceTooltipView>(true))
+            {
+                var meta = Ref<TextMeshProUGUI>(view, "metaText");
+                if (meta.spriteAsset == sprites) continue;
+                meta.spriteAsset = sprites;
+                changed = true;
+            }
+            if (changed) PrefabUtility.SaveAsPrefabAsset(root, CombatHudPath);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
 
     [MenuItem("Godmist/Content/UI/Configure Equipment Tooltip")]
     public static void Configure()
@@ -47,6 +68,7 @@ public static class EquipmentTooltipUiSetup
             PrefabUtility.SaveAsPrefabAsset(tooltip, TooltipPath);
         }
         finally { PrefabUtility.UnloadPrefabContents(tooltip); }
+        ConfigureCombatHudCurrency();
         AssetDatabase.SaveAssets();
     }
     private static T Ref<T>(Object owner, string field) where T : Object =>

@@ -141,7 +141,7 @@ namespace Godmist.Systems.Dungeons
             foreach (var room in floor.Rooms)
             {
                 if (room.RoomType != DungeonRoomType.Final
-                    && !(room.RoomType == DungeonRoomType.Start && floor.FloorIndex > 0)) continue;
+                    && room.RoomType != DungeonRoomType.Start) continue;
                 if (!DungeonForestTransitionBoundary.TryResolve(floor, room.RoomId, out _, out _))
                     throw new LayoutAttemptFailedException("Forest transition room has no outside-facing boundary.");
             }

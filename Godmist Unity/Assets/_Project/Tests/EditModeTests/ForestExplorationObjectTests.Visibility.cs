@@ -239,7 +239,7 @@ namespace Godmist.Tests.EditMode
                 var args=new object[]{session.ActiveDungeon,floor,DungeonRoomType.Final,view,Vector2.zero};
                 Assert.That((bool)typeof(DungeonSandboxBootstrap).GetMethod("TryGetRoomCenter",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,args),Is.True);
                 Call(bootstrap,"SpawnFloorTransitions",session.ActiveDungeon,floor,(Vector2)args[4],bootstrap.transform);
-                var exit=bootstrap.GetComponentsInChildren<DungeonExitView>(true).Single();
+                var exit=bootstrap.GetComponentsInChildren<DungeonExitView>(true).Single(e=>!e.IsRetreatExit);
                 Assert.That(exit.GetComponentsInChildren<SpriteRenderer>(true).Count(r=>r.enabled&&r.sprite!=null),Is.EqualTo(1));
                 Assert.That(exit.UsesStandingPresentation, Is.True);
                 var gate = exit.GetComponentsInChildren<SpriteRenderer>(true).Single(r=>r.enabled&&r.sprite!=null);

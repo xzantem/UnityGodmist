@@ -35,6 +35,8 @@ namespace Godmist.Data.NPC
     {
         public string Id = string.Empty;
         [Min(1)] public int Slots = 1;
+        [Range(0f, 1f)] public float AvailabilityChance = 1f;
+        public bool GuaranteedInitially;
         public List<TraderStockEntry> Candidates = new();
     }
 }

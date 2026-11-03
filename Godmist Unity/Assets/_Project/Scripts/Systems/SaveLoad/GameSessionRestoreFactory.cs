@@ -136,7 +136,7 @@ namespace Godmist.Systems.SaveLoad
                 return context.Reject(SaveRestoreErrorCode.MissingValue, "", "Brak danych zapisu.");
             if (contentCatalog == null)
                 return context.Reject(SaveRestoreErrorCode.MissingValue, "ContentCatalog", "Brak katalogu contentu.");
-            if (saveData.SaveVersion != GameSaveData.CurrentSaveVersion)
+            if (saveData.SaveVersion < 1 || saveData.SaveVersion > GameSaveData.CurrentSaveVersion)
                 return context.Reject(SaveRestoreErrorCode.UnsupportedVersion, "SaveVersion", "Nieobsługiwana wersja zapisu.");
             if (saveData.Party == null)
                 return context.Reject(SaveRestoreErrorCode.MissingValue, "Party", "Brak danych drużyny.");
@@ -250,6 +250,35 @@ namespace Godmist.Systems.SaveLoad
             {
                 return context.Field("TrackedQuestId", "Quests").Entity(saveData.TrackedQuestId).Reject(SaveRestoreErrorCode.UnknownReference, "", "Nie można ustawić śledzonego zadania.");
             }
+
+            var combatContext = context.Field("Combats", "Combat");
+            try
+            {
+                if (saveData.SaveVersion < 2 && saveData.Combats?.Count > 0)
+                    return combatContext.Reject(SaveRestoreErrorCode.UnsupportedVersion, "Version", "Stan walki wymaga zapisu w wersji 2.");
+                CombatPersistence.Restore(saveData.Combats, restoredSession, contentCatalog, (data, definitionId) =>
+                {
+                    if (!TryCreateCharacter(data, contentCatalog, itemsById, assignedItemIds,
+                        out var actor, combatContext.Entity(data.CharacterId), definitionId))
+                        throw new InvalidOperationException("Nie można odtworzyć uczestnika walki: " + data.CharacterId);
+                    if (!TryRestorePassiveEffects(actor, data.PassiveEffects, combatContext.Entity(data.CharacterId).Field("PassiveEffects")))
+                        throw new InvalidOperationException("Nie można odtworzyć efektów uczestnika walki.");
+                    actor.CurrentHealth=data.CurrentHealth;
+                    RestoreResourcePool(actor.ResourcePool,data.ResourcePool);
+                    return actor;
+                });
+                // Reconciliation builds static equipment/tree effects during character creation.
+                // Restore their saved mutable counters after that reconstruction, without ticking them.
+                if (saveData.Combats?.Count > 0)
+                    foreach (var state in saveData.Combats.SelectMany(c => c.Units).GroupBy(u => u.Id).Select(g => g.First()))
+                    {
+                        if (state.HasOwnCharacter) continue;
+                        var savedActor = saveData.Characters.Single(c => c.CharacterId == state.Id);
+                        if (!TryRestorePassiveEffects(restoredSession.CharactersById[state.Id], savedActor.PassiveEffects,
+                            combatContext.Entity(state.Id).Field("PassiveEffects"))) return false;
+                    }
+            }
+            catch (Exception exception) { return combatContext.Exception(exception); }
 
             if (assignedItemIds.Count != itemsById.Count)
             {
@@ -656,7 +685,7 @@ namespace Godmist.Systems.SaveLoad
             GameContentCatalog contentCatalog,
             Dictionary<string, ItemInstance> itemsById,
             HashSet<string> assignedItemIds,
-            out CharacterInstance character, RestoreContext context)
+            out CharacterInstance character, RestoreContext context, string combatDefinitionId = null)
         {
             character = null;
 
@@ -674,12 +703,12 @@ namespace Godmist.Systems.SaveLoad
                 return context.Reject(SaveRestoreErrorCode.InvalidValue, "LifeState", "Nieznany stan życia.");
             if (!Enum.IsDefined(typeof(CharacterAvailabilityState), saveData.AvailabilityState))
                 return context.Reject(SaveRestoreErrorCode.InvalidValue, "AvailabilityState", "Nieznany stan dostępności.");
-            if (!contentCatalog.TryGetCharacter(saveData.CharacterId, out var definition))
+            if (!contentCatalog.TryGetCharacter(combatDefinitionId ?? saveData.CharacterId, out var definition))
                 return context.Reject(SaveRestoreErrorCode.UnknownReference, "CharacterId", "Nie znaleziono definicji postaci.");
             if (!contentCatalog.TryGetCharacterClass(saveData.ClassId, out var classData))
                 return context.Reject(SaveRestoreErrorCode.UnknownReference, "ClassId", "Nie znaleziono definicji klasy.");
 
-            if (definition.Id != saveData.CharacterId)
+            if (definition.Id != (combatDefinitionId ?? saveData.CharacterId))
                 return context.Reject(SaveRestoreErrorCode.InvalidValue, "Id", "Nie spełniono warunku danych: definition.Id != saveData.CharacterId");
             if (classData.Id != saveData.ClassId)
                 return context.Reject(SaveRestoreErrorCode.InvalidValue, "Id", "Nie spełniono warunku danych: classData.Id != saveData.ClassId");
@@ -888,7 +917,7 @@ namespace Godmist.Systems.SaveLoad
             return result;
         }
 
-        private static void RestoreResourcePool(
+        internal static void RestoreResourcePool(
             ResourcePool resourcePool,
             ResourcePoolSaveData saveData)
         {
@@ -904,7 +933,7 @@ namespace Godmist.Systems.SaveLoad
                 saveData.FractionalGainRemainder;
         }
 
-        private static void RestoreResistances(
+        internal static void RestoreResistances(
             ResistanceSet resistances,
             ResistanceSetSaveData saveData)
         {

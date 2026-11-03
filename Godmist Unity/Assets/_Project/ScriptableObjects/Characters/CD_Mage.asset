@@ -47,9 +47,9 @@ MonoBehaviour:
     <ResourceRegeneration>k__BackingField: 15
     <HealingPower>k__BackingField: 0
   <BaseResistances>k__BackingField:
-    <BleedResistance>k__BackingField: 0.25
-    <PoisonResistance>k__BackingField: 0.25
-    <FireResistance>k__BackingField: 0.8
+    <BleedResistance>k__BackingField: 0.4
+    <PoisonResistance>k__BackingField: 0.4
+    <FireResistance>k__BackingField: 0.6
     <WeakeningResistance>k__BackingField: 0.7
     <SuppressionResistance>k__BackingField: 0.3
     <MoveResistance>k__BackingField: 0.3

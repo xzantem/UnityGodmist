@@ -19,6 +19,7 @@ namespace Godmist.Views.Dungeons
         [SerializeField] private ItemActionPopupView confirmationPrefab;
         private ItemActionPopupView confirmation;
         private bool requiresClearedExitRoom;
+        public bool IsRetreatExit { get; private set; }
         [SerializeField] private Sprite closedForestSprite;
         [SerializeField] private Sprite closedStairSprite;
         private bool goesUp;
@@ -138,6 +139,7 @@ namespace Godmist.Views.Dungeons
             registeredPartyController?.RegisterInteraction(this);
             transform.position = position;
             interactionAction = null;
+            IsRetreatExit = false;
             requiresClearedExitRoom = true;
             interactionFloor = partyController?.InteractionFloor;
             ConfigureExitState(GameBootstrap.Instance?.Session?.ActiveDungeon);
@@ -157,6 +159,7 @@ namespace Godmist.Views.Dungeons
             registeredPartyController?.RegisterInteraction(this);
             transform.position = position;
             interactionAction = nextInteractionAction;
+            IsRetreatExit = false;
             this.requiresClearedExitRoom = requiresClearedExitRoom;
             ConfigureFloorDirection(goesUp);
             interactionFloor = partyController?.InteractionFloor;
@@ -164,6 +167,12 @@ namespace Godmist.Views.Dungeons
             foreach (var label in GetComponentsInChildren<TMPro.TMP_Text>(true))
                 if (label.gameObject == gameObject) label.enabled = false; else label.gameObject.SetActive(false);
             ExplorationWorldObjectInteraction.Attach(this, this);
+        }
+
+        public void InitializeRetreat(ExplorationPartyController controller, Vector2 position)
+        {
+            InitializeTransition(controller, position, null, goesUp: true);
+            IsRetreatExit = true;
         }
 
         public void Interact()
@@ -174,13 +183,16 @@ namespace Godmist.Views.Dungeons
             var dungeon = game?.Session?.ActiveDungeon;
             if (interactionAction != null) { interactionAction.Invoke(); return; }
             if (dungeon == null || confirmation != null && confirmation.IsModalOpen) return;
-            Popup()?.RequestConfirmation("Opuścić loch?", "Czy chcesz zakończyć wyprawę i wrócić do miasta?", () =>
+            Popup()?.RequestConfirmation(IsRetreatExit ? "Porzucić wyprawę?" : "Opuścić loch?",
+                IsRetreatExit ? "Wrócisz do miasta. Tej wyprawy nie będzie można wznowić."
+                    : "Czy chcesz zakończyć wyprawę i wrócić do miasta?", () =>
             {
                 if (this == null) return "Wyjście nie jest teraz dostępne.";
                 RefreshExitState();
                 if (!ReferenceEquals(game.Session?.ActiveDungeon, dungeon) || IsExitBlocked || !CanInteract())
                     return "Wyjście nie jest teraz dostępne.";
-                return game.TryExitDungeon() ? null : "Wyjście nie jest teraz dostępne.";
+                var accepted = IsRetreatExit ? game.TryRetreatFromDungeon() : game.TryExitDungeon();
+                return accepted ? null : "Wyjście nie jest teraz dostępne.";
             });
         }
 

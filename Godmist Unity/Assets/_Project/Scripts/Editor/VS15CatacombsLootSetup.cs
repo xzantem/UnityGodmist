@@ -334,6 +334,8 @@ namespace Godmist.Editor
                 (resources,1f,2,3), (weapons,.04f,1,1),
                 (armor,.04f,1,1), (galdurytes,.02f,1,1));
             DungeonFoodSetup.ConfigureTables(enemyLow, enemyHigh, chestLow, chestHigh);
+            ReturnScrollSetup.ConfigureChestDrop(chestLow);
+            ReturnScrollSetup.ConfigureChestDrop(chestHigh);
             ConfigureCatalog(enemyLow, enemyHigh, chestLow, chestHigh);
             BranchEquipmentRewardsSetup.ConfigureBudget(chestLow);
             BranchEquipmentRewardsSetup.ConfigureBudget(chestHigh);

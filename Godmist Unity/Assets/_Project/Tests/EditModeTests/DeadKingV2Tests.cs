@@ -39,14 +39,19 @@ namespace Godmist.Tests.EditMode
         {
             var boss=Unit(King,false,7,7,level);var s=Session(boss);using var owner=Owner(s);
             Assert.That(boss.Character.Skills.Select(k=>k.DisplayName),Is.EqualTo(new[]{"Widmowa Fala","Rozkaz Króla","Straż!"}));
-            boss.CurrentActionPoints=1000;var hp=boss.Character.CurrentHealth;var ap=boss.CurrentActionPoints;
-            boss.Character.CurrentHealth=hp/2;s.SkillResolutionDepth=1;owner.CheckPhases();Assert.That(boss.DeadKingState.PhaseTwo,Is.False);
+            boss.CurrentActionPoints=1000;var ap=boss.CurrentActionPoints;
+            // Growth can yield fractional stat HP; CurrentHealth uses its integer ceiling.
+            // Check both sides of the actual phase threshold, without assuming that
+            // half the rounded display maximum is already below half the stat value.
+            var phaseHp=(int)Math.Floor(boss.Character.Stats.MaxHealth.GetValue()*.5f);
+            boss.Character.CurrentHealth=phaseHp+1;owner.CheckPhases();Assert.That(boss.DeadKingState.PhaseTwoPending,Is.False);
+            boss.Character.CurrentHealth=phaseHp;s.SkillResolutionDepth=1;owner.CheckPhases();Assert.That(boss.DeadKingState.PhaseTwo,Is.False);
             s.SkillResolutionDepth=0;owner.CheckPhases();Assert.That(boss.DeadKingState.PhaseTwo,Is.False);
             Assert.That(boss.DeadKingState.PhaseTwoPending,Is.True);owner.BeginTurn(boss);Assert.That(boss.DeadKingState.PhaseTwo,Is.True);
-            Assert.That(boss.Character.CurrentHealth,Is.EqualTo(hp/2));Assert.That(boss.CurrentActionPoints,Is.EqualTo(ap));
+            Assert.That(boss.Character.CurrentHealth,Is.EqualTo(phaseHp));Assert.That(boss.CurrentActionPoints,Is.EqualTo(ap));
             Assert.That(boss.Character.Skills.Select(k=>k.DisplayName),Is.EqualTo(new[]{"Widmowe Ostrze","Krzyk Cienia","Cień Destrukcji"}));
             Assert.That(boss.Character.Definition.LootTable,Is.SameAs(King.LootTable));
-            owner.CheckPhases();Assert.That(boss.Character.CurrentHealth,Is.EqualTo(hp/2));
+            owner.CheckPhases();Assert.That(boss.Character.CurrentHealth,Is.EqualTo(phaseHp));
         }
         [Test]
         public void PendingPhaseWaitsForOwnTurnSurvivesHealingAndRebindAndRunsOnce()

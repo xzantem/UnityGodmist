@@ -388,7 +388,7 @@ namespace Godmist.Views.Dungeons
             }
             gridFeedback.ResolveExplorationMarker=null; targeting.ResolvePointerUnit=null;
             combatHost.CancelOpeningPreview(); openingViews.Clear(); openingSources.Clear(); openingCombatExtras.Clear();
-            if (!ActivateBoundSession(session, nextBindings, source, driver => driver.StartTurns(actor, detection)))
+            if (!ActivateBoundSession(session, nextBindings, driver => driver.StartTurns(actor, detection)))
             {
                 foreach (var original in originalPositions) original.Key.Position = original.Value;
                 game.TryRemoveCombat(session); SetFocus(focused, true); return false;

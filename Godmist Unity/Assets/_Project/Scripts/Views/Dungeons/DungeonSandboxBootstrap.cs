@@ -173,6 +173,12 @@ namespace Godmist.Views.Dungeons
 
                 if (floorMapView.TryGetWorldBounds(out var worldBounds))
                 {
+                    // Forest wickets extend into the fringe beyond walkable
+                    // floor. Camera limits must include their complete art.
+                    foreach (var transition in exitParent.GetComponentsInChildren<DungeonExitView>(true))
+                        foreach (var renderer in transition.GetComponentsInChildren<SpriteRenderer>(true))
+                            if (renderer.enabled && renderer.sprite != null)
+                                worldBounds.Encapsulate(renderer.bounds);
                     cameraFollow?.SetWorldBounds(worldBounds);
                     cameraFollow?.SnapToLeader();
                 }
@@ -243,7 +249,7 @@ namespace Godmist.Views.Dungeons
                 RegisterTransitionLighting(exit);
             }
 
-            if (dungeon.CurrentFloorIndex <= 0
+            if (dungeon.IsAssetAuditRoom && dungeon.CurrentFloorIndex <= 0
                 || !TryGetRoomCenter(
                     dungeon,
                     floor,
@@ -258,6 +264,12 @@ namespace Godmist.Views.Dungeons
 
             var ascent = Instantiate(exitPrefab, exitParent);
             startPosition = floorMapView.ResolveForestTransitionPosition(floor, startPosition, DungeonRoomType.Start);
+            if (dungeon.CurrentFloorIndex == 0)
+            {
+                ascent.InitializeRetreat(partySpawner.PartyController, startPosition);
+                RegisterTransitionLighting(ascent);
+                return;
+            }
             ascent.InitializeTransition(
                 partySpawner.PartyController,
                 startPosition,

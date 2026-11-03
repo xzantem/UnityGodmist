@@ -117,9 +117,15 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, effect.StatusId)) return false;
-            if (!PassesEffectChance(target, effect, source))
+            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, effect.StatusId))
             {
+                PublishStatusFailure(source, target, effect.StatusId, effect.BaseChance, true);
+                return false;
+            }
+            if (!PassesEffectChance(target, effect, source, out var chance))
+            {
+                PublishStatusFailure(source, target, effect.StatusId, effect.BaseChance,
+                    chance <= 0f);
                 battleLog?.Invoke(
                     $"{target.Character.Definition.DisplayName} " +
                     $"odporna na efekt {effect.StatusId}.");
@@ -451,15 +457,24 @@ namespace Godmist.Systems.Combat
                 return false;
             }
 
-            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, statusId)) return false;
+            if (PassiveEffectCombatExecutionSystem.TryPreventStatus(source, target, statusId))
+            {
+                if (publishFeedback) PublishStatusFailure(source, target, statusId, baseChance, true);
+                return false;
+            }
             var chance = CalculateStatusApplicationChance(source, target, statusId, baseChance);
 
             if (chance <= 0f || (sharedRoll ?? UnityEngine.Random.value) > chance)
             {
+                if (publishFeedback) PublishStatusFailure(source, target, statusId, baseChance, chance <= 0f);
                 return false;
             }
 
-            if(statusId==StatusEffectIds.Stun && WarriorCombatSystem.AvoidStun(source,target,damageSystem))return false;
+            if (statusId == StatusEffectIds.Stun && WarriorCombatSystem.AvoidStun(source, target, damageSystem))
+            {
+                if (publishFeedback) PublishStatusFailure(source, target, statusId, baseChance, true);
+                return false;
+            }
             var duration = Mathf.Max(1, durationTurns);
             var damagePerTurn = !IsDamageOverTimeStatus(statusId)
                 ? 0
@@ -527,6 +542,15 @@ namespace Godmist.Systems.Combat
                 PassiveEffectTriggerType.OnStatusApplied);
 
             return true;
+        }
+
+        private void PublishStatusFailure(BattleUnit source, BattleUnit target, string statusId, float baseChance, bool immune)
+        {
+            // Disabled/uninvested effects and explicitly silent callers stay quiet.
+            if (baseChance <= 0f) return;
+            CombatFailureFeedback.Effect(feedbackBus, source, target, EffectType.ApplyStatus,
+                immune ? CombatEffectFailureReason.Immune : CombatEffectFailureReason.NotApplied,
+                Godmist.Core.Utilities.UiTerms.Status(statusId));
         }
 
         private bool PublishEffectFeedback(
@@ -1104,9 +1128,9 @@ namespace Godmist.Systems.Combat
 
         private bool PassesEffectChance(
             BattleUnit target,
-            SkillEffectData effect, BattleUnit source)
+            SkillEffectData effect, BattleUnit source, out float chance)
         {
-            var chance = CalculateStatusApplicationChance(source, target, effect.StatusId, effect.BaseChance);
+            chance = CalculateStatusApplicationChance(source, target, effect.StatusId, effect.BaseChance);
 
             return chance > 0f && UnityEngine.Random.value <= chance;
         }

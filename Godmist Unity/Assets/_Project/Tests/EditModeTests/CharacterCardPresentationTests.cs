@@ -183,6 +183,44 @@ namespace Godmist.Tests.EditMode
             Assert.That(Get<Image>(slot,"emptySlotIcon").sprite,Is.Not.Null);
             Assert.That(Get<Image>(slot,"icon").enabled,Is.False);
         }
+
+        [Test]
+        public void PartyEquipmentSlotsFitBothIconsAndKeepTheAuthoredOpticalCenter()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Prefabs/UI/Workspace/PF_UIW_PartyView.prefab");
+            var party = Object.Instantiate(prefab, canvasObject.transform);
+            var slots = party.GetComponentsInChildren<CharacterInfoEquipmentSlotView>(true);
+            Assert.That(slots, Is.Not.Empty);
+            foreach (var slot in slots)
+            {
+                var ghostImage = Get<Image>(slot, "emptySlotIcon");
+                var ghost = ghostImage.rectTransform;
+                var item = Get<Image>(slot, "icon").rectTransform;
+                var authoredCenter = ghost.anchoredPosition / ghost.rect.width;
+                slot.Initialize(view);
+                slot.Initialize(view);
+                Assert.That(ghost.rect.width, Is.EqualTo(((RectTransform)slot.transform).rect.width - 10f));
+                Assert.That(ghost.rect.size, Is.EqualTo(item.rect.size));
+                if (slot.Slot == EquipmentSlot.Bracelet)
+                {
+                    var source = new Texture2D(2, 2);
+                    try
+                    {
+                        Assert.That(source.LoadImage(File.ReadAllBytes(AssetDatabase.GetAssetPath(ghostImage.sprite))), Is.True);
+                        var pixels = source.GetPixels32();
+                        var visible = Enumerable.Range(0, pixels.Length).Where(index => pixels[index].a > 0).ToArray();
+                        var center = new Vector2(
+                            (visible.Min(index => index % source.width) + visible.Max(index => index % source.width) + 1f) / (2f * source.width),
+                            (visible.Min(index => index / source.width) + visible.Max(index => index / source.width) + 1f) / (2f * source.height));
+                        Assert.That(Vector2.Distance(ghost.anchoredPosition / ghost.rect.width + center, Vector2.one * .5f), Is.LessThan(0.0001f));
+                    }
+                    finally { Object.DestroyImmediate(source); }
+                }
+                else
+                    Assert.That(Vector2.Distance(ghost.anchoredPosition / ghost.rect.width, authoredCenter), Is.LessThan(0.0001f));
+                Assert.That(item.anchoredPosition, Is.EqualTo(Vector2.zero));
+            }
+        }
         [TestCase("CD_Jerzy.asset")]
         [TestCase("CD_Wladimir_Test.asset")]
         [TestCase("CD_Mage.asset")]

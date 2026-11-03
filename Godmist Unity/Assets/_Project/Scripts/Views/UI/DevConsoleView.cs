@@ -13,6 +13,7 @@ using Godmist.Views.Exploration;
 using Godmist.Views.Game;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Godmist.Views.UI
@@ -48,6 +49,8 @@ namespace Godmist.Views.UI
 
         private const float NavigationRepeatDelaySeconds = 0.3f;
         private const float NavigationRepeatIntervalSeconds = 0.075f;
+        private Canvas persistentCanvas;
+        private string sourceScene;
 
         private void Awake()
         {
@@ -69,7 +72,10 @@ namespace Godmist.Views.UI
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.BackQuote))
+            var keyboard = UnityEngine.InputSystem.Keyboard.current;
+            if (keyboard?.backquoteKey.wasPressedThisFrame == true
+                || keyboard?.f10Key.wasPressedThisFrame == true
+                || Input.GetKeyDown(KeyCode.BackQuote))
             {
                 Toggle();
                 return;
@@ -133,6 +139,32 @@ namespace Godmist.Views.UI
                 }
             }
         }
+
+        private void Start()
+        {
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null || !canvas.isRootCanvas) return;
+            sourceScene = gameObject.scene.name;
+            persistentCanvas = canvas;
+            canvas.transform.SetParent(null, false);
+            DontDestroyOnLoad(canvas.gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (mode != LoadSceneMode.Single) return;
+            Close();
+            // Loading the source scene recreates its authored console.
+            if (scene.name == sourceScene)
+            {
+                persistentCanvas.enabled = false;
+                enabled = false;
+                Destroy(persistentCanvas.gameObject);
+            }
+        }
+
+        private void OnDestroy() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
         private void OnDisable()
         {

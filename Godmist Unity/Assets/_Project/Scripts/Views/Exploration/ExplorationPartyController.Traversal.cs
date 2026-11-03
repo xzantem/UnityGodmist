@@ -1330,7 +1330,7 @@ namespace Godmist.Views.Exploration
         private void CommitTraversalRoute(ExplorationCharacterView leader, IReadOnlyList<DungeonTraversalPosition> path, Vector2 world)
         {
             meshRoutes.TryGetValue(leader, out var plannedMeshRoute);
-            CancelMovement();
+            ClearMovementRoute(preserveFollowers: pointerMovementMouse != null);
             if (plannedMeshRoute != null) meshRoutes[leader] = plannedMeshRoute;
             movementDestination = world; leaderStalledTime = 0; lastLeaderNavigationPosition = leader.Position;
             foreach (var position in path.Skip(1)) traversalPath.Enqueue(position);
@@ -1355,10 +1355,11 @@ namespace Godmist.Views.Exploration
             {
                 var pending = destroyTarget;
                 var chestTarget = pendingChest;
+                var bodyTarget = pendingBody;
                 var worldObjectTarget = pendingWorldObject;
                 var arrived = movementDestination.HasValue && Vector2.Distance(leader.Position, movementDestination.Value) < .1f;
-                CancelMovement();
-                if (arrived) { destroyTarget = pending; pendingChest = chestTarget; pendingWorldObject = worldObjectTarget; }
+                ClearMovementRoute(preserveFollowers: pointerMovementMouse != null);
+                if (arrived) { destroyTarget = pending; pendingChest = chestTarget; pendingBody = bodyTarget; pendingWorldObject = worldObjectTarget; }
             }
             if (movementDestination.HasValue && traversalPath.Count == 0
                 && Vector2.Distance(leader.Position, movementDestination.Value) <= .03f) movementDestination = null;
@@ -1556,6 +1557,35 @@ namespace Godmist.Views.Exploration
         }
 
         private DungeonChestView pendingChest;
+        private DungeonEnemyBodyView pendingBody;
+
+        private bool RequestBodyLoot(DungeonEnemyBodyView target)
+        {
+            if (GetActiveLeaderView()?.RuntimeCharacter?.LifeState != Godmist.Core.Enums.CharacterLifeState.Alive) return false;
+            CancelMovement();
+            if (target.CanInteract()) { target.Interact(); return true; }
+            if (!TryApproachPosition(target.transform.position, target.InteractionRadius, target.CanLootFrom)) return false;
+            pendingBody = target;
+            return true;
+        }
+
+        private bool TickBodyApproach()
+        {
+            if (ReferenceEquals(pendingBody, null)) return false;
+            if (pendingBody == null || !pendingBody.CanRequestLoot
+                || ExplorationKeyboardInput.ReadGameplayMovement().sqrMagnitude > 0f)
+            { CancelMovement(); return false; }
+            if (pendingBody.CanInteract())
+            {
+                var target = pendingBody;
+                CancelMovement();
+                target.Interact();
+                return true;
+            }
+            if (!movementDestination.HasValue) CancelMovement();
+            return false;
+        }
+
         public bool RequestChestInteraction(DungeonChestView target)
         {
             if (target == null || !target.IsOwnedBy(this) || target.Floor != traversalFloor
@@ -1650,7 +1680,7 @@ namespace Godmist.Views.Exploration
         {
             var actor = GetActiveLeaderView();
             if (actor == null || !TryFindWorldRoute(actor, goal, out var points)) return false;
-            CancelMovement(); movementDestination = goal;
+            ClearMovementRoute(preserveFollowers: pointerMovementMouse != null); movementDestination = goal;
             foreach (var point in points) cityLeaderRoute.Enqueue(point);
             return true;
         }

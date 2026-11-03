@@ -280,7 +280,7 @@ namespace Godmist.Systems.Combat
                         var raw=effect.BaseValue+CombatDamageValueCalculator.CalculateDamageValue(caster,effect.DamageValueSource==DamageValueSource.AttackRange?DamageValueSource.AverageAttack:effect.DamageValueSource,effect.DamageMultiplier);
                         var amount=CombatDamageSystem.ApplyDefense(caster,enemy,raw,effect.DamageType);
                         var hit=CombatDamageSystem.IsGuaranteedHitDamageType(effect.DamageType)?1f:
-                            CombatDamageSystem.CalculateHitChance(caster.Character.WeaponAccuracy,definition.EffectAccuracy,enemy.Character.Stats.Dodge.GetValue());
+                            CombatDamageSystem.CalculateHitChance(caster.Character.WeaponAccuracy,definition.EffectAccuracy,CombatDamageSystem.ResolveTargetDodge(enemy));
                         benefit+=Mathf.Min(amount,enemy.Character.CurrentHealth)*hit;
                     }
                     else if(effect.EffectType==SummonedObjectEffectType.ApplyStatus)

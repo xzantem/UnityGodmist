@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using Godmist.Data.Characters;
 using Godmist.Data.World;
@@ -16,25 +15,11 @@ namespace Godmist.Tests.EditMode
     {
         static GameContentCatalog Catalog => AssetDatabase.LoadAssetAtPath<GameContentCatalog>("Assets/_Project/ScriptableObjects/World/GC_MainContentCatalog.asset");
         static CharacterDefinition Definition(string id) => Catalog.CharacterDefinitions.Single(d => d != null && d.Id == id);
-        static string Folder => Path.GetFullPath("../LocalHandoffs/enemy-role-durability-implementation-20261025");
         static SerializedProperty Growth(SerializedObject data, string name) => data.FindProperty("<GrowthData>k__BackingField").FindPropertyRelative("<" + name + ">k__BackingField");
 
-        [Test, Explicit("Author the approved ordinary-only HP/MDEF correction via Editor API. No boss or ATK changes.")]
-        public void AuthorApprovedDurabilityCorrection()
-        {
-            var definitions = Catalog.CharacterDefinitions.Where(d => d != null && File.Exists(Path.Combine("../LocalHandoffs/enemy-role-implementation-20261025/before-definitions", d.Id + ".json"))).ToArray();
-            Assert.That(definitions, Has.Length.EqualTo(23));
-            foreach (var stage in new[] { "before-definitions", "after-definitions" }) Directory.CreateDirectory(Path.Combine(Folder, stage));
-            foreach (var d in definitions)
-            {
-                var path = Path.Combine(Folder, "before-definitions", d.Id + ".json");
-                if (!File.Exists(path)) File.WriteAllText(path, EditorJsonUtility.ToJson(d));
-            }
-            EnemyRoleDurabilitySetup.ApplyAll();
-            foreach (var d in definitions) File.WriteAllText(Path.Combine(Folder, "after-definitions", d.Id + ".json"), EditorJsonUtility.ToJson(d));
-            // The second pass must be a no-op, including all protected definitions.
-            foreach (var d in definitions) Assert.That(EnemyRoleDurabilitySetup.ApplyToDefinition(d), Is.False, d.Id);
-        }
+        // The old one-shot HP migration depended on external historical handoffs.
+        // Its authoring is retired; current all-profile authoring/preservation coverage
+        // lives in EnemyHealthAttackRebalanceTests with a checked-in baseline fixture.
 
         [TestCase("enemy.catacombs.archer", 202, 442, 9391)]
         [TestCase("enemy.catacombs.defender", 209, 478, 12548)]
@@ -53,9 +38,9 @@ namespace Godmist.Tests.EditMode
         public void ProductionHealthAnchorsAndEveryIntermediateLevelAreSafe(string id, int start, int ten, int fifty)
         {
             var definition = Definition(id); var factory = new CharacterInstanceFactory();
-            Assert.That(factory.Create(definition, definition.ClassData, 1).CurrentHealth, Is.EqualTo(start));
-            Assert.That(factory.Create(definition, definition.ClassData, 10).CurrentHealth, Is.EqualTo(ten));
-            Assert.That(factory.Create(definition, definition.ClassData, 50).CurrentHealth, Is.EqualTo(fifty));
+            Assert.That(factory.Create(definition, definition.ClassData, 1).CurrentHealth, Is.EqualTo(Mathf.RoundToInt(start*.8f)));
+            Assert.That(factory.Create(definition, definition.ClassData, 10).CurrentHealth, Is.EqualTo(Mathf.RoundToInt(ten*.8f)));
+            Assert.That(factory.Create(definition, definition.ClassData, 50).CurrentHealth, Is.EqualTo(Mathf.RoundToInt(fifty*.8f)));
             var previous = 0f;
             for (var level = 1; level <= 50; level++)
             {
@@ -76,7 +61,7 @@ namespace Godmist.Tests.EditMode
         {
             var d = Definition("enemy.catacombs.defender"); var factory = new CharacterInstanceFactory();
             var c = factory.Create(d, d.ClassData, 12);
-            Assert.That(c.Stats.MaxHealth.GetValue(), Is.EqualTo(617)); // G12=13, G10=9, G15=19: 478 + (826-478)*.4.
+            Assert.That(c.Stats.MaxHealth.GetValue(), Is.EqualTo(494)); // G12=13, G10=9, G15=19: 382 + (661-382)*.4.
             var previous = c.Stats.MaxHealth.GetValue(); c.CurrentHealth = 17; c.Level = 13;
             new CharacterLevelGrowthSystem().Apply(c, true);
             Assert.That(c.CurrentHealth, Is.EqualTo(17 + c.Stats.MaxHealth.GetValue() - previous));

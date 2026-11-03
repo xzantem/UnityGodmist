@@ -87,9 +87,9 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if ((session.HasCombat || session.IsDefeated))
+            if (!CombatPersistence.CanSave(session, out var reason))
             {
-                message = "Nie można zapisać gry podczas walki.";
+                message = reason;
                 return false;
             }
 
@@ -362,9 +362,9 @@ namespace Godmist.Systems.SaveLoad
                 return false;
             }
 
-            if ((session.HasCombat || session.IsDefeated))
+            if (!CombatPersistence.CanSave(session, out var reason))
             {
-                message = "Nie można zapisać gry podczas walki.";
+                message = reason;
                 return false;
             }
 
@@ -389,11 +389,15 @@ namespace Godmist.Systems.SaveLoad
 
                 saveData.DisplayName = displayName;
 
-                if (!snapshotFactory.TryCaptureInto(saveData, session))
+                try
                 {
-                    message = "Nie udało się utworzyć danych zapisu.";
-                    return false;
+                    if (!snapshotFactory.TryCaptureInto(saveData, session))
+                    {
+                        message = "Nie udało się utworzyć danych zapisu.";
+                        return false;
+                    }
                 }
+                catch (Exception exception) { message = exception.Message; return false; }
             }
             else
             {

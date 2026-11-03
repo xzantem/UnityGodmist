@@ -129,6 +129,32 @@ namespace Godmist.Tests.EditMode
             finally { UnityEngine.Random.state = rng; }
         }
 
+        [TestCase(false, false)][TestCase(true, false)]
+        [TestCase(false, true)][TestCase(true, true)]
+        public void BothDamageEntrypointsPublishOneMissAndPreserveGuaranteedDodge(bool suppliedHit, bool dodge)
+        {
+            var rng = UnityEngine.Random.state;
+            try
+            {
+                var session = CreateSession(out var source, out var target);
+                source.Character.WeaponAccuracy = dodge ? 100 : 0;
+                target.Character.Stats.Dodge = new Stat(dodge ? 0 : 100);
+                if (dodge) ResolutionGuarantee(target, UniqueBuffType.GuaranteedDodge);
+                var messages = new List<CombatFeedbackEvent>();
+                var bus = new CombatFeedbackBus(); bus.Published += messages.Add;
+                var damage = new CombatDamageSystem(feedbackBus: bus);
+                var result = suppliedHit
+                    ? damage.ResolveAndApplyDamage(session, source, target, 20, DamageType.Physical, wasHit: dodge)
+                    : damage.ResolveAndApplyDamage(session, source, target, 20, DamageType.Physical, skillAccuracy: dodge ? 100 : 0);
+                Assert.That(result.Hit, Is.False);
+                Assert.That(target.Character.CurrentHealth, Is.EqualTo(100));
+                var miss = messages.Single(e => e.Type == CombatFeedbackType.Miss);
+                Assert.That(miss.WasDodged, Is.EqualTo(dodge));
+                Assert.That(messages.Count(e => e.Type == CombatFeedbackType.Miss), Is.EqualTo(1));
+            }
+            finally { UnityEngine.Random.state = rng; }
+        }
+
         [TestCase(false)][TestCase(true)]
         public void SuccessfulContactPublishesOrderedEventsAndConsumesOneCriticalGuarantee(bool suppliedHit)
         {

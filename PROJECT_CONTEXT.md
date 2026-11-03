@@ -2218,3 +2218,8 @@ The imported galduryte sheet adds more concrete pool/effect references beyond th
 ### Party View — approved 2026-11-02, v0.1.2 beta
 
 The entire update originally scoped for 0.1.3, including non-UX gameplay and verification changes, is consolidated into the still-beta 0.1.2; there is no separate 0.1.3 release. Party View presents all active party members simultaneously, with independently selected Equipment, Stats/Effects, Skills and Skill Trees modes per column. Presentation selection must not change the exploration leader or combat actor. I and controller LT open Party View; LB/RB select a column while it owns focus. Each header retains access to the individual character card. Item transfers reuse existing ownership, combat, availability and capacity validation; stacks ask for quantity, and worn equipment is transferred into the recipient backpack without auto-equipping. Per-column mode memory belongs to the current session, not the campaign save schema.
+
+
+### 0.1.3: held primary-button exploration movement
+
+City and dungeon exploration retain single-click navigation. Holding physical LPM for 0.2 seconds steers the existing route toward the current cursor world position, at most every 0.1 seconds after a 0.15-world-unit target change. Camera movement must count even with a stationary screen cursor. Releasing LPM ends retargeting and finishes the last accepted route; an invalid target never erases that route. UI ownership, another interaction, direct movement, leader/context changes and focus loss disarm the gesture until a fresh press. Tactical combat and committed skill approaches keep their existing input ownership. Retargeting preserves independent follower route caches. Gesture state is transient view/input state and is not saved.

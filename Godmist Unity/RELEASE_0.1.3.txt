@@ -1,0 +1,21 @@
+## Save and resume combat
+- Save between your actions and resume the same fight with your positions, remaining action points, effects, and turn order intact.
+- Return to Arungard with a Scroll of Return and resume the expedition later. The Enchanter stocks one for 200 gold at the start. Leaving the Forest or Catacombs through the entrance abandons the expedition instead.
+
+## Combat and balance
+- Enemies have 20% less health and 10% more attack. Fireball deals more of its damage through burning, and the party is better protected against its weakest damage-over-time matchups.
+- Stunned, frozen, sleeping, and paralyzed targets cannot dodge.
+- Combat feedback distinguishes misses, dodges, and resisted effects. A kick into a wall reports the resulting stun without an extra blocked message.
+
+## Exploration and interface
+- Hold the left mouse button to steer. Release it to finish moving toward the last accepted destination.
+- Click visible lootable bodies to approach and loot them. Their hover outlines match character outlines.
+- Click the backpack or journal shortcut, or press I or J. The quest journal is available during combat.
+- Open Settings and choose Controls to view keyboard, mouse, and controller bindings.
+- Clearer equipment slots, character bars, talent messages, and party gold display.
+
+## Downloads
+- **Windows:** Extract the Windows x64 archive and run Godmist.exe.
+- **macOS:** Extract the Universal archive and follow READ-ME.txt. It supports Intel and Apple Silicon.
+
+Existing saves keep their location. The macOS build is not notarized and has not been tested on physical Mac hardware.

@@ -37,8 +37,8 @@ namespace Godmist.Tests.EditMode
         }
         private static SkillExecutionSystem Execution() => new(statusEffectSystem:new StatusEffectSystem());
         [Test] public void AuthoredStatsCostsLootAndEncounter() {
-            Assert.That(Druid.BaseStats.MaxHealth,Is.EqualTo(123));
-            Assert.That(Druid.BaseStats.MinAttack,Is.EqualTo(18)); Assert.That(Druid.BaseStats.MaxAttack,Is.EqualTo(27));
+            Assert.That(Druid.BaseStats.MaxHealth,Is.EqualTo(98));
+            Assert.That(Druid.BaseStats.MinAttack,Is.EqualTo(16.83f).Within(.0001f)); Assert.That(Druid.BaseStats.MaxAttack,Is.EqualTo(25.245f).Within(.0001f));
             Assert.That(Druid.BaseStats.Speed,Is.EqualTo(42));
             Assert.That(Druid.StartingSkills.Select(s=>s.ResourceCost),Is.EqualTo(new[]{5,40,30}));
             Assert.That(Druid.StartingSkills.Select(s=>s.ActionCost),Is.EqualTo(new[]{50,50,50}));

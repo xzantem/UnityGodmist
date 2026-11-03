@@ -60,7 +60,7 @@ namespace Godmist.Editor
             Raw(hit,"conditionType",EffectConditionType.ReferencedEffectSucceeded);Raw(hit,"referencedEffectIndex",0);
             var strike=KingSave(data);
             var kd=new SerializedObject(knight);Field(kd,"Id",DeadKingBossSystem.KnightId);Field(kd,"DisplayName","Widmowy Rycerz");
-            Sub(kd.FindProperty(F("BaseStats")),"MaxHealth",3);Sub(kd.FindProperty(F("GrowthData")),"MaxHealth",0f);
+
             var knightTags = kd.FindProperty(F("Tags"));
             for(var i=knightTags.arraySize-1;i>=0;i--) if(knightTags.GetArrayElementAtIndex(i).enumValueIndex==(int)CharacterTag.Giant) knightTags.DeleteArrayElementAtIndex(i);
             Field(kd,"LootTable",null);Save(kd);KingSkills(knight,strike);

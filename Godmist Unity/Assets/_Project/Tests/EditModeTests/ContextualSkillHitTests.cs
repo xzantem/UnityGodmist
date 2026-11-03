@@ -21,7 +21,7 @@ using Random = UnityEngine.Random;
 
 namespace Godmist.Tests.EditMode
 {
-    public sealed class ContextualSkillHitTests
+    public sealed partial class ContextualSkillHitTests
     {
         readonly List<Object> created = new();
         Random.State previousRandom;

@@ -59,8 +59,9 @@ namespace Godmist.Systems.Combat
                 return new CombatDamageResult(false, false, 0);
             }
 
+            var dodgedByStat = false;
             var wasHit = IsGuaranteedHitDamageType(damageType)
-                || RollHit(source, target, skillAccuracy, eventContext.Skill);
+                || RollHit(source, target, skillAccuracy, out dodgedByStat, eventContext.Skill);
             var wasDodged = false;
             if (wasHit && TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
             {
@@ -84,7 +85,7 @@ namespace Godmist.Systems.Combat
                 if (session.Diagnostics?.Enabled == true)
                     session.Diagnostics.Record("miss", session, source, $"target={target.Character.CharacterId};dodged={wasDodged};type={damageType}");
                 battleLog?.Invoke($"{GetDisplayName(source)} chybia {GetDisplayName(target)}.");
-                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss, damageType: damageType, source: source));
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss, damageType: damageType, source: source, wasDodged: wasDodged || dodgedByStat));
 
                 Publish(
                     session,
@@ -139,12 +140,14 @@ namespace Godmist.Systems.Combat
 
             if (!wasHit)
             {
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss, damageType: damageType, source: source));
                 Publish(session, PassiveEffectTriggerType.OnMiss,
                     eventContext.WithOutcome(succeeded: false, wasMissed: true));
                 return new CombatDamageResult(false, false, 0);
             }
             if (TryConsumeUniqueBuff(target, UniqueBuffType.GuaranteedDodge))
             {
+                feedbackBus?.Publish(new CombatFeedbackEvent(target, CombatFeedbackType.Miss, damageType: damageType, source: source, wasDodged: true));
                 Publish(session, PassiveEffectTriggerType.OnDodge,
                     eventContext.WithOutcome(succeeded: false, wasDodged: true));
                 return new CombatDamageResult(false, false, 0);
@@ -399,6 +402,12 @@ namespace Godmist.Systems.Combat
         public static float CalculateAccuracy(float weaponAccuracy,float skillAccuracy)
             => (Mathf.Max(0f,weaponAccuracy)+Mathf.Max(0f,skillAccuracy))*.5f;
 
+        // Hard control suppresses dodge for hit resolution without changing the
+        // underlying stat, so buffs and the original value survive its removal.
+        public static float ResolveTargetDodge(BattleUnit target)
+            => StatusEffectSystem.IsHardCrowdControlled(target)
+                ? 0f : target?.Character?.Stats?.Dodge.GetValue() ?? 0f;
+
         public static float CalculateHitChance(float weaponAccuracy, float skillAccuracy, float dodge)
         {
             var accuracy = CalculateAccuracy(weaponAccuracy,skillAccuracy);
@@ -418,18 +427,29 @@ namespace Godmist.Systems.Combat
             BattleUnit target,
             float skillAccuracy,
             SkillData skill = null)
-        {
-            if (source?.Character == null || target?.Character == null)
-            {
-                return false;
-            }
+            => RollHit(source, target, skillAccuracy, out _, skill);
 
+        // The counterfactual threshold classifies presentation only. It must not
+        // change the hit, miss-conversion or OnMiss/OnDodge gameplay contracts.
+        public static bool RollHit(
+            BattleUnit source,
+            BattleUnit target,
+            float skillAccuracy,
+            out bool dodgedByStat,
+            SkillData skill = null)
+        {
+            dodgedByStat = false;
+            if (source?.Character == null || target?.Character == null) return false;
             if (HasUniqueBuff(source, UniqueBuffType.Hawkeye)) return true;
-            return UnityEngine.Random.value <= CalculateSkillHitChance(source, target, skill, skillAccuracy);
+            var roll = UnityEngine.Random.value;
+            var hit = roll <= CalculateSkillHitChance(source, target, skill, skillAccuracy);
+            if (!hit)
+                dodgedByStat = roll <= CalculateSkillHitChance(source, target, skill, skillAccuracy, dodgeOverride: 0f);
+            return hit;
         }
 
         public static float CalculateSkillHitChance(
-            BattleUnit source, BattleUnit target, SkillData skill, float? skillAccuracy = null)
+            BattleUnit source, BattleUnit target, SkillData skill, float? skillAccuracy = null, float? dodgeOverride = null)
         {
             if (source?.Character == null || target?.Character == null) return 0f;
             if (HasUniqueBuff(source, UniqueBuffType.Hawkeye)) return 1f;
@@ -437,7 +457,7 @@ namespace Godmist.Systems.Combat
             var accuracy = alchemical ? 100f : skillAccuracy
                 ?? PassiveEffectCombatExecutionSystem.ResolveParameter(source, skill, "accuracy", skill?.SkillAccuracy ?? 0f);
             var chance = CalculateHitChance(alchemical ? 100f : source.Character.WeaponAccuracy,
-                accuracy, target.Character.Stats?.Dodge.GetValue() ?? 0f);
+                accuracy, dodgeOverride ?? ResolveTargetDodge(target));
             return ApplyHitChanceBonus(source.Character, chance);
         }
 

@@ -124,13 +124,20 @@ namespace Godmist.Tests.EditMode
             var pipeline=new CharacterStatPipelineSystem();pipeline.Refresh(u.Character);pipeline.Refresh(u.Character);
             Assert.That(u.Character.Stats.MaxHealth.GetValue(),Is.EqualTo(1050));Assert.That(u.Character.ResourcePool.Regeneration,Is.EqualTo(25));Assert.That(u.Character.ActiveSkillLoadout.Capacity,Is.EqualTo(7));
         }
-        [Test] public void ExplorationRegenerationRecalculatesMissingManaEveryTick()
+        [Test] public void CombatRegenerationRecalculatesMissingManaEveryTurn()
         {
             var unit=Unit();Rank(unit,false,"energy_saving",2);unit.Character.ResourcePool.CurrentValue=0;
-            var rules=new ResourceRuleSystem();rules.ProcessExplorationTick(unit);
+            unit.CurrentActionPoints=unit.MaxActionPoints/2; // Half the PA budget gives exactly 1x regeneration.
+            var rules=new ResourceRuleSystem();rules.ProcessTurnEnd(unit);
             Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(30));
-            rules.ProcessExplorationTick(unit);
+            rules.ProcessTurnEnd(unit);
             Assert.That(unit.Character.ResourcePool.CurrentValue,Is.EqualTo(57));
+        }
+        [Test] public void ExplorationCannotRegenerateManaEvenWithEnergySaving()
+        {
+            var unit=Unit();Rank(unit,false,"energy_saving",2);unit.Character.ResourcePool.CurrentValue=0;
+            var rules=new ResourceRuleSystem();rules.ProcessExplorationTick(unit);rules.ProcessExplorationTick(unit);
+            Assert.That(unit.Character.ResourcePool.CurrentValue,Is.Zero);
         }
         [Test] public void ShieldUsesAverageAttack_AndFocusPaysActualHealth()
         {

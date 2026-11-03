@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+using Godmist.Views.Combat;
+using System.Linq;
 using Godmist.Core.Enums;
 using Godmist.Data.Characters;
 using Godmist.Runtime.Dungeons;
@@ -48,31 +49,31 @@ namespace Godmist.Views.Dungeons
         {
             using var sample = BodyLateSample.Auto();
             RefreshGroundSorting();
-            if (elevationRenderers == null) return;
             var remembered = elevationView?.FogFloor != null && body != null && elevationView.FogFloor.Fog.Bodies.Contains(body.InstanceId)
                 && elevationView.Knowledge(BodyPosition) != DungeonKnowledge.Unexplored
                 && !elevationView.IsSurfaceOccluded(BodyPosition.IsOnStairs ? BodyPosition.Stair.First : BodyPosition.Surface);
-            foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !(IsElevationVisible || remembered);
+            if (elevationRenderers != null)
+                foreach (var renderer in elevationRenderers) if (renderer != null) renderer.forceRenderingOff = !(IsElevationVisible || remembered);
             if (bodyRenderer != null)
             {
                 fogBodyColor ??= bodyRenderer.color;
                 if (!IsElevationVisible && elevationView?.UsesVegetationPresentation != true)
                     bodyRenderer.color = DungeonFloorMapView.Dim(fogBodyColor.Value);
-                else if (!isPointerHovered) bodyRenderer.color = fogBodyColor.Value;
+                else bodyRenderer.color = fogBodyColor.Value;
             }
+            RefreshHoverVisual();
         }
 
         [SerializeField] private float interactionRadius = 1.25f;
         [SerializeField] private SpriteRenderer bodyRenderer;
 
-        private readonly List<SpriteRenderer> outlineRenderers = new();
+        private CombatUnitVisualStateView hoverOutline;
 
         private ExplorationPartyController partyController;
         private DungeonFloorInstance floor;
         private DungeonEnemyBodyInstance body;
         private DungeonLootWindowView lootWindowPrefab;
         private Tilemap floorTilemap;
-        private Material outlineMaterial;
         private bool isPointerHovered;
 
         public void Initialize(
@@ -111,26 +112,9 @@ namespace Godmist.Views.Dungeons
                 return;
             }
 
-            RefreshHoverVisual();
-
-            var pointerOverBody = IsPointerOverThisBody();
-
-            if (pointerOverBody != isPointerHovered)
-            {
-                isPointerHovered = pointerOverBody;
-                RefreshHoverVisual();
-            }
-
-            if (!pointerOverBody
-                || !(Input.GetMouseButtonDown(0) || Godmist.Views.UI.ControllerInput.Confirm)
-                || UIWorkspaceInputRouter.IsPointerOverUi()
-                || DevConsoleView.IsOpen
-                || !CanInteract())
-            {
-                return;
-            }
-
-            Interact();
+            isPointerHovered = partyController != null
+                && partyController.TryGetPointerWorldPosition(out var point)
+                && FindPointerBody(point, partyController) == this;
         }
 
         private void OnEnable()
@@ -141,16 +125,14 @@ namespace Godmist.Views.Dungeons
         private void OnDisable()
         {
             DungeonLootWindowView.LootClaimed -= HandleLootClaimed;
+            hoverOutline?.ClearHighlight();
         }
 
         public bool CanInteract()
         {
-            if (!IsElevationVisible) return false;
-            if (floor?.Map?.HasElevatedSurfaces == true && partyController?.CanInteractAt(BodyPosition) != true) return false;
-            var session = GameBootstrap.Instance?.Session;
+            var session = partyController?.Session;
 
-            if (body == null
-                || floor == null
+            if (!CanRequestLoot
                 || partyController?.ActiveLeaderTransform == null
                 || session == null
                 || session.CurrentMode != GameModeState.Exploration
@@ -162,19 +144,26 @@ namespace Godmist.Views.Dungeons
 
             body = currentBody;
 
-            var offset = partyController.ActiveLeaderTransform.position
-                         - transform.position;
+            return (floor.Map.HasElevatedSurfaces && partyController.CanInteractAt(BodyPosition)
+                    && IsWithinLootRadius(partyController.ActiveLeaderTransform.position))
+                || (!floor.Map.HasElevatedSurfaces && CanLootFrom(partyController.ActiveLeaderTransform.position));
+        }
 
-            if (floor.Map.HasElevatedSurfaces) return offset.sqrMagnitude <= interactionRadius * interactionRadius && partyController.CanInteractAt(BodyPosition);
-            return offset.sqrMagnitude
-                   <= interactionRadius * interactionRadius
-                   && floorTilemap != null
-                   && DungeonExplorationInteractionUtility.HasDirectAccess(
-                       floor,
-                       ToDungeonCell(
-                           floorTilemap.WorldToCell(
-                               partyController.ActiveLeaderTransform.position)),
-                       body.Position);
+        public bool CanRequestLoot => isActiveAndEnabled && IsElevationVisible
+            && body is { IsEmpty: false } && floor?.Map != null && floor.TryGetEnemyBody(body.InstanceId, out _);
+        public float InteractionRadius => interactionRadius;
+
+        private bool IsWithinLootRadius(Vector2 point)
+            => (point - (Vector2)transform.position).sqrMagnitude <= interactionRadius * interactionRadius;
+
+        public bool CanLootFrom(Vector2 point)
+        {
+            if (!IsWithinLootRadius(point)) return false;
+            if (floor.Map.HasElevatedSurfaces)
+                return elevationView != null && elevationView.TryGetVisibleTraversal(point, out var position)
+                    && (position == BodyPosition || floor.Map.GetTraversalNeighbours(position).Contains(BodyPosition));
+            return floorTilemap != null && DungeonExplorationInteractionUtility.HasDirectAccess(
+                floor, ToDungeonCell(floorTilemap.WorldToCell(point)), body.Position);
         }
 
         private static Vector2Int ToDungeonCell(Vector3Int cell)
@@ -196,47 +185,30 @@ namespace Godmist.Views.Dungeons
             return false;
         }
 
-        private bool IsPointerOverThisBody()
+        public static DungeonEnemyBodyView FindPointerBody(Vector2 point, ExplorationPartyController controller)
         {
-            if (!IsElevationVisible) return false;
-            if (floor?.Map?.HasElevatedSurfaces == true && partyController?.CanInteractAt(BodyPosition) != true) return false;
-            var worldCamera = Camera.main;
-
-            if (worldCamera == null)
-            {
-                return false;
-            }
-
-            var pointerWorldPosition = worldCamera.ScreenToWorldPoint(
-                Godmist.Views.UI.ControllerInput.PointerPosition);
-
-            foreach (var hit in Physics2D.OverlapPointAll(pointerWorldPosition))
+            foreach (var hit in Physics2D.OverlapPointAll(point))
             {
                 if (hit != null
-                    && hit.GetComponentInParent<DungeonEnemyBodyView>() == this)
-                {
-                    return true;
-                }
+                    && hit.GetComponentInParent<DungeonEnemyBodyView>() is { CanRequestLoot: true } candidate
+                    && candidate.partyController == controller)
+                    return candidate;
             }
 
-            return false;
+            return null;
         }
 
         public void Interact()
         {
             if (!CanInteract()) return;
 
-            var session = GameBootstrap.Instance?.Session;
+            var session = partyController.Session;
             DungeonLootWindowView.OpenOrReuse(session, body.InstanceId, lootWindowPrefab);
         }
 
         private void OnDestroy()
         {
             elevationView?.UnregisterLightingPresentation(bodyRenderer);
-            if (outlineMaterial != null)
-            {
-                if (Application.isPlaying) Destroy(outlineMaterial); else DestroyImmediate(outlineMaterial);
-            }
         }
 
         private void HandleLootClaimed(string sourceBodyInstanceId, string message)
@@ -303,7 +275,6 @@ namespace Godmist.Views.Dungeons
             transform.localRotation = hasCorpseSprite ? Quaternion.identity : Quaternion.Euler(0f, 0f, -90f);
             if (hasCorpseSprite && bodyRenderer.sprite != null && Mathf.Approximately(bodyRenderer.sprite.pixelsPerUnit, 32f))
                 transform.localScale = new Vector3(.7f, .7f, 1f);
-            RebuildOutline();
             RefreshGroundSorting();
             ConfigureInteractionCollider();
             RefreshHoverVisual();
@@ -314,66 +285,6 @@ namespace Godmist.Views.Dungeons
             if (elevationView == null || bodyRenderer == null) return;
             bodyRenderer.sortingLayerID = elevationView.FloorFeedbackSortingLayerID;
             bodyRenderer.sortingOrder = elevationView.GetDungeonObjectDepthSortingOrder();
-            foreach (var outline in outlineRenderers)
-                if (outline != null)
-                {
-                    outline.sortingLayerID = bodyRenderer.sortingLayerID;
-                    outline.sortingOrder = bodyRenderer.sortingOrder - 1;
-                }
-        }
-
-        private void RebuildOutline()
-        {
-            foreach (var outlineRenderer in outlineRenderers)
-            {
-                if (outlineRenderer != null)
-                {
-                    if (Application.isPlaying) Destroy(outlineRenderer.gameObject); else DestroyImmediate(outlineRenderer.gameObject);
-                }
-            }
-
-            outlineRenderers.Clear();
-
-            if (bodyRenderer?.sprite == null)
-            {
-                return;
-            }
-
-            var shader = Godmist.Views.Combat.CombatOutlineShader.Load();
-            if (shader == null)
-            {
-                Debug.LogError("DungeonEnemyBodyView: nie znaleziono shadera obramowki.");
-                return;
-            }
-
-            if (outlineMaterial != null)
-            {
-                if (Application.isPlaying) Destroy(outlineMaterial); else DestroyImmediate(outlineMaterial);
-            }
-
-            outlineMaterial = new Material(shader);
-            var offsets = new[]
-            {
-                Vector2.left, Vector2.right, Vector2.up, Vector2.down,
-                new Vector2(-1f, -1f), new Vector2(-1f, 1f),
-                new Vector2(1f, -1f), new Vector2(1f, 1f)
-            };
-
-            foreach (var offset in offsets)
-            {
-                var outlineObject = new GameObject(
-                    "Enemy Body Outline",
-                    typeof(SpriteRenderer));
-                outlineObject.transform.SetParent(bodyRenderer.transform, false);
-                outlineObject.transform.localPosition = offset * 0.045f;
-
-                var outlineRenderer = outlineObject.GetComponent<SpriteRenderer>();
-                outlineRenderer.sprite = bodyRenderer.sprite;
-                outlineRenderer.sortingLayerID = bodyRenderer.sortingLayerID;
-                outlineRenderer.sortingOrder = bodyRenderer.sortingOrder - 1;
-                outlineRenderer.sharedMaterial = outlineMaterial;
-                outlineRenderers.Add(outlineRenderer);
-            }
         }
 
         private void ConfigureInteractionCollider()
@@ -406,27 +317,16 @@ namespace Godmist.Views.Dungeons
 
         private void RefreshHoverVisual()
         {
-            var showOutline = isPointerHovered
-                && body is { IsEmpty: false }
-                && !DevConsoleView.IsOpen
-                && CanInteract();
-
-            foreach (var outlineRenderer in outlineRenderers)
+            if (!isPointerHovered || !IsElevationVisible || body is not { IsEmpty: false }
+                || bodyRenderer == null || UIWorkspaceInputRouter.IsPointerOverUi() || DevConsoleView.IsOpen)
             {
-                if (outlineRenderer != null)
-                {
-                    outlineRenderer.enabled = showOutline;
-                }
+                hoverOutline?.ClearHighlight();
+                return;
             }
 
-            if (outlineMaterial != null)
-            {
-                outlineMaterial.SetColor(
-                    "_OutlineColor",
-                    showOutline
-                        ? new Color(1f, 0.76f, 0.23f, 1f)
-                        : Color.clear);
-            }
+            hoverOutline ??= bodyRenderer.GetComponent<CombatUnitVisualStateView>()
+                ?? bodyRenderer.gameObject.AddComponent<CombatUnitVisualStateView>();
+            hoverOutline.Refresh(null, false, true, false, preserveBodyColors: true);
         }
 
         private void ShowFloatingText(string text)
