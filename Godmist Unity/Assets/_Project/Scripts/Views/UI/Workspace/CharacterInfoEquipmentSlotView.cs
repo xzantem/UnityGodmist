@@ -37,7 +37,35 @@ namespace Godmist.Views.UI.Workspace
         public void Initialize(CharacterInfoWindowView nextOwner)
         {
             owner = nextOwner;
+            FitIcons();
             if (button != null) { button.onClick.RemoveListener(Select); button.onClick.AddListener(Select); }
+        }
+
+        private void FitIcons()
+        {
+            var frame = ((RectTransform)transform).rect;
+            const float frameInset = 5f;
+            var iconSize = Mathf.Min(frame.width, frame.height) - 2f * frameInset;
+            if (iconSize <= 0f) return;
+
+            if (icon != null)
+            {
+                icon.rectTransform.sizeDelta = Vector2.one * iconSize;
+                icon.rectTransform.anchoredPosition = Vector2.zero;
+                icon.preserveAspect = true;
+            }
+
+            if (emptySlotIcon != null)
+            {
+                var rect = emptySlotIcon.rectTransform;
+                // The bracelet prefab offset predates the current sprite. Its visible
+                // bounds are half a source pixel left of center on the 32px canvas.
+                if (slot == EquipmentSlot.Bracelet)
+                    rect.anchoredPosition = new Vector2(iconSize / 64f, 0f);
+                else if (rect.rect.width > 0f)
+                    rect.anchoredPosition *= iconSize / rect.rect.width;
+                rect.sizeDelta = Vector2.one * iconSize;
+            }
         }
         private void Select() => owner?.SelectEquipmentSlot(this);
         public void OnSubmit(BaseEventData eventData) => Activate();

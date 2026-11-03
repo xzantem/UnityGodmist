@@ -69,7 +69,22 @@ namespace Godmist.Views.UI
             if (nodeTemplate != null) nodeTemplate.gameObject.SetActive(false);
             if (prerequisiteConnectionTemplate != null) prerequisiteConnectionTemplate.gameObject.SetActive(false);
             if (investButton != null) investButton.onClick.AddListener(InvestSelectedNode);
+            LayoutInvestmentBlockReason();
             if (panelRoot != null) panelRoot.SetActive(false);
+        }
+
+        private void LayoutInvestmentBlockReason()
+        {
+            if (investmentBlockText == null || detailsScroll == null || investButton == null) return;
+
+            const float gap = 6f;
+            var reason = investmentBlockText.rectTransform;
+            var button = (RectTransform)investButton.transform;
+            var scroll = (RectTransform)detailsScroll.transform;
+            var bottom = button.offsetMax.y + gap;
+            var top = scroll.offsetMin.y - gap;
+            reason.anchoredPosition = new Vector2(reason.anchoredPosition.x, bottom);
+            reason.sizeDelta = new Vector2(reason.sizeDelta.x, Mathf.Max(0f, top - bottom));
         }
 
         private void OnDisable()
