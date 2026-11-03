@@ -90,7 +90,8 @@ namespace Godmist.Systems.Combat
                 ?? new CombatChargeSystem(
                     battleLog,
                     this.statusEffectSystem,
-                    this.recoverySystem);
+                    this.recoverySystem,
+                    feedbackBus);
 
             this.teleportSystem = teleportSystem
                 ?? new CombatTeleportSystem(
@@ -917,7 +918,7 @@ namespace Godmist.Systems.Combat
                         caster,
                         effect.DisplacementDistance,
                         ForcedDisplacementDirection.AwayFromReference,
-                        "odepchnięty", damageObstacleOnCollision: true, committedPath: path,
+                        "odepchnięty", EffectType.Push, damageObstacleOnCollision: true, committedPath: path,
                         collisionSkill: skill, collisionEffectIndex: effectIndex);
 
                     return new EffectExecutionResult { Succeeded = wasPushed, MovementPath = path };
@@ -925,7 +926,11 @@ namespace Godmist.Systems.Combat
 
                 case EffectType.MarkWeakPoint:
                 {
-                    if (UnityEngine.Random.value > effect.BaseChance) return EffectExecutionResult.None;
+                    if (UnityEngine.Random.value > effect.BaseChance)
+                    {
+                        if (effect.BaseChance > 0f) CombatFailureFeedback.Effect(feedbackBus, caster, target, effect.EffectType);
+                        return EffectExecutionResult.None;
+                    }
                     target.ScoutState.WeakPointTurns = effect.DurationTurns;
                     target.ScoutState.WeakPointCritDamage = .2f + .05f * ScoutCombatSystem.AssassinRank(caster, "critical_point");
                     return new EffectExecutionResult { Succeeded = true };
@@ -933,9 +938,16 @@ namespace Godmist.Systems.Combat
                 case EffectType.SwapPositions:
                 {
                     if (session?.Grid == null || caster == target || StatusEffectSystem.IsImmobilized(caster)
-                        || !session.Grid.CanMoveBetween(caster.Position, target.Position)
-                        || !statusEffectSystem.PassesMovementEffectChance(target, effect.BaseChance))
+                        || !session.Grid.CanMoveBetween(caster.Position, target.Position))
+                    {
+                        CombatFailureFeedback.Effect(feedbackBus, caster, target, effect.EffectType, CombatEffectFailureReason.Blocked);
                         return EffectExecutionResult.None;
+                    }
+                    if (!statusEffectSystem.PassesMovementEffectChance(target, effect.BaseChance))
+                    {
+                        PublishMovementChanceFailure(caster, target, effect);
+                        return EffectExecutionResult.None;
+                    }
                     ScoutCombatSystem.Face(caster,target.Position);ScoutCombatSystem.Face(target,caster.Position);
                     (caster.Position, target.Position) = (target.Position, caster.Position);
                     CombatCellEntrySystem.Notify(session, caster, recoverySystem);
@@ -950,6 +962,7 @@ namespace Godmist.Systems.Combat
                             target,
                             effect.BaseChance))
                     {
+                        PublishMovementChanceFailure(caster, target, effect);
                         battleLog?.Invoke(
                             $"{target.Character.Definition.DisplayName} opiera się przyciągnięciu.");
 
@@ -964,7 +977,7 @@ namespace Godmist.Systems.Combat
                         caster,
                         effect.DisplacementDistance,
                         ForcedDisplacementDirection.TowardsReference,
-                        "przyciągnięty", referencePosition: skill.SkillId=="skill.paladin.grounding_wave" ? selectedTargetPosition : null,
+                        "przyciągnięty", EffectType.Pull, referencePosition: skill.SkillId=="skill.paladin.grounding_wave" ? selectedTargetPosition : null,
                         committedPath: path);
 
                     return new EffectExecutionResult { Succeeded = wasPulled, MovementPath = path };
@@ -978,7 +991,7 @@ namespace Godmist.Systems.Combat
                         target,
                         effect.DisplacementDistance,
                         ForcedDisplacementDirection.AwayFromReference,
-                        "wycofany");
+                        "wycofany", EffectType.Fallback);
 
                     return new EffectExecutionResult { Succeeded = wasMovedBack };
                 }
@@ -1099,14 +1112,14 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ModifyStat:
                 {
-                    if (!PassesModifierChance(effect)) return EffectExecutionResult.None;
+                    if (!PassesModifierChance(effect)) return FailedModifierResult(caster, target, effect);
                     var wasApplied = modifyStatSystem != null && modifyStatSystem.Apply(caster, target, skill, effect, effectIndex);
                     if (wasApplied) PublishModifierFeedback(target, skill, effect);
                     return new EffectExecutionResult { Succeeded = wasApplied };
                 }
                 case EffectType.ModifyVar:
                 {
-                    if (!PassesModifierChance(effect)) return EffectExecutionResult.None;
+                    if (!PassesModifierChance(effect)) return FailedModifierResult(caster, target, effect);
                     var wasApplied = modifyVarSystem != null
                         && modifyVarSystem.Apply(caster, target, skill, effect, effectIndex);
 
@@ -1176,7 +1189,7 @@ namespace Godmist.Systems.Combat
                 }
                 case EffectType.ModifyResistance:
                 {
-                    if (!PassesModifierChance(effect)) return EffectExecutionResult.None;
+                    if (!PassesModifierChance(effect)) return FailedModifierResult(caster, target, effect);
                     var wasApplied = modifyResistanceSystem != null
                         && modifyResistanceSystem.Apply(
                             caster,
@@ -1204,6 +1217,30 @@ namespace Godmist.Systems.Combat
                     Debug.LogWarning($"Nieobslugiwany typ efektu w skillu '{effect.EffectType}'.");
                     return EffectExecutionResult.None;
             }
+        }
+
+        private EffectExecutionResult FailedModifierResult(BattleUnit caster, BattleUnit target, SkillEffectData effect)
+        {
+            if (effect.BaseChance > 0f)
+            {
+                var name = effect.EffectType switch
+                {
+                    EffectType.ModifyStat => Godmist.Core.Utilities.UiTerms.Stat(effect.ModifierStatType),
+                    EffectType.ModifyVar => Godmist.Core.Utilities.UiTerms.Variable(effect.ModifierVariableType),
+                    EffectType.ModifyResistance => Godmist.Core.Utilities.UiTerms.Resistance(effect.ResistanceType),
+                    _ => Godmist.Core.Utilities.UiTerms.CombatEffect(effect.EffectType)
+                };
+                CombatFailureFeedback.Effect(feedbackBus, caster, target, effect.EffectType, effectName: name);
+            }
+            return EffectExecutionResult.None;
+        }
+
+        private void PublishMovementChanceFailure(BattleUnit caster, BattleUnit target, SkillEffectData effect)
+        {
+            if (effect.BaseChance <= 0f) return;
+            CombatFailureFeedback.Effect(feedbackBus, caster, target, effect.EffectType,
+                StatusEffectSystem.CalculateMovementEffectChance(target, effect.BaseChance) <= 0f
+                    ? CombatEffectFailureReason.Immune : CombatEffectFailureReason.NotApplied);
         }
 
         private static bool PassesModifierChance(SkillEffectData effect) => effect.BaseChance >= 1f
@@ -1488,7 +1525,7 @@ namespace Godmist.Systems.Combat
             wasHit = CombatDamageSystem.RollHit(
                 caster,
                 target,
-                PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "accuracy", skill.SkillAccuracy), skill);
+                PassiveEffectCombatExecutionSystem.ResolveParameter(caster, skill, "accuracy", skill.SkillAccuracy), out var dodgedByStat, skill);
 
             hitByTarget.Add(target, wasHit);
 
@@ -1500,7 +1537,7 @@ namespace Godmist.Systems.Combat
                 feedbackBus?.Publish(new CombatFeedbackEvent(
                     target,
                     CombatFeedbackType.Miss,
-                    source: caster));
+                    source: caster, wasDodged: dodgedByStat));
             }
 
             return wasHit;
@@ -2578,7 +2615,7 @@ namespace Godmist.Systems.Combat
             BattleUnit referenceUnit,
             int displacementDistance,
             ForcedDisplacementDirection direction,
-            string actionDescription, bool damageObstacleOnCollision = false, GridPosition? referencePosition = null,
+            string actionDescription, EffectType feedbackEffect, bool damageObstacleOnCollision = false, GridPosition? referencePosition = null,
             List<GridPosition> committedPath = null, SkillData collisionSkill = null, int collisionEffectIndex = -1)
         {
             if (session?.Grid == null || movedUnit == null || referenceUnit == null)
@@ -2595,8 +2632,11 @@ namespace Godmist.Systems.Combat
                 directionY = -directionY;
             }
 
+            var feedbackSource = feedbackEffect == EffectType.Fallback ? movedUnit : referenceUnit;
+            var initialPosition = movedUnit.Position;
             if (directionX == 0 && directionY == 0)
             {
+                CombatFailureFeedback.Effect(feedbackBus, feedbackSource, movedUnit, feedbackEffect, CombatEffectFailureReason.Blocked);
                 battleLog?.Invoke(
                     $"Nie można określić kierunku przesunięcia dla "
                     + $"{movedUnit.Character.Definition.DisplayName}.");
@@ -2643,6 +2683,15 @@ namespace Godmist.Systems.Combat
                         stepX,
                         stepY))
                 {
+                    // Reaching the puller's occupied cell after moving is the normal
+                    // end of a pull, rather than an interrupted effect.
+                    var reachedPuller = direction == ForcedDisplacementDirection.TowardsReference
+                        && nextPosition == referenceUnit.Position && movedUnit.Position != initialPosition
+                        && !CombatObjectDamageSystem.IsCollisionBarrier(session, nextPosition)
+                        && session.Grid.CanDisplaceBetween(movedUnit.Position, nextPosition);
+                    if (!reachedPuller)
+                        CombatFailureFeedback.Effect(feedbackBus, feedbackSource, movedUnit, feedbackEffect,
+                            movedUnit.Position == initialPosition ? CombatEffectFailureReason.Blocked : CombatEffectFailureReason.Interrupted);
                     if (damageObstacleOnCollision)
                     {
                         CombatObjectDamageSystem.Impact(session, movedUnit.Position, nextPosition);
@@ -2660,7 +2709,12 @@ namespace Godmist.Systems.Combat
                 committedPath?.Add(nextPosition);
                 CombatCellEntrySystem.Notify(session, movedUnit, recoverySystem);
                 if (movedUnit.Character.LifeState != CharacterLifeState.Alive
-                    || StatusEffectSystem.IsHardCrowdControlled(movedUnit)) break;
+                    || StatusEffectSystem.IsHardCrowdControlled(movedUnit))
+                {
+                    if (stepIndex < requestedDistance)
+                        CombatFailureFeedback.Effect(feedbackBus, feedbackSource, movedUnit, feedbackEffect, CombatEffectFailureReason.Interrupted);
+                    break;
+                }
                 CombatAuraSystem.Refresh(session, statusEffectSystem);
                 movedTiles++;
             }

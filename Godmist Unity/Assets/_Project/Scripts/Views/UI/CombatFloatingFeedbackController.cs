@@ -42,7 +42,11 @@ namespace Godmist.Views.UI
             activeFeedbackSizes = new();
         private CombatFeedbackBus feedbackBus;
         private readonly HashSet<(BattleUnit Target, string Name)> namedNotifications = new();
+        private readonly HashSet<(BattleUnit Target, string Text)> failedNotifications = new();
         private int notificationFrame = -1;
+        // Presentation must never consume the combat RNG, including synchronous bus callbacks.
+        private readonly System.Random layoutRandom = new();
+        private float LayoutRange(float min, float max) => min + (float)layoutRandom.NextDouble() * (max - min);
 
         public void Bind(CombatFeedbackBus nextFeedbackBus)
         {
@@ -52,7 +56,7 @@ namespace Godmist.Views.UI
             foreach (var view in activeFeedbackViews)
                 if (view != null) Destroy(view.gameObject);
             pendingEntries.Clear();
-            namedNotifications.Clear(); notificationFrame = -1;
+            namedNotifications.Clear(); failedNotifications.Clear(); notificationFrame = -1;
             activeQueues.Clear();
             activeFeedbackViews.Clear();
             activeFeedbackTargets.Clear();
@@ -112,7 +116,9 @@ namespace Godmist.Views.UI
             // Coalesce only the identical named notification in this application
             // burst; damage/healing/critical amounts must remain separate.
             if (notificationFrame != frame || feedback.Type == CombatFeedbackType.SkillUsed)
-            { notificationFrame = frame; namedNotifications.Clear(); }
+            { notificationFrame = frame; namedNotifications.Clear(); failedNotifications.Clear(); }
+            if (feedback.Type == CombatFeedbackType.EffectFailed)
+                return failedNotifications.Add((feedback.Target, GetFailureText(feedback)));
             if (feedback.Type is not (CombatFeedbackType.BuffApplied or CombatFeedbackType.DebuffApplied
                 or CombatFeedbackType.AuraApplied or CombatFeedbackType.StatusApplied)
                 || string.IsNullOrWhiteSpace(feedback.EffectName)) return true;
@@ -169,8 +175,8 @@ namespace Godmist.Views.UI
                         var horizontalDirection = Mathf.Sign(
                             localPosition.x - anchorPosition.x);
                         var drift = horizontalDirection == 0f
-                            ? Random.Range(-horizontalDrift, horizontalDrift)
-                            : horizontalDirection * Random.Range(
+                            ? LayoutRange(-horizontalDrift, horizontalDrift)
+                            : horizontalDirection * LayoutRange(
                                 horizontalDrift * 0.75f,
                                 horizontalDrift);
                         var view = Instantiate(feedbackTemplate, feedbackRoot);
@@ -226,13 +232,30 @@ namespace Godmist.Views.UI
                 }
             }
 
+            // Two-line effect outcomes need enough room beside existing labels.
+            // Test the actual rectangle edges as well as the small organic cloud;
+            // keep the notification near its owner instead of stacking indefinitely.
+            foreach (var view in activeFeedbackViews)
+            {
+                if (view == null || !activeFeedbackSizes.TryGetValue(view, out var occupiedSize)) continue;
+                var center = ((RectTransform)view.transform).anchoredPosition;
+                var separation = (textSize + occupiedSize) * .5f + Vector2.one * (textCollisionPadding * 2f + 4f);
+                foreach (var candidate in new[] { center + Vector2.up * separation.y,
+                             center + Vector2.down * separation.y, center + Vector2.left * separation.x,
+                             center + Vector2.right * separation.x })
+                {
+                    if ((candidate - anchor).sqrMagnitude > 320f * 320f) continue;
+                    var score = GetPlacementScore(candidate, anchor, textSize, target);
+                    if (score < bestScore) { fallback = candidate; bestScore = score; }
+                }
+            }
             return fallback;
         }
 
         private Vector2 GetRandomLayoutCandidate(Vector2 anchor)
         {
-            var x = Random.Range(-layoutHorizontalRange, layoutHorizontalRange);
-            var y = Random.Range(-layoutVerticalRange * 0.25f, layoutVerticalRange);
+            var x = LayoutRange(-layoutHorizontalRange, layoutHorizontalRange);
+            var y = LayoutRange(-layoutVerticalRange * 0.25f, layoutVerticalRange);
             return anchor + new Vector2(x, y);
         }
 
@@ -247,9 +270,7 @@ namespace Godmist.Views.UI
 
             foreach (var view in activeFeedbackViews)
             {
-                if (view == null
-                    || !activeFeedbackTargets.TryGetValue(view, out var viewTarget)
-                    || viewTarget != target)
+                if (view == null)
                 {
                     continue;
                 }
@@ -264,7 +285,7 @@ namespace Godmist.Views.UI
                     ? knownSize
                     : viewRect.rect.size;
                 var occupiedRect = CreateFeedbackRect(
-                    view.LayoutPosition,
+                    viewRect.anchoredPosition,
                     viewSize);
                 score += GetOverlapArea(candidateRect, occupiedRect) * 1000f;
             }
@@ -316,7 +337,8 @@ namespace Godmist.Views.UI
             CombatFeedbackType.ResourceSpend => $"-{feedbackEvent.Amount}",
             CombatFeedbackType.ActionPointSpend => $"-{Godmist.Runtime.Combat.ActionPointUnits.Format(feedbackEvent.Amount)} {UiTerms.ActionPointsShort}",
             CombatFeedbackType.Critical => "CRIT",
-            CombatFeedbackType.Miss => "MISS",
+            CombatFeedbackType.Miss => feedbackEvent.WasDodged ? UiTerms.DodgedAttack : UiTerms.MissedAttack,
+            CombatFeedbackType.EffectFailed => GetFailureText(feedbackEvent),
             CombatFeedbackType.StatusApplied
                 or CombatFeedbackType.BuffApplied
                 or CombatFeedbackType.DebuffApplied
@@ -332,6 +354,20 @@ namespace Godmist.Views.UI
             _ => string.Empty
         };
 
+        private static string GetFailureText(CombatFeedbackEvent feedback)
+        {
+            var outcome = feedback.FailureReason switch
+            {
+                CombatEffectFailureReason.Immune => UiTerms.EffectImmune,
+                CombatEffectFailureReason.Blocked => UiTerms.EffectBlocked,
+                CombatEffectFailureReason.Interrupted => UiTerms.EffectInterrupted,
+                _ => UiTerms.EffectNotApplied
+            };
+            // A failed effect must not look like an additional successful status.
+            // Keep its name on the event for diagnostics, but show only the outcome.
+            return outcome;
+        }
+
         private static Color GetColor(CombatFeedbackEvent feedbackEvent) => feedbackEvent.Type switch
         {
             CombatFeedbackType.Damage => GetDamageColor(feedbackEvent.DamageType),
@@ -341,7 +377,7 @@ namespace Godmist.Views.UI
             CombatFeedbackType.ActionPointSpend => new Color(0.86f, 0.88f, 0.92f),
             CombatFeedbackType.Critical => new Color(1f, 0.76f, 0.23f),
             CombatFeedbackType.Downed => new Color(1f, .35f, .25f),
-            CombatFeedbackType.Miss => new Color(0.78f, 0.69f, 0.54f),
+            CombatFeedbackType.Miss or CombatFeedbackType.EffectFailed => new Color(0.78f, 0.69f, 0.54f),
             CombatFeedbackType.StatusApplied => new Color(0.86f, 0.86f, 0.96f),
             CombatFeedbackType.BuffApplied or CombatFeedbackType.AuraApplied
                 => new Color(0.32f, 0.93f, 0.62f),

@@ -14,13 +14,16 @@ namespace Godmist.Systems.Combat
         private readonly Action<string> battleLog;
         private readonly StatusEffectSystem statusEffectSystem;
         private readonly CombatRecoverySystem recoverySystem;
+        private readonly CombatFeedbackBus feedbackBus;
 
         public CombatChargeSystem(
             Action<string> battleLog = null,
             StatusEffectSystem statusEffectSystem = null,
-            CombatRecoverySystem recoverySystem = null)
+            CombatRecoverySystem recoverySystem = null,
+            CombatFeedbackBus feedbackBus = null)
         {
             this.battleLog = battleLog;
+            this.feedbackBus = feedbackBus;
             this.recoverySystem = recoverySystem;
             this.statusEffectSystem = statusEffectSystem ?? new StatusEffectSystem(battleLog);
         }
@@ -75,13 +78,23 @@ namespace Godmist.Systems.Combat
             if (session?.Grid == null || caster?.Character == null || target == null
                 || (!CombatObjectDamageSystem.CanDamage(target) && !CombatObjectDamageSystem.IsCollisionBarrier(session, target.Position))
                 || StatusEffectSystem.IsImmobilized(caster)) return false;
+            var startPosition = caster.Position;
             foreach (var next in BuildPath(caster.Position, target.Position, Mathf.Max(1, effect.DisplacementDistance)))
             {
                 if (CombatObjectDamageSystem.IsCollisionBarrier(session, next) || !CanTraverse(session, caster.Position, next))
-                { CombatObjectDamageSystem.Impact(session, caster.Position, next); return true; }
+                {
+                    PublishBlocked(caster, caster, caster.Position != startPosition);
+                    CombatObjectDamageSystem.Impact(session, caster.Position, next);
+                    return true;
+                }
                 var occupant = FindUnitAt(session, next, caster);
-                if (occupant != null) return occupant.IsPlayerSide != caster.IsPlayerSide
-                    && TryCharge(session, caster, occupant, skill, effect, effectIndex);
+                if (occupant != null)
+                {
+                    if (occupant.IsPlayerSide == caster.IsPlayerSide)
+                        PublishBlocked(caster, caster, caster.Position != startPosition);
+                    return occupant.IsPlayerSide != caster.IsPlayerSide
+                        && TryCharge(session, caster, occupant, skill, effect, effectIndex);
+                }
                 caster.Position = next; CombatCellEntrySystem.Notify(session, caster, recoverySystem);
                 if (caster.Character.LifeState != CharacterLifeState.Alive || StatusEffectSystem.IsHardCrowdControlled(caster)) break;
                 CombatAuraSystem.Refresh(session, statusEffectSystem);
@@ -153,7 +166,15 @@ namespace Godmist.Systems.Combat
             SkillEffectData effect,
             int effectIndex)
         {
-            if (!CanStartCharge(session, caster, selectedTarget, effect)) return false;
+            if (!CanStartCharge(session, caster, selectedTarget, effect))
+            {
+                if (session?.Grid != null && effect != null
+                    && caster?.Character?.LifeState == CharacterLifeState.Alive
+                    && selectedTarget?.Character != null && selectedTarget.Character.LifeState != CharacterLifeState.Dead
+                    && caster.IsPlayerSide != selectedTarget.IsPlayerSide)
+                    CombatFailureFeedback.Effect(feedbackBus, caster, caster, EffectType.Charge, CombatEffectFailureReason.Blocked);
+                return false;
+            }
 
             var requestedDistance = Mathf.Max(1, effect.DisplacementDistance);
 
@@ -172,6 +193,7 @@ namespace Godmist.Systems.Combat
                 if (CombatObjectDamageSystem.IsCollisionBarrier(session, nextPosition) || !CanTraverse(session, caster.Position, nextPosition))
                 {
                     CombatObjectDamageSystem.Impact(session, caster.Position, nextPosition);
+                    PublishBlocked(caster, caster, movedDistance > 0);
                     battleLog?.Invoke("Charge is stopped by terrain.");
                     return true;
                 }
@@ -191,6 +213,7 @@ namespace Godmist.Systems.Combat
 
                 if (occupant.IsPlayerSide == caster.IsPlayerSide)
                 {
+                    PublishBlocked(caster, caster, movedDistance > 0);
                     battleLog?.Invoke("Charge is blocked by an ally.");
                     return true;
                 }
@@ -201,6 +224,7 @@ namespace Godmist.Systems.Combat
                 {
                     battleLog?.Invoke(
                         $"{GetDisplayName(occupant)} resists Charge.");
+                    PublishResistance(caster, occupant, effect.BaseChance);
 
                     return true;
                 }
@@ -273,6 +297,7 @@ namespace Godmist.Systems.Combat
                             frontUnit.Position,
                             frontDestination))
                     {
+                        PublishBlocked(caster, frontUnit, pushStep > 0);
                         CombatObjectDamageSystem.Impact(session, frontUnit.Position, frontDestination);
                         var stunDuration = StatusEffectSystem.CollisionStunDuration;
 
@@ -304,6 +329,7 @@ namespace Godmist.Systems.Combat
                     {
                         battleLog?.Invoke(
                             "Charge chain is blocked by an ally.");
+                        PublishBlocked(caster, frontUnit, pushStep > 0);
 
                         return true;
                     }
@@ -314,6 +340,7 @@ namespace Godmist.Systems.Combat
                     {
                         battleLog?.Invoke(
                             $"{GetDisplayName(blockingUnit)} resists Charge.");
+                        PublishResistance(caster, blockingUnit, baseChance);
 
                         return true;
                     }
@@ -338,6 +365,18 @@ namespace Godmist.Systems.Combat
                 $"{GetDisplayName(caster)} completes Charge.");
 
             return true;
+        }
+
+        private void PublishBlocked(BattleUnit source, BattleUnit target, bool interrupted)
+            => CombatFailureFeedback.Effect(feedbackBus, source, target, EffectType.Charge,
+                interrupted ? CombatEffectFailureReason.Interrupted : CombatEffectFailureReason.Blocked);
+
+        private void PublishResistance(BattleUnit source, BattleUnit target, float baseChance)
+        {
+            if (baseChance <= 0f) return;
+            CombatFailureFeedback.Effect(feedbackBus, source, target, EffectType.Charge,
+                StatusEffectSystem.CalculateMovementEffectChance(target, baseChance) <= 0f
+                    ? CombatEffectFailureReason.Immune : CombatEffectFailureReason.NotApplied);
         }
 
         private static List<GridPosition> BuildPath(
