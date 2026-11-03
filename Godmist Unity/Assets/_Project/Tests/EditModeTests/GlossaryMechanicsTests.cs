@@ -21,7 +21,9 @@ namespace Godmist.Tests.EditMode
                 Assert.That(authored.Description,Does.Contain(phrase));
         }
 
-        [TestCase("mana", "pozostała")]
+        [TestCase("mana", "100%/50%/0% PA")]
+        [TestCase("mana", "200%/100%/25% regeneracji")]
+        [TestCase("mana", "Poza walką mana nie odnawia się automatycznie")]
         [TestCase("rage", "+10")]
         [TestCase("momentum", "połową")]
         [TestCase("momentum", "+2, +4, +6")]

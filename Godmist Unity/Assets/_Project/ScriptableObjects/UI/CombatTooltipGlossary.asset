@@ -32,7 +32,8 @@ MonoBehaviour:
     Icon: {fileID: 21300000, guid: 1a992472121ad4c449d67bffc9e24301, type: 3}
     Title: "Og\u0142uszenie"
     Aliases: []
-    Description: "Nie mo\u017Ce wykonywa\u0107 akcji ani si\u0119 porusza\u0107."
+    Description: "Nie mo\u017Ce wykonywa\u0107 akcji ani si\u0119 porusza\u0107.
+      Unik wynosi 0."
   - Id: immobilize
     Icon: {fileID: 21300000, guid: 0af145c2bbf721348982fe900e05669a, type: 3}
     Title: Unieruchomienie
@@ -43,21 +44,23 @@ MonoBehaviour:
     Icon: {fileID: 21300000, guid: 11d81cea021ca2d41be4ba7ee887463d, type: 3}
     Title: Sen
     Aliases: []
-    Description: "Nie mo\u017Ce wykonywa\u0107 akcji. Ruch budzi posta\u0107 i ko\u0144czy
-      ten efekt."
+    Description: "Nie mo\u017Ce wykonywa\u0107 akcji. Unik wynosi 0. Ruch budzi posta\u0107
+      i ko\u0144czy ten efekt."
   - Id: freeze
     Icon: {fileID: 21300000, guid: e587759a6dde5654e839509295caea53, type: 3}
     Title: "Zamro\u017Cenie"
     Aliases: []
     Description: "Nie mo\u017Ce wykonywa\u0107 akcji ani si\u0119 porusza\u0107.
-      Pierwszy bezpo\u015Bredni cios przerywa zamro\u017Cenie i otrzymuje bazowo
-      +50% obra\u017Ce\u0144 za ka\u017Cd\u0105 pozosta\u0142\u0105 tur\u0119 zamro\u017Cenia."
+      Unik wynosi 0. Pierwszy bezpo\u015Bredni cios przerywa zamro\u017Cenie i otrzymuje
+      bazowo +50% obra\u017Ce\u0144 za ka\u017Cd\u0105 pozosta\u0142\u0105 tur\u0119
+      zamro\u017Cenia."
   - Id: paralysis
     Icon: {fileID: 21300000, guid: 798670bbcf360b04cbc906adc932cc65, type: 3}
     Title: "Parali\u017C"
     Aliases: []
     Description: "Nie mo\u017Ce wykonywa\u0107 akcji ani si\u0119 porusza\u0107.
-      Nie mo\u017Ce by\u0107 celem umiej\u0119tno\u015Bci i nie otrzymuje obra\u017Ce\u0144."
+      Unik wynosi 0. Nie mo\u017Ce by\u0107 celem umiej\u0119tno\u015Bci i nie otrzymuje
+      obra\u017Ce\u0144."
   - Id: chill
     Icon: {fileID: 8878405948326257296, guid: 8cd14814c75b4d04ba4326c557962c40, type: 3}
     Title: "Ozi\u0119bienie"

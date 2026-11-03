@@ -402,6 +402,12 @@ namespace Godmist.Systems.Combat
         public static float CalculateAccuracy(float weaponAccuracy,float skillAccuracy)
             => (Mathf.Max(0f,weaponAccuracy)+Mathf.Max(0f,skillAccuracy))*.5f;
 
+        // Hard control suppresses dodge for hit resolution without changing the
+        // underlying stat, so buffs and the original value survive its removal.
+        public static float ResolveTargetDodge(BattleUnit target)
+            => StatusEffectSystem.IsHardCrowdControlled(target)
+                ? 0f : target?.Character?.Stats?.Dodge.GetValue() ?? 0f;
+
         public static float CalculateHitChance(float weaponAccuracy, float skillAccuracy, float dodge)
         {
             var accuracy = CalculateAccuracy(weaponAccuracy,skillAccuracy);
@@ -451,7 +457,7 @@ namespace Godmist.Systems.Combat
             var accuracy = alchemical ? 100f : skillAccuracy
                 ?? PassiveEffectCombatExecutionSystem.ResolveParameter(source, skill, "accuracy", skill?.SkillAccuracy ?? 0f);
             var chance = CalculateHitChance(alchemical ? 100f : source.Character.WeaponAccuracy,
-                accuracy, dodgeOverride ?? target.Character.Stats?.Dodge.GetValue() ?? 0f);
+                accuracy, dodgeOverride ?? ResolveTargetDodge(target));
             return ApplyHitChanceBonus(source.Character, chance);
         }
 
