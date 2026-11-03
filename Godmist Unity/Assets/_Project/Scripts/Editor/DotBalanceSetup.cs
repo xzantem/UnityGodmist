@@ -8,9 +8,14 @@ namespace Godmist.Editor
 {
     public static class DotBalanceSetup
     {
+        public const float FireballDirectMultiplier = .5f;
+        public const float FireballBurnMultiplier = .45f;
+        public const float FireballBurnChance = .85f;
+        public const int FireballBurnTurns = 2;
+        public const string FireballDescription = "Zadaje 50% losowych obrażeń magicznych i ma 85% bazowej szansy na podpalenie (45% średniego ataku na turę przez 2 tury).";
         public static readonly (string Id, string Path, string Status, float PerTurn, bool OnHit, string Description)[] Specs = {
             ("skill.mage.fire_arrow", "Assets/_Project/ScriptableObjects/Skills/SD_MageFireArrow.asset", "burn", 0.30f, false, "Losowe obrażenia magiczne, 30% penetracji; 70% szansy na podpalenie 30% średniego ataku na turę przez 2 tury i -15% obrażeń na 4 tury."),
-            ("skill.mage.fireball", "Assets/_Project/ScriptableObjects/Skills/SD_MageFireball.asset", "burn", 0.25f, false, "Losowe obrażenia magiczne; 75% szansy na podpalenie 25% średniego ataku na turę przez 3 tury."),
+            ("skill.mage.fireball", "Assets/_Project/ScriptableObjects/Skills/SD_MageFireball.asset", "burn", FireballBurnMultiplier, false, FireballDescription),
             ("skill.scout.poisoned_dagger", "Assets/_Project/ScriptableObjects/Skills/SD_ScoutPoisonedDagger.asset", "poison", 0.40f, false, "Minimalne obrażenia fizyczne. Po trafieniu: 65% szansy na zatrucie 40% średniego ataku na turę przez 3 tury."),
             ("skill.warrior.bleeding_destruction", "Assets/_Project/ScriptableObjects/Skills/SD_WarriorBleedingDestruction.asset", "bleed", 0.40f, false, "Najmniejsze obrażenia fizyczne; 75% szansy na krwawienie 40% średniego ataku na turę przez 4 tury."),
             ("skill.enemy.forest.shooter_piercing_bolt", "Assets/_Project/ScriptableObjects/Dungeons/Forest/SD_Forest_Shooter_piercing_bolt.asset", "bleed", 0.40f, false, "70% obrażeń fizycznych; po trafieniu 80% szansy na krwawienie 40% średniego ataku na turę przez 2 tury."),
@@ -35,12 +40,42 @@ namespace Godmist.Editor
                     effect.FindPropertyRelative("statusDamageMultiplier").floatValue = spec.PerTurn; count++;
                 }
                 if (count != 1) throw new InvalidOperationException("Expected exactly one approved DoT effect: " + spec.Id);
+                if (spec.Id == "skill.mage.fireball") ConfigureFireball(data);
                 if (spec.Id == "skill.scout.poisoned_dagger") data.FindProperty("<ResourceCost>k__BackingField").intValue = 40;
                 data.FindProperty("<TooltipDescription>k__BackingField").stringValue = spec.Description;
                 data.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssetIfDirty(skill);
             }
             UpdateNode("ST_Mage_Fire", "node.mage.fire.fire_arrow", "podpalenie 90%", "podpalenie 30%");
             UpdateNode("ST_Scout_BladeDancer", "node.scout.blade_dancer.poisoned_dagger", "zatrucie 90%", "zatrucie 40%");
+        }
+        // Author only the approved Fireball fields. No runtime multiplier or other skill writes.
+        internal static void ConfigureFireball(SerializedObject data)
+        {
+            var effects=data.FindProperty("effects");
+            if(effects.arraySize!=2 || effects.GetArrayElementAtIndex(0).FindPropertyRelative("effectType").intValue!=(int)EffectType.DealDamage
+                || effects.GetArrayElementAtIndex(1).FindPropertyRelative("effectType").intValue!=(int)EffectType.ApplyStatus
+                || effects.GetArrayElementAtIndex(1).FindPropertyRelative("statusId").stringValue!="burn")
+                throw new InvalidOperationException("Fireball no longer has the expected damage + burn definition.");
+            effects.GetArrayElementAtIndex(0).FindPropertyRelative("damageMultiplier").floatValue=FireballDirectMultiplier;
+            var burn=effects.GetArrayElementAtIndex(1);
+            burn.FindPropertyRelative("baseChance").floatValue=FireballBurnChance;
+            burn.FindPropertyRelative("durationTurns").intValue=FireballBurnTurns;
+            burn.FindPropertyRelative("statusDamageMultiplier").floatValue=FireballBurnMultiplier;
+            data.FindProperty("<TooltipDescription>k__BackingField").stringValue=FireballDescription;
+        }
+        [MenuItem("Godmist/Content/Apply approved Fireball DoT identity")]
+        public static void ApplyFireballIdentity()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("Exit Play Mode first.");
+            const string path="Assets/_Project/ScriptableObjects/Skills/SD_MageFireball.asset";
+            var skill=AssetDatabase.LoadAssetAtPath<SkillData>(path);
+            if(skill==null || skill.SkillId!="skill.mage.fireball")throw new InvalidOperationException("Missing Fireball definition.");
+            if(ApplyFireballIdentityToDefinition(skill))AssetDatabase.SaveAssetIfDirty(skill);
+        }
+        public static bool ApplyFireballIdentityToDefinition(SkillData skill)
+        {
+            if(skill==null || skill.SkillId!="skill.mage.fireball")throw new InvalidOperationException("Expected Fireball definition.");
+            var data=new SerializedObject(skill);ConfigureFireball(data);return data.ApplyModifiedPropertiesWithoutUndo();
         }
         static void UpdateNode(string file, string id, string before, string after)
         {

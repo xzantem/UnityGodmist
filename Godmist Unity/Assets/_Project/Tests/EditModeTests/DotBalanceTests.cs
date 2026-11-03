@@ -23,7 +23,7 @@ namespace Godmist.Tests.EditMode
         [SetUp] public void Before() { random = UnityEngine.Random.state; UnityEngine.Random.InitState(241026); }
         [TearDown] public void After() { UnityEngine.Random.state = random; foreach (var clone in clones) Object.DestroyImmediate(clone); clones.Clear(); }
         static readonly (string Id, float PerTurn, float Chance, int Turns, int Applications)[] Expected = {
-            ("skill.mage.fire_arrow", .30f, .7f, 2, 1), ("skill.mage.fireball", .25f, .75f, 3, 1),
+            ("skill.mage.fire_arrow", .30f, .7f, 2, 1), ("skill.mage.fireball", .45f, .85f, 2, 1),
             ("skill.scout.poisoned_dagger", .40f, .65f, 3, 1), ("skill.warrior.bleeding_destruction", .40f, .75f, 4, 1),
             ("skill.enemy.forest.shooter_piercing_bolt", .40f, .8f, 2, 1), ("skill.enemy.catacombs.burning_arrow", .25f, .9f, 3, 1),
             ("skill.enemy.catacombs.cross_cut", .30f, .6f, 3, 2), ("skill.enemy.catacombs.vomit", .50f, .9f, 3, 1)
